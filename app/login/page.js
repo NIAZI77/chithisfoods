@@ -1,4 +1,39 @@
-"use client";
+import React from 'react'
+
+const page = () => {
+  return (
+    <div>page</div>
+  )
+}
+
+export default page
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{/*"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -118,4 +153,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login;*/}
