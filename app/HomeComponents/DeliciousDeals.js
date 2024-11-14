@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import VendorCard from './vendorCard';
+import VendorCard from '../components/vendorCard';
 
 export default function TopShef() {
   const [topShef, setTopShef] = useState([]);

@@ -42,11 +42,11 @@ h3 {
 }
 .slick-next:before {
   content: "→";
-  color: #E91E63 !important;
+  color: #f97316 !important;
 }
 .slick-prev:before {
   content: "←";
-  color: #E91E63 !important;
+  color: #f97316 !important;
 }
 .loader {
   border: 8px solid #f3f3f3; /* Light grey */

@@ -1,11 +1,11 @@
 "use client"
 import React from 'react';
 import ImageSlider from './components/imageSlider';
-import TopCategories from './components/topCategories';
-import TopShef from './components/topShef';
-import AmericanShefs from './components/americanShefs';
-import DeliciousDeals from './components/DeliciousDeals';
-import MediterraneanShefs from './components/MediterraneanShefs';
+import TopCategories from './HomeComponents/topCategories';
+import TopShef from './HomeComponents/topShef';
+import AmericanShefs from './HomeComponents/americanShefs';
+import DeliciousDeals from './HomeComponents/DeliciousDeals';
+import MediterraneanShefs from './HomeComponents/MediterraneanShefs';
 
 
 

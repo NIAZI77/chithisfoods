@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import VendorCard from './vendorCard';
+import VendorCard from '../components/vendorCard';
 
-export default function AmericanShefs() {
-  const [AmericanShefs, setAmericanShefs] = useState([]);
+export default function TopShef() {
+  const [topShef, setTopShef] = useState([]);
 
   const vendors = [
     {
@@ -14,7 +14,7 @@ export default function AmericanShefs() {
       location: 'North Indian',
       rating: 4,
       Vegetarian: true,
-      topRated: false,
+      topRated: true,
       product: {
         image: 'https://cdn.t.shef.com/unsafe/250x169/center/middle/https://shef-general.s3.us-west-1.amazonaws.com/uploads/79db1c0d-e6a8-4240-9239-db84aa722547_2044ef31-60ad-409f-b690-019914eaa9b3.jpeg',
       },
@@ -22,7 +22,7 @@ export default function AmericanShefs() {
     {
       name: 'Ritu',
       image: 'https://cdn.t.shef.com/unsafe/150x0/center/middle/https://shef-general.s3.us-west-1.amazonaws.com/uploads/961e784b-58d4-4820-9f17-785d4ab1790d.jpg',
-      location: 'North America',
+      location: 'North Indian',
       rating: 4,
       Vegetarian: true,
       topRated: true,
@@ -33,7 +33,7 @@ export default function AmericanShefs() {
     {
       name: 'Ritu',
       image: 'https://cdn.t.shef.com/unsafe/150x0/center/middle/https://shef-general.s3.us-west-1.amazonaws.com/uploads/961e784b-58d4-4820-9f17-785d4ab1790d.jpg',
-      location: 'American Indian',
+      location: 'North Indian',
       rating: 4,
       Vegetarian: true,
       topRated: true,
@@ -44,7 +44,7 @@ export default function AmericanShefs() {
     {
       name: 'Ritu',
       image: 'https://cdn.t.shef.com/unsafe/150x0/center/middle/https://shef-general.s3.us-west-1.amazonaws.com/uploads/961e784b-58d4-4820-9f17-785d4ab1790d.jpg',
-      location: 'North American Indian',
+      location: 'North Indian',
       rating: 4,
       Vegetarian: true,
       topRated: true,
@@ -52,12 +52,12 @@ export default function AmericanShefs() {
         image: 'https://cdn.t.shef.com/unsafe/250x169/center/middle/https://shef-general.s3.us-west-1.amazonaws.com/uploads/79db1c0d-e6a8-4240-9239-db84aa722547_2044ef31-60ad-409f-b690-019914eaa9b3.jpeg',
       },
     },
+
   ];
 
   useEffect(() => {
-    // Correct filtering based on 'location' and fix toLowerCase() typo
-    const filteredVendors = vendors.filter(vendor => vendor.location.toLowerCase().includes("usa") || vendor.location.toLowerCase().includes("america"));
-    setAmericanShefs(filteredVendors);
+    const filteredVendors = vendors.filter(vendor => vendor.topRated);
+    setTopShef(filteredVendors);
   }, []);
 
   const settings = {
@@ -96,17 +96,17 @@ export default function AmericanShefs() {
 
   return (
     <div className="mx-auto p-2">
-      <h2 className="text-3xl font-bold mb-4">American Shefs</h2>
+      <h2 className="text-3xl font-bold mb-4">Top Shef</h2>
       <div className="flex justify-center items-center">
         <Slider {...settings} className="w-full mx-auto flex items-center justify-center">
-          {AmericanShefs.length > 0 ? (
-            AmericanShefs.map((shef, index) => (
+          {topShef.length > 0 ? (
+            topShef.map((shef, index) => (
               <div key={index} className="!flex justify-center items-center">
                 <VendorCard vendor={shef} className="mx-auto" />
               </div>
             ))
           ) : (
-            <p>No American chefs available.</p>
+            <p>No top-rated chefs available.</p>
           )}
         </Slider>
       </div>

@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
-    const [login, setLogin] = useState(false);
+    const [login, setLogin] = useState(true);
     const router = useRouter();
 
     const handleUserClick = () => {

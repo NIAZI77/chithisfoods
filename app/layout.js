@@ -10,7 +10,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`antialiased bg-pink-50`} cz-shortcut-listen="true">
+      <body className={`antialiased bg-orange-50`} cz-shortcut-listen="true">
         <Navbar />
         <div className="min-h-screen">
           {children}
