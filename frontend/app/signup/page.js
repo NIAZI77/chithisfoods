@@ -1,71 +1,34 @@
-import React from 'react'
-
-const page = () => {
-  return (
-    <div>page</div>
-  )
-}
-
-export default page
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{/*"use client";
+'use client';
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast,ToastContainer } from "react-toastify";  // Import toast from react-toastify
-import 'react-toastify/dist/ReactToastify.css';  // Import styles for react-toastify
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Signup = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
-    // Validate password confirmation
     if (password !== confirmPassword) {
-      setError("Passwords do not match. Please try again.");
-      toast.error("Passwords do not match. Please try again.");  // Show error toast
+      toast.error("Passwords do not match. Please try again.");
       setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:1337/auth/local/register", {
+      const response = await fetch("http://localhost:1337/api/auth/local/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`
         },
         body: JSON.stringify({
           username,
@@ -73,20 +36,15 @@ const Signup = () => {
           password,
         }),
       });
-
+      const data = await response.json();
       if (response.ok) {
-        const data = await response.json();
-        // Optionally handle the response (e.g., saving the token or user data)
-        toast.success("Sign up successful! Please log in.");  // Show success toast
-        router.push("/login"); // Redirect to login page after successful signup
+        toast.success("Sign up successful! Please log in.");
+        setTimeout(() => { router.push("/login") }, 1000);
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || "Failed to create account. Please try again.");
-        toast.error(errorData.message || "Failed to create account. Please try again.");  // Show error toast
+        toast.error(data.error.message || "Failed to create account. Please try again.");
       }
     } catch (err) {
-      setError("Failed to sign up. Please try again.");
-      toast.error("Failed to sign up. Please try again.");  // Show error toast
+      toast.error("An error occurred during signup.");
     } finally {
       setLoading(false);
     }
@@ -184,9 +142,9 @@ const Signup = () => {
           </div>
         </div>
       </div>
-      <ToastContainer/>
+      <ToastContainer />
     </>
   );
 };
 
-export default Signup;*/}
+export default Signup;

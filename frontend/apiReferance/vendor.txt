@@ -1,0 +1,66 @@
+{
+  "vendorName": "",
+  "vendorDescription": "",
+  "vendorLogo": "",
+  "email": "",
+  "location": {
+    "city": "",
+    "state": "",
+    "zipcode": "",
+    "country": ""
+  },
+  "deliveryOptions": [
+    { 
+      "deliveryType": "Local Delivery", 
+      "fee": "", 
+      "minOrderValue": "",
+      "deliveryTimeEstimate": "",
+      "serviceArea": ""
+    },
+    { 
+      "deliveryType": "Pickup", 
+      "fee": "", 
+      "minOrderValue": "",
+      "pickupInstructions": ""
+    }
+  ],
+  "hoursOfOperation": {
+    "monday": { "open": false, "openTime": "", "closeTime": "" },
+    "tuesday": { "open": false, "openTime": "", "closeTime": "" },
+    "wednesday": { "open": false, "openTime": "", "closeTime": "" },
+    "thursday": { "open": false, "openTime": "", "closeTime": "" },
+    "friday": { "open": false, "openTime": "", "closeTime": "" },
+    "saturday": { "open": false, "openTime": "", "closeTime": "" },
+    "sunday": { "open": false, "openTime": "", "closeTime": "" }
+  },
+  "rating": {
+    "rating": 0,
+    "totalReviews": 0
+  },
+  "menuItems": [
+    {
+      "itemId": "",
+      "itemName": "",
+      "itemDescription": "",
+      "itemPrice": "",
+      "itemImage": "",
+      "ingredients": "",
+      "allergies": ""
+    }
+  ],
+  "socialMediaLinks": {
+    "facebook": "",
+    "instagram": "",
+    "twitter": "",
+    "youtube": ""
+  },
+  "specialOffers": [
+    {
+      "offerId": "",
+      "offerTitle": "",
+      "offerDescription": "",
+      "discount": "",
+      "validUntil": ""
+    }
+  ],
+}

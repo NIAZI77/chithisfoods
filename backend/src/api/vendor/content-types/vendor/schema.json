@@ -1,0 +1,61 @@
+{
+  "kind": "collectionType",
+  "collectionName": "vendors",
+  "info": {
+    "singularName": "vendor",
+    "pluralName": "vendors",
+    "displayName": "vendor"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "description": {
+      "type": "blocks"
+    },
+    "email": {
+      "type": "email",
+      "required": true
+    },
+    "logo": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false,
+      "required": false
+    },
+    "location": {
+      "type": "json",
+      "required": true
+    },
+    "deliveryOptions": {
+      "type": "json",
+      "required": true
+    },
+    "hoursOfOperation": {
+      "type": "json",
+      "required": true
+    },
+    "ratting": {
+      "type": "integer",
+      "default": 0,
+      "required": true
+    },
+    "totalReview": {
+      "type": "biginteger"
+    },
+    "menu": {
+      "type": "json"
+    },
+    "offers": {
+      "type": "json"
+    }
+  }
+}
