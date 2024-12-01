@@ -1,6 +1,6 @@
 "use client"
 import React from 'react';
-import ImageSlider from './components/imageSlider';
+import Banner from './components/banner'
 import TopCategories from './HomeComponents/topCategories';
 import TopShef from './HomeComponents/topShef';
 import AmericanShefs from './HomeComponents/americanShefs';
@@ -13,7 +13,7 @@ const Home = () => {
   return (
     <div className='md:w-[80%] w-[90%] mx-auto py-5 space-y-10'>
       <div>
-        <ImageSlider />
+        <Banner />
       </div>
       <div>
         <TopCategories />

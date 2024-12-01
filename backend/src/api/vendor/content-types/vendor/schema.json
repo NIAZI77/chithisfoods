@@ -4,7 +4,8 @@
   "info": {
     "singularName": "vendor",
     "pluralName": "vendors",
-    "displayName": "vendor"
+    "displayName": "vendor",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -24,12 +25,12 @@
       "required": true
     },
     "logo": {
-      "allowedTypes": [
-        "images"
-      ],
       "type": "media",
       "multiple": false,
-      "required": false
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
     },
     "location": {
       "type": "json",
@@ -46,10 +47,11 @@
     "ratting": {
       "type": "integer",
       "default": 0,
-      "required": true
+      "required": false
     },
     "totalReview": {
-      "type": "biginteger"
+      "type": "biginteger",
+      "default": "0"
     },
     "menu": {
       "type": "json"

@@ -5,7 +5,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Link from 'next/link';
 
-export default function ImageSlider() {
+export default function Banner() {
   const [banners, setBanners] = useState([
     { imgSrc: "/banner.png", linkUrl: '/' },
     { imgSrc: "/banner.png", linkUrl: '/' },

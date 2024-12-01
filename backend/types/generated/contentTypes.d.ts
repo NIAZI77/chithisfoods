@@ -372,6 +372,7 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
 export interface ApiBannerBanner extends Struct.SingleTypeSchema {
   collectionName: 'banners';
   info: {
+    description: '';
     displayName: 'banner';
     pluralName: 'banners';
     singularName: 'banner';
@@ -384,6 +385,7 @@ export interface ApiBannerBanner extends Struct.SingleTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    linkUrl: Schema.Attribute.String & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -400,6 +402,7 @@ export interface ApiBannerBanner extends Struct.SingleTypeSchema {
 export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
   collectionName: 'vendors';
   info: {
+    description: '';
     displayName: 'vendor';
     pluralName: 'vendors';
     singularName: 'vendor';
@@ -429,10 +432,8 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
       Schema.Attribute.Unique;
     offers: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
-    ratting: Schema.Attribute.Integer &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<0>;
-    totalReview: Schema.Attribute.BigInteger;
+    ratting: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    totalReview: Schema.Attribute.BigInteger & Schema.Attribute.DefaultTo<'0'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
