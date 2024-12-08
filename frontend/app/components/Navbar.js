@@ -1,41 +1,46 @@
 "use client"
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaUser, FaCartArrowDown, FaSearch } from 'react-icons/fa';
-import { useRouter,usePathname} from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [login, setLogin] = useState(false);
     const [profile, setProfile] = useState(false);
-    const [jwt, SetJwt] = useState(undefined);
+    const [jwt, setJwt] = useState(undefined);
     const router = useRouter();
-    const pathname = usePathname()
+    const pathname = usePathname();
+
     useEffect(() => {
-      SetJwt(sessionStorage.getItem("jwt"))
-      if(!jwt || jwt == "undefined" || jwt == null){
-        if(pathname.includes("profile")){
-            router.push("/login")
-            setLogin(false)
+        const storedJwt = sessionStorage.getItem("jwt");
+        setJwt(storedJwt);
+
+        if (!storedJwt || storedJwt === "undefined" || storedJwt === null) {
+            if (pathname.includes("profile")) {
+                router.push("/login");
+                setLogin(false);
+            } else {
+                setLogin(true);
+            }
         }
-        else{
-            setLogin(true)
-        }
-      }
     }, [pathname]);
-    useEffect(() => {      
-        SetJwt(sessionStorage.getItem("jwt"))
-      if(!jwt || jwt == "undefined" || jwt == null){
-        if(pathname.includes("profile")){
-            router.push("/login")
+
+    useEffect(() => {
+        const storedJwt = sessionStorage.getItem("jwt");
+        setJwt(storedJwt);
+
+        if (!storedJwt || storedJwt === "undefined" || storedJwt === null) {
+            if (pathname.includes("profile")) {
+                router.push("/login");
+            }
+            setLogin(false);
+        } else {
+            setLogin(true);
         }
-        setLogin(false)
-    }
-    else{
-        setLogin(true)
-    }
     }, []);
+
     const handleUserClick = () => {
         if (!login) {
             router.push('/login');
@@ -45,11 +50,11 @@ export default function Navbar() {
     const toggleProfile = () => {
         setProfile(!profile);
     };
+
     const handleLogout = () => {
-        // SetJwt(null)
-       sessionStorage.removeItem("jwt");
-       sessionStorage.removeItem("user");
-       window.reload()
+        sessionStorage.removeItem("jwt");
+        sessionStorage.removeItem("user");
+        window.location.reload();
     };
 
     return (
@@ -63,6 +68,7 @@ export default function Navbar() {
                             alt={process.env.NEXT_PUBLIC_NAME}
                         />
                     </Link>
+
                     <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
                         <Link href={"/search"}
                             className="flex h-10 w-10 items-center justify-center text-sm bg-pink-100 rounded-full border-2 border-white focus:border-gray-400">
@@ -74,7 +80,7 @@ export default function Navbar() {
                         </Link>
                         {login ? (
                             <div onClick={toggleProfile}
-                                onBlur={() => {setProfile(false)}}
+                                onBlur={() => { setProfile(false); }}
                                 className="flex h-10 w-10 cursor-pointer items-center justify-center text-sm bg-pink-100 rounded-full border-2 border-white focus:border-gray-400">
                                 <span className="sr-only">Open user menu</span>
                                 <Image height={32} width={32}
@@ -110,28 +116,58 @@ export default function Navbar() {
                             </svg>
                         </button>
                     </div>
+
+                    <div className={`${menuOpen ? 'block' : 'hidden'} items-center justify-between w-full md:flex md:w-auto md:order-1`} id="navbar-user">
+                        <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white">
+                            <li>
+                                <Link
+                                    href="/"
+                                    className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0"
+                                >
+                                    Home
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/menu"
+                                    className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0"
+                                >
+                                    Menu
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/services"
+                                    className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0"
+                                >
+                                    Services
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </nav>
+
             {profile && (
                 <div className="fixed md:right-4 right-4 top-16 z-10 mt-2 w-48 bg-white border rounded-md shadow-lg">
                     <ul className="flex flex-col">
                         <li>
-                            <Link href="/profile/account-settings" onClick={() => {setProfile(false)}}  className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100">
+                            <Link href="/profile/account-settings" onClick={() => { setProfile(false); }} className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100">
                                 Account Settings
                             </Link>
                         </li>
                         <li>
-                            <Link href="/profile/order-history" onClick={() => {setProfile(false)}}  className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100">
+                            <Link href="/profile/order-history" onClick={() => { setProfile(false); }} className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100">
                                 Order History
                             </Link>
                         </li>
                         <li>
-                            <Link href="/profile/become-vendor" onClick={() => {setProfile(false)}}  className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100">
+                            <Link href="/profile/become-vendor" onClick={() => { setProfile(false); }} className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100">
                                 Become a Vendor
                             </Link>
                         </li>
                         <li>
-                            <div onClick={() => {setProfile(false)}}  className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100">
+                            <div onClick={handleLogout} className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100">
                                 Logout
                             </div>
                         </li>

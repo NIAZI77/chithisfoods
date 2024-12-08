@@ -68,7 +68,7 @@ export default function DeliciousDeals() {
     <>
       {shefs.length > 0 && (
         <div className="mx-auto p-2">
-          <h2 className="text-3xl font-bold mb-4">Delicious Deals</h2>
+          <h2 className="text-3xl font-bold mb-4">American Shef</h2>
           <div className="flex justify-center items-center">
             <Slider {...settings} className="w-full mx-auto flex items-center justify-center">
               {shefs.map((chef, index) => (

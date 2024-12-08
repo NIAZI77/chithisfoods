@@ -411,6 +411,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    coverImage: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -418,6 +419,10 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     description: Schema.Attribute.Blocks;
     email: Schema.Attribute.Email & Schema.Attribute.Required;
     hoursOfOperation: Schema.Attribute.JSON & Schema.Attribute.Required;
+    isTopRated: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    isVegetarian: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -425,7 +430,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     location: Schema.Attribute.JSON & Schema.Attribute.Required;
-    logo: Schema.Attribute.Media<'images'>;
+    logo: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     menu: Schema.Attribute.JSON;
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
@@ -433,7 +438,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     offers: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
     ratting: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
-    totalReview: Schema.Attribute.BigInteger & Schema.Attribute.DefaultTo<'0'>;
+    review: Schema.Attribute.JSON;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
