@@ -4,7 +4,7 @@ import { FaInstagram, FaFacebook, FaTwitter } from 'react-icons/fa';
 
 export default function Footer() {
     return (
-        <footer className="bg-white">
+        <footer className="bg-white z-50">
             <div className="mx-auto w-full max-w-screen-xl p-4 py-6 md:py-8">
                 <div className="md:flex md:justify-around">
                     <div className="mb-6 md:mb-0 content-center">

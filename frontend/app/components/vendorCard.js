@@ -1,13 +1,13 @@
 import Image from 'next/image';
-import { FaStar } from 'react-icons/fa';
+import { FaStar,FaHardHat } from 'react-icons/fa';
 
 const VendorCard = ({ vendor }) => {
 
   return (
-    <div className="max-w-72 w-72 h-84 max-h-84 bg-white rounded-lg shadow-md p-4 relative">
+    <div className="max-w-72 w-72 h-84 max-h-84 bg-orange-50 rounded-lg shadow-md p-4 relative">
       {vendor.isTopRated && <div className='w-32 h-6 bg-pink-600 px-3 font-bold text-white text-sm flex items-center absolute top-6 left-5'
         style={{ clipPath: 'polygon(100% 0, 80% 50%, 100% 100%, 0 100%, 0 0)' }} >
-        Top Rated
+       <FaHardHat className="pr-2" /> Top Rated
       </div>}
       <div className="mb-4">
         <img height={100} width={100}
