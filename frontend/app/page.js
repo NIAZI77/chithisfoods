@@ -2,10 +2,10 @@
 
 import React from 'react';
 import Banner from '@/app/components/banner';
-import TopCategories from '@/app/HomeComponents/TopCategories';
 import DeliciousDeals from '@/app/HomeComponents/DeliciousDeals';
-import TopShef from '@/app/HomeComponents/TopShef';
 import StateShefs from '@/app/HomeComponents/StateShefs';
+import TopCategories from './HomeComponents/topCategories';
+import TopShef from './HomeComponents/topShef';
 
 const Home = () => {
   return (

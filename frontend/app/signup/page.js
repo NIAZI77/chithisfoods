@@ -52,15 +52,15 @@ const Signup = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center px-6 py-24 mx-auto md:h-screen lg:py-0">
-        <div className="w-full bg-white rounded-lg shadow border md:mt-0 sm:max-w-md xl:p-0">
-          <div className="p-6 space-y-4 md:space-y-6 sm:p-8 bg-orange-100">
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="w-full bg-white shadow-lg md:mt-0 sm:max-w-md xl:p-0">
+          <div className="p-2 space-y-2 md:space-y-3 sm:p-8 bg-slate-50">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl text-center">
               Sign Up
             </h1>
             <form className="space-y-4 md:space-y-6" onSubmit={handleSignup}>
               <div>
-                <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
+                <label htmlFor="email" className="block mb-1 text-sm font-medium text-gray-900">
                   Your Email
                 </label>
                 <input
@@ -75,7 +75,7 @@ const Signup = () => {
                 />
               </div>
               <div>
-                <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900">
+                <label htmlFor="username" className="block mb-1 text-sm font-medium text-gray-900">
                   Your Username
                 </label>
                 <input
@@ -90,7 +90,7 @@ const Signup = () => {
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
+                <label htmlFor="password" className="block mb-1 text-sm font-medium text-gray-900">
                   Password
                 </label>
                 <input
@@ -105,7 +105,7 @@ const Signup = () => {
                 />
               </div>
               <div>
-                <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium text-gray-900">
+                <label htmlFor="confirmPassword" className="block mb-1 text-sm font-medium text-gray-900">
                   Confirm Password
                 </label>
                 <input

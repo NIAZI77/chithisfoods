@@ -60,8 +60,8 @@ export default function Navbar() {
     return (
         <>
             <nav className="bg-white border-gray-200 h-16 max-h-16 sticky top-0 w-full z-50 shadow-lg">
-                <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-                    <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+                <div className="max-w-screen-xl flex flex-wrap items-center md:justify-around justify-between mx-auto p-4">
+                    <Link href="/" className="flex items-center space-x-3 ">
                         <img height={36} width={48}
                             src="/logo.png"
                             className="w-12 h-fit scale-150"
@@ -69,7 +69,7 @@ export default function Navbar() {
                         />
                     </Link>
 
-                    <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+                    <div className="flex items-center md:order-2 space-x-3 md:space-x-0 ">
                         <Link href={"/search"}
                             className="flex h-10 w-10 items-center justify-center text-sm bg-pink-100 rounded-full border-2 border-white focus:border-gray-400">
                             <FaSearch />
@@ -118,7 +118,7 @@ export default function Navbar() {
                     </div>
 
                     <div className={`${menuOpen ? 'block' : 'hidden'} items-center justify-between w-full md:flex md:w-auto md:order-1`} id="navbar-user">
-                        <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white">
+                        <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8  md:flex-row md:mt-0 md:border-0 md:bg-white">
                             <li>
                                 <Link
                                     href="/"
@@ -162,7 +162,7 @@ export default function Navbar() {
                             </Link>
                         </li>
                         <li>
-                            <Link href="/profile/become-vendor" onClick={() => { setProfile(false); }} className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100">
+                            <Link href="/become-vendor" onClick={() => { setProfile(false); }} className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100">
                                 Become a Vendor
                             </Link>
                         </li>
