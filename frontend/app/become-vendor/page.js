@@ -1,10 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function VendorForm() {
   const [formData, setFormData] = useState({
     name: '',
+    logo: {
+      id: 0,
+      url: ""
+    },
+    coverImage: {
+      id: 0,
+      url: ""
+    },
     description: '',
     email: '',
     location: {
@@ -29,26 +39,37 @@ export default function VendorForm() {
       },
     ],
     hoursOfOperation: {
-      monday: false,
-      tuesday: false,
-      wednesday: false,
-      thursday: false,
-      friday: false,
-      saturday: false,
-      sunday: false,
+      monday: { open: false },
+      tuesday: { open: false },
+      wednesday: { open: false },
+      thursday: { open: false },
+      friday: { open: false },
+      saturday: { open: false },
+      sunday: { open: false },
     },
+    ratting: 0,
+    menu: [],
+    offers: [],
+    isTopRated: true,
+    isVegetarian: true,
+    review: [],
   });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (type === 'checkbox') {
-      if (name in formData.hoursOfOperation) {
+      if (name === 'isVegetarian') {
+        setFormData((prevData) => ({
+          ...prevData,
+          isVegetarian: checked,
+        }));
+      } else if (name in formData.hoursOfOperation) {
         setFormData((prevData) => ({
           ...prevData,
           hoursOfOperation: {
             ...prevData.hoursOfOperation,
-            [name]: checked,
+            [name]: { open: checked },
           },
         }));
       }
@@ -79,34 +100,72 @@ export default function VendorForm() {
     }
   };
 
+  async function uploadImage(file, name) {
+    const formData = new FormData();
+    formData.append('files', file);
+
+    try {
+      const response = await fetch('http://localhost:1337/api/upload', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        toast.error('Error uploading image');
+      }
+      toast.success('Image uploaded successfully!');
+      const data = await response.json();
+      const id = data[0].id;
+      const url = data[0].url;
+
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: {id,url},
+      }));
+    } catch (error) {
+      console.log('Error uploading image');
+    }
+  }
+
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    const file = files[0];
+
+    if (file) {
+      uploadImage(file, name);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-
     try {
       const response = await fetch('http://localhost:1337/api/vendors', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ data: formData }),
       });
 
       if (response.ok) {
-        alert('Vendor successfully submitted');
+        toast.success('Now you are Vendor!');
       } else {
-        alert('Error submitting form');
+        toast.error('Error submitting form');
       }
     } catch (error) {
-      console.error(error);
-      alert('Error submitting form');
+      toast.error('Error submitting form');
     }
   };
 
   return (
-    <div className='md:w-[70%] w-[90%] mx-auto'>
+    <div className="md:w-[70%] w-[90%] mx-auto">
       <form onSubmit={handleSubmit} className="space-y-6">
-        <h1 className='text-center text-2xl font-bold pt-8'>Become Vendor</h1>
+        <h1 className="text-center text-2xl font-bold pt-8">Become Vendor</h1>
+
         <div>
           <label className="block text-sm font-semibold">Name</label>
           <input
@@ -193,11 +252,49 @@ export default function VendorForm() {
           </div>
         </div>
 
+        <div className="flex flex-wrap gap-4">
+          <div className="flex-1">
+            <label htmlFor="logo" className="block text-sm font-semibold">Logo</label>
+            <button
+              type="button"
+              onClick={() => document.getElementById('logo').click()}
+              className="w-full p-2 border-2 border-orange-600 text-sm font-bold text-orange-600 hover:bg-orange-600 transition-all hover:text-white"
+            >
+              {!formData.logo.url ? "Upload Image" : "Change Image"}
+            </button>
+            <input
+              type="file"
+              id="logo"
+              name="logo"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="coverImage" className="block text-sm font-semibold">Cover Image</label>
+            <button
+              type="button"
+              onClick={() => document.getElementById('coverImage').click()}
+              className="w-full p-2 border-2 border-orange-600 text-sm font-bold text-orange-600 hover:bg-orange-600 transition-all hover:text-white"
+            >
+              {!formData.coverImage.url ? "Upload Image" : "Change Image"}
+            </button>
+            <input
+              type="file"
+              id="coverImage"
+              name="coverImage"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </div>
+        </div>
+
         <div>
           <h3 className="text-xl font-semibold mb-2 text-center">Delivery Options</h3>
           {formData.deliveryOptions.map((option, index) => (
             <div key={index} className="space-y-4 pb-4">
               <h4 className="text-lg font-semibold text-orange-400">{option.deliveryType}</h4>
+
               <div>
                 <label className="block text-sm font-semibold">Fee</label>
                 <input
@@ -235,6 +332,7 @@ export default function VendorForm() {
                       className="w-full p-2 border border-slate-200"
                     />
                   </div>
+
                   <div>
                     <label className="block text-sm font-semibold">Service Area</label>
                     <input
@@ -275,7 +373,7 @@ export default function VendorForm() {
                   type="checkbox"
                   id={day}
                   name={day}
-                  checked={formData.hoursOfOperation[day]}
+                  checked={formData.hoursOfOperation[day].open}
                   onChange={handleChange}
                   className="h-4 w-4"
                 />
@@ -293,6 +391,7 @@ export default function VendorForm() {
           </button>
         </div>
       </form>
+      <ToastContainer />
     </div>
   );
 }
