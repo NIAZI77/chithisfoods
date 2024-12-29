@@ -10,24 +10,53 @@ export default function Navbar() {
     const [login, setLogin] = useState(false);
     const [profile, setProfile] = useState(false);
     const [jwt, setJwt] = useState(undefined);
+    const [user, setUser] = useState(undefined);
+    const [profileImage, setProfileImage] = useState(null)
     const router = useRouter();
     const pathname = usePathname();
 
     useEffect(() => {
         const storedJwt = sessionStorage.getItem("jwt");
+        const storedUser = sessionStorage.getItem("user");
         setJwt(storedJwt);
+        setUser(storedUser);
 
-        if (!storedJwt || storedJwt === "undefined" || storedJwt === null) {
+        if (!storedJwt || storedJwt === "undefined" || storedJwt === null || !storedUser) {
+            setLogin(false);
             if (pathname.includes("profile")) {
                 router.push("/login");
-                setLogin(false);
-            } else {
-                setLogin(true);
             }
         } else {
-            setLogin(true);
+            const fetchUserData = async () => {
+                try {
+                    const response = await fetch(`http://localhost:1337/api/users/me`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${jwt}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch user data');
+                    }
+
+                    const userData = await response.json();
+
+                    if (userData && (userData.username || userData.name)) {
+                        setLogin(true);
+
+                    } else {
+                        setLogin(false);
+                    }
+                } catch (error) {
+                    console.log("error")
+                }
+            };
+            
+            fetchUserData();
         }
-    }, [pathname]);
+    }, [pathname, jwt]);
 
     const handleUserClick = () => {
         if (!login) {
@@ -43,6 +72,7 @@ export default function Navbar() {
         sessionStorage.removeItem("jwt");
         sessionStorage.removeItem("user");
         window.location.reload();
+        setLogin(false);
     };
 
     return (
@@ -63,7 +93,7 @@ export default function Navbar() {
                         {login ? (
                             <div onClick={toggleProfile} onBlur={() => setProfile(false)} className="flex h-10 w-10 cursor-pointer items-center justify-center text-sm bg-pink-100 rounded-full border-2 border-white focus:border-gray-400">
                                 <span className="sr-only">Open user menu</span>
-                                <Image height={32} width={32} className="w-8 h-8 rounded-full" src="/logo.png" alt="user photo" />
+                              {profileImage?  <Image height={32} width={32} className="w-8 h-8 rounded-full" src={profileImage} alt="user photo" />:  <FaUser />}
                             </div>
                         ) : (
                             <button onClick={handleUserClick} className="flex h-10 w-10 items-center justify-center text-sm bg-pink-100 rounded-full border-2 border-white focus:border-gray-400">

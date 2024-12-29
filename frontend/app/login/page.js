@@ -33,7 +33,7 @@ const Login = () => {
         toast.success("Logged in successfully!");
         if (typeof window !== "undefined" && data?.jwt) {
           sessionStorage.setItem("jwt", data.jwt);
-          sessionStorage.setItem("user", data.user.email.split('@')[0]);
+          sessionStorage.setItem("user", data.user.email);
         }
         setTimeout(() => { router.push("/") }, 1000);
       } else {

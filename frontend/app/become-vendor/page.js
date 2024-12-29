@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
+import { FaCamera } from "react-icons/fa";
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function VendorForm() {
@@ -9,19 +10,19 @@ export default function VendorForm() {
     name: '',
     logo: {
       id: 0,
-      url: ""
+      url: ''
     },
     coverImage: {
       id: 0,
-      url: ""
+      url: ''
     },
-    description: '',
+    description: "",
     email: '',
     location: {
       city: '',
       state: '',
       zipcode: '',
-      country: '',
+      country: ''
     },
     deliveryOptions: [
       {
@@ -29,14 +30,14 @@ export default function VendorForm() {
         fee: '',
         minOrderValue: '',
         deliveryTimeEstimate: '',
-        serviceArea: '',
+        serviceArea: ''
       },
       {
         deliveryType: 'Pickup',
         fee: '',
         minOrderValue: '',
-        pickupInstructions: '',
-      },
+        pickupInstructions: ''
+      }
     ],
     hoursOfOperation: {
       monday: { open: false },
@@ -45,14 +46,14 @@ export default function VendorForm() {
       thursday: { open: false },
       friday: { open: false },
       saturday: { open: false },
-      sunday: { open: false },
+      sunday: { open: false }
     },
     ratting: 0,
     menu: [],
     offers: [],
     isTopRated: true,
     isVegetarian: true,
-    review: [],
+    review: []
   });
 
   const handleChange = (e) => {
@@ -62,15 +63,15 @@ export default function VendorForm() {
       if (name === 'isVegetarian') {
         setFormData((prevData) => ({
           ...prevData,
-          isVegetarian: checked,
+          isVegetarian: checked
         }));
       } else if (name in formData.hoursOfOperation) {
         setFormData((prevData) => ({
           ...prevData,
           hoursOfOperation: {
             ...prevData.hoursOfOperation,
-            [name]: { open: checked },
-          },
+            [name]: { open: checked }
+          }
         }));
       }
     } else if (name.includes('location')) {
@@ -79,8 +80,8 @@ export default function VendorForm() {
         ...prevData,
         location: {
           ...prevData.location,
-          [locationField]: value,
-        },
+          [locationField]: value
+        }
       }));
     } else if (name.startsWith('deliveryOptions')) {
       const [optionIndex, optionField] = name.split('.').slice(1);
@@ -88,14 +89,14 @@ export default function VendorForm() {
         const updatedDeliveryOptions = [...prevData.deliveryOptions];
         updatedDeliveryOptions[optionIndex] = {
           ...updatedDeliveryOptions[optionIndex],
-          [optionField]: value,
+          [optionField]: value
         };
         return { ...prevData, deliveryOptions: updatedDeliveryOptions };
       });
     } else {
       setFormData((prevData) => ({
         ...prevData,
-        [name]: value,
+        [name]: value
       }));
     }
   };
@@ -108,9 +109,9 @@ export default function VendorForm() {
       const response = await fetch('http://localhost:1337/api/upload', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`
         },
-        body: formData,
+        body: formData
       });
 
       if (!response.ok) {
@@ -123,7 +124,7 @@ export default function VendorForm() {
 
       setFormData((prevData) => ({
         ...prevData,
-        [name]: {id,url},
+        [name]: { id, url }
       }));
     } catch (error) {
       console.log('Error uploading image');
@@ -146,9 +147,9 @@ export default function VendorForm() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`
         },
-        body: JSON.stringify({ data: formData }),
+        body: JSON.stringify({ data: formData })
       });
 
       if (response.ok) {
@@ -165,9 +166,54 @@ export default function VendorForm() {
     <div className="md:w-[70%] w-[90%] mx-auto">
       <form onSubmit={handleSubmit} className="space-y-6">
         <h1 className="text-center text-2xl font-bold pt-8">Become Vendor</h1>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex-1">
+            <input
+              type="file"
+              id="logo"
+              name="logo"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </div>
+          <div className="flex-1">
+            <input
+              type="file"
+              id="coverImage"
+              name="coverImage"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </div>
+        </div>
+        <div className="relative w-full">
+          <div className='w-full h-56 bg-cover bg-center' 
+          style={{backgroundImage: formData.coverImage.url ? `url('${formData.coverImage.url}')` :"url('https://via.placeholder.com/300x800')"}}
+          >
+          <button className="w-5 h-5 overflow-hidden absolute right-10 bottom-5"
+            onClick={() => document.getElementById('coverImage').click()}
+          >
+            <FaCamera/>
+          </button>
+          </div>
+          
+          <div className="absolute bottom-[-50px] left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white">
+            <img
+              src={formData.logo.url ? formData.logo.url :"https://via.placeholder.com/150"}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <button className="absolute bottom-[-40px] ml-1 left-1/2 transform -translate-x-1/2 w-5 h-5 overflow-hidden"
+            onClick={() => document.getElementById('logo').click()}
+          >
+            <FaCamera/>
+          </button>
+
+        </div>
 
         <div>
-          <label className="block text-sm font-semibold">Name</label>
+          <label className="block text-sm font-semibold pt-6">Store Name</label>
           <input
             type="text"
             name="name"
@@ -248,43 +294,6 @@ export default function VendorForm() {
               onChange={handleChange}
               placeholder="10001"
               className="w-full p-2 border border-slate-200"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-4">
-          <div className="flex-1">
-            <label htmlFor="logo" className="block text-sm font-semibold">Logo</label>
-            <button
-              type="button"
-              onClick={() => document.getElementById('logo').click()}
-              className="w-full p-2 border-2 border-orange-600 text-sm font-bold text-orange-600 hover:bg-orange-600 transition-all hover:text-white"
-            >
-              {!formData.logo.url ? "Upload Image" : "Change Image"}
-            </button>
-            <input
-              type="file"
-              id="logo"
-              name="logo"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </div>
-          <div className="flex-1">
-            <label htmlFor="coverImage" className="block text-sm font-semibold">Cover Image</label>
-            <button
-              type="button"
-              onClick={() => document.getElementById('coverImage').click()}
-              className="w-full p-2 border-2 border-orange-600 text-sm font-bold text-orange-600 hover:bg-orange-600 transition-all hover:text-white"
-            >
-              {!formData.coverImage.url ? "Upload Image" : "Change Image"}
-            </button>
-            <input
-              type="file"
-              id="coverImage"
-              name="coverImage"
-              onChange={handleFileChange}
-              className="hidden"
             />
           </div>
         </div>
