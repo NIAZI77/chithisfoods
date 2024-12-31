@@ -4,6 +4,7 @@
   "info": {
     "name": "user",
     "description": "",
+    "singularName": "user",
     "pluralName": "users",
     "displayName": "User"
   },

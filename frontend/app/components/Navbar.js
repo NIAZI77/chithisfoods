@@ -231,7 +231,7 @@ export default function Navbar() {
             </li>
             <li>
               <Link
-                href="/become-vendor"
+                href="/vendor"
                 onClick={() => setProfile(false)}
                 className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100"
               >
