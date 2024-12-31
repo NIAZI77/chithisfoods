@@ -1,43 +1,46 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
+import { useState, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+
 import { FaCamera } from "react-icons/fa";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function VendorForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    name: '',
+    name: "",
     logo: {
       id: 0,
-      url: ''
+      url: "",
     },
     coverImage: {
       id: 0,
-      url: ''
+      url: "",
     },
     description: "",
-    email: '',
     location: {
-      city: '',
-      state: '',
-      zipcode: '',
-      country: ''
+      city: "",
+      state: "",
+      zipcode: "",
+      country: "",
     },
     deliveryOptions: [
       {
-        deliveryType: 'Local Delivery',
-        fee: '',
-        minOrderValue: '',
-        deliveryTimeEstimate: '',
-        serviceArea: ''
+        deliveryType: "Local Delivery",
+        fee: "",
+        minOrderValue: "",
+        deliveryTimeEstimate: "",
+        serviceArea: "",
       },
       {
-        deliveryType: 'Pickup',
-        fee: '',
-        minOrderValue: '',
-        pickupInstructions: ''
-      }
+        deliveryType: "Pickup",
+        fee: "",
+        minOrderValue: "",
+        pickupInstructions: "",
+      },
     ],
     hoursOfOperation: {
       monday: { open: false },
@@ -46,88 +49,88 @@ export default function VendorForm() {
       thursday: { open: false },
       friday: { open: false },
       saturday: { open: false },
-      sunday: { open: false }
+      sunday: { open: false },
     },
     ratting: 0,
     menu: [],
     offers: [],
     isTopRated: true,
     isVegetarian: true,
-    review: []
+    review: [],
   });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (type === 'checkbox') {
-      if (name === 'isVegetarian') {
+    if (type === "checkbox") {
+      if (name === "isVegetarian") {
         setFormData((prevData) => ({
           ...prevData,
-          isVegetarian: checked
+          isVegetarian: checked,
         }));
       } else if (name in formData.hoursOfOperation) {
         setFormData((prevData) => ({
           ...prevData,
           hoursOfOperation: {
             ...prevData.hoursOfOperation,
-            [name]: { open: checked }
-          }
+            [name]: { open: checked },
+          },
         }));
       }
-    } else if (name.includes('location')) {
-      const locationField = name.split('.')[1];
+    } else if (name.includes("location")) {
+      const locationField = name.split(".")[1];
       setFormData((prevData) => ({
         ...prevData,
         location: {
           ...prevData.location,
-          [locationField]: value
-        }
+          [locationField]: value,
+        },
       }));
-    } else if (name.startsWith('deliveryOptions')) {
-      const [optionIndex, optionField] = name.split('.').slice(1);
+    } else if (name.startsWith("deliveryOptions")) {
+      const [optionIndex, optionField] = name.split(".").slice(1);
       setFormData((prevData) => {
         const updatedDeliveryOptions = [...prevData.deliveryOptions];
         updatedDeliveryOptions[optionIndex] = {
           ...updatedDeliveryOptions[optionIndex],
-          [optionField]: value
+          [optionField]: value,
         };
         return { ...prevData, deliveryOptions: updatedDeliveryOptions };
       });
     } else {
       setFormData((prevData) => ({
         ...prevData,
-        [name]: value
+        [name]: value,
       }));
     }
   };
 
   async function uploadImage(file, name) {
     const formData = new FormData();
-    formData.append('files', file);
+    formData.append("files", file);
 
     try {
-      const response = await fetch('http://localhost:1337/api/upload', {
-        method: 'POST',
+      const response = await fetch("http://localhost:1337/api/upload", {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
         },
-        body: formData
+        body: formData,
       });
 
       if (!response.ok) {
-        toast.error('Error uploading image');
+        toast.error("Error uploading image");
       }
-      toast.success('Image uploaded successfully!');
+      toast.success("Image uploaded successfully!");
       const data = await response.json();
       const id = data[0].id;
       const url = data[0].url;
 
       setFormData((prevData) => ({
         ...prevData,
-        [name]: { id, url }
+        [name]: { id, url },
       }));
     } catch (error) {
-      console.log('Error uploading image');
+      console.log("Error uploading image");
     }
   }
 
@@ -143,24 +146,67 @@ export default function VendorForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:1337/api/vendors', {
-        method: 'POST',
+      const response = await fetch("http://localhost:1337/api/vendors", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
         },
-        body: JSON.stringify({ data: formData })
+        body: JSON.stringify({ data: formData }),
       });
 
       if (response.ok) {
-        toast.success('Now you are Vendor!');
+        toast.success("Now you are Vendor!");
       } else {
-        toast.error('Error submitting form');
+        toast.error("Error submitting form");
       }
     } catch (error) {
-      toast.error('Error submitting form');
+      toast.error("Error submitting form");
     }
   };
+  useEffect(() => {
+    if (!sessionStorage.getItem("jwt")) {
+      router.push("/login");
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        email: sessionStorage.getItem("user"),
+      }));
+    }
+    const isVendor = async () => {
+      const email = sessionStorage.getItem("user");
+      if (!email) return;
+
+      const encodedEmail = encodeURIComponent(email);
+
+      try {
+        const response = await fetch(
+          `http://localhost:1337/api/vendors?filters[email][$eq]=${encodedEmail}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch vendor data");
+        }
+
+        const data = await response.json();
+
+        if (data && data.data && data.data.length > 0) {
+          router.push('/vendor/dashboard');
+        }
+      } catch (error) {
+        console.error("Error while checking vendor status:", error);
+      }
+    };
+
+    isVendor();
+  }, []);
 
   return (
     <div className="md:w-[70%] w-[90%] mx-auto">
@@ -169,6 +215,7 @@ export default function VendorForm() {
         <div className="flex flex-wrap gap-4">
           <div className="flex-1">
             <input
+              required
               type="file"
               id="logo"
               name="logo"
@@ -178,6 +225,7 @@ export default function VendorForm() {
           </div>
           <div className="flex-1">
             <input
+              required
               type="file"
               id="coverImage"
               name="coverImage"
@@ -187,41 +235,53 @@ export default function VendorForm() {
           </div>
         </div>
         <div className="relative w-full">
-          <div className='w-full h-56 bg-cover bg-center' 
-          style={{backgroundImage: formData.coverImage.url ? `url('${formData.coverImage.url}')` :"url('https://via.placeholder.com/300x800')"}}
+          <div
+            className="w-full h-56 bg-cover bg-center"
+            style={{
+              backgroundImage: formData.coverImage.url
+                ? `url('${formData.coverImage.url}')`
+                : "url('https://via.placeholder.com/300x800')",
+            }}
           >
-          <button className="w-5 h-5 overflow-hidden absolute right-10 bottom-5"
-            onClick={() => document.getElementById('coverImage').click()}
-          >
-            <FaCamera/>
-          </button>
+            <button
+              className="w-5 h-5 overflow-hidden absolute right-10 bottom-5"
+              onClick={() => document.getElementById("coverImage").click()}
+            >
+              <FaCamera />
+            </button>
           </div>
-          
+
           <div className="absolute bottom-[-50px] left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white">
             <img
-              src={formData.logo.url ? formData.logo.url :"https://via.placeholder.com/150"}
+              height={100}
+              width={100}
+              src={
+                formData.logo.url
+                  ? formData.logo.url
+                  : "https://via.placeholder.com/150"
+              }
               alt="Profile"
               className="w-full h-full object-cover"
             />
           </div>
-          <button className="absolute bottom-[-40px] ml-1 left-1/2 transform -translate-x-1/2 w-5 h-5 overflow-hidden"
-            onClick={() => document.getElementById('logo').click()}
+          <button
+            className="absolute bottom-[-40px] ml-1 left-1/2 transform -translate-x-1/2 w-5 h-5 overflow-hidden"
+            onClick={() => document.getElementById("logo").click()}
           >
-            <FaCamera/>
+            <FaCamera />
           </button>
-
         </div>
 
         <div>
           <label className="block text-sm font-semibold pt-6">Store Name</label>
           <input
+            required
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
             placeholder="John Doe"
             className="w-full p-2 border border-slate-200"
-            required
           />
         </div>
 
@@ -236,22 +296,11 @@ export default function VendorForm() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="johndoe@example.com"
-            className="w-full p-2 border border-slate-200"
-          />
-        </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-semibold">Country</label>
             <input
+              required
               type="text"
               name="location.country"
               value={formData.location.country}
@@ -264,6 +313,7 @@ export default function VendorForm() {
           <div>
             <label className="block text-sm font-semibold">State</label>
             <input
+              required
               type="text"
               name="location.state"
               value={formData.location.state}
@@ -276,6 +326,7 @@ export default function VendorForm() {
           <div>
             <label className="block text-sm font-semibold">City</label>
             <input
+              required
               type="text"
               name="location.city"
               value={formData.location.city}
@@ -288,6 +339,7 @@ export default function VendorForm() {
           <div>
             <label className="block text-sm font-semibold">Zipcode</label>
             <input
+              required
               type="text"
               name="location.zipcode"
               value={formData.location.zipcode}
@@ -299,14 +351,19 @@ export default function VendorForm() {
         </div>
 
         <div>
-          <h3 className="text-xl font-semibold mb-2 text-center">Delivery Options</h3>
+          <h3 className="text-xl font-semibold mb-2 text-center">
+            Delivery Options
+          </h3>
           {formData.deliveryOptions.map((option, index) => (
             <div key={index} className="space-y-4 pb-4">
-              <h4 className="text-lg font-semibold text-orange-400">{option.deliveryType}</h4>
+              <h4 className="text-lg font-semibold text-orange-400">
+                {option.deliveryType}
+              </h4>
 
               <div>
                 <label className="block text-sm font-semibold">Fee</label>
                 <input
+                  required
                   type="text"
                   name={`deliveryOptions.${index}.fee`}
                   value={option.fee}
@@ -317,8 +374,11 @@ export default function VendorForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold">Minimum Order Value</label>
+                <label className="block text-sm font-semibold">
+                  Minimum Order Value
+                </label>
                 <input
+                  required
                   type="text"
                   name={`deliveryOptions.${index}.minOrderValue`}
                   value={option.minOrderValue}
@@ -328,11 +388,14 @@ export default function VendorForm() {
                 />
               </div>
 
-              {option.deliveryType === 'Local Delivery' && (
+              {option.deliveryType === "Local Delivery" && (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold">Delivery Time Estimate</label>
+                    <label className="block text-sm font-semibold">
+                      Delivery Time Estimate
+                    </label>
                     <input
+                      required
                       type="text"
                       name={`deliveryOptions.${index}.deliveryTimeEstimate`}
                       value={option.deliveryTimeEstimate}
@@ -343,8 +406,11 @@ export default function VendorForm() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold">Service Area</label>
+                    <label className="block text-sm font-semibold">
+                      Service Area
+                    </label>
                     <input
+                      required
                       type="text"
                       name={`deliveryOptions.${index}.serviceArea`}
                       value={option.serviceArea}
@@ -356,10 +422,13 @@ export default function VendorForm() {
                 </>
               )}
 
-              {option.deliveryType === 'Pickup' && (
+              {option.deliveryType === "Pickup" && (
                 <div>
-                  <label className="block text-sm font-semibold">Pickup Instructions</label>
+                  <label className="block text-sm font-semibold">
+                    Pickup Instructions
+                  </label>
                   <input
+                    required
                     type="text"
                     name={`deliveryOptions.${index}.pickupInstructions`}
                     value={option.pickupInstructions}
@@ -379,6 +448,7 @@ export default function VendorForm() {
             {Object.keys(formData.hoursOfOperation).map((day) => (
               <div key={day} className="flex items-center space-x-2">
                 <input
+                  required
                   type="checkbox"
                   id={day}
                   name={day}
@@ -395,7 +465,10 @@ export default function VendorForm() {
         </div>
 
         <div>
-          <button type="submit" className="w-full p-3 bg-orange-600 text-white rounded hover:bg-orange-700">
+          <button
+            type="submit"
+            className="w-full p-3 bg-orange-600 text-white rounded hover:bg-orange-700"
+          >
             Submit
           </button>
         </div>
