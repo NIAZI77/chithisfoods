@@ -22,7 +22,8 @@
     },
     "email": {
       "type": "email",
-      "required": true
+      "required": true,
+      "unique": true
     },
     "logo": {
       "type": "media",
@@ -36,15 +37,7 @@
       "type": "json",
       "required": true
     },
-    "deliveryOptions": {
-      "type": "json",
-      "required": true
-    },
-    "hoursOfOperation": {
-      "type": "json",
-      "required": true
-    },
-    "ratting": {
+    "rating": {
       "type": "integer",
       "default": 0,
       "required": false
@@ -58,11 +51,6 @@
     "isTopRated": {
       "type": "boolean",
       "default": false
-    },
-    "isVegetarian": {
-      "type": "boolean",
-      "default": true,
-      "required": true
     },
     "coverImage": {
       "type": "media",

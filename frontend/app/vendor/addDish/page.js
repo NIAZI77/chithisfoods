@@ -1,5 +1,6 @@
-"use client"
-import { useState } from "react";
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   FaTag,
   FaDollarSign,
@@ -13,10 +14,13 @@ import {
   FaFireAlt,
   FaClock,
   FaCalendarAlt,
+  FaCamera,
 } from "react-icons/fa";
 import { MdEventAvailable } from "react-icons/md";
 import { CgUnavailable } from "react-icons/cg";
 import { LuVegan } from "react-icons/lu";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddMenu() {
   const [dish, setDish] = useState({
@@ -28,24 +32,72 @@ export default function AddMenu() {
     dish_availability: "Available",
     ingredients: [],
     vegetarian: false,
-    image: "",
-    spiciness: [],
+    image: { id: 0, url: "" },
+    spiciness: ["Mild"],
     cooking_time: "",
-    category: "",
-    allergen_info: [],
-    available_days: [],
+    category: "Vegetable",
+    available_days: ["Mon"],
   });
+  const [formData, setFormData] = useState({});
+  const router = useRouter();
+
+  useEffect(() => {
+    function getCookie(name) {
+      const cookieArr = document.cookie.split(";");
+      for (let i = 0; i < cookieArr.length; i++) {
+        let cookie = cookieArr[i].trim();
+        if (cookie.startsWith(name + "=")) {
+          return decodeURIComponent(cookie.substring(name.length + 1));
+        }
+      }
+      return null;
+    }
+
+    const storedJwt = getCookie("jwt");
+    const storedUser = getCookie("user");
+
+    if (!storedJwt || !storedUser) {
+      router.push("/login");
+    }
+    const fetchVendorData = async (email) => {
+      try {
+        const encodedEmail = encodeURIComponent(email);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${encodedEmail}&populate=*`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (!response.ok) {
+          toast.error(data.error.message || "Error fetching vendor data.");
+        } else {
+          const vendorData = data.data[0];
+          setFormData(vendorData);
+          setFormData((prevData) => ({
+            ...prevData,
+            description: vendorData.description[0].children[0].text,
+          }));
+        }
+      } catch (error) {
+        toast.error("Error fetching vendor data.");
+        console.error(error);
+      }
+    };
+    fetchVendorData(storedUser);
+  }, [router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === "allergen_info" || name === "ingredients") {
+    if (name === "ingredients") {
       setDish({
         ...dish,
         [name]: value.split(",").map((item) => item.trim()),
       });
     } else {
-      if (value < 0) return; // Prevent values less than 0
       setDish({
         ...dish,
         [name]: value,
@@ -91,15 +143,95 @@ export default function AddMenu() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const uploadImage = async (file, name) => {
+    const formData = new FormData();
+    formData.append("files", file);
 
-    if (dish.available_days.length === 0) {
-      alert("Please select at least one available day.");
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file.");
       return;
     }
 
-    console.log(JSON.stringify(dish));
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        toast.error("Error uploading image");
+        return;
+      }
+
+      const data = await response.json();
+      const { id, url } = data[0];
+
+      setDish((prevData) => ({
+        ...prevData,
+        [name]: { id, url },
+      }));
+
+      toast.success("Image uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading image", error);
+      toast.error("Error uploading image");
+    }
+  };
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    const file = files[0];
+
+    if (file) {
+      uploadImage(file, name);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (dish.available_days.length === 0) {
+      toast.warning("Please select at least one available day.");
+      return;
+    }
+    if (dish.spiciness.length === 0) {
+      toast.warning("Please select at least one spiciness level.");
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${formData.documentId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: JSON.stringify({
+            data: {
+              menu: formData.menu.concat(dish),
+            },
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        toast.success("A new dish has been added successfully!");
+        setTimeout(() => {
+          router.push("/vendor/inventory");
+        }, 1000);
+      } else {
+        toast.error(data.error.message || "An error occurred");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("An error occurred while submitting the form");
+    }
   };
 
   return (
@@ -109,6 +241,26 @@ export default function AddMenu() {
           Add New Dish
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="relative w-full h-64 mb-4">
+            <input
+              type="file"
+              id="image"
+              name="image"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <img
+              src={dish.image.url ? dish.image.url : "https://via.placeholder.com/300x900"}
+              alt="Dish"
+              className="md:w-3/4 w-full mx-auto h-64 object-cover"
+            />
+            <label
+              className="w-5 h-5 overflow-hidden absolute right-10 bottom-5 cursor-pointer"
+              htmlFor="image"
+            >
+              <FaCamera />
+            </label>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">
               <FaTag className="inline mr-2" /> Dish Name
@@ -134,7 +286,7 @@ export default function AddMenu() {
               value={dish.price}
               onChange={handleChange}
               min="0"
-              placeholder="e.g. 12.99"
+              placeholder="e.g. 12"
               className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
               required
             />
@@ -262,7 +414,7 @@ export default function AddMenu() {
             <label className="block text-sm font-medium text-gray-700">
               <FaFireAlt className="inline mr-2" /> Spiciness
             </label>
-            <div className="flex items-center justify-around mt-2">
+            <div className="flex items-center justify-around mt-2 flex-wrap space-y-2">
               {["Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map(
                 (level) => (
                   <div
@@ -298,73 +450,36 @@ export default function AddMenu() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              <FaPizzaSlice className="inline mr-2" /> Category
-            </label>
-            <input
-              type="text"
-              name="category"
-              value={dish.category}
-              onChange={handleChange}
-              placeholder="e.g. Pasta"
-              className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              <FaExclamationTriangle className="inline mr-2" /> Allergen Info
-            </label>
-            <input
-              type="text"
-              name="allergen_info"
-              value={dish.allergen_info.join(", ")}
-              onChange={handleChange}
-              placeholder="e.g. Contains gluten, dairy"
-              className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
               <FaCalendarAlt className="inline mr-2" /> Available Days
             </label>
-            <div className="flex items-center justify-around mt-2">
-              {["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"].map((day) => (
-                <button
+            <div className="flex items-center justify-around mt-2 flex-wrap">
+              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+                <div
                   key={day}
-                  type="button"
                   onClick={() => handleDaysChange(day)}
-                  className={`w-10 h-10 border-2 rounded-full text-center mx-2 font-semibold transition-all text-sm ${
+                  className={`w-12 flex items-center justify-center h-12 border-2 rounded-full text-center text-xsm mx-2 font-semibold transition-all text-sm ${
                     dish.available_days.includes(day)
                       ? "bg-orange-500 text-white border-orange-500"
-                      : "text-gray-700 border-orange-500 hover:bg-orange-500 hover:text-white"
+                      : "text-orange-500 border-2 border-orange-500 hover:bg-orange-500 hover:text-white"
                   }`}
                 >
                   {day}
-                </button>
+                </div>
               ))}
             </div>
           </div>
 
-          <div className="mt-6 text-center">
+          <div className="mt-8 flex justify-center">
             <button
               type="submit"
-              className="w-full px-6 py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-700"
+              className="w-full px-6 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-all"
             >
               Add Dish
             </button>
           </div>
         </form>
       </div>
+      <ToastContainer />
     </main>
   );
 }
-
-
-
-
-
-
-at least one avaiavle day is must  have a defult day and also at least one spiceness have a defult value and convert category to option that contain value fruit,vegitable,fish,

@@ -1,11 +1,8 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
-
 import { FaCamera } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function VendorForm() {
@@ -16,6 +13,7 @@ export default function VendorForm() {
       id: 0,
       url: "",
     },
+    email: "",
     coverImage: {
       id: 0,
       url: "",
@@ -27,57 +25,36 @@ export default function VendorForm() {
       zipcode: "",
       country: "",
     },
-    deliveryOptions: [
-      {
-        deliveryType: "Local Delivery",
-        fee: "",
-        minOrderValue: "",
-        deliveryTimeEstimate: "",
-        serviceArea: "",
-      },
-      {
-        deliveryType: "Pickup",
-        fee: "",
-        minOrderValue: "",
-        pickupInstructions: "",
-      },
-    ],
-    hoursOfOperation: {
-      monday: { open: false },
-      tuesday: { open: false },
-      wednesday: { open: false },
-      thursday: { open: false },
-      friday: { open: false },
-      saturday: { open: false },
-      sunday: { open: false },
-    },
-    ratting: 0,
+    rating: 0,
     menu: [],
     offers: [],
-    isTopRated: true,
-    isVegetarian: true,
+    isTopRated: false,
     review: [],
   });
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    if (type === "checkbox") {
-      if (name === "isVegetarian") {
-        setFormData((prevData) => ({
-          ...prevData,
-          isVegetarian: checked,
-        }));
-      } else if (name in formData.hoursOfOperation) {
-        setFormData((prevData) => ({
-          ...prevData,
-          hoursOfOperation: {
-            ...prevData.hoursOfOperation,
-            [name]: { open: checked },
-          },
-        }));
+  const getCookie = (name) => {
+    const cookieArr = document.cookie.split(";");
+    for (let i = 0; i < cookieArr.length; i++) {
+      let cookie = cookieArr[i].trim();
+      if (cookie.startsWith(name + "=")) {
+        return decodeURIComponent(cookie.substring(name.length + 1));
       }
-    } else if (name.includes("location")) {
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const storedJwt = getCookie("jwt");
+    const storedUser = getCookie("user");
+
+    if (!storedJwt || !storedUser) {
+      router.push("/login");
+    }
+  }, [router]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name.includes("location")) {
       const locationField = name.split(".")[1];
       setFormData((prevData) => ({
         ...prevData,
@@ -86,16 +63,6 @@ export default function VendorForm() {
           [locationField]: value,
         },
       }));
-    } else if (name.startsWith("deliveryOptions")) {
-      const [optionIndex, optionField] = name.split(".").slice(1);
-      setFormData((prevData) => {
-        const updatedDeliveryOptions = [...prevData.deliveryOptions];
-        updatedDeliveryOptions[optionIndex] = {
-          ...updatedDeliveryOptions[optionIndex],
-          [optionField]: value,
-        };
-        return { ...prevData, deliveryOptions: updatedDeliveryOptions };
-      });
     } else {
       setFormData((prevData) => ({
         ...prevData,
@@ -119,18 +86,20 @@ export default function VendorForm() {
 
       if (!response.ok) {
         toast.error("Error uploading image");
+        return;
       }
+
       toast.success("Image uploaded successfully!");
       const data = await response.json();
-      const id = data[0].id;
-      const url = data[0].url;
+      const { id, url } = data[0];
 
       setFormData((prevData) => ({
         ...prevData,
         [name]: { id, url },
       }));
     } catch (error) {
-      console.log("Error uploading image");
+      console.log("Error uploading image", error);
+      toast.error("Error uploading image");
     }
   }
 
@@ -145,6 +114,11 @@ export default function VendorForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormData((prevData) => ({
+      ...prevData,
+      email: getCookie("user"),
+    }));
+
     try {
       const response = await fetch("http://localhost:1337/api/vendors", {
         method: "POST",
@@ -152,18 +126,37 @@ export default function VendorForm() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
         },
-        body: JSON.stringify({ data: formData }),
+        body: JSON.stringify({
+          data: {
+            ...formData,
+            description: [
+              {
+                type: "paragraph",
+                children: [
+                  {
+                    type: "text",
+                    text: formData.description,
+                  },
+                ],
+              },
+            ],
+          },
+        }),
       });
 
+      const data = await response.json();
       if (response.ok) {
         toast.success("Now you are Vendor!");
+        router.push("/vendor-dashboard");
       } else {
-        toast.error("Error submitting form");
+        toast.error(data.error.message || "An error occurred");
       }
     } catch (error) {
-      toast.error("Error submitting form");
+      console.error("Error submitting form:", error);
+      toast.error("An error occurred while submitting the form");
     }
   };
+
   return (
     <div className="md:w-[70%] w-[90%] mx-auto">
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -199,12 +192,12 @@ export default function VendorForm() {
                 : "url('https://via.placeholder.com/300x800')",
             }}
           >
-            <button
-              className="w-5 h-5 overflow-hidden absolute right-10 bottom-5"
-              onClick={() => document.getElementById("coverImage").click()}
+            <label
+              className="w-5 h-5 overflow-hidden absolute right-10 bottom-5 cursor-pointer"
+              htmlFor="coverImage"
             >
               <FaCamera />
-            </button>
+            </label>
           </div>
 
           <div className="absolute bottom-[-50px] left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white">
@@ -220,12 +213,12 @@ export default function VendorForm() {
               className="w-full h-full object-cover"
             />
           </div>
-          <button
-            className="absolute bottom-[-40px] ml-1 left-1/2 transform -translate-x-1/2 w-5 h-5 overflow-hidden"
-            onClick={() => document.getElementById("logo").click()}
+          <label
+            className="absolute bottom-[-40px] ml-1 cursor-pointer left-1/2 transform -translate-x-1/2 w-5 h-5 overflow-hidden"
+            htmlFor="logo"
           >
             <FaCamera />
-          </button>
+          </label>
         </div>
 
         <div>
@@ -242,7 +235,7 @@ export default function VendorForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold">Description</label>
+          <label className="block text-sm font-semibold">Bio</label>
           <textarea
             name="description"
             value={formData.description}
@@ -303,120 +296,6 @@ export default function VendorForm() {
               placeholder="10001"
               className="w-full p-2 border border-slate-200"
             />
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-xl font-semibold mb-2 text-center">
-            Delivery Options
-          </h3>
-          {formData.deliveryOptions.map((option, index) => (
-            <div key={index} className="space-y-4 pb-4">
-              <h4 className="text-lg font-semibold text-orange-400">
-                {option.deliveryType}
-              </h4>
-
-              <div>
-                <label className="block text-sm font-semibold">Fee</label>
-                <input
-                  required
-                  type="text"
-                  name={`deliveryOptions.${index}.fee`}
-                  value={option.fee}
-                  onChange={handleChange}
-                  placeholder="$5.00"
-                  className="w-full p-2 border border-slate-200"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold">
-                  Minimum Order Value
-                </label>
-                <input
-                  required
-                  type="text"
-                  name={`deliveryOptions.${index}.minOrderValue`}
-                  value={option.minOrderValue}
-                  onChange={handleChange}
-                  placeholder="$20.00"
-                  className="w-full p-2 border border-slate-200"
-                />
-              </div>
-
-              {option.deliveryType === "Local Delivery" && (
-                <>
-                  <div>
-                    <label className="block text-sm font-semibold">
-                      Delivery Time Estimate
-                    </label>
-                    <input
-                      required
-                      type="text"
-                      name={`deliveryOptions.${index}.deliveryTimeEstimate`}
-                      value={option.deliveryTimeEstimate}
-                      onChange={handleChange}
-                      placeholder="30-45 minutes"
-                      className="w-full p-2 border border-slate-200"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold">
-                      Service Area
-                    </label>
-                    <input
-                      required
-                      type="text"
-                      name={`deliveryOptions.${index}.serviceArea`}
-                      value={option.serviceArea}
-                      onChange={handleChange}
-                      placeholder="Manhattan, Brooklyn, Queens"
-                      className="w-full p-2 border border-slate-200"
-                    />
-                  </div>
-                </>
-              )}
-
-              {option.deliveryType === "Pickup" && (
-                <div>
-                  <label className="block text-sm font-semibold">
-                    Pickup Instructions
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    name={`deliveryOptions.${index}.pickupInstructions`}
-                    value={option.pickupInstructions}
-                    onChange={handleChange}
-                    placeholder="Pick up at the front counter"
-                    className="w-full p-2 border border-slate-200"
-                  />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold">Operating Hours</label>
-          <div className="space-y-2">
-            {Object.keys(formData.hoursOfOperation).map((day) => (
-              <div key={day} className="flex items-center space-x-2">
-                <input
-                  required
-                  type="checkbox"
-                  id={day}
-                  name={day}
-                  checked={formData.hoursOfOperation[day].open}
-                  onChange={handleChange}
-                  className="h-4 w-4"
-                />
-                <label htmlFor={day} className="text-sm capitalize">
-                  {day.charAt(0).toUpperCase() + day.slice(1)}
-                </label>
-              </div>
-            ))}
           </div>
         </div>
 

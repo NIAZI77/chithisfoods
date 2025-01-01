@@ -1,8 +1,9 @@
-'use client';
-
+"use client"; 
+import { useRouter } from 'next/navigation'; 
 import { useState, useEffect } from 'react';
 
 export default function InventoryPage() {
+  const router = useRouter();
   const [dishes, setDishes] = useState([]);
   const [newDish, setNewDish] = useState({ name: '', price: 0, description: '', available: false });
 
@@ -35,10 +36,30 @@ export default function InventoryPage() {
     ];
 
     setDishes(sampleDishes);
-  }, []);
+  }, []);  
+
+  useEffect(() => {
+    function getCookie(name) {
+      const cookieArr = document.cookie.split(";");
+      for (let i = 0; i < cookieArr.length; i++) {
+        let cookie = cookieArr[i].trim();
+        if (cookie.startsWith(name + "=")) {
+          return decodeURIComponent(cookie.substring(name.length + 1));
+        }
+      }
+      return null;
+    }
+
+    const storedJwt = getCookie("jwt");
+    const storedUser = getCookie("user");
+
+    if (!storedJwt || !storedUser) {
+      router.push("/login");
+    }
+  }, [router]);
 
   const handleAddDish = async () => {
-    const newDishWithId = { ...newDish, id: Date.now() }; // Generate unique ID based on timestamp
+    const newDishWithId = { ...newDish, id: Date.now() };
     setDishes([...dishes, newDishWithId]);
     setNewDish({ name: '', price: 0, description: '', available: false });
   };

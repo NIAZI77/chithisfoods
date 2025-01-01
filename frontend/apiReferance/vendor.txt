@@ -31,58 +31,7 @@
         "zipcode": "10001",
         "country": "USA"
       },
-      "deliveryOptions": [
-        {
-          "deliveryType": "Local Delivery",
-          "fee": "5.00",
-          "minOrderValue": "20.00",
-          "deliveryTimeEstimate": "30-45 minutes",
-          "serviceArea": "Manhattan, Brooklyn, Queens"
-        },
-        {
-          "deliveryType": "Pickup",
-          "fee": "0.00",
-          "minOrderValue": "10.00",
-          "pickupInstructions": "Please pick up your order from the front counter during business hours."
-        }
-      ],
-      "hoursOfOperation": {
-        "monday": {
-          "open": true,
-          "openTime": "8:00",
-          "closeTime": "16:00"
-        },
-        "tuesday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "wednesday": {
-          "open": true,
-          "openTime": "9:00",
-          "closeTime": "15:00"
-        },
-        "thursday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "friday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "saturday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "sunday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        }
-      },
+
       "ratting": 0,
       "menu": [
         {

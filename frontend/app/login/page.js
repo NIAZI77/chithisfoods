@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,7 +10,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -32,12 +32,15 @@ const Login = () => {
       if (response.ok) {
         toast.success("Logged in successfully!");
         if (typeof window !== "undefined" && data?.jwt) {
-          sessionStorage.setItem("jwt", data.jwt);
-          sessionStorage.setItem("user", data.user.email);
+          const expires = new Date();
+          expires.setDate(expires.getDate() + 7);
+          const expiresString = expires.toUTCString();
+          document.cookie = `user=${data.user.email}; expires=${expiresString}; path=/`;
+          document.cookie = `jwt=${data.jwt}; expires=${expiresString}; path=/`;
         }
         setTimeout(() => { router.push("/") }, 1000);
       } else {
-        toast.error(data.error.message || "Invalid credentials.");
+        toast.error(data.error?.message || "Invalid credentials.");
       }
     } catch (err) {
       toast.error("An error occurred during login.");

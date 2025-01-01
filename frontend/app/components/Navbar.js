@@ -24,8 +24,18 @@ export default function Navbar() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const storedJwt = sessionStorage.getItem("jwt");
-    const storedUser = sessionStorage.getItem("user");
+    function getCookie(name) {
+      const cookieArr = document.cookie.split(";");
+      for (let i = 0; i < cookieArr.length; i++) {
+        let cookie = cookieArr[i].trim();
+        if (cookie.startsWith(name + "=")) {
+          return decodeURIComponent(cookie.substring(name.length + 1));
+        }
+      }
+      return null;
+    }
+    const storedJwt = getCookie("jwt");
+    const storedUser = getCookie("user");
     setJwt(storedJwt);
     setUser(storedUser);
 
@@ -73,7 +83,7 @@ export default function Navbar() {
       };
 
       const checkVendorStatus = async () => {
-        const email = sessionStorage.getItem("user");
+        const email = getCookie("user");
         if (!email) return null;
 
         const encodedEmail = encodeURIComponent(email);
@@ -117,9 +127,12 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("jwt");
-    sessionStorage.removeItem("user");
-    window.location.reload();
+    document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    setJwt(undefined);
+    setUser(undefined);
+    setProfileImage(null);
+    setProfile(false);
     setLogin(false);
   };
 
