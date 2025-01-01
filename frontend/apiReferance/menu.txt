@@ -1,0 +1,32 @@
+{
+  "dish": {
+    "name": "Spaghetti Bolognese",
+    "price": 12.99,
+    "serving": "1",
+    "description": "A classic Italian pasta dish made with ground beef, tomatoes, and a rich blend of herbs, served over al dente spaghetti.",
+    "order_limit": 5,
+    "dish_availability": "Available",
+    "ingredients": [
+      "Spaghetti",
+      "Ground Beef",
+      "Tomato Sauce",
+      "Onions",
+      "Garlic",
+      "Olive Oil",
+      "Carrots",
+      "Celery",
+      "Parmesan Cheese",
+      "Herbs (Basil, Oregano)"
+    ],
+    "vegetarian": false,
+    "image": "https://yourdomain.com/images/spaghetti-bolognese.jpg",
+    "calories": 650,
+    "spiciness": "Mild",
+    "cooking_time": "30 minutes",
+    "category": "Pasta",
+    "allergen_info": [
+      "Gluten",
+      "Dairy"
+    ]
+  }
+}

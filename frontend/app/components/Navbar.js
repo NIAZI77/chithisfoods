@@ -2,7 +2,13 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaUser, FaCartArrowDown, FaSearch, FaUserAlt, FaSignOutAlt } from "react-icons/fa";
+import {
+  FaUser,
+  FaCartArrowDown,
+  FaSearch,
+  FaUserAlt,
+  FaSignOutAlt,
+} from "react-icons/fa";
 import { FaShop } from "react-icons/fa6";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -13,6 +19,7 @@ export default function Navbar() {
   const [jwt, setJwt] = useState(undefined);
   const [user, setUser] = useState(undefined);
   const [profileImage, setProfileImage] = useState(null);
+  const [isVendor, setIsVendor] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -22,7 +29,12 @@ export default function Navbar() {
     setJwt(storedJwt);
     setUser(storedUser);
 
-    if (!storedJwt || storedJwt === "undefined" || storedJwt === null || !storedUser) {
+    if (
+      !storedJwt ||
+      storedJwt === "undefined" ||
+      storedJwt === null ||
+      !storedUser
+    ) {
       setLogin(false);
       if (pathname.includes("profile")) {
         router.push("/login");
@@ -30,13 +42,16 @@ export default function Navbar() {
     } else {
       const fetchUserData = async () => {
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me?populate=*`, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${jwt}`,
-              "Content-Type": "application/json",
-            },
-          });
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me?populate=*`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${jwt}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
           if (!response.ok) {
             throw new Error("Failed to fetch user data");
@@ -57,6 +72,36 @@ export default function Navbar() {
         }
       };
 
+      const checkVendorStatus = async () => {
+        const email = sessionStorage.getItem("user");
+        if (!email) return null;
+
+        const encodedEmail = encodeURIComponent(email);
+
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${encodedEmail}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch vendor data");
+          }
+
+          const data = await response.json();
+          setIsVendor(data.data.length != 0);
+        } catch (error) {
+          console.error("Error while checking vendor status:", error);
+        }
+      };
+
+      checkVendorStatus();
       fetchUserData();
     }
   }, [pathname, jwt]);
@@ -231,7 +276,7 @@ export default function Navbar() {
             </li>
             <li>
               <Link
-                href="/vendor"
+                href={isVendor ? "/vendor/dashboard" : "/become-vendor"}
                 onClick={() => setProfile(false)}
                 className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100"
               >
