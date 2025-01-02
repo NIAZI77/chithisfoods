@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -28,7 +28,6 @@ export default function AddMenu() {
     price: "",
     serving: "",
     description: "",
-    order_limit: "",
     dish_availability: "Available",
     ingredients: [],
     vegetarian: false,
@@ -202,6 +201,11 @@ export default function AddMenu() {
       toast.warning("Please select at least one spiciness level.");
       return;
     }
+    setDish((prevData) => ({
+      ...prevData,
+      id: formData.menu.length + 1,
+    }));
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${formData.documentId}`,
@@ -250,7 +254,11 @@ export default function AddMenu() {
               className="hidden"
             />
             <img
-              src={dish.image.url ? dish.image.url : "https://via.placeholder.com/300x900"}
+              src={
+                dish.image.url
+                  ? dish.image.url
+                  : "https://via.placeholder.com/300x900"
+              }
               alt="Dish"
               className="md:w-3/4 w-full mx-auto h-64 object-cover"
             />
@@ -323,22 +331,7 @@ export default function AddMenu() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              <FaListOl className="inline mr-2" /> Order Limit
-            </label>
-            <input
-              type="number"
-              name="order_limit"
-              value={dish.order_limit}
-              onChange={handleChange}
-              min="0"
-              placeholder="e.g. 100"
-              className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-              required
-            />
-          </div>
-
+   
           <div>
             <label className="block text-sm font-medium text-gray-700">
               <FaExclamationTriangle className="inline mr-2" /> Availability
@@ -414,13 +407,13 @@ export default function AddMenu() {
             <label className="block text-sm font-medium text-gray-700">
               <FaFireAlt className="inline mr-2" /> Spiciness
             </label>
-            <div className="flex items-center justify-around mt-2 flex-wrap space-y-2">
+            <div className="flex items-center justify-between mt-2 flex-wrap space-y-2">
               {["Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map(
                 (level) => (
                   <div
                     key={level}
                     onClick={() => handleSpicinessChange(level)}
-                    className={`w-32 flex items-center justify-center h-16 border-2 rounded-md text-center mx-2 font-semibold transition-all text-sm ${
+                    className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md mx-2 text-xs font-semibold transition-all ${
                       dish.spiciness.includes(level)
                         ? "bg-orange-500 text-white border-orange-500"
                         : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
@@ -435,14 +428,15 @@ export default function AddMenu() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              <FaClock className="inline mr-2" /> Cooking Time
+              <FaClock className="inline mr-2" /> Cooking Time (in minutes)
             </label>
             <input
-              type="text"
+              type="number"
               name="cooking_time"
               value={dish.cooking_time}
               onChange={handleChange}
-              placeholder="e.g. 20 minutes"
+              min="0"
+              placeholder="e.g. 30"
               className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
               required
             />
@@ -452,15 +446,15 @@ export default function AddMenu() {
             <label className="block text-sm font-medium text-gray-700">
               <FaCalendarAlt className="inline mr-2" /> Available Days
             </label>
-            <div className="flex items-center justify-around mt-2 flex-wrap">
+            <div className="grid grid-cols-3 sm:grid-cols-7 gap-2 mt-2">
               {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
                 <div
                   key={day}
                   onClick={() => handleDaysChange(day)}
-                  className={`w-12 flex items-center justify-center h-12 border-2 rounded-full text-center text-xsm mx-2 font-semibold transition-all text-sm ${
+                  className={`text-center cursor-pointer w-10 h-10 text-xs font-semibold content-center rounded-full border-2 ${
                     dish.available_days.includes(day)
                       ? "bg-orange-500 text-white border-orange-500"
-                      : "text-orange-500 border-2 border-orange-500 hover:bg-orange-500 hover:text-white"
+                      : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
                   }`}
                 >
                   {day}
@@ -469,14 +463,12 @@ export default function AddMenu() {
             </div>
           </div>
 
-          <div className="mt-8 flex justify-center">
-            <button
-              type="submit"
-              className="w-full px-6 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-all"
-            >
-              Add Dish
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full py-3 px-6 bg-orange-500 text-white rounded-md text-lg font-semibold mt-4 hover:bg-orange-600 transition-colors"
+          >
+            Add Dish
+          </button>
         </form>
       </div>
       <ToastContainer />

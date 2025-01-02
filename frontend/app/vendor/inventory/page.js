@@ -1,42 +1,14 @@
-"use client"; 
-import { useRouter } from 'next/navigation'; 
+'use client';
+
 import { useState, useEffect } from 'react';
+import { FaEdit } from 'react-icons/fa';
+import { MdDelete } from 'react-icons/md';
+import { useRouter } from 'next/navigation';
+import { toast, ToastContainer } from 'react-toastify';
 
-export default function InventoryPage() {
+export default function MenuPage() {
+  const [dishData, setDishData] = useState([]);
   const router = useRouter();
-  const [dishes, setDishes] = useState([]);
-  const [newDish, setNewDish] = useState({ name: '', price: 0, description: '', available: false });
-
-  useEffect(() => {
-    const sampleDishes = [
-      {
-        id: 1,
-        name: 'Spaghetti Carbonara',
-        price: 12.99,
-        description: 'A classic Italian pasta dish with eggs, cheese, pancetta, and pepper.',
-        available: true,
-        image: '/images/carbonara.jpg',
-      },
-      {
-        id: 2,
-        name: 'Margherita Pizza',
-        price: 9.99,
-        description: 'Traditional pizza with fresh mozzarella, tomatoes, and basil.',
-        available: true,
-        image: '/images/margherita.jpg',
-      },
-      {
-        id: 3,
-        name: 'Caesar Salad',
-        price: 7.99,
-        description: 'Crisp romaine lettuce, croutons, and Caesar dressing.',
-        available: false,
-        image: '/images/caesar_salad.jpg',
-      },
-    ];
-
-    setDishes(sampleDishes);
-  }, []);  
 
   useEffect(() => {
     function getCookie(name) {
@@ -56,109 +28,107 @@ export default function InventoryPage() {
     if (!storedJwt || !storedUser) {
       router.push("/login");
     }
+
+    const fetchVendorData = async (email) => {
+      try {
+        const encodedEmail = encodeURIComponent(email);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${encodedEmail}&populate=*`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (!response.ok) {
+          toast.error(data.error.message || "Error fetching vendor data.");
+        } else {
+          const vendorData = data.data[0];
+          setDishData(vendorData.menu); // Extract the 'menu' array from the API response
+        }
+      } catch (error) {
+        toast.error("Error fetching vendor data.");
+        console.error(error);
+      }
+    };
+
+    if (storedUser) {
+      fetchVendorData(storedUser);
+    }
   }, [router]);
 
-  const handleAddDish = async () => {
-    const newDishWithId = { ...newDish, id: Date.now() };
-    setDishes([...dishes, newDishWithId]);
-    setNewDish({ name: '', price: 0, description: '', available: false });
-  };
-
-  const handleDeleteDish = async (id) => {
-    setDishes(dishes.filter((dish) => dish.id !== id));
+  const handleDayToggle = (dishIndex, day) => {
+    setDishData((prevDishes) => {
+      const updatedDishes = [...prevDishes];
+      const dayIndex = updatedDishes[dishIndex].available_days.indexOf(day);
+      if (dayIndex === -1) {
+        updatedDishes[dishIndex].available_days.push(day);
+      } else {
+        updatedDishes[dishIndex].available_days.splice(dayIndex, 1);
+      }
+      return updatedDishes;
+    });
   };
 
   return (
     <main className="ml-0 md:ml-64 p-6 transition-padding duration-300 bg-gray-100">
-      <div className="p-6 bg-white rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-orange-600 mb-6">Inventory Management</h1>
+      <ToastContainer />
+      <div className="p-8 bg-gray-100">
+        <h1 className="text-2xl font-bold mb-6">My Menu</h1>
 
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Add New Dish</h2>
-          <input
-            type="text"
-            placeholder="Name"
-            value={newDish.name}
-            onChange={(e) => setNewDish({ ...newDish, name: e.target.value })}
-            className="border border-gray-300 p-3 mb-4 w-full rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-          />
-          <input
-            type="number"
-            placeholder="Price"
-            value={newDish.price}
-            onChange={(e) => setNewDish({ ...newDish, price: parseFloat(e.target.value) })}
-            className="border border-gray-300 p-3 mb-4 w-full rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-          />
-          <textarea
-            placeholder="Description"
-            value={newDish.description}
-            onChange={(e) => setNewDish({ ...newDish, description: e.target.value })}
-            className="border border-gray-300 p-3 mb-4 w-full rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-          ></textarea>
-          <label className="flex items-center gap-2 mb-4">
-            <input
-              type="checkbox"
-              checked={newDish.available}
-              onChange={(e) => setNewDish({ ...newDish, available: e.target.checked })}
-              className="text-orange-600"
-            />
-            <span className="text-gray-700">Available</span>
-          </label>
-          <button
-            onClick={handleAddDish}
-            className="bg-orange-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-orange-600 transition-all duration-300"
-          >
-            Add Dish
+        <div className="bg-white p-6 rounded shadow">
+          <div className="flex justify-between mb-4">
+            <h2 className="text-lg font-medium">Dish Catalogue ({dishData.length})</h2>
+          </div>
+
+          {dishData.map((dish, index) => (
+            <div key={index} className="border-b py-4 last:border-b-0">
+              <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+                <div className="border p-2 text-gray-400 w-full md:w-32">
+                  {dish.image && dish.image.url ? (
+                    <img src={dish.image.url} alt={dish.name} className="w-full h-32 object-cover" />
+                  ) : (
+                    <span>Please Add Photo</span>
+                  )}
+                </div>
+                <div className="flex-grow">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-md font-medium">{dish.name || "Dish Name"}</h3>
+                      <p className="text-gray-500">${dish.price}</p>
+                    </div>
+                    <div>
+                      <span className="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
+                        {dish.dish_availability }
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-gray-500 text-sm">{dish.description.substr(0, 30)}...</p>
+                  <div className="flex flex-wrap space-x-2 mt-2">
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+                      <button
+                        key={day}
+                        onClick={() => handleDayToggle(index, day)}
+                        className={`rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold ${dish.available_days.includes(day) ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-500'}`}
+                      >
+                        {day.slice(0, 1)}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex justify-end items-center mt-2 space-x-2">
+                    <button className="text-sm text-blue-500"><FaEdit /></button>
+                    <button className="text-sm text-red-500"><MdDelete /></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <button className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded mt-4 w-full">
+            Add New Dish
           </button>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Dish Catalogue</h2>
-          <table className="table-auto w-full border-collapse rounded-lg shadow-lg overflow-hidden">
-            <thead>
-              <tr className="bg-orange-500 text-white">
-                <th className="px-6 py-4 text-left">Image</th>
-                <th className="px-6 py-4 text-left">Name</th>
-                <th className="px-6 py-4 text-left">Price</th>
-                <th className="px-6 py-4 text-left">Description</th>
-                <th className="px-6 py-4 text-left">Available</th>
-                <th className="px-6 py-4 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              {dishes.map((dish) => (
-                <tr key={dish.id} className="hover:bg-gray-100 transition-all">
-                  <td className="px-6 py-4">
-                    <img
-                      src={dish.image || '/placeholder.jpg'}
-                      alt={dish.name}
-                      className="h-16 w-16 object-cover rounded-md shadow-md"
-                    />
-                  </td>
-                  <td className="px-6 py-4 font-medium text-gray-800">{dish.name}</td>
-                  <td className="px-6 py-4 text-gray-700">${dish.price}</td>
-                  <td className="px-6 py-4 text-gray-600">{dish.description}</td>
-                  <td className="px-6 py-4 text-center">
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                        dish.available ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                      }`}
-                    >
-                      {dish.available ? 'Yes' : 'No'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <button
-                      onClick={() => handleDeleteDish(dish.id)}
-                      className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
     </main>
