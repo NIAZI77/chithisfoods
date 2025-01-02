@@ -1,56 +1,117 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { useParams } from "next/navigation";
+import { FaStar } from "react-icons/fa";
 
-const Page = ({ params }) => {
-  const slug = use(params);
-  const [vendor, setVendor] = useState({});
+const Page = () => {
+  const { slug } = useParams();
+  const [vendor, setVendor] = useState(null);
 
   useEffect(() => {
-    const fetchVendor = async (email) => {
+    const fetchVendor = async () => {
       try {
-        const encodedEmail = encodeURIComponent(email);
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${encodedEmail}&populate=*`,
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${slug}?populate=*`,
           {
             method: "GET",
             headers: {
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
               "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
             },
           }
         );
 
         const data = await response.json();
-        if (!response.ok) {
-          toast.error(data.error.message || "Error fetching vendor data.");
+
+        if (response.ok) {
+          setVendor(data.data);
         } else {
-          const vendorData = data.data[0];
-          console.log(vendorData);
-          setVendor(vendorData);
+          toast.error(data.error?.message || "An error occurred");
         }
       } catch (error) {
-        toast.error("Error fetching vendor data.");
+        console.error("Error fetching vendor:", error);
+        toast.error("An error occurred while fetching the vendor");
       }
     };
+
     if (slug) {
-      fetchVendor(slug);
+      fetchVendor();
     }
   }, [slug]);
 
+  if (!vendor) return <div>Loading...</div>;
+
   return (
-    <div>
-      <h1>{slug}</h1>
+    <div className="container mx-auto w-[80%] p-4">
+      <div
+        className="md:h-96 h-36 relative bg-cover bg-center mt-6"
+        style={{
+          backgroundImage:
+            vendor.coverImage.url && `url('${vendor.coverImage.url}')`,
+        }}
+      >
+        <div className="absolute md:bottom-[-60px] bottom-[-50px] left-1/2 transform -translate-x-1/2 md:w-32 md:h-32 w-24 h-24 rounded-full overflow-hidden border-4 border-white bg-red-400">
+          <img
+            height={100}
+            width={100}
+            src={vendor.logo?.url || ""}
+            alt="Profile"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
       <div>
-        <h2>{vendor.name}</h2>
-        <p>{vendor.description}</p>
-        <p>Email: {vendor.email}</p>
-        <p>
-          Location: {vendor.location?.city}, {vendor.location?.state},{" "}
-          {vendor.location?.country}
+        <h1 className="text-2xl font-bold md:mt-20 mt-14 text-center">
+          <div className="flex items-center justify-center space-x-4">
+            <div>{vendor.name}</div>
+            <div className="flex items-center justify-center text-orange-300">
+              <FaStar className="pr-1" />
+              {vendor.rating}
+            </div>
+          </div>
+        </h1>
+        <p className="text-center pt-2">
+          {vendor.description[0].children[0].text &&
+            vendor.description[0].children[0].text}
         </p>
-        <p>Rating: {vendor.rating}</p>
+        <p className="text-center pt-2 font-semibold">
+          {vendor.location.country
+            .split(" ")
+            .map(
+              (part) =>
+                part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+            )
+            .join(" ")}{" "}
+          ·{" "}
+          {vendor.location.state
+            .split(" ")
+            .map(
+              (part) =>
+                part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+            )
+            .join(" ")}{" "}
+          ·{" "}
+          {vendor.location.city
+            .split(" ")
+            .map(
+              (part) =>
+                part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+            )
+            .join(" ")}
+        </p>
+      </div>
+      <div className="pt-24">
+      <h2 className="text-2xl text-center font-bold">Menu</h2>
+      <ul>
+        {vendor.menu.map((item) => (
+          <li key={item.id}>
+            <div>{item.name}</div>
+            <div>{item.price}</div>
+          </li>
+        ))}
+      </ul>
       </div>
     </div>
   );

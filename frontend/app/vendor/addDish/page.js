@@ -258,7 +258,7 @@ export default function AddMenu() {
           Add New Dish
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="relative w-full h-64 mb-4">
+          <div className="relative w-full md:h-56 h-36 mb-4">
             <input
               type="file"
               id="image"

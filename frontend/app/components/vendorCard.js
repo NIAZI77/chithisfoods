@@ -43,13 +43,15 @@ const VendorCard = ({ vendor }) => {
               .join(" ")}
           </h2>
           <p className="text-sm text-gray-500">
-            {vendor.location.city},{vendor.location.state}
+            {vendor.location.city} · {vendor.location.state}
             <br />
             {vendor.location.country}
           </p>
           <div className="flex items-center space-x-2">
             <FaStar className="text-yellow-400" />
-            <p className="text-yellow-500 font-semibold">{vendor.rating|| 0 }</p>
+            <p className="text-yellow-500 font-semibold">
+              {vendor.rating || 0}
+            </p>
           </div>
         </div>
       </div>
