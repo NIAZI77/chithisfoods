@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   FaTag,
@@ -22,7 +22,8 @@ import { LuVegan } from "react-icons/lu";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function AddMenu() {
+export default function EditDish({ params }) {
+  const { id } = use(params);
   const [dish, setDish] = useState({
     name: "",
     price: "",
@@ -76,6 +77,8 @@ export default function AddMenu() {
         } else {
           const vendorData = data.data[0];
           setFormData(vendorData);
+          let di = (vendorData.menu ?? []).find((dish) => dish.id == id);
+          setDish(di);
           setFormData((prevData) => ({
             ...prevData,
             description: vendorData.description[0].children[0].text,
@@ -193,7 +196,7 @@ export default function AddMenu() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (dish.available_days.length === 0) {
       toast.warning("Please select at least one available day.");
       return;
@@ -206,17 +209,22 @@ export default function AddMenu() {
       toast.warning("Please upload an image.");
       return;
     }
-  
-    const isDuplicateName = formData.menu.some((existingDish) => existingDish.name === dish.name);
+    let menu = formData.menu;
+    let index = menu.findIndex((d) => d.id == id);
+    menu[index] = dish;
+    const isDuplicateName = formData.menu.some(
+      (existingDish) =>
+        existingDish.name === dish.name && dish.id !== existingDish.id
+    );
     if (isDuplicateName) {
       toast.warning("Dish must have a different name.");
       return;
     }
-  
+
     if (!dish.id) {
       dish.id = new Date().getTime();
     }
-  
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${formData.documentId}`,
@@ -228,16 +236,16 @@ export default function AddMenu() {
           },
           body: JSON.stringify({
             data: {
-              menu: [...formData.menu, dish],
+              menu: menu,
             },
           }),
         }
       );
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
-        toast.success("A new dish has been added successfully!");
+        toast.success("Dish Updated successfully!");
         setTimeout(() => {
           router.push("/vendor/inventory");
         }, 1000);
@@ -249,13 +257,12 @@ export default function AddMenu() {
       toast.error("An error occurred while submitting the form");
     }
   };
-  
 
   return (
     <main className="ml-0 md:ml-64 p-6 transition-padding duration-300 bg-gray-100">
       <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
         <h1 className="text-2xl font-semibold text-center text-orange-500 mb-6">
-          Add New Dish
+          Update Dish
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative w-full h-64 mb-4">
@@ -497,7 +504,7 @@ export default function AddMenu() {
             type="submit"
             className="w-full py-3 px-6 bg-orange-500 text-white rounded-md text-lg font-semibold mt-4 hover:bg-orange-600 transition-colors"
           >
-            Add Dish
+            Update Dish
           </button>
         </form>
       </div>
