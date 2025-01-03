@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
 import { FaStar } from "react-icons/fa";
+import ProductCard from "@/app/components/productCard";
 
 const Page = () => {
   const { slug } = useParams();
@@ -103,15 +104,19 @@ const Page = () => {
         </p>
       </div>
       <div className="pt-24">
-      <h2 className="text-2xl text-center font-bold">Menu</h2>
-      <ul>
-        {vendor.menu.map((item) => (
-          <li key={item.id}>
-            <div>{item.name}</div>
-            <div>{item.price}</div>
-          </li>
-        ))}
-      </ul>
+        <h2 className="text-2xl text-center font-bold">Menu</h2>
+        <ul className="flex items-center justify-center flex-wrap">
+          {vendor.menu.map((item) => (
+            <li key={item.id}>
+              <ProductCard
+                product={item}
+                logo={vendor.logo}
+                location={vendor.location}
+                documentId={vendor.documentId}
+              />
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
