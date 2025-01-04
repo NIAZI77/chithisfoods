@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 export default function VendorForm() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     logo: {
@@ -46,6 +47,7 @@ export default function VendorForm() {
   useEffect(() => {
     const storedJwt = getCookie("jwt");
     const storedUser = getCookie("user");
+    setEmail(storedUser);
 
     if (!storedJwt || !storedUser) {
       router.push("/login");
@@ -76,7 +78,7 @@ export default function VendorForm() {
     formData.append("files", file);
 
     try {
-      const response = await fetch("http://localhost:1337/api/upload", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
@@ -114,13 +116,8 @@ export default function VendorForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormData((prevData) => ({
-      ...prevData,
-      email: getCookie("user"),
-    }));
-
     try {
-      const response = await fetch("http://localhost:1337/api/vendors", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -129,6 +126,7 @@ export default function VendorForm() {
         body: JSON.stringify({
           data: {
             ...formData,
+            email: email,
             description: [
               {
                 type: "paragraph",
@@ -147,7 +145,7 @@ export default function VendorForm() {
       const data = await response.json();
       if (response.ok) {
         toast.success("Now you are Vendor!");
-        router.push("/vendor-dashboard");
+        router.push("/vendor/dashboard");
       } else {
         toast.error(data.error.message || "An error occurred");
       }

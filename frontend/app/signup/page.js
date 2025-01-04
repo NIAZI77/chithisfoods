@@ -24,7 +24,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:1337/api/auth/local/register", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/auth/local/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

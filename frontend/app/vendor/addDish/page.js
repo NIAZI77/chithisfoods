@@ -8,7 +8,6 @@ import {
   FaFileAlt,
   FaUtensils,
   FaPizzaSlice,
-  FaListOl,
   FaExclamationTriangle,
   FaLeaf,
   FaFireAlt,
@@ -21,6 +20,7 @@ import { CgUnavailable } from "react-icons/cg";
 import { LuVegan } from "react-icons/lu";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Loading from "@/app/loading";
 
 export default function AddMenu() {
   const [dish, setDish] = useState({
@@ -37,6 +37,9 @@ export default function AddMenu() {
     category: "Vegetable",
     available_days: ["Mon"],
   });
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
   const [formData, setFormData] = useState({});
   const router = useRouter();
 
@@ -59,6 +62,7 @@ export default function AddMenu() {
       router.push("/login");
     }
     const fetchVendorData = async (email) => {
+      setLoading(true);
       try {
         const encodedEmail = encodeURIComponent(email);
         const response = await fetch(
@@ -85,6 +89,7 @@ export default function AddMenu() {
         toast.error("Error fetching vendor data.");
         console.error(error);
       }
+      setLoading(false);
     };
     fetchVendorData(storedUser);
   }, [router]);
@@ -192,8 +197,9 @@ export default function AddMenu() {
   };
 
   const handleSubmit = async (e) => {
+    setSubmitting(true);
     e.preventDefault();
-  
+
     if (dish.available_days.length === 0) {
       toast.warning("Please select at least one available day.");
       return;
@@ -206,17 +212,19 @@ export default function AddMenu() {
       toast.warning("Please upload an image.");
       return;
     }
-  
-    const isDuplicateName = formData.menu.some((existingDish) => existingDish.name === dish.name);
+
+    const isDuplicateName = formData.menu.some(
+      (existingDish) => existingDish.name === dish.name
+    );
     if (isDuplicateName) {
       toast.warning("Dish must have a different name.");
       return;
     }
-  
+
     if (!dish.id) {
       dish.id = new Date().getTime();
     }
-  
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${formData.documentId}`,
@@ -233,11 +241,11 @@ export default function AddMenu() {
           }),
         }
       );
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
-        toast.success("A new dish has been added successfully!");
+        toast.success("New Dish Added Successfully!");
         setTimeout(() => {
           router.push("/vendor/inventory");
         }, 1000);
@@ -248,8 +256,11 @@ export default function AddMenu() {
       console.error("Error submitting form:", error);
       toast.error("An error occurred while submitting the form");
     }
+    setSubmitting(false);
   };
-  
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <main className="ml-0 md:ml-64 p-6 transition-padding duration-300 bg-gray-100">
@@ -258,7 +269,7 @@ export default function AddMenu() {
           Add New Dish
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="relative w-full md:h-56 h-36 mb-4">
+          <div className="relative w-full md:h-56 h-36">
             <input
               type="file"
               id="image"
@@ -282,7 +293,7 @@ export default function AddMenu() {
               <FaCamera />
             </label>
           </div>
-          <div>
+          <div className=" md:pt-12 pt-24">
             <label className="block text-sm font-medium text-gray-700">
               <FaTag className="inline mr-2" /> Dish Name
             </label>
@@ -496,8 +507,9 @@ export default function AddMenu() {
           <button
             type="submit"
             className="w-full py-3 px-6 bg-orange-500 text-white rounded-md text-lg font-semibold mt-4 hover:bg-orange-600 transition-colors"
+            disabled={submitting}
           >
-            Add Dish
+            {submitting ? "Adding Dish" : "Add Dish"}
           </button>
         </form>
       </div>

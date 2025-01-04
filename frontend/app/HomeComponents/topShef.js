@@ -74,7 +74,7 @@ export default function TopShef() {
 
   return (
     <>
-      {topShefs.length > 0 && (
+      {topShefs.length > 2 && (
         <div className="mx-auto p-2">
           <h2 className="text-3xl font-bold mb-4">Top Shefs</h2>
           <div className="flex justify-center items-center">

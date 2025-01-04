@@ -74,7 +74,7 @@ export default function DeliciousDeals() {
 
   return (
     <>
-      {shefs.length > 0 && (
+      {shefs.length > 2 && (
         <div className="mx-auto p-2">
           <h2 className="text-3xl font-bold mb-4">Delicious Deals</h2>
           <div className="flex justify-center items-center">

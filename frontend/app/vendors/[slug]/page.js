@@ -5,14 +5,18 @@ import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
 import { FaStar } from "react-icons/fa";
 import ProductCard from "@/app/components/productCard";
+import Loading from "@/app/loading";
+import Custom404 from "@/app/not-found";
 
 const Page = () => {
   const { slug } = useParams();
   const [vendor, setVendor] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchVendor = async () => {
       try {
+        setLoading(true);
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${slug}?populate=*`,
           {
@@ -34,6 +38,8 @@ const Page = () => {
       } catch (error) {
         console.error("Error fetching vendor:", error);
         toast.error("An error occurred while fetching the vendor");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -42,15 +48,16 @@ const Page = () => {
     }
   }, [slug]);
 
-  if (!vendor) return <div>Loading...</div>;
+  if (loading) return <Loading />;
+
+  if (!vendor) return <Custom404/>;
 
   return (
     <div className="container mx-auto w-[80%] p-4">
       <div
         className="md:h-96 h-36 relative bg-cover bg-center mt-6"
         style={{
-          backgroundImage:
-            vendor.coverImage.url && `url('${vendor.coverImage.url}')`,
+          backgroundImage: vendor.coverImage.url && `url('${vendor.coverImage.url}')`,
         }}
       >
         <div className="absolute md:bottom-[-60px] bottom-[-50px] left-1/2 transform -translate-x-1/2 md:w-32 md:h-32 w-24 h-24 rounded-full overflow-hidden border-4 border-white bg-red-400">
@@ -74,8 +81,7 @@ const Page = () => {
           </div>
         </h1>
         <p className="text-center pt-2">
-          {vendor.description[0].children[0].text &&
-            vendor.description[0].children[0].text}
+          {vendor.description[0].children[0].text && vendor.description[0].children[0].text}
         </p>
         <p className="text-center pt-2 font-semibold">
           {vendor.location.country
@@ -106,16 +112,20 @@ const Page = () => {
       <div className="pt-24">
         <h2 className="text-2xl text-center font-bold">Menu</h2>
         <ul className="flex items-center justify-center flex-wrap">
-          {vendor.menu.map((item) => (
-            <li key={item.id}>
-              <ProductCard
-                product={item}
-                logo={vendor.logo}
-                location={vendor.location}
-                documentId={vendor.documentId}
-              />
-            </li>
-          ))}
+          {vendor.menu && vendor.menu.length > 0 ? (
+            vendor.menu.map((item) => (
+              <li key={item.id}>
+                <ProductCard
+                  product={item}
+                  logo={vendor.logo}
+                  location={vendor.location}
+                  documentId={vendor.documentId}
+                />
+              </li>
+            ))
+          ) : (
+            <div className="text-center w-full">No Menu Available</div>
+          )}
         </ul>
       </div>
     </div>

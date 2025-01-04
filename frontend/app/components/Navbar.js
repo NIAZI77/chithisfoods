@@ -39,12 +39,7 @@ export default function Navbar() {
     setJwt(storedJwt);
     setUser(storedUser);
 
-    if (
-      !storedJwt ||
-      storedJwt === "undefined" ||
-      storedJwt === null ||
-      !storedUser
-    ) {
+    if (!storedJwt || storedJwt === "undefined" || storedJwt === null || !storedUser) {
       setLogin(false);
       if (pathname.includes("profile")) {
         router.push("/login");

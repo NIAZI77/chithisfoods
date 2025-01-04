@@ -21,6 +21,7 @@ import { CgUnavailable } from "react-icons/cg";
 import { LuVegan } from "react-icons/lu";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Loading from "@/app/loading";
 
 export default function EditDish({ params }) {
   const { id } = use(params);
@@ -39,6 +40,8 @@ export default function EditDish({ params }) {
     available_days: ["Mon"],
   });
   const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -60,6 +63,7 @@ export default function EditDish({ params }) {
       router.push("/login");
     }
     const fetchVendorData = async (email) => {
+      setLoading(true);
       try {
         const encodedEmail = encodeURIComponent(email);
         const response = await fetch(
@@ -88,6 +92,7 @@ export default function EditDish({ params }) {
         toast.error("Error fetching vendor data.");
         console.error(error);
       }
+      setLoading(false);
     };
     fetchVendorData(storedUser);
   }, [router]);
@@ -196,7 +201,7 @@ export default function EditDish({ params }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setSubmitting(true);
     if (dish.available_days.length === 0) {
       toast.warning("Please select at least one available day.");
       return;
@@ -256,7 +261,11 @@ export default function EditDish({ params }) {
       console.error("Error submitting form:", error);
       toast.error("An error occurred while submitting the form");
     }
+    setSubmitting(false);
   };
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <main className="ml-0 md:ml-64 p-6 transition-padding duration-300 bg-gray-100">
@@ -265,7 +274,7 @@ export default function EditDish({ params }) {
           Update Dish
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="relative w-full md:h-56 h-36 mb-4">
+          <div className="relative w-full md:h-56 h-36">
             <input
               type="file"
               id="image"
@@ -283,13 +292,13 @@ export default function EditDish({ params }) {
               className="md:w-3/4 w-full mx-auto h-64 object-cover"
             />
             <label
-              className="w-5 h-5 overflow-hidden absolute right-10 bottom-5 cursor-pointer"
+              className="w-5 h-5 overflow-hidden absolute md:right-10 right-0 bottom-0 cursor-pointer"
               htmlFor="image"
             >
               <FaCamera />
             </label>
           </div>
-          <div>
+          <div className=" md:pt-12 pt-24">
             <label className="block text-sm font-medium text-gray-700">
               <FaTag className="inline mr-2" /> Dish Name
             </label>
@@ -503,8 +512,9 @@ export default function EditDish({ params }) {
           <button
             type="submit"
             className="w-full py-3 px-6 bg-orange-500 text-white rounded-md text-lg font-semibold mt-4 hover:bg-orange-600 transition-colors"
+            disabled={submitting}
           >
-            Update Dish
+            {submitting ? "Updating Dish" : "Update Dish"}
           </button>
         </form>
       </div>

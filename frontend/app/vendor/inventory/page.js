@@ -7,10 +7,12 @@ import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
+import Loading from "@/app/loading";
 
 export default function MenuPage() {
   const [dishData, setDishData] = useState([]);
   const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -33,6 +35,7 @@ export default function MenuPage() {
     }
 
     const fetchVendorData = async (email) => {
+      setLoading(true);
       try {
         const encodedEmail = encodeURIComponent(email);
         const response = await fetch(
@@ -56,13 +59,16 @@ export default function MenuPage() {
         toast.error("Error fetching vendor data.");
         console.error(error);
       }
+      setLoading(false);
     };
 
     if (storedUser) {
       fetchVendorData(storedUser);
     }
   }, [router]);
-
+  if (loading) {
+    return <Loading />;
+  }
   const deleteDish = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this dish?"
