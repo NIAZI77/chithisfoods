@@ -1,16 +1,16 @@
 "use client";
-import React, { useState } from 'react';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-import Link from 'next/link';
+import React, { useState } from "react";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import Link from "next/link";
 
 export default function Banner() {
   const [banners, setBanners] = useState([
-    { imgSrc: "/banner.png", linkUrl: '/' },
-    { imgSrc: "/banner.png", linkUrl: '/' },
+    "/banner.png",
+    "/banner.png",
+    "/banner.png",
   ]);
-
 
   const settings = {
     dots: true,
@@ -24,15 +24,20 @@ export default function Banner() {
 
   return (
     <div className="relative w-full mx-auto pb-4">
-      <Slider {...settings} className='w-[95%] mx-auto'>
+      <Slider {...settings} className="w-[95%] mx-auto">
         {banners.map((image, index) => (
-          <Link href={image.linkUrl} key={index} className="flex justify-center items-center rounded-xl overflow-hidden">
-            <img height={100} width={100}
-              src={image.imgSrc}
+          <div
+            key={index}
+            className="flex justify-center items-center rounded-xl overflow-hidden"
+          >
+            <img
+              height={100}
+              width={100}
+              src={image}
               alt={`banner-${index}`}
               className="w-full md:h-[400px] h-[250px] object-cover object-center rounded-xl mx-auto"
             />
-          </Link>
+          </div>
         ))}
       </Slider>
     </div>
