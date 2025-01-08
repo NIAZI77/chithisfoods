@@ -1,0 +1,15 @@
+{
+    "rewrites": [
+      {
+        "source": "/admin/jtdvrvu.js",
+        "destination": "/jtdvrvu.js"
+      }
+    ],
+    "builds": [
+      {
+        "src": "package.json",
+        "use": "@vercel/node"
+      }
+    ]
+  }
+  
