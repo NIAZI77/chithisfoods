@@ -1,8 +1,8 @@
 {
     "rewrites": [
       {
-        "source": "/admin/jtdvrvu.js",
-        "destination": "/jtdvrvu.js"
+        "source": "/admin/",
+        "destination": "/"
       }
     ],
     "builds": [
