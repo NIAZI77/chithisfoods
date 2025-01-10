@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { FaCamera } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
+import { renderToReadableStream } from "next/dist/server/app-render/entry-base";
 
 export default function AccountSettings() {
   const router = useRouter();
@@ -56,7 +57,11 @@ export default function AccountSettings() {
         toast.error(data.error.message || "Error fetching vendor data.");
       } else {
         const vendorData = data.data[0];
-        setFormData(vendorData);
+        if (vendorData.length == 0) {
+          renderToReadableStream.push("/become-vendor");
+        } else {
+          setFormData(vendorData);
+        }
       }
     } catch (error) {
       toast.error("Error fetching vendor data.");
@@ -169,7 +174,7 @@ export default function AccountSettings() {
               name: formData.name,
               logo: formData.logo.id,
               coverImage: formData.coverImage.id,
-              description:formData.description,
+              description: formData.description,
               location: formData.location,
             },
           }),

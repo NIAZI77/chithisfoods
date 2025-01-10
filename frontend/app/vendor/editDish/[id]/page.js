@@ -80,9 +80,13 @@ export default function EditDish({ params }) {
           toast.error(data.error.message || "Error fetching vendor data.");
         } else {
           const vendorData = data.data[0];
-          setFormData(vendorData);
-          let di = (vendorData.menu ?? []).find((dish) => dish.id == id);
-          setDish(di);
+          if (vendorData.length == 0) {
+            router.push("/become-vendor");
+          } else {
+            setFormData(vendorData);
+            let di = (vendorData.menu ?? []).find((dish) => dish.id == id);
+            setDish(di);
+          }
         }
       } catch (error) {
         toast.error("Error fetching vendor data.");

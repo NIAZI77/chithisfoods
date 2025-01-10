@@ -52,8 +52,12 @@ export default function MenuPage() {
           toast.error(data.error.message || "Error fetching vendor data.");
         } else {
           const vendorData = data.data[0];
-          setFormData(vendorData);
-          setDishData(vendorData.menu || []);
+          if (vendorData.length == 0) {
+            router.push("/become-vendor");
+          } else {
+            setFormData(vendorData);
+            setDishData(vendorData.menu || []);
+          }
         }
       } catch (error) {
         toast.error("Error fetching vendor data.");

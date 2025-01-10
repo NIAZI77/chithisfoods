@@ -79,7 +79,11 @@ export default function AddMenu() {
           toast.error(data.error.message || "Error fetching vendor data.");
         } else {
           const vendorData = data.data[0];
-          setFormData(vendorData);
+          if (vendorData.length == 0) {
+            router.push("/become-vendor")
+          } else {
+            setFormData(vendorData);
+          }
         }
       } catch (error) {
         toast.error("Error fetching vendor data.");
