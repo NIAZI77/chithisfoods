@@ -245,10 +245,13 @@ const Page = () => {
                     </div>
                   )}
                 </div>
-                <div>Cooking TIme : {dish.cooking_time} minutes</div>
+                <div>
+                  <span className="font-bold"> Cooking TIme :</span>{" "}
+                  {dish.cooking_time} minutes
+                </div>
               </div>
-              <div className="flex items-center justify-start py-2">
-                <h2>Description</h2>
+              <div>
+                <h2 className="font-bold text-center">Description</h2>
                 <p className="text-center text-slate-700">{dish.description}</p>
               </div>
             </div>

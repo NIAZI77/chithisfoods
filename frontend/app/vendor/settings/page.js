@@ -57,10 +57,6 @@ export default function AccountSettings() {
       } else {
         const vendorData = data.data[0];
         setFormData(vendorData);
-        setFormData((prevData) => ({
-          ...prevData,
-          description: vendorData.description[0].children[0].text,
-        }));
       }
     } catch (error) {
       toast.error("Error fetching vendor data.");
@@ -173,17 +169,7 @@ export default function AccountSettings() {
               name: formData.name,
               logo: formData.logo.id,
               coverImage: formData.coverImage.id,
-              description: [
-                {
-                  type: "paragraph",
-                  children: [
-                    {
-                      type: "text",
-                      text: formData.description,
-                    },
-                  ],
-                },
-              ],
+              description:formData.description,
               location: formData.location,
             },
           }),

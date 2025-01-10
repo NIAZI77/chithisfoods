@@ -83,10 +83,6 @@ export default function EditDish({ params }) {
           setFormData(vendorData);
           let di = (vendorData.menu ?? []).find((dish) => dish.id == id);
           setDish(di);
-          setFormData((prevData) => ({
-            ...prevData,
-            description: vendorData.description[0].children[0].text,
-          }));
         }
       } catch (error) {
         toast.error("Error fetching vendor data.");

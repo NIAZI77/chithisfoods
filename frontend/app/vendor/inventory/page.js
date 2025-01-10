@@ -53,7 +53,7 @@ export default function MenuPage() {
         } else {
           const vendorData = data.data[0];
           setFormData(vendorData);
-          setDishData(vendorData.menu);
+          setDishData(vendorData.menu || []);
         }
       } catch (error) {
         toast.error("Error fetching vendor data.");

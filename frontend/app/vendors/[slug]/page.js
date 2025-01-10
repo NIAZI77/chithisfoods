@@ -50,14 +50,15 @@ const Page = () => {
 
   if (loading) return <Loading />;
 
-  if (!vendor) return <Custom404/>;
+  if (!vendor) return <Custom404 />;
 
   return (
     <div className="container mx-auto w-[80%] p-4">
       <div
         className="md:h-96 h-36 relative bg-cover bg-center mt-6"
         style={{
-          backgroundImage: vendor.coverImage.url && `url('${vendor.coverImage.url}')`,
+          backgroundImage:
+            vendor.coverImage.url && `url('${vendor.coverImage.url}')`,
         }}
       >
         <div className="absolute md:bottom-[-60px] bottom-[-50px] left-1/2 transform -translate-x-1/2 md:w-32 md:h-32 w-24 h-24 rounded-full overflow-hidden border-4 border-white bg-red-400">
@@ -80,9 +81,6 @@ const Page = () => {
             </div>
           </div>
         </h1>
-        <p className="text-center pt-2">
-          {vendor.description[0].children[0].text && vendor.description[0].children[0].text}
-        </p>
         <p className="text-center pt-2 font-semibold">
           {vendor.location.country
             .split(" ")
@@ -107,6 +105,9 @@ const Page = () => {
                 part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
             )
             .join(" ")}
+        </p>
+        <p className="text-center pt-2">
+          {vendor.description && vendor.description}
         </p>
       </div>
       <div className="pt-24">

@@ -14,36 +14,38 @@
   "attributes": {
     "name": {
       "type": "string",
-      "required": true,
-      "unique": true
+      "required": true
     },
-    "description": {
-      "type": "blocks"
+    "logo": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "coverImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
     },
     "email": {
       "type": "email",
       "required": true,
       "unique": true
     },
-    "logo": {
-      "type": "media",
-      "multiple": false,
-      "required": true,
-      "allowedTypes": [
-        "images"
-      ]
+    "description": {
+      "type": "text"
+    },
+    "menu": {
+      "type": "json"
     },
     "location": {
       "type": "json",
       "required": true
-    },
-    "rating": {
-      "type": "integer",
-      "default": 0,
-      "required": false
-    },
-    "menu": {
-      "type": "json"
     },
     "offers": {
       "type": "json"
@@ -52,16 +54,10 @@
       "type": "boolean",
       "default": false
     },
-    "coverImage": {
-      "type": "media",
-      "multiple": false,
-      "required": true,
-      "allowedTypes": [
-        "images"
-      ]
-    },
-    "review": {
-      "type": "json"
+    "rating": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
     }
   }
 }

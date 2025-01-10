@@ -30,7 +30,6 @@ export default function VendorForm() {
     menu: [],
     offers: [],
     isTopRated: false,
-    review: [],
   });
 
   const getCookie = (name) => {
@@ -127,17 +126,7 @@ export default function VendorForm() {
           data: {
             ...formData,
             email: email,
-            description: [
-              {
-                type: "paragraph",
-                children: [
-                  {
-                    type: "text",
-                    text: formData.description,
-                  },
-                ],
-              },
-            ],
+            description:"",
           },
         }),
       });

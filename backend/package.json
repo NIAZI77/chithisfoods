@@ -11,10 +11,10 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/plugin-cloud": "5.4.2",
-    "@strapi/plugin-users-permissions": "5.4.2",
-    "@strapi/provider-upload-cloudinary": "^5.4.2",
-    "@strapi/strapi": "5.4.2",
+    "@strapi/plugin-cloud": "5.7.0",
+    "@strapi/plugin-users-permissions": "5.7.0",
+    "@strapi/provider-upload-cloudinary": "^5.7.0",
+    "@strapi/strapi": "5.7.0",
     "better-sqlite3": "11.3.0",
     "pg": "^8.13.1",
     "react": "^18.0.0",
@@ -27,6 +27,6 @@
     "npm": ">=6.0.0"
   },
   "strapi": {
-    "uuid": "449cc631-4c46-4778-a916-517a8aee354e"
+    "uuid": "4324982a-03f8-42ab-a172-e2b4bbd7a88a"
   }
 }

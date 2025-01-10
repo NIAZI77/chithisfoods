@@ -80,10 +80,6 @@ export default function AddMenu() {
         } else {
           const vendorData = data.data[0];
           setFormData(vendorData);
-          setFormData((prevData) => ({
-            ...prevData,
-            description: vendorData.description[0].children[0].text,
-          }));
         }
       } catch (error) {
         toast.error("Error fetching vendor data.");

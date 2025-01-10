@@ -1,666 +1,82 @@
 {
-  "data": [
-    {
-      "id": 10,
-      "documentId": "ezi0bg0tpwi1itihnliuk1tc",
-      "name": "Ali",
+      "id": 8,
+      "documentId": "lt9c6649x0vpl52o97cz0bj3",
+      "name": "Hamza Niazi",
       "description": [
         {
           "type": "paragraph",
           "children": [
             {
-              "type": "text",
-              "text": "i am ashef"
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "children": [
-            {
-              "type": "text",
-              "text": ""
+              "text": "mjhgjl",
+              "type": "text"
             }
           ]
         }
       ],
-      "email": "niazi0999@gmail.com",
+      "email": "hamzaniazi0999@gmail.com",
       "location": {
-        "city": "New York",
-        "state": "New York",
-        "zipcode": "10001",
-        "country": "USA"
+        "city": "chowk Munda",
+        "state": "Punjab",
+        "country": "Pakistan",
+        "zipcode": "34030"
       },
-
-      "ratting": 0,
+      "rating": 0,
       "menu": [
         {
-          "itemId": "1",
-          "itemName": "Cheese Pizza",
-          "itemDescription": "A delicious cheese pizza with a thin crust.",
-          "itemPrice": "49.99",
-          "itemImage": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1732894890/logo_f47013875c.ico"
-        },
-        {
-          "itemId": "2",
-          "itemName": "Cheese Pizza",
-          "itemDescription": "A delicious cheese pizza with a thin crust.",
-          "itemPrice": "49.99",
-          "itemImage": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1732894890/logo_f47013875c.ico"
-        },
-        {
-          "itemId": "3",
-          "itemName": "Cheese Pizza",
-          "itemDescription": "A delicious cheese pizza with a thin crust.",
-          "itemPrice": "49.99",
-          "itemImage": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1732894890/logo_f47013875c.ico"
+          "id": 1736425736756,
+          "name": "Pasta",
+          "image": {
+            "id": 28,
+            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1736425714/pp1_51799b3f81.jpg"
+          },
+          "price": "99",
+          "serving": "99",
+          "category": "Vegetable",
+          "spiciness": [
+            "Mild",
+            "Medium"
+          ],
+          "vegetarian": false,
+          "description": "iurirtyriythn",
+          "ingredients": [
+            "ugien",
+            "elubkcj",
+            "iuyocbwehk",
+            "iucefnhk",
+            "uyncefkh",
+            "uynwejh"
+          ],
+          "cooking_time": "60",
+          "available_days": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu"
+          ],
+          "dish_availability": "Available"
         }
       ],
-      "offers": [
-        {
-          "offerId": "1",
-          "offerTitle": "Holiday Discount",
-          "offerDescription": "Get 20% off on all orders above $50 this holiday season.",
-          "discount": "20%",
-          "validUntil": "2024-12-31"
-        },
-        {
-          "offerId": "2",
-          "offerTitle": "Free Delivery",
-          "offerDescription": "Enjoy free delivery on orders over $30.",
-          "discount": "Free Delivery",
-          "validUntil": "2024-11-30"
-        },
-        {
-          "offerId": "3",
-          "offerTitle": "Buy 1 Get 1 Free",
-          "offerDescription": "Buy one pizza and get another one free. Perfect for sharing!",
-          "discount": "Buy 1 Get 1 Free",
-          "validUntil": "2024-12-15"
-        }
-      ],
-      "createdAt": "2024-12-08T04:30:01.648Z",
-      "updatedAt": "2024-12-08T04:30:01.648Z",
-      "publishedAt": "2024-12-08T04:30:01.693Z",
+      "offers": [],
       "isTopRated": false,
-      "isVegetarian": false,
-      "review": null,
-      "logo": {
-        "id": 11,
-        "documentId": "qz22fzk1iz63abz8m2vmk5m3",
-        "name": "v1.webp",
-        "alternativeText": null,
-        "caption": null,
-        "width": 150,
-        "height": 150,
-        "formats": null,
-        "hash": "v1_9c870663e4",
-        "ext": ".webp",
-        "mime": "image/webp",
-        "size": 6.29,
-        "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631823/v1_9c870663e4.webp",
-        "previewUrl": null,
-        "provider": "cloudinary",
-        "provider_metadata": {
-          "public_id": "v1_9c870663e4",
-          "resource_type": "image"
-        },
-        "createdAt": "2024-12-08T04:27:28.401Z",
-        "updatedAt": "2024-12-08T04:27:28.401Z",
-        "publishedAt": "2024-12-08T04:27:28.402Z"
-      },
-      "coverImage": {
-        "id": 12,
-        "documentId": "zth4bcdjts7w60o0na6emfa5",
-        "name": "p.webp",
-        "alternativeText": null,
-        "caption": null,
-        "width": 2400,
-        "height": 1697,
-        "formats": {
-          "thumbnail": {
-            "name": "thumbnail_p.webp",
-            "hash": "thumbnail_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 221,
-            "height": 156,
-            "size": 6.79,
-            "sizeInBytes": 6786,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631823/thumbnail_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "thumbnail_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          },
-          "medium": {
-            "name": "medium_p.webp",
-            "hash": "medium_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 750,
-            "height": 530,
-            "size": 53.18,
-            "sizeInBytes": 53178,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631825/medium_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "medium_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          },
-          "large": {
-            "name": "large_p.webp",
-            "hash": "large_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 1000,
-            "height": 707,
-            "size": 82.11,
-            "sizeInBytes": 82112,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631826/large_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "large_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          },
-          "small": {
-            "name": "small_p.webp",
-            "hash": "small_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 500,
-            "height": 354,
-            "size": 29.04,
-            "sizeInBytes": 29038,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631827/small_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "small_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          }
-        },
-        "hash": "p_7c5af0fe2d",
-        "ext": ".webp",
-        "mime": "image/webp",
-        "size": 289.2,
-        "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631826/p_7c5af0fe2d.webp",
-        "previewUrl": null,
-        "provider": "cloudinary",
-        "provider_metadata": {
-          "public_id": "p_7c5af0fe2d",
-          "resource_type": "image"
-        },
-        "createdAt": "2024-12-08T04:27:32.338Z",
-        "updatedAt": "2024-12-08T04:30:42.873Z",
-        "publishedAt": "2024-12-08T04:27:32.339Z"
-      }
+      "review": [],
+      "createdAt": "2025-01-09T12:27:56.435Z",
+      "updatedAt": "2025-01-09T12:29:17.472Z",
+      "publishedAt": "2025-01-09T12:29:19.376Z"
     },
-    {
-      "id": 11,
-      "documentId": "od7mmbxiag5iefr3adwwdsnm",
-      "name": "kiran",
-      "description": [
-        {
-          "type": "paragraph",
-          "children": [
-            {
-              "type": "text",
-              "text": "i am  shef"
-            }
-          ]
-        }
-      ],
-      "email": "irami0999@gmail.com",
-      "location": {
-        "city": "New York",
-        "state": "New York",
-        "zipcode": "10001",
-        "country": "USA"
-      },
-      "deliveryOptions": [
-        {
-          "deliveryType": "Local Delivery",
-          "fee": "5.00",
-          "minOrderValue": "20.00",
-          "deliveryTimeEstimate": "30-45 minutes",
-          "serviceArea": "Manhattan, Brooklyn, Queens"
-        },
-        {
-          "deliveryType": "Pickup",
-          "fee": "0.00",
-          "minOrderValue": "10.00",
-          "pickupInstructions": "Please pick up your order from the front counter during business hours."
-        }
-      ],
-      "hoursOfOperation": {
-        "monday": {
-          "open": true,
-          "openTime": "8:00",
-          "closeTime": "16:00"
-        },
-        "tuesday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "wednesday": {
-          "open": true,
-          "openTime": "9:00",
-          "closeTime": "15:00"
-        },
-        "thursday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "friday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "saturday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "sunday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        }
-      },
-      "ratting": 0,
-      "menu": [
-        {
-          "itemId": "1",
-          "itemName": "Cheese Pizza",
-          "itemDescription": "A delicious cheese pizza with a thin crust.",
-          "itemPrice": "49.99",
-          "itemImage": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1732894890/logo_f47013875c.ico"
-        },
-        {
-          "itemId": "2",
-          "itemName": "Cheese Pizza",
-          "itemDescription": "A delicious cheese pizza with a thin crust.",
-          "itemPrice": "49.99",
-          "itemImage": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1732894890/logo_f47013875c.ico"
-        },
-        {
-          "itemId": "3",
-          "itemName": "Cheese Pizza",
-          "itemDescription": "A delicious cheese pizza with a thin crust.",
-          "itemPrice": "49.99",
-          "itemImage": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1732894890/logo_f47013875c.ico"
-        }
-      ],
-      "offers": [
-        {
-          "offerId": "1",
-          "offerTitle": "Holiday Discount",
-          "offerDescription": "Get 20% off on all orders above $50 this holiday season.",
-          "discount": "20%",
-          "validUntil": "2024-12-31"
-        },
-        {
-          "offerId": "2",
-          "offerTitle": "Free Delivery",
-          "offerDescription": "Enjoy free delivery on orders over $30.",
-          "discount": "Free Delivery",
-          "validUntil": "2024-11-30"
-        },
-        {
-          "offerId": "3",
-          "offerTitle": "Buy 1 Get 1 Free",
-          "offerDescription": "Buy one pizza and get another one free. Perfect for sharing!",
-          "discount": "Buy 1 Get 1 Free",
-          "validUntil": "2024-12-15"
-        }
-      ],
-      "createdAt": "2024-12-08T04:18:35.065Z",
-      "updatedAt": "2024-12-08T04:30:51.737Z",
-      "publishedAt": "2024-12-08T04:30:51.766Z",
-      "isTopRated": true,
-      "isVegetarian": true,
-      "review": null,
-      "logo": {
-        "id": 10,
-        "documentId": "d6r249o0jhcrzryedbx13qth",
-        "name": "v2.webp",
-        "alternativeText": null,
-        "caption": null,
-        "width": 150,
-        "height": 227,
-        "formats": {
-          "thumbnail": {
-            "name": "thumbnail_v2.webp",
-            "hash": "thumbnail_v2_1dd4301fb5",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 103,
-            "height": 156,
-            "size": 3.34,
-            "sizeInBytes": 3342,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631823/thumbnail_v2_1dd4301fb5.webp",
-            "provider_metadata": {
-              "public_id": "thumbnail_v2_1dd4301fb5",
-              "resource_type": "image"
-            }
-          }
-        },
-        "hash": "v2_1dd4301fb5",
-        "ext": ".webp",
-        "mime": "image/webp",
-        "size": 6.22,
-        "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631823/v2_1dd4301fb5.webp",
-        "previewUrl": null,
-        "provider": "cloudinary",
-        "provider_metadata": {
-          "public_id": "v2_1dd4301fb5",
-          "resource_type": "image"
-        },
-        "createdAt": "2024-12-08T04:27:28.378Z",
-        "updatedAt": "2024-12-08T04:27:28.378Z",
-        "publishedAt": "2024-12-08T04:27:28.379Z"
-      },
-      "coverImage": {
-        "id": 12,
-        "documentId": "zth4bcdjts7w60o0na6emfa5",
-        "name": "p.webp",
-        "alternativeText": null,
-        "caption": null,
-        "width": 2400,
-        "height": 1697,
-        "formats": {
-          "thumbnail": {
-            "name": "thumbnail_p.webp",
-            "hash": "thumbnail_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 221,
-            "height": 156,
-            "size": 6.79,
-            "sizeInBytes": 6786,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631823/thumbnail_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "thumbnail_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          },
-          "medium": {
-            "name": "medium_p.webp",
-            "hash": "medium_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 750,
-            "height": 530,
-            "size": 53.18,
-            "sizeInBytes": 53178,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631825/medium_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "medium_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          },
-          "large": {
-            "name": "large_p.webp",
-            "hash": "large_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 1000,
-            "height": 707,
-            "size": 82.11,
-            "sizeInBytes": 82112,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631826/large_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "large_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          },
-          "small": {
-            "name": "small_p.webp",
-            "hash": "small_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 500,
-            "height": 354,
-            "size": 29.04,
-            "sizeInBytes": 29038,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631827/small_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "small_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          }
-        },
-        "hash": "p_7c5af0fe2d",
-        "ext": ".webp",
-        "mime": "image/webp",
-        "size": 289.2,
-        "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631826/p_7c5af0fe2d.webp",
-        "previewUrl": null,
-        "provider": "cloudinary",
-        "provider_metadata": {
-          "public_id": "p_7c5af0fe2d",
-          "resource_type": "image"
-        },
-        "createdAt": "2024-12-08T04:27:32.338Z",
-        "updatedAt": "2024-12-08T04:30:42.873Z",
-        "publishedAt": "2024-12-08T04:27:32.339Z"
-      }
-    },
-    {
-      "id": 13,
-      "documentId": "qfqh0p9xqgtv7669zrbndx27",
-      "name": "samema",
-      "description": [
-        {
-          "type": "paragraph",
-          "children": [
-            {
-              "type": "text",
-              "text": "i am asef"
-            }
-          ]
-        }
-      ],
-      "email": "jtvyujdgvvhjaniazi0999@gmail.com",
-      "location": {
-        "city": "New York",
-        "state": "New York",
-        "zipcode": "10001",
-        "country": "USA"
-      },
-      "deliveryOptions": [
-        {
-          "deliveryType": "Local Delivery",
-          "fee": "5.00",
-          "minOrderValue": "20.00",
-          "deliveryTimeEstimate": "30-45 minutes",
-          "serviceArea": "Manhattan, Brooklyn, Queens"
-        },
-        {
-          "deliveryType": "Pickup",
-          "fee": "0.00",
-          "minOrderValue": "10.00",
-          "pickupInstructions": "Please pick up your order from the front counter during business hours."
-        }
-      ],
-      "hoursOfOperation": {
-        "monday": {
-          "open": true,
-          "openTime": "8:00",
-          "closeTime": "16:00"
-        },
-        "tuesday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "wednesday": {
-          "open": true,
-          "openTime": "9:00",
-          "closeTime": "15:00"
-        },
-        "thursday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "friday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "saturday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        },
-        "sunday": {
-          "open": false,
-          "openTime": "",
-          "closeTime": ""
-        }
-      },
-      "ratting": 0,
-      "menu": null,
-      "offers": null,
-      "createdAt": "2024-12-08T04:32:33.442Z",
-      "updatedAt": "2024-12-08T04:32:33.442Z",
-      "publishedAt": "2024-12-08T04:32:33.475Z",
-      "isTopRated": true,
-      "isVegetarian": false,
-      "review": null,
-      "logo": {
-        "id": 9,
-        "documentId": "byk4ijvhh5ivy52gj9lm3cel",
-        "name": "v3.webp",
-        "alternativeText": null,
-        "caption": null,
-        "width": 150,
-        "height": 150,
-        "formats": null,
-        "hash": "v3_d11030ae44",
-        "ext": ".webp",
-        "mime": "image/webp",
-        "size": 3.39,
-        "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631823/v3_d11030ae44.webp",
-        "previewUrl": null,
-        "provider": "cloudinary",
-        "provider_metadata": {
-          "public_id": "v3_d11030ae44",
-          "resource_type": "image"
-        },
-        "createdAt": "2024-12-08T04:27:28.308Z",
-        "updatedAt": "2024-12-08T04:27:28.308Z",
-        "publishedAt": "2024-12-08T04:27:28.309Z"
-      },
-      "coverImage": {
-        "id": 12,
-        "documentId": "zth4bcdjts7w60o0na6emfa5",
-        "name": "p.webp",
-        "alternativeText": null,
-        "caption": null,
-        "width": 2400,
-        "height": 1697,
-        "formats": {
-          "thumbnail": {
-            "name": "thumbnail_p.webp",
-            "hash": "thumbnail_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 221,
-            "height": 156,
-            "size": 6.79,
-            "sizeInBytes": 6786,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631823/thumbnail_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "thumbnail_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          },
-          "medium": {
-            "name": "medium_p.webp",
-            "hash": "medium_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 750,
-            "height": 530,
-            "size": 53.18,
-            "sizeInBytes": 53178,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631825/medium_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "medium_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          },
-          "large": {
-            "name": "large_p.webp",
-            "hash": "large_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 1000,
-            "height": 707,
-            "size": 82.11,
-            "sizeInBytes": 82112,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631826/large_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "large_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          },
-          "small": {
-            "name": "small_p.webp",
-            "hash": "small_p_7c5af0fe2d",
-            "ext": ".webp",
-            "mime": "image/webp",
-            "path": null,
-            "width": 500,
-            "height": 354,
-            "size": 29.04,
-            "sizeInBytes": 29038,
-            "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631827/small_p_7c5af0fe2d.webp",
-            "provider_metadata": {
-              "public_id": "small_p_7c5af0fe2d",
-              "resource_type": "image"
-            }
-          }
-        },
-        "hash": "p_7c5af0fe2d",
-        "ext": ".webp",
-        "mime": "image/webp",
-        "size": 289.2,
-        "url": "https://res.cloudinary.com/dcxnzeryz/image/upload/v1733631826/p_7c5af0fe2d.webp",
-        "previewUrl": null,
-        "provider": "cloudinary",
-        "provider_metadata": {
-          "public_id": "p_7c5af0fe2d",
-          "resource_type": "image"
-        },
-        "createdAt": "2024-12-08T04:27:32.338Z",
-        "updatedAt": "2024-12-08T04:30:42.873Z",
-        "publishedAt": "2024-12-08T04:27:32.339Z"
-      }
-    }
-  ],
-  "meta": {
-    "pagination": {
-      "page": 1,
-      "pageSize": 25,
-      "pageCount": 1,
-      "total": 3
-    }
-  }
-}
+
+
+
+DATABASE_NAME=defaultdb
+DATABASE_URL=postgres://avnadmin:AVNS_d-objN65ygGnUTejrxA@pg-hamzaniazi0999-e2d0.b.aivencloud.com:13063/defaultdb?sslmode=require
+DATABASE_HOST=pg-hamzaniazi0999-e2d0.b.aivencloud.com
+DATABASE_PORT=13063
+DATABASE_USERNAME=avnadmin
+DATABASE_PASSWORD=AVNS_d-objN65ygGnUTejrxA
+APP_KEYS=evyudjdjfbhgytevujrbudgdvjrtjjddv,hscytcrtcctwcwtcwcwywwcy,creceuuveueveuerue
+API_TOKEN_SALT=tobemjhvodified
+ADMIN_JWT_SECRET=tobemvkodified
+TRANSFER_TOKEN_SALT=tobvkjemodified
+JWT_SECRET=tobemodijvkfied
+CLOUDINARY_NAME=dcxnzeryz
+CLOUDINARY_KEY=857948519181651
+CLOUDINARY_SECRET=rGWdYHuvimIy7ssv6ZVrU6lcWc8
