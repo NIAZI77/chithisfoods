@@ -140,12 +140,12 @@ export default function MenuPage() {
           {dishData.map((dish, index) => (
             <div key={index} className="border-b py-4 last:border-b-0">
               <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
-                <div className="border p-2 text-gray-400 w-full md:w-32">
+                <div className="border p-2 text-gray-400 w-full md:w-40">
                   {dish.image && dish.image.url ? (
                     <img
                       src={dish.image.url}
                       alt={dish.name}
-                      className="w-full h-32 object-cover"
+                      className="w-full h-20 object-cover"
                     />
                   ) : (
                     <span>Please Add Photo</span>

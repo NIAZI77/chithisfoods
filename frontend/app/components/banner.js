@@ -7,9 +7,9 @@ import Link from "next/link";
 
 export default function Banner() {
   const [banners, setBanners] = useState([
-    "/banner.png",
-    "/banner.png",
-    "/banner.png",
+    "/banner-1.jpg",
+    "/banner-2.jpg",
+    "/banner-3.jpg",
   ]);
 
   const settings = {

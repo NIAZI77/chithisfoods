@@ -39,7 +39,12 @@ export default function Navbar() {
     setJwt(storedJwt);
     setUser(storedUser);
 
-    if (!storedJwt || storedJwt === "undefined" || storedJwt === null || !storedUser) {
+    if (
+      !storedJwt ||
+      storedJwt === "undefined" ||
+      storedJwt === null ||
+      !storedUser
+    ) {
       setLogin(false);
       if (pathname.includes("profile")) {
         router.push("/login");
@@ -238,22 +243,6 @@ export default function Navbar() {
                   className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0"
                 >
                   Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/menu"
-                  className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0"
-                >
-                  Menu
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services"
-                  className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0"
-                >
-                  Services
                 </Link>
               </li>
             </ul>
