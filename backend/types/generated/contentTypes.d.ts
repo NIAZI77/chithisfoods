@@ -399,7 +399,9 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     location: Schema.Attribute.JSON & Schema.Attribute.Required;
     logo: Schema.Attribute.Media<'images'>;
     menu: Schema.Attribute.JSON;
-    name: Schema.Attribute.String & Schema.Attribute.Required;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
     offers: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
     rating: Schema.Attribute.Integer &

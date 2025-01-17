@@ -7,7 +7,10 @@ import Loading from "@/app/loading";
 
 export default function DeliciousDeals() {
   const [shefs, setShefs] = useState([]);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stateVendor, setStateVendor] = useState([]);
+
   useEffect(() => {
     const fetchVendors = async () => {
       setLoading(true);
@@ -22,6 +25,7 @@ export default function DeliciousDeals() {
           }
         );
         const data = await response.json();
+        setData(data.data);
         setShefs(data.data);
       } catch (error) {
         console.error("Error fetching vendors:", error);
@@ -32,6 +36,14 @@ export default function DeliciousDeals() {
 
     fetchVendors();
   }, []);
+
+  useEffect(() => {
+    if (data.length > 0) {
+      const groupedVendors = groupVendorsByState(data);
+      setStateVendor(groupedVendors);
+    }
+  }, [data]);
+
   const settings = {
     dots: false,
     infinite: true,
@@ -66,29 +78,60 @@ export default function DeliciousDeals() {
     ],
   };
 
+  function groupVendorsByState(vendors) {
+    const grouped = vendors.reduce((acc, vendor) => {
+      const state = vendor.location.state.toLowerCase();
+      if (!acc[state]) {
+        acc[state] = [];
+      }
+      acc[state].push(vendor);
+      return acc;
+    }, {});
+
+    return Object.entries(grouped).map(([state, vendorData]) => ({
+      state,
+      vendorData,
+    }));
+  }
+
   if (loading) {
     return <Loading />;
   }
 
   return (
     <>
-      {shefs.length > 2 && (
-        <div className="mx-auto p-2">
-          <h2 className="text-3xl font-bold mb-4">American Shef</h2>
-          <div className="flex justify-center items-center">
-            <Slider
-              {...settings}
-              className="w-full mx-auto flex items-center justify-center"
-            >
-              {shefs.map((chef, index) => (
-                <div key={index} className="!flex justify-center items-center">
-                  <VendorCard vendor={chef} className="mx-auto" />
-                </div>
-              ))}
-            </Slider>
-          </div>
+      {stateVendor.map((group, index) => (
+        <div key={index}>
+          {group.vendorData.length > 2 && (
+            <div className="mx-auto p-2 py-6">
+              <h2 className="text-3xl font-bold mb-4">
+                {group.state
+                  .split(" ")
+                  .map(
+                    (part) =>
+                      part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+                  )
+                  .join(" ")}
+              </h2>
+              <div className="flex justify-center items-center">
+                <Slider
+                  {...settings}
+                  className="w-full mx-auto flex items-center justify-center"
+                >
+                  {group.vendorData.map((chef, index) => (
+                    <div
+                      key={index}
+                      className="!flex justify-center items-center"
+                    >
+                      <VendorCard vendor={chef} className="mx-auto" />
+                    </div>
+                  ))}
+                </Slider>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      ))}
     </>
   );
 }

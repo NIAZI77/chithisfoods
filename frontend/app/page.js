@@ -1,15 +1,14 @@
 "use client";
 
-import React from 'react';
-import Banner from '@/app/components/banner';
-import DeliciousDeals from '@/app/HomeComponents/DeliciousDeals';
-import StateShefs from '@/app/HomeComponents/StateShefs';
-import TopCategories from './HomeComponents/topCategories';
-import TopShef from './HomeComponents/topShef';
+import React from "react";
+import Banner from "@/app/components/banner";
+import StateShefs from "@/app/HomeComponents/StateShefs";
+import TopCategories from "./HomeComponents/topCategories";
+import TopShef from "./HomeComponents/topShef";
 
 const Home = () => {
   return (
-    <div className='md:w-[80%] w-[90%] mx-auto py-5 space-y-10'>
+    <div className="md:w-[80%] w-[90%] mx-auto py-5 space-y-10">
       <div>
         <Banner />
       </div>
@@ -18,9 +17,6 @@ const Home = () => {
       </div>
       <div>
         <TopShef />
-      </div>
-      <div>
-        <DeliciousDeals />
       </div>
       <div>
         <StateShefs />

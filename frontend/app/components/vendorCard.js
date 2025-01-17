@@ -45,9 +45,29 @@ const VendorCard = ({ vendor }) => {
                 .join(" ")}
             </h2>
             <p className="text-sm text-gray-500">
-              {vendor.location.city} · {vendor.location.state}
+              {vendor.location.city
+                .split(" ")
+                .map(
+                  (part) =>
+                    part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+                )
+                .join(" ")}{" "}
+              ·{" "}
+              {vendor.location.state
+                .split(" ")
+                .map(
+                  (part) =>
+                    part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+                )
+                .join(" ")}
               <br />
-              {vendor.location.country}
+              {vendor.location.country
+                .split(" ")
+                .map(
+                  (part) =>
+                    part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+                )
+                .join(" ")}
             </p>
             <div className="flex items-center space-x-2">
               <FaStar className="text-yellow-400" />

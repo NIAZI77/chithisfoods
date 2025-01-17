@@ -1,16 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FaStar } from "react-icons/fa";
-const ProductCard = ({ product, logo, location,documentId }) => {
+const ProductCard = ({ product, logo, location, documentId }) => {
   return (
     <Link href={`/product/${documentId}?productId=${product.id}`} passHref>
       <div className="m-4 max-w-72 w-72 h-80 max-h-80 overflow-hidden bg-slate-50 rounded-md p-4 relative">
         <div>
-          {!product.dish_availability &&
+          {!product.dish_availability && (
             <div className="bg-red-600 inline-block mx-auto px-2 py-1 rounded absolute top-6 left-5">
               not Available
             </div>
-          }
+          )}
         </div>
 
         <div className="mb-4">
@@ -18,7 +18,7 @@ const ProductCard = ({ product, logo, location,documentId }) => {
             height={100}
             width={100}
             src={product.image.url}
-            alt={`${product.name} profile`}
+            alt={`${product.name}`}
             className="w-full h-32 object-cover rounded-lg mb-2"
           />
         </div>
@@ -41,11 +41,6 @@ const ProductCard = ({ product, logo, location,documentId }) => {
                 )
                 .join(" ")}
             </h2>
-            <p className="text-sm text-gray-500">
-              {location.city} · {location.state}
-              <br />
-              {location.country}
-            </p>
             <div>
               {product.vegetarian ? (
                 <div className="font-bold text-sm text-slate-500">
@@ -56,6 +51,10 @@ const ProductCard = ({ product, logo, location,documentId }) => {
                   Non-Vegetarian Dish
                 </div>
               )}
+            </div>
+            <div className="flex items-center justify-between py-1">
+              <span className="font-bold text-sm text-slate-500">Serving Size</span>
+              <span className="">{product.serving}</span>
             </div>
             <div className="flex items-center justify-between space-x-2">
               <div className="font-semibold text-lg text-slate-700">
