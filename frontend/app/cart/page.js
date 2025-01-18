@@ -4,7 +4,6 @@ import { FaConciergeBell, FaTrashAlt } from "react-icons/fa";
 import { RiArrowLeftSLine } from "react-icons/ri";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Image from "next/image";
 import Link from "next/link";
 
 const Cart = () => {
@@ -12,9 +11,19 @@ const Cart = () => {
   const [shippingFee, setShippingFee] = useState(4.99);
   const [taxRate, setTaxRate] = useState(18);
 
-  const updateQuantity = (item_id, quantity) => {
+  const incrementQuantity = (item_id, quantity) => {
     const updatedCartItems = cartItems.map((item) =>
-      item.id === item_id ? { ...item, quantity } : item
+      item.id === item_id ? { ...item, quantity: quantity + 1 } : item
+    );
+    setCartItems(updatedCartItems);
+    localStorage.setItem("cart", JSON.stringify(updatedCartItems));
+  };
+
+  const decrementQuantity = (item_id, quantity) => {
+    const updatedCartItems = cartItems.map((item) =>
+      item.id === item_id && quantity > 1
+        ? { ...item, quantity: quantity - 1 }
+        : item
     );
     setCartItems(updatedCartItems);
     localStorage.setItem("cart", JSON.stringify(updatedCartItems));
@@ -42,9 +51,11 @@ const Cart = () => {
     const cart = localStorage.getItem("cart");
     setCartItems(JSON.parse(cart) || []);
   }, []);
+
   useEffect(() => {
     localStorage.setItem("total", finalTotal.toFixed(2));
   }, [cartItems, finalTotal]);
+
   return (
     <div className="container mx-auto my-10">
       <div className="sm:flex my-10">
@@ -54,12 +65,12 @@ const Cart = () => {
             <h2 className="font-semibold text-2xl">{cartItems.length} Items</h2>
           </div>
 
-          {cartItems.map((item, index) => (
+          {cartItems.map((item) => (
             <div
-              key={index}
+              key={item.id}
               className="md:flex items-stretch py-8 md:py-10 lg:py-8 border-t border-gray-50"
             >
-              <div className="md:w-4/12 2xl:w-1/4 w-full mb-5">
+              <Link href={`/product/${item.vendorID}?productId=${item.id}`} className="md:w-4/12 2xl:w-1/4 w-full mb-5">
                 <img
                   height={100}
                   width={100}
@@ -74,32 +85,35 @@ const Cart = () => {
                   alt={item.name}
                   className="md:hidden w-full h-full object-center object-cover"
                 />
-              </div>
+              </Link>
               <div className="md:pl-3 md:w-8/12 2xl:w-3/4 flex flex-col justify-center">
                 <div className="flex items-center justify-between w-full">
                   <p className="text-base font-black leading-none text-gray-800">
                     {item.name}
                   </p>
-                  <select
-                    aria-label="Select quantity"
-                    className="py-2 px-1 border border-gray-200 mr-6"
-                    value={item.quantity}
-                    onChange={(e) =>
-                      updateQuantity(item.id, parseInt(e.target.value))
-                    }
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((qty) => (
-                      <option key={qty} value={qty}>
-                        {qty < 10 ? `0${qty}` : qty}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-center font-semibold border-orange-100">
+                      <span
+                        onClick={() => decrementQuantity(item.id, item.quantity)}
+                        className="cursor-pointer rounded-l font-bold bg-orange-100 py-1 px-3.5 duration-100 hover:bg-orange-500 hover:text-orange-50 "
+                      >
+                        -
+                      </span>
+                      <span className="text-center px-2">{item.quantity}</span>
+                      <span
+                        onClick={() => incrementQuantity(item.id, item.quantity)}
+                        className="cursor-pointer rounded-r font-bold bg-orange-100 py-1 px-3 duration-100 hover:bg-orange-500 hover:text-orange-50"
+                      >
+                        +
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <div className=" py-3 flex items-center justify-between">
                   <p className="text-base font-black leading-none text-gray-800">
                     <FaConciergeBell className="inline mr-1" /> Serving Size
                   </p>
-                  <p className="mr-6">{item.serving * item.quantity}</p>
+                  <p className="mr-9">{item.serving * item.quantity}</p>
                 </div>
                 <div className="flex items-center justify-between">
                   <p className="text-base font-black leading-none text-gray-600">
@@ -127,11 +141,9 @@ const Cart = () => {
 
         <div
           id="summary"
-          className="w-full sm:w-1/4 md:w-1/2 px-8 py-10 bg-slate-100"
+          className="w-full sm:w-1/4 md:w-1/2 px-8 py-10"
         >
-          <h1 className="font-semibold text-2xl border-b pb-8">
-            Order Summary
-          </h1>
+          <h1 className="font-semibold text-2xl border-b pb-8">Order Summary</h1>
           <div className="flex justify-between mt-10 mb-5">
             <span className="font-semibold text-sm uppercase">
               Items {cartItems.length}
@@ -166,7 +178,7 @@ const Cart = () => {
                 </button>
               </Link>
             )}
-            {cartItems.length == 0 && (
+            {cartItems.length === 0 && (
               <button
                 disabled={true}
                 className="bg-orange-300 font-semibold hover:bg-orange-300 py-3 text-sm text-white uppercase w-full cursor-not-allowed"

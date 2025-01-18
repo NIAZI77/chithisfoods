@@ -1,4 +1,5 @@
 "use client";
+import TopShef from "@/app/HomeComponents/topShef";
 import Loading from "@/app/loading";
 import Custom404 from "@/app/not-found";
 import { useParams, useSearchParams } from "next/navigation";
@@ -55,7 +56,7 @@ const Page = () => {
           setProductNotFound(true);
         }
       } else {
-        toast.error(data.error?.message || "An error occurred");
+        setProductNotFound(false);
       }
     } catch (error) {
       console.error("Error fetching vendor:", error);
@@ -202,7 +203,10 @@ const Page = () => {
                 <button
                   className="flex items-center justify-center w-full rounded-md bg-orange-500 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => addToCart(dish, quantity, selectedSpiciness)}
-                  disabled={!dish.available_days.includes(getShortDayName())}
+                  disabled={
+                    !dish.available_days.includes(getShortDayName()) ||
+                    dish.dish_availability !== "Available"
+                  }
                 >
                   <FaCartArrowDown />
                   <span className="pl-2 font-bold">Add To Cart</span>
@@ -211,7 +215,7 @@ const Page = () => {
 
               <div>
                 <div>
-                  <div className="flex items-center font-bold text-lg text-slate-700 py-2">
+                  <div className="flex items-center font-bold text-lg text-slate-700 py-2 select-text">
                     <img
                       height={50}
                       width={50}
@@ -257,6 +261,9 @@ const Page = () => {
             </div>
           </div>
         )}
+      </div>
+      <div className="py-5">
+        <TopShef />
       </div>
       <ToastContainer />
     </>

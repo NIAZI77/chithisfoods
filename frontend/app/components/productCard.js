@@ -4,11 +4,11 @@ import { FaStar } from "react-icons/fa";
 const ProductCard = ({ product, logo, location, documentId }) => {
   return (
     <Link href={`/product/${documentId}?productId=${product.id}`} passHref>
-      <div className="m-4 max-w-72 w-72 h-80 max-h-80 overflow-hidden bg-slate-50 rounded-md p-4 relative">
+      <div className="m-4 max-w-72 w-72 h-72 max-h-72 overflow-hidden bg-slate-50 rounded-md p-4 relative">
         <div>
-          {!product.dish_availability && (
-            <div className="bg-red-600 inline-block mx-auto px-2 py-1 rounded absolute top-6 left-5">
-              not Available
+          {product.dish_availability == "Unavailable" && (
+            <div className="bg-red-600 inline-block mx-auto px-2 py-1 rounded absolute top-6 left-5 font-bold text-white text-xs">
+              Not Available
             </div>
           )}
         </div>
@@ -32,7 +32,7 @@ const ProductCard = ({ product, logo, location, documentId }) => {
             className="w-14 h-14 rounded-full object-cover mr-4"
           />
           <div className="">
-            <h2 className="text-lg font-bold">
+            <h2 className="text-lg font-bold select-text">
               {product.name
                 .split(" ")
                 .map(

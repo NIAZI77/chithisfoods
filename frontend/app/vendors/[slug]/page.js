@@ -73,7 +73,7 @@ const Page = () => {
       </div>
       <div>
         <h1 className="text-2xl font-bold md:mt-20 mt-14 text-center">
-          <div className="flex items-center justify-center space-x-4">
+          <div className="flex items-center justify-center space-x-4 select-text">
             <div>{vendor.name}</div>
             <div className="flex items-center justify-center text-orange-300">
               <FaStar className="pr-1" />
