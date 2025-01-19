@@ -7,9 +7,10 @@ import "react-toastify/dist/ReactToastify.css";
 
 export default function CheckoutPage() {
   const router = useRouter();
-
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -24,28 +25,96 @@ export default function CheckoutPage() {
     setCartItems(JSON.parse(cart) || []);
     const subtotal = localStorage.getItem("total");
     setTotal(subtotal);
-  }, []);
+    if (!cart || cart.length === 0) {
+      router.push("/");
+    }
+  }, [router]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  function transformData(data) {
+    const result = [];
+    const vendors = {};
+
+    data.products.forEach((product) => {
+      if (!vendors[product.vendorID]) {
+        vendors[product.vendorID] = [];
+      }
+      vendors[product.vendorID].push(product);
+    });
+
+    for (const vendorID in vendors) {
+      const user = { ...data.user };
+      const products = vendors[vendorID];
+      result.push({ user, products });
+    }
+
+    return result;
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    toast.success("Order placed successfully!");
-
-    localStorage.removeItem("cart");
-    localStorage.removeItem("total");
-
-    console.log({
+  
+    const orders = transformData({
       user: formData,
       products: cartItems,
     });
+  
+    Promise.all(
+      orders.map(async (item) => {
+        try {
+          setSubmitting(true);
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+              },
+              body: JSON.stringify({
+                data: item,
+              }),
+            }
+          );
+          const data = await response.json();
+  
+          if (response.ok) {
+            localStorage.removeItem("cart");
+            localStorage.removeItem("total");
+            setSuccess(true);
+            return true;
+          } else {
+            setSuccess(false);
+            return false;
+          }
+        } catch (err) {
+          setSuccess(false);
+          return false;
+        } finally {
+          setSubmitting(false);
+        }
+      })
+    ).then((results) => {
+      const allSuccess = results.every((result) => result === true);
+  
+      if (allSuccess) {
+        toast.success("Order placed successfully!");
+        setTimeout(() => {
+          router.push("/");
+        }, 1000);
+      } else {
+        toast.error("Failed to create order. Please try again.");
+      }
+    });
   };
+  
 
   useEffect(() => {
-    function getCookie(name) {
+    const getCookie = (name) => {
       const cookieArr = document.cookie.split(";");
       for (let i = 0; i < cookieArr.length; i++) {
         let cookie = cookieArr[i].trim();
@@ -54,16 +123,13 @@ export default function CheckoutPage() {
         }
       }
       return null;
-    }
+    };
 
     const storedJwt = getCookie("jwt");
     const storedUser = getCookie("user");
 
     if (!storedJwt || !storedUser) {
       router.push("/login");
-    }
-    if (cartItems.length === 0) {
-      router.push("/");
     }
   }, [cartItems, router]);
 
@@ -75,9 +141,7 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white p-6">
-              <h2 className="text-2xl font-semibold mb-4">
-                Delivery Information
-              </h2>
+              <h2 className="text-2xl font-semibold mb-4">Delivery Information</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium" htmlFor="name">
@@ -110,10 +174,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label
-                    className="block text-sm font-medium"
-                    htmlFor="address"
-                  >
+                  <label className="block text-sm font-medium" htmlFor="address">
                     Address
                   </label>
                   <input
@@ -128,10 +189,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label
-                    className="block text-sm font-medium"
-                    htmlFor="addressLine"
-                  >
+                  <label className="block text-sm font-medium" htmlFor="addressLine">
                     Address Line 2
                   </label>
                   <input
@@ -145,10 +203,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div className="mt-4">
-                  <label
-                    className="block text-sm font-medium"
-                    htmlFor="zipCode"
-                  >
+                  <label className="block text-sm font-medium" htmlFor="zipCode">
                     ZIP CODE
                   </label>
                   <input
@@ -163,10 +218,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label
-                    className="block text-sm font-medium"
-                    htmlFor="deliveryInstructions"
-                  >
+                  <label className="block text-sm font-medium" htmlFor="deliveryInstructions">
                     Delivery Instructions
                   </label>
                   <textarea
@@ -182,9 +234,10 @@ export default function CheckoutPage() {
                 <div className="mt-6">
                   <button
                     type="submit"
-                    className="bg-orange-500 font-semibold hover:bg-orange-600 py-3 text-sm text-white uppercase w-full rounded-full"
+                    className="w-full py-3 px-6 bg-orange-500 text-white text-lg font-semibold mt-4 hover:bg-orange-600 transition-colors rounded-full"
+                    disabled={submitting}
                   >
-                    Place Order
+                    {submitting ? "Order Placing..." : "Place Order"}
                   </button>
                 </div>
               </form>
@@ -193,14 +246,10 @@ export default function CheckoutPage() {
 
           <div className="lg:col-span-1 bg-white p-6">
             <div>
-              <h1 className="font-semibold text-2xl border-b pb-8">
-                Order Summary
-              </h1>
+              <h1 className="font-semibold text-2xl border-b pb-8">Order Summary</h1>
               <div className="flex justify-between mt-10 mb-5">
                 <span className="font-semibold text-sm uppercase">Items</span>
-                <span className="font-semibold text-sm">
-                  {cartItems.length}
-                </span>
+                <span className="font-semibold text-sm">{cartItems.length}</span>
               </div>
               <div className="border-t mt-8">
                 <div className="flex font-semibold justify-between py-6 text-sm uppercase">

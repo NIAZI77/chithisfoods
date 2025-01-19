@@ -6,6 +6,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { FaCartArrowDown } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
+import { GiHotSpices } from "react-icons/gi";
 import "react-toastify/dist/ReactToastify.css";
 
 const Page = () => {
@@ -164,22 +165,27 @@ const Page = () => {
                       +
                     </span>
                   </div>
-                  <div className="flex space-x-3 my-1">
-                    {dish.spiciness.map((spiciness, index) => {
-                      return (
-                        <div
-                          key={index}
-                          onClick={() => handleSpicinessSelect(spiciness)}
-                          className={`px-2 border-2 ${
-                            selectedSpiciness === spiciness
-                              ? "border-orange-600 bg-orange-600 text-white"
-                              : "border-orange-400"
-                          } cursor-pointer`}
-                        >
-                          {spiciness}
-                        </div>
-                      );
-                    })}
+                  <div>
+                    <div className="flex items-center justify-center">
+                      <GiHotSpices className="scale-[3] mb-6 text-orange-500" />
+                    </div>
+                    <div className="flex space-x-3 my-1">
+                      {dish.spiciness.map((spiciness, index) => {
+                        return (
+                          <div
+                            key={index}
+                            onClick={() => handleSpicinessSelect(spiciness)}
+                            className={`px-2 border-2 ${
+                              selectedSpiciness === spiciness
+                                ? "border-orange-600 bg-orange-600 text-white"
+                                : "border-orange-400"
+                            } cursor-pointer`}
+                          >
+                            {spiciness}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
                 <div>

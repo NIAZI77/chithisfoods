@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -20,6 +20,7 @@ export default function Navbar() {
   const [user, setUser] = useState(undefined);
   const [profileImage, setProfileImage] = useState(null);
   const [isVendor, setIsVendor] = useState(false);
+  const profileRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -57,7 +58,7 @@ export default function Navbar() {
             {
               method: "GET",
               headers: {
-                Authorization: `Bearer ${jwt}`,
+                Authorization: `Bearer ${storedJwt}`,
                 "Content-Type": "application/json",
               },
             }
@@ -114,6 +115,19 @@ export default function Navbar() {
       checkVendorStatus();
       fetchUserData();
     }
+
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setTimeout(() => {
+          setProfile(false);
+        }, 200);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, [pathname, jwt]);
 
   const handleUserClick = () => {
@@ -170,11 +184,7 @@ export default function Navbar() {
             {login ? (
               <div
                 onClick={toggleProfile}
-                onBlur={() => {
-                  setTimeout(() => {
-                    setProfile(false);
-                  }, 50);
-                }}
+                ref={profileRef}
                 className="flex h-10 w-10 cursor-pointer items-center justify-center text-sm bg-pink-100 rounded-full border-2 border-white focus:border-gray-400"
               >
                 <span className="sr-only">Open user menu</span>

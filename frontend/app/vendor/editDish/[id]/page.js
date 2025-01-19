@@ -514,7 +514,7 @@ export default function EditDish({ params }) {
             className="w-full py-3 px-6 bg-orange-500 text-white rounded-md text-lg font-semibold mt-4 hover:bg-orange-600 transition-colors"
             disabled={submitting}
           >
-            {submitting ? "Updating Dish" : "Update Dish"}
+            {submitting ? "Updating Dish..." : "Update Dish"}
           </button>
         </form>
       </div>

@@ -509,7 +509,7 @@ export default function AddMenu() {
             className="w-full py-3 px-6 bg-orange-500 text-white rounded-md text-lg font-semibold mt-4 hover:bg-orange-600 transition-colors"
             disabled={submitting}
           >
-            {submitting ? "Adding Dish" : "Add Dish"}
+            {submitting ? "Adding Dish..." : "Add Dish"}
           </button>
         </form>
       </div>

@@ -4,6 +4,7 @@ import { FaConciergeBell, FaTrashAlt } from "react-icons/fa";
 import { RiArrowLeftSLine } from "react-icons/ri";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { GiHotSpices } from "react-icons/gi";
 import Link from "next/link";
 
 const Cart = () => {
@@ -65,12 +66,15 @@ const Cart = () => {
             <h2 className="font-semibold text-2xl">{cartItems.length} Items</h2>
           </div>
 
-          {cartItems.map((item) => (
+          {cartItems.map((item, index) => (
             <div
-              key={item.id}
+              key={index}
               className="md:flex items-stretch py-8 md:py-10 lg:py-8 border-t border-gray-50"
             >
-              <Link href={`/product/${item.vendorID}?productId=${item.id}`} className="md:w-4/12 2xl:w-1/4 w-full mb-5">
+              <Link
+                href={`/product/${item.vendorID}?productId=${item.id}`}
+                className="md:w-4/12 2xl:w-1/4 w-full mb-5"
+              >
                 <img
                   height={100}
                   width={100}
@@ -94,14 +98,18 @@ const Cart = () => {
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center justify-center font-semibold border-orange-100">
                       <span
-                        onClick={() => decrementQuantity(item.id, item.quantity)}
+                        onClick={() =>
+                          decrementQuantity(item.id, item.quantity)
+                        }
                         className="cursor-pointer rounded-l font-bold bg-orange-100 py-1 px-3.5 duration-100 hover:bg-orange-500 hover:text-orange-50 "
                       >
                         -
                       </span>
                       <span className="text-center px-2">{item.quantity}</span>
                       <span
-                        onClick={() => incrementQuantity(item.id, item.quantity)}
+                        onClick={() =>
+                          incrementQuantity(item.id, item.quantity)
+                        }
                         className="cursor-pointer rounded-r font-bold bg-orange-100 py-1 px-3 duration-100 hover:bg-orange-500 hover:text-orange-50"
                       >
                         +
@@ -118,6 +126,9 @@ const Cart = () => {
                 <div className="flex items-center justify-between">
                   <p className="text-base font-black leading-none text-gray-600">
                     ${item.price * item.quantity}
+                  </p>
+                  <p className="text-base font-black leading-none text-gray-600 flex items-center justify-center">
+                  <GiHotSpices className="inline  text-orange-500" /> {item.selectedSpiciness}
                   </p>
                   <p
                     className="text-xs leading-3 text-red-500 pl-5 cursor-pointer flex items-center pr-8"
@@ -139,11 +150,10 @@ const Cart = () => {
           </Link>
         </div>
 
-        <div
-          id="summary"
-          className="w-full sm:w-1/4 md:w-1/2 px-8 py-10"
-        >
-          <h1 className="font-semibold text-2xl border-b pb-8">Order Summary</h1>
+        <div id="summary" className="w-full sm:w-1/4 md:w-1/2 px-8 py-10">
+          <h1 className="font-semibold text-2xl border-b pb-8">
+            Order Summary
+          </h1>
           <div className="flex justify-between mt-10 mb-5">
             <span className="font-semibold text-sm uppercase">
               Items {cartItems.length}

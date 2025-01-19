@@ -141,6 +141,7 @@ export default function MenuPage() {
             <div key={index} className="border-b py-4 last:border-b-0">
               <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
                 <div className="border p-2 text-gray-400 w-full md:w-40">
+
                   {dish.image && dish.image.url ? (
                     <img
                       src={dish.image.url}
@@ -150,6 +151,7 @@ export default function MenuPage() {
                   ) : (
                     <span>Please Add Photo</span>
                   )}
+                  
                 </div>
                 <div className="flex-grow">
                   <div className="flex justify-between items-start">
