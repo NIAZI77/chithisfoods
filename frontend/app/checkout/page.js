@@ -13,11 +13,11 @@ export default function CheckoutPage() {
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    email: "",
     phone: "",
     address: "",
     addressLine: "",
     deliveryInstructions: "",
-    zipCode: "",
   });
 
   useEffect(() => {
@@ -47,9 +47,8 @@ export default function CheckoutPage() {
     });
 
     for (const vendorID in vendors) {
-      const user = { ...data.user };
       const products = vendors[vendorID];
-      result.push({ user, products });
+      result.push({ products });
     }
 
     return result;
@@ -57,14 +56,14 @@ export default function CheckoutPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
     const orders = transformData({
-      user: formData,
       products: cartItems,
     });
-  
+
     Promise.all(
       orders.map(async (item) => {
+        const orderID = new Date().getTime();
         try {
           setSubmitting(true);
           const response = await fetch(
@@ -76,12 +75,23 @@ export default function CheckoutPage() {
                 Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
               },
               body: JSON.stringify({
-                data: item,
+                data: {
+                  order_id: orderID,
+                  order_status: "pending",
+                  email: formData.email,
+                  phone: parseInt(formData.phone),
+                  address: formData.address,
+                  addressLine: formData.addressLine,
+                  instruction: formData.deliveryInstructions,
+                  customer_name: formData.name,
+                  vendor_id: item.products[0].vendorID,
+                  products: item.products,
+                },
               }),
             }
           );
           const data = await response.json();
-  
+
           if (response.ok) {
             localStorage.removeItem("cart");
             localStorage.removeItem("total");
@@ -100,7 +110,7 @@ export default function CheckoutPage() {
       })
     ).then((results) => {
       const allSuccess = results.every((result) => result === true);
-  
+
       if (allSuccess) {
         toast.success("Order placed successfully!");
         setTimeout(() => {
@@ -111,7 +121,6 @@ export default function CheckoutPage() {
       }
     });
   };
-  
 
   useEffect(() => {
     const getCookie = (name) => {
@@ -127,9 +136,10 @@ export default function CheckoutPage() {
 
     const storedJwt = getCookie("jwt");
     const storedUser = getCookie("user");
-
     if (!storedJwt || !storedUser) {
       router.push("/login");
+    } else {
+      setFormData((prev) => ({ ...prev, email: storedUser }));
     }
   }, [cartItems, router]);
 
@@ -200,21 +210,6 @@ export default function CheckoutPage() {
                     onChange={handleInputChange}
                     className="w-full p-2 border border-gray-300"
                     placeholder="Apt 4B"
-                  />
-                </div>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium" htmlFor="zipCode">
-                    ZIP CODE
-                  </label>
-                  <input
-                    type="text"
-                    id="zipCode"
-                    name="zipCode"
-                    value={formData.zipCode}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300"
-                    placeholder="10001"
-                    required
                   />
                 </div>
                 <div>
