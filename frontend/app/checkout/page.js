@@ -56,7 +56,6 @@ export default function CheckoutPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const orders = transformData({
       products: cartItems,
     });
@@ -151,7 +150,9 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white p-6">
-              <h2 className="text-2xl font-semibold mb-4">Delivery Information</h2>
+              <h2 className="text-2xl font-semibold mb-4">
+                Delivery Information
+              </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium" htmlFor="name">
@@ -184,7 +185,10 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium" htmlFor="address">
+                  <label
+                    className="block text-sm font-medium"
+                    htmlFor="address"
+                  >
                     Address
                   </label>
                   <input
@@ -199,7 +203,10 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium" htmlFor="addressLine">
+                  <label
+                    className="block text-sm font-medium"
+                    htmlFor="addressLine"
+                  >
                     Address Line 2
                   </label>
                   <input
@@ -213,7 +220,10 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium" htmlFor="deliveryInstructions">
+                  <label
+                    className="block text-sm font-medium"
+                    htmlFor="deliveryInstructions"
+                  >
                     Delivery Instructions
                   </label>
                   <textarea
@@ -241,10 +251,14 @@ export default function CheckoutPage() {
 
           <div className="lg:col-span-1 bg-white p-6">
             <div>
-              <h1 className="font-semibold text-2xl border-b pb-8">Order Summary</h1>
+              <h1 className="font-semibold text-2xl border-b pb-8">
+                Order Summary
+              </h1>
               <div className="flex justify-between mt-10 mb-5">
                 <span className="font-semibold text-sm uppercase">Items</span>
-                <span className="font-semibold text-sm">{cartItems.length}</span>
+                <span className="font-semibold text-sm">
+                  {cartItems.length}
+                </span>
               </div>
               <div className="border-t mt-8">
                 <div className="flex font-semibold justify-between py-6 text-sm uppercase">
