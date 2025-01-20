@@ -34,12 +34,12 @@ const ProductCard = ({ product, logo, location, documentId }) => {
           <div className="">
             <h2 className="text-lg font-bold select-text">
               {product.name
-                .split(" ")
+               .split(" ")
                 .map(
                   (part) =>
                     part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
                 )
-                .join(" ")}
+                .join(" ") }
             </h2>
             <div>
               {product.vegetarian ? (

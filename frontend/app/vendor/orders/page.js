@@ -1,10 +1,13 @@
 "use client";
+
 import Loading from "@/app/loading";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { FaClipboardList, FaDollarSign } from "react-icons/fa";
 
-const Dashboard = () => {
+const OrderPage = () => {
   const [orders, setOrders] = useState([]);
   const [pendingOrders, setPendingOrders] = useState([]);
   const [acceptedOrders, setAcceptedOrders] = useState([]);
@@ -109,14 +112,6 @@ const Dashboard = () => {
     );
   }, [orders]);
 
-  const handleStatusChange = (orderId, newStatus) => {
-    setOrders((prevOrders) =>
-      prevOrders.map((order) =>
-        order.id === orderId ? { ...order, order_status: newStatus } : order
-      )
-    );
-  };
-
   const calculateTotal = (products) => {
     return products
       .reduce((total, product) => {
@@ -124,6 +119,7 @@ const Dashboard = () => {
       }, 0)
       .toFixed(2);
   };
+
   if (loading) {
     return <Loading />;
   }
@@ -132,209 +128,143 @@ const Dashboard = () => {
     <main className="ml-0 md:ml-64 p-6 transition-padding duration-300 bg-gray-100">
       <div className="bg-gray-100 min-h-screen p-8">
         <div className="container mx-auto">
-          <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+          <h1 className="text-2xl font-bold mb-4">Orders</h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white p-4 rounded shadow">
-              <p className="text-lg font-bold space-x-1 flex items-center justify-center">
-                <FaClipboardList className="inline-block pr-1 mr-2 text-gray-600" />
-                Online Orders
-              </p>
-              <p className="text-3xl font-bold text-center">1428</p>
-            </div>
-
-            <div className="bg-white p-4 rounded shadow">
-              <p className="text-lg font-bold space-x-1 flex items-center justify-center">
-                <FaClipboardList className="inline-block pr-1 mr-2 text-gray-600" />
-                Orders Served
-              </p>
-              <p className="text-3xl font-bold text-center">
-                {completedOrders.length}
-              </p>
-            </div>
-
-            <div className="bg-white p-4 rounded shadow">
-              <p className="text-lg font-bold space-x-1 flex items-center justify-center">
-                <FaClipboardList className="inline-block pr-1 mr-2 text-gray-600" />
-                Pending Orders
-              </p>
-              <p className="text-3xl font-bold text-center">
-                {pendingOrders.length}
-              </p>
-            </div>
-
-            <div className="bg-white p-4 rounded shadow">
-              <p className="text-lg font-medium space-x-1 flex items-center justify-center">
-                <FaDollarSign className="inline-block pr-1 mr-2 text-gray-600" />
-                Total Revenue
-              </p>
-              <p className="text-3xl font-bold text-center">$1428</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <DashboardCard
+              title="Total Orders"
+              count={orders.length}
+              icon={<FaClipboardList />}
+            />
+            <DashboardCard
+              title="Orders Served"
+              count={completedOrders.length}
+              icon={<FaClipboardList />}
+            />
+            <DashboardCard
+              title="Pending Orders"
+              count={pendingOrders.length}
+              icon={<FaClipboardList />}
+            />
           </div>
 
-          <div className="bg-white p-4 rounded shadow mt-4">
-            <h2 className="text-xl font-medium mb-2">Pending Orders</h2>
-            <div className="overflow-auto p-4 max-h-screen">
-              {pendingOrders.length === 0 ? (
-                <p className="text-center text-gray-500">No Pending Orders</p>
-              ) : (
-                <table className="min-w-full table-auto divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Order ID
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Customer
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Food
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-gray-200">
-                    {pendingOrders.map((order,index) => (
-                      <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {order.id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {order.customer_name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {order.products.map((product,index) => (
-                            <div key={index} className="flex items-center">
-                              <img
-                                src={product.image.url}
-                                alt="food"
-                                className="w-10 h-10 rounded-full object-cover mr-2"
-                              />
-                              {product.name}
-                            </div>
-                          ))}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          ${calculateTotal(order.products)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div className="px-2 py-1 font-bold text-white bg-yellow-400 rounded text-center">
-                            {order.order_status}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex items-center flex-col space-y-2">
-                          <button
-                            className="px-2 py-1 font-bold text-white bg-green-400 rounded"
-                            onClick={() =>
-                              handleStatusChange(order.id, "accepted")
-                            }
-                          >
-                            Accept
-                          </button>
-                          <button
-                            className="px-2 py-1 text-white font-bold bg-red-600 rounded"
-                            onClick={() =>
-                              handleStatusChange(order.id, "declined")
-                            }
-                          >
-                            Decline
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-white p-4 rounded shadow mt-4">
-            <h2 className="text-xl font-medium mb-2">Accepted Orders</h2>
-            <div className="overflow-auto p-4 max-h-screen">
-              {acceptedOrders.length === 0 ? (
-                <p className="text-center text-gray-500">No Orders</p>
-              ) : (
-                <table className="min-w-full table-auto divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Order ID
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Customer
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Food
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-gray-200">
-                    {acceptedOrders.map((order,index) => (
-                      <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {order.id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {order.customer_name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {order.products.map((product,index) => (
-                            <div key={index} className="flex items-center">
-                              <img
-                                src={product.image.url}
-                                alt="food"
-                                className="w-10 h-10 rounded-full object-cover mr-2"
-                              />
-                              {product.name}
-                            </div>
-                          ))}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          ${calculateTotal(order.products)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div className="px-2 py-1 font-bold text-white bg-green-400 rounded text-center">
-                            {order.order_status}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex items-center flex-col space-y-2">
-                          <button
-                            className="px-2 py-1 text-white font-bold bg-red-600 rounded mt-1"
-                            onClick={() =>
-                              handleStatusChange(order.id, "cancelled")
-                            }
-                          >
-                            Cancel
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
+          <OrderSection
+            title="Pending Orders"
+            orders={pendingOrders}
+            calculateTotal={calculateTotal}
+          />
+          <OrderSection
+            title="Accepted Orders"
+            orders={acceptedOrders}
+            calculateTotal={calculateTotal}
+          />
+          <OrderSection
+            title="Fulfilled Orders"
+            orders={completedOrders}
+            calculateTotal={calculateTotal}
+          />
         </div>
       </div>
     </main>
   );
 };
 
-export default Dashboard;
+// Dashboard Card Component
+const DashboardCard = ({ title, count, icon }) => {
+  return (
+    <div className="bg-white p-4 rounded shadow">
+      <p className="text-lg font-bold space-x-1 flex items-center justify-center">
+        {icon}
+        {title}
+      </p>
+      <p className="text-3xl font-bold text-center">{count}</p>
+    </div>
+  );
+};
+
+// Order Section Component
+const OrderSection = ({ title, orders, calculateTotal }) => {
+  return (
+    <div className="bg-white p-4 rounded shadow mt-4">
+      <h2 className="text-xl font-medium mb-2">{title}</h2>
+      <div className="overflow-auto p-4 max-h-screen">
+        {orders.length === 0 ? (
+          <p className="text-center text-gray-500">No Orders</p>
+        ) : (
+          <table className="min-w-full table-auto divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Order ID
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Customer
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Food
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Price
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-gray-200">
+              {orders.map((order, index) => (
+                <tr
+                  key={index}
+                  className="hover:bg-gray-100 transition-all my-2"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <Link
+                      href={`/vendor/order/${order.documentId}`}
+                      className="w-full h-full"
+                    >
+                      #{order.order_id}
+                    </Link>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {order.customer_name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {order.products.map((product, index) => (
+                      <div key={index} className="flex items-center my-2">
+                        <Image
+                          height={100}
+                          width={100}
+                          src={product.image.url}
+                          alt="food"
+                          className="w-10 h-10 rounded-full object-cover mr-2"
+                        />
+                        {product.name}
+                      </div>
+                    ))}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${calculateTotal(order.products)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="px-2 py-1 font-bold text-white bg-yellow-400 rounded text-center">
+                      {order.order_status
+                        .split(" ")
+                        .map(
+                          (part) =>
+                            part.charAt(0).toUpperCase() +
+                            part.slice(1).toLowerCase()
+                        )
+                        .join(" ")}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default OrderPage;

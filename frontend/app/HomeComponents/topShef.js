@@ -14,7 +14,7 @@ export default function TopShef() {
       setLoading(true);
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?populate=*`,
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[isTopRated][$eq]=true&populate=*`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -23,8 +23,7 @@ export default function TopShef() {
           }
         );
         const data = await response.json();
-        const topRatedShef = data.data.filter((e) => e.isTopRated);
-        setTopShefs(topRatedShef);
+        setTopShefs(data);
       } catch (error) {
         console.error("Error fetching vendors:", error);
       } finally {
