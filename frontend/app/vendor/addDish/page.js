@@ -36,6 +36,7 @@ export default function AddMenu() {
     cooking_time: "",
     category: "Vegetable",
     available_days: ["Mon"],
+    reviews: [],
   });
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -80,7 +81,7 @@ export default function AddMenu() {
         } else {
           const vendorData = data.data[0];
           if (vendorData.length == 0) {
-            router.push("/become-vendor")
+            router.push("/become-vendor");
           } else {
             setFormData(vendorData);
           }

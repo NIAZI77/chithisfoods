@@ -2,15 +2,18 @@
 import TopShef from "@/app/HomeComponents/topShef";
 import Loading from "@/app/loading";
 import Custom404 from "@/app/not-found";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { FaCartArrowDown } from "react-icons/fa";
+import { FaCartArrowDown, FaStar } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import { GiHotSpices } from "react-icons/gi";
 import "react-toastify/dist/ReactToastify.css";
+import Image from "next/image";
+import ProductReviewPopup from "@/app/components/ProductReviewPopup";
 
 const Page = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const params = useParams();
   const { slug } = params;
   const productId = searchParams.get("productId");
@@ -21,12 +24,48 @@ const Page = () => {
   const [selectedSpiciness, setSelectedSpiciness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [productNotFound, setProductNotFound] = useState(false);
+  const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+  const [user, setUser] = useState("");
+
+  useEffect(() => {
+    const getCookie = (name) => {
+      const cookieArr = document.cookie.split(";");
+      for (let i = 0; i < cookieArr.length; i++) {
+        let cookie = cookieArr[i].trim();
+        if (cookie.startsWith(name + "=")) {
+          return decodeURIComponent(cookie.substring(name.length + 1));
+        }
+      }
+      return null;
+    };
+
+    const storedJwt = getCookie("jwt");
+    const storedUser = getCookie("user");
+    setUser(storedUser);
+
+    if (!storedJwt || !storedUser) {
+      router.push("/login");
+    }
+  }, []);
 
   useEffect(() => {
     if (slug && productId) {
       fetchDish();
     }
   }, [slug, productId]);
+
+  const handleOpenPopup = () => {
+    if (!hasReviewed) {
+      setIsReviewPopupOpen(true);
+    } else {
+      toast.info("You have already reviewed this product.");
+    }
+  };
+
+  const handleClosePopup = () => {
+    setIsReviewPopupOpen(false);
+  };
 
   const fetchDish = async () => {
     setLoading(true);
@@ -53,6 +92,11 @@ const Page = () => {
         if (foundDish) {
           setDish(foundDish);
           setSelectedSpiciness(foundDish.spiciness[0]);
+
+          const userReview = localStorage.getItem(`reviewed-${productId}`);
+          if (userReview) {
+            setHasReviewed(true);
+          }
         } else {
           setProductNotFound(true);
         }
@@ -132,14 +176,7 @@ const Page = () => {
             <div className="md:w-[40%] md:mx-auto relative md:p-10 p-4">
               <div className="md:mt-4 mt-10 px-5 pb-5">
                 <h1 className="text-4xl tracking-tight font-bold text-slate-900 select-text">
-                  {dish.name
-                    .split(" ")
-                    .map(
-                      (part) =>
-                        part.charAt(0).toUpperCase() +
-                        part.slice(1).toLowerCase()
-                    )
-                    .join(" ")}
+                  {dish.name}
                 </h1>
                 <div>
                   <span className="font-bold text-slate-600">Category:</span>{" "}
@@ -222,18 +259,18 @@ const Page = () => {
               <div>
                 <div>
                   <div className="flex items-center font-bold text-lg text-slate-700 py-2 select-text">
-                    <img
+                    <Image
                       height={50}
                       width={50}
                       src={vendor.logo.url}
                       alt={`${vendor.name} profile`}
                       className="w-14 h-14 rounded-full object-cover mr-4"
                     />
-                    By Shef's {vendor.name}
+                    By {vendor.name}
                   </div>
                 </div>
                 <div>
-                  <span className="font-bold text-slate-600">ingredients</span>{" "}
+                  <span className="font-bold text-slate-600">Ingredients</span>{" "}
                   :{" "}
                   {dish.ingredients.map((ingredient) => (
                     <div
@@ -256,7 +293,7 @@ const Page = () => {
                   )}
                 </div>
                 <div>
-                  <span className="font-bold"> Cooking TIme :</span>{" "}
+                  <span className="font-bold">Cooking Time:</span>{" "}
                   {dish.cooking_time} minutes
                 </div>
               </div>
@@ -268,6 +305,55 @@ const Page = () => {
           </div>
         )}
       </div>
+      <div>
+        <button
+          onClick={handleOpenPopup}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Give A FeedBack
+        </button>
+
+        <ProductReviewPopup
+          isOpen={isReviewPopupOpen}
+          onClose={handleClosePopup}
+          productId={dish.id}
+          vendorId={slug}
+          userName={user}
+        />
+      </div>
+      <div>
+        {dish.reviews && dish.reviews.length > 0 && (
+          <div className="p-4 md:w-[80%] w-[90%] mx-auto">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+              Feedback
+            </h2>
+            <div className="grid md:grid-cols-3 grid-cols-1 gap-5 mx-auto">
+              {dish.reviews.slice(0, 9).map((review, index) => {
+                return (
+                  <div key={index} className="bg-slate-100 p-4">
+                    <h3 className="flex items-center justify-between text-gray-700">
+                      <div className="font-medium">
+                        {review.user_name.substring(0, 3)}******
+                      </div>
+                      <div className="text-sm text-gray-500">{review.date}</div>
+                    </h3>
+                    <div className="flex items-center justify-center space-x-2">
+                      {[...Array(review.rating)].map((_, index) => (
+                        <FaStar
+                          key={index}
+                          className="text-yellow-400 inline"
+                        />
+                      ))}
+                    </div>
+                    <p className="mt-2 text-gray-600">{review.text}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="py-5">
         <TopShef />
       </div>

@@ -2,14 +2,11 @@
 import { useEffect, useState } from "react";
 import { FaConciergeBell, FaTrashAlt } from "react-icons/fa";
 import { RiArrowLeftSLine } from "react-icons/ri";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { GiHotSpices } from "react-icons/gi";
 import Link from "next/link";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
-  const [shippingFee, setShippingFee] = useState(4.99);
   const [taxRate, setTaxRate] = useState(18);
 
   const incrementQuantity = (item_id, quantity) => {
@@ -41,12 +38,7 @@ const Cart = () => {
     0
   );
   const taxAmount = (totalPrice * taxRate) / 100;
-
-  const isShippingFree = cartItems.length === 0 || totalPrice > 100;
-  const totalWithTax =
-    totalPrice + taxAmount + (isShippingFree ? 0 : shippingFee);
-
-  const finalTotal = totalWithTax;
+  const finalTotal = totalPrice + taxAmount;
 
   useEffect(() => {
     const cart = localStorage.getItem("cart");
@@ -128,7 +120,8 @@ const Cart = () => {
                     ${item.price * item.quantity}
                   </p>
                   <p className="text-base font-black leading-none text-gray-600 flex items-center justify-center">
-                  <GiHotSpices className="inline  text-orange-500" /> {item.selectedSpiciness}
+                    <GiHotSpices className="inline  text-orange-500" />{" "}
+                    {item.selectedSpiciness}
                   </p>
                   <p
                     className="text-xs leading-3 text-red-500 pl-5 cursor-pointer flex items-center pr-8"
@@ -162,13 +155,7 @@ const Cart = () => {
               ${totalPrice.toFixed(2)}
             </span>
           </div>
-          <div className="flex justify-between mt-10 mb-5">
-            <span className="font-semibold text-sm uppercase">Shipping</span>
-            <span className="font-semibold text-sm">
-              Standard shipping - $
-              {isShippingFree ? "0.00" : shippingFee.toFixed(2)}
-            </span>
-          </div>
+
           <div className="flex justify-between mt-10 mb-5">
             <span className="font-semibold text-sm uppercase">Tax</span>
             <span className="font-semibold text-sm">
@@ -199,8 +186,6 @@ const Cart = () => {
           </div>
         </div>
       </div>
-
-      <ToastContainer />
     </div>
   );
 };
