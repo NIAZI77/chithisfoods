@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -33,10 +32,6 @@ const ProductReviewPopup = ({
     setReviewText(e.target.value);
   };
 
-  const handleUserNameChange = (e) => {
-    setUserName(e.target.value);
-  };
-
   const fetchVendor = async () => {
     try {
       const response = await fetch(
@@ -60,6 +55,12 @@ const ProductReviewPopup = ({
     }
   };
 
+  const getAverageRating = (reviews) => {
+    if (!reviews || reviews.length === 0) return 0;
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return (totalRating / reviews.length).toFixed(1);
+  };
+
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -74,9 +75,11 @@ const ProductReviewPopup = ({
     try {
       const updatedMenu = vendor?.menu?.map((dish) => {
         if (dish.id === productId) {
+          const avgRating = dish.reviews ? getAverageRating(dish.reviews) : 0;
           return {
             ...dish,
             reviews: dish.reviews ? [...dish.reviews, review] : [review],
+            rating: avgRating,
           };
         }
         return dish;

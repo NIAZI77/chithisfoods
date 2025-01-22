@@ -26,6 +26,7 @@ const Page = () => {
   const [productNotFound, setProductNotFound] = useState(false);
   const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [rating, setRating] = useState(0);
   const [user, setUser] = useState("");
 
   useEffect(() => {
@@ -50,10 +51,10 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
-    if (slug && productId) {
+    if (slug && productId && user) {
       fetchDish();
     }
-  }, [slug, productId]);
+  }, [user]);
 
   const handleOpenPopup = () => {
     if (!hasReviewed) {
@@ -91,9 +92,14 @@ const Page = () => {
         );
         if (foundDish) {
           setDish(foundDish);
+          const avgRating = foundDish.reviews ? getAverageRating(foundDish.reviews) : 0;
+          setRating(avgRating);
           setSelectedSpiciness(foundDish.spiciness[0]);
 
-          const userReview = localStorage.getItem(`reviewed-${productId}`);
+          const userReview =
+            foundDish.reviews &&
+            foundDish.reviews.some((review) => review.user_name === user);
+
           if (userReview) {
             setHasReviewed(true);
           }
@@ -153,6 +159,12 @@ const Page = () => {
     return shortDayNames[dayOfWeek];
   };
 
+  const getAverageRating = (reviews) => {
+    if (!reviews || reviews.length === 0) return 0;
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return (totalRating / reviews.length).toFixed(1);
+  };
+
   if (loading) {
     return <Loading />;
   }
@@ -175,9 +187,15 @@ const Page = () => {
             </div>
             <div className="md:w-[40%] md:mx-auto relative md:p-10 p-4">
               <div className="md:mt-4 mt-10 px-5 pb-5">
-                <h1 className="text-4xl tracking-tight font-bold text-slate-900 select-text">
-                  {dish.name}
-                </h1>
+                <div className="flex items-center justify-between">
+                  <h1 className="text-2xl tracking-tight font-bold text-slate-900 select-text">
+                    {dish.name}
+                  </h1>
+                  <span className="flex items-center justify-center">
+                    <FaStar className="inline mr-1 text-yellow-400" /> {rating}
+                  </span>
+                </div>
+
                 <div>
                   <span className="font-bold text-slate-600">Category:</span>{" "}
                   {dish.category}
@@ -305,27 +323,31 @@ const Page = () => {
           </div>
         )}
       </div>
-      <div>
-        <button
-          onClick={handleOpenPopup}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Give A FeedBack
-        </button>
 
-        <ProductReviewPopup
-          isOpen={isReviewPopupOpen}
-          onClose={handleClosePopup}
-          productId={dish.id}
-          vendorId={slug}
-          userName={user}
-        />
-      </div>
+      {!hasReviewed && (
+        <div>
+          <button
+            onClick={handleOpenPopup}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Give A FeedBack
+          </button>
+
+          <ProductReviewPopup
+            isOpen={isReviewPopupOpen}
+            onClose={handleClosePopup}
+            productId={dish.id}
+            vendorId={slug}
+            userName={user}
+          />
+        </div>
+      )}
+
       <div>
         {dish.reviews && dish.reviews.length > 0 && (
           <div className="p-4 md:w-[80%] w-[90%] mx-auto">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-              Feedback
+              Feedbacks
             </h2>
             <div className="grid md:grid-cols-3 grid-cols-1 gap-5 mx-auto">
               {dish.reviews.slice(0, 9).map((review, index) => {
