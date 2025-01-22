@@ -26,7 +26,6 @@ const Page = () => {
   const [productNotFound, setProductNotFound] = useState(false);
   const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
-  const [rating, setRating] = useState(0);
   const [user, setUser] = useState("");
 
   useEffect(() => {
@@ -86,28 +85,32 @@ const Page = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setVendor(data.data);
-        const foundDish = data.data.menu.find(
-          (dishItem) => dishItem.id == productId
-        );
-        if (foundDish) {
-          setDish(foundDish);
-          const avgRating = foundDish.reviews ? getAverageRating(foundDish.reviews) : 0;
-          setRating(avgRating);
-          setSelectedSpiciness(foundDish.spiciness[0]);
-
-          const userReview =
-            foundDish.reviews &&
-            foundDish.reviews.some((review) => review.user_name === user);
-
-          if (userReview) {
-            setHasReviewed(true);
-          }
-        } else {
+        if (!data || !data.data) {
           setProductNotFound(true);
+          setLoading(false);
+          return;
+        } else {
+          setVendor(data.data);
+          const foundDish = data.data.menu.find(
+            (dishItem) => dishItem.id == productId
+          );
+          if (foundDish) {
+            setDish(foundDish);
+            setSelectedSpiciness(foundDish.spiciness[0]);
+
+            const userReview =
+              foundDish.reviews &&
+              foundDish.reviews.some((review) => review.user_name === user);
+
+            if (userReview) {
+              setHasReviewed(true);
+            }
+          } else {
+            setProductNotFound(true);
+          }
         }
       } else {
-        setProductNotFound(false);
+        setProductNotFound(true);
       }
     } catch (error) {
       console.error("Error fetching vendor:", error);
@@ -159,12 +162,6 @@ const Page = () => {
     return shortDayNames[dayOfWeek];
   };
 
-  const getAverageRating = (reviews) => {
-    if (!reviews || reviews.length === 0) return 0;
-    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-    return (totalRating / reviews.length).toFixed(1);
-  };
-
   if (loading) {
     return <Loading />;
   }
@@ -192,7 +189,8 @@ const Page = () => {
                     {dish.name}
                   </h1>
                   <span className="flex items-center justify-center">
-                    <FaStar className="inline mr-1 text-yellow-400" /> {rating}
+                    <FaStar className="inline mr-1 text-yellow-400" />{" "}
+                    {dish.rating}
                   </span>
                 </div>
 
@@ -322,27 +320,27 @@ const Page = () => {
             </div>
           </div>
         )}
-      </div>
+        <div className="w-[80%] mx-auto">
+          {!hasReviewed && (
+            <div className="flex items-center justify-end">
+              <button
+                onClick={handleOpenPopup}
+                className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 flex items-center justify-center"
+              >
+                <FaStar className="inline mr-2" /> Rate
+              </button>
 
-      {!hasReviewed && (
-        <div>
-          <button
-            onClick={handleOpenPopup}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Give A FeedBack
-          </button>
-
-          <ProductReviewPopup
-            isOpen={isReviewPopupOpen}
-            onClose={handleClosePopup}
-            productId={dish.id}
-            vendorId={slug}
-            userName={user}
-          />
+              <ProductReviewPopup
+                isOpen={isReviewPopupOpen}
+                onClose={handleClosePopup}
+                productId={dish.id}
+                vendorId={slug}
+                userName={user}
+              />
+            </div>
+          )}
         </div>
-      )}
-
+      </div>
       <div>
         {dish.reviews && dish.reviews.length > 0 && (
           <div className="p-4 md:w-[80%] w-[90%] mx-auto">

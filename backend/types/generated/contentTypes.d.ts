@@ -441,7 +441,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
       Schema.Attribute.Unique;
     offers: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
-    rating: Schema.Attribute.Integer &
+    rating: Schema.Attribute.Decimal &
       Schema.Attribute.SetMinMax<
         {
           min: 0;

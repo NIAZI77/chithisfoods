@@ -25,7 +25,7 @@ const ProductReviewPopup = ({
   };
 
   const handleRatingChange = (newRating) => {
-    setRating(newRating);
+    setRating(Math.floor(newRating)); // Ensure rating is an integer
   };
 
   const handleReviewTextChange = (e) => {
@@ -58,7 +58,18 @@ const ProductReviewPopup = ({
   const getAverageRating = (reviews) => {
     if (!reviews || reviews.length === 0) return 0;
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-    return (totalRating / reviews.length).toFixed(1);
+    return parseFloat((totalRating / reviews.length).toFixed(1));
+  };
+
+  const updateVendorRating = (menu) => {
+    const totalRating = menu.reduce((sum, dish) => {
+      const avgRating = dish.reviews ? getAverageRating(dish.reviews) : 0;
+      return sum + avgRating;
+    }, 0);
+    const fmenu = menu.filter(
+      (dish) => dish.reviews && dish.reviews.length > 0
+    );
+    return parseFloat((totalRating / fmenu.length).toFixed(1));
   };
 
   const handleSubmitReview = async (e) => {
@@ -75,15 +86,21 @@ const ProductReviewPopup = ({
     try {
       const updatedMenu = vendor?.menu?.map((dish) => {
         if (dish.id === productId) {
-          const avgRating = dish.reviews ? getAverageRating(dish.reviews) : 0;
+          const updatedReviews = dish.reviews
+            ? [...dish.reviews, review]
+            : [review];
+          const avgRating = getAverageRating(updatedReviews);
           return {
             ...dish,
-            reviews: dish.reviews ? [...dish.reviews, review] : [review],
+            reviews: updatedReviews,
             rating: avgRating,
           };
         }
         return dish;
       });
+
+      const updatedVendorRating = updateVendorRating(updatedMenu);
+      const isTopRated = updatedVendorRating > 4;
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}`,
@@ -96,6 +113,8 @@ const ProductReviewPopup = ({
           body: JSON.stringify({
             data: {
               menu: updatedMenu,
+              rating: updatedVendorRating,
+              isTopRated,
             },
           }),
         }
@@ -152,7 +171,7 @@ const ProductReviewPopup = ({
                   <FaStar
                     key={star}
                     className={`cursor-pointer text-2xl ${
-                      star <= rating ? "text-yellow-500" : "text-gray-300 "
+                      star <= rating ? "text-yellow-500" : "text-gray-300"
                     }`}
                     onClick={() => handleRatingChange(star)}
                   />
