@@ -12,7 +12,7 @@ export default function ChangePassword() {
     confirmPassword: "",
   });
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [jwt, setJwt] = useState(null);
 
   useEffect(() => {

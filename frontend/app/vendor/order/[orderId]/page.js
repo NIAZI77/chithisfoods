@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 const Order = () => {
   const { orderId } = useParams();
   const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 

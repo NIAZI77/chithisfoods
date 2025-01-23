@@ -11,7 +11,7 @@ export default function SearchPage() {
   const [vendors, setVendors] = useState([]);
   const [dishes, setDishes] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
 
   useEffect(() => {

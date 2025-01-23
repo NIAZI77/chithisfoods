@@ -38,7 +38,7 @@ export default function AddMenu() {
     available_days: ["Mon"],
     reviews: [],
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({});

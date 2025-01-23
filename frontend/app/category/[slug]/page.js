@@ -9,7 +9,7 @@ export default function CategoryPage() {
   const { slug } = useParams();
   const [data, setData] = useState([]);
   const [dishes, setDishes] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchVendors = async () => {

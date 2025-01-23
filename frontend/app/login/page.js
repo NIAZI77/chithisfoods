@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const handleLogin = async (e) => {

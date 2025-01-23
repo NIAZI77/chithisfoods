@@ -255,6 +255,14 @@ export default function Navbar() {
                   Home
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/menu"
+                  className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0"
+                >
+                  Menu
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

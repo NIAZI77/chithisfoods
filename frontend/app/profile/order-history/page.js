@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   const router = useRouter();
 

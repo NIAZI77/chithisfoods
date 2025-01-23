@@ -1,10 +1,35 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FaStar } from "react-icons/fa";
+import { MdOutlineDateRange } from "react-icons/md";
 const ProductCard = ({ product, logo, location, documentId }) => {
+  function getNextAvailableDay(availableDays) {
+    const today = new Date().toLocaleString("en-us", { weekday: "short" });
+
+    const fullDayNames = {
+      Mon: "Monday",
+      Tue: "Tuesday",
+      Wed: "Wednesday",
+      Thu: "Thursday",
+      Fri: "Friday",
+      Sat: "Saturday",
+      Sun: "Sunday",
+    };
+
+    const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+    for (let i = 1; i <= 7; i++) {
+      const nextDayIndex = (daysOfWeek.indexOf(today) + i) % 7;
+      const nextDay = daysOfWeek[nextDayIndex];
+      if (availableDays.includes(nextDay)) {
+        return fullDayNames[nextDay];
+      }
+    }
+  }
+
   return (
     <Link href={`/product/${documentId}?productId=${product.id}`} passHref>
-      <div className="m-4 max-w-72 w-72 h-72 max-h-72 overflow-hidden bg-slate-50 rounded-md p-4 relative">
+      <div className="m-4 max-w-72 w-72 h-80 max-h-80 overflow-hidden bg-slate-50 rounded-md p-4 relative">
         <div>
           {product.dish_availability == "Unavailable" && (
             <div className="bg-red-600 inline-block mx-auto px-2 py-1 rounded absolute top-6 left-5 font-bold text-white text-xs">
@@ -34,12 +59,12 @@ const ProductCard = ({ product, logo, location, documentId }) => {
           <div className="">
             <h2 className="text-lg font-bold select-text">
               {product.name
-               .split(" ")
+                .split(" ")
                 .map(
                   (part) =>
                     part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
                 )
-                .join(" ") }
+                .join(" ")}
             </h2>
             <div>
               {product.vegetarian ? (
@@ -52,8 +77,10 @@ const ProductCard = ({ product, logo, location, documentId }) => {
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-between py-1">
-              <span className="font-bold text-sm text-slate-500">Serving Size</span>
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-sm text-slate-500">
+                Serving Size
+              </span>
               <span className="">{product.serving}</span>
             </div>
             <div className="flex items-center justify-between space-x-2">
@@ -63,9 +90,13 @@ const ProductCard = ({ product, logo, location, documentId }) => {
               <div className="flex items-center space-x-2">
                 <FaStar className="text-yellow-400" />
                 <p className="text-yellow-500 font-semibold">
-                  {product.rating || 0}
+                  {product.rating || 0}({product.reviews.length || 0})
                 </p>
               </div>
+            </div>
+            <div className="flex items-center justify-start font-bold pt-2 text-red-700">
+              <MdOutlineDateRange className="inline mr-2 scale-125" />{" "}
+              {getNextAvailableDay(product.available_days)}
             </div>
           </div>
         </div>

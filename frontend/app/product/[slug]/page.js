@@ -174,7 +174,7 @@ const Page = () => {
     <>
       <div className="min-h-screen content-center mx-auto py-10 px-4">
         {dish && (
-          <div className="md:flex md:items-center md:justify-around">
+          <div className="md:flex md:justify-around">
             <div className="md:py-10 mx-auto">
               <img
                 className="md:w-96 md:h-96 w-full h-full rounded-lg object-contain object-center transition-opacity duration-300"
@@ -182,16 +182,18 @@ const Page = () => {
                 alt="Main product"
               />
             </div>
-            <div className="md:w-[40%] md:mx-auto relative md:p-10 p-4">
+            <div className="md:w-[50%] mx-auto relative md:p-10 p-4">
               <div className="md:mt-4 mt-10 px-5 pb-5">
                 <div className="flex items-center justify-between">
                   <h1 className="text-2xl tracking-tight font-bold text-slate-900 select-text">
                     {dish.name}
                   </h1>
-                  <span className="flex items-center justify-center">
-                    <FaStar className="inline mr-1 text-yellow-400" />{" "}
-                    {dish.rating}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <FaStar className="text-yellow-400" />
+                    <p className="text-yellow-500 font-semibold">
+                      {dish.rating || 0}({dish.reviews.length || 0})
+                    </p>
+                  </div>
                 </div>
 
                 <div>
@@ -203,7 +205,7 @@ const Page = () => {
                 </div>
 
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center justify-center font-semibold border-orange-100">
+                  <div className="flex items-center justify-center font-semibold border-orange-100 pt-5">
                     <span
                       onClick={decrementQuantity}
                       className="cursor-pointer rounded-l font-bold bg-orange-100 py-1 px-3.5 duration-100 hover:bg-orange-500 hover:text-orange-50 "
@@ -218,9 +220,9 @@ const Page = () => {
                       +
                     </span>
                   </div>
-                  <div>
+                  <div className="md:scale-100 scale-75">
                     <div className="flex items-center justify-center">
-                      <GiHotSpices className="scale-[3] mb-6 text-orange-500" />
+                      <GiHotSpices className="scale-[2] mb-4 text-orange-500" />
                     </div>
                     <div className="flex space-x-3 my-1">
                       {dish.spiciness.map((spiciness, index) => {
@@ -272,7 +274,7 @@ const Page = () => {
                 </button>
               </div>
 
-              <div>
+              <div className="space-y-3">
                 <div>
                   <div className="flex items-center font-bold text-lg text-slate-700 py-2 select-text">
                     <Image
@@ -286,6 +288,22 @@ const Page = () => {
                   </div>
                 </div>
                 <div>
+                  {dish.vegetarian ? (
+                    <div className="font-bold text-sm text-slate-500">
+                      Vegetarian Dish
+                    </div>
+                  ) : (
+                    <div className="text-sm font-semibold text-slate-500">
+                      Non-Vegetarian Dish
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <span className="font-bold">Cooking Time:</span>{" "}
+                  {dish.cooking_time} minutes
+                </div>
+                <div>
                   <span className="font-bold text-slate-600">Ingredients</span>{" "}
                   :{" "}
                   {dish.ingredients.map((ingredient) => (
@@ -297,25 +315,14 @@ const Page = () => {
                     </div>
                   ))}
                 </div>
-                <div>
-                  {dish.vegetarian ? (
-                    <div className="font-bold text-sm text-slate-500">
-                      Vegetarian Dish
-                    </div>
-                  ) : (
-                    <div className="text-sm font-semibold text-slate-500">
-                      Non-Vegetarian Dish
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <span className="font-bold">Cooking Time:</span>{" "}
-                  {dish.cooking_time} minutes
-                </div>
               </div>
-              <div>
-                <h2 className="font-bold text-center">Description</h2>
-                <p className="text-center text-slate-700">{dish.description}</p>
+              <div className="my-4">
+                <h2 className="font-bold text-center py-3">Description</h2>
+                <div className="max-h-40 overflow-auto">
+                  <p className="text-center text-slate-700">
+                    {dish.description}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

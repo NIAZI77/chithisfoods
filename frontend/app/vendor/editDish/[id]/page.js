@@ -40,7 +40,7 @@ export default function EditDish({ params }) {
     available_days: ["Mon"],
   });
   const [formData, setFormData] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 

@@ -12,7 +12,7 @@ import Loading from "@/app/loading";
 export default function MenuPage() {
   const [dishData, setDishData] = useState([]);
   const [formData, setFormData] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
