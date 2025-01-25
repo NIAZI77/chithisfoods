@@ -10,6 +10,7 @@ import { GiHotSpices } from "react-icons/gi";
 import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
 import ProductReviewPopup from "@/app/components/ProductReviewPopup";
+import Link from "next/link";
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -275,7 +276,7 @@ const Page = () => {
               </div>
 
               <div className="space-y-3">
-                <div>
+                <Link href={`/vendors/${vendor.documentId}`}>
                   <div className="flex items-center font-bold text-lg text-slate-700 py-2 select-text">
                     <Image
                       height={50}
@@ -286,7 +287,7 @@ const Page = () => {
                     />
                     By {vendor.name}
                   </div>
-                </div>
+                </Link>
                 <div>
                   {dish.vegetarian ? (
                     <div className="font-bold text-sm text-slate-500">

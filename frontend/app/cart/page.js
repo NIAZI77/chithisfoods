@@ -7,7 +7,7 @@ import Link from "next/link";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
-  const [taxRate, setTaxRate] = useState(18);
+  const [taxRate, setTaxRate] = useState(8);
 
   const incrementQuantity = (item_id, quantity) => {
     const updatedCartItems = cartItems.map((item) =>
@@ -135,7 +135,7 @@ const Cart = () => {
           ))}
 
           <Link
-            href="/"
+            href="/menu"
             className="flex font-semibold text-orange-600 text-sm mt-10"
           >
             <RiArrowLeftSLine className="fill-current mr-2 text-orange-600 w-4" />
@@ -159,7 +159,8 @@ const Cart = () => {
           <div className="flex justify-between mt-10 mb-5">
             <span className="font-semibold text-sm uppercase">Tax</span>
             <span className="font-semibold text-sm">
-              Estimated Tax - ${taxAmount.toFixed(2)}
+              Estimated Tax - ${taxAmount.toFixed(2)}{" "}
+              {taxAmount > 0 && <span>({taxRate}%)</span>}
             </span>
           </div>
 

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Loading from "../loading";
 import ProductCard from "../components/productCard";
+import { FaFilter } from "react-icons/fa";
 
 export default function MenuPage() {
   const [dishes, setDishes] = useState([]);
@@ -126,9 +127,9 @@ export default function MenuPage() {
         <div className="flex justify-between items-center mb-4">
           <button
             onClick={() => setShowFilter(!showFilter)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            className="font-bold text-slate-600"
           >
-            {showFilter ? "Hide Filter" : "Filter Menu"}
+            Filter <FaFilter className="inline" />
           </button>
         </div>
       </div>
@@ -182,35 +183,15 @@ export default function MenuPage() {
               ))}
             </div>
           </div>
-
           <div className="mb-4">
-            <label className="block font-bold text-lg">Ingredients</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-              {Object.entries(ingredientsCount)
-                .filter(([ingredient, count]) => count >= 5)
-                .map(([ingredient, count]) => (
-                  <label key={ingredient}>
-                    <input
-                      type="checkbox"
-                      value={ingredient}
-                      checked={ingredientsFilter.includes(ingredient)}
-                      onChange={(e) => {
-                        const newIngredientsFilter = e.target.checked
-                          ? [...ingredientsFilter, ingredient]
-                          : ingredientsFilter.filter(
-                              (item) => item !== ingredient
-                            );
-                        setIngredientsFilter(newIngredientsFilter);
-                      }}
-                    />
-                    <span className="ml-2 text-sm">
-                      {ingredient} ({count})
-                    </span>
-                  </label>
-                ))}
-            </div>
+            <label className="block font-bold text-lg">Dish Availability</label>
+            <input
+              type="checkbox"
+              checked={dishAvailabilityFilter}
+              onChange={(e) => setDishAvailabilityFilter(e.target.checked)}
+            />
+            <span className="ml-2">Today Available</span>
           </div>
-
           <div className="mb-4">
             <label className="block font-bold text-lg">
               Minimum Serving Size
@@ -255,21 +236,38 @@ export default function MenuPage() {
           </div>
 
           <div className="mb-4">
-            <label className="block font-bold text-lg">Dish Availability</label>
-            <input
-              type="checkbox"
-              checked={dishAvailabilityFilter}
-              onChange={(e) => setDishAvailabilityFilter(e.target.checked)}
-            />
-            <span className="ml-2">Today Available</span>
+            <label className="block font-bold text-lg">Ingredients</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+              {Object.entries(ingredientsCount)
+                .filter(([ingredient, count]) => count >= 5)
+                .map(([ingredient, count]) => (
+                  <label key={ingredient}>
+                    <input
+                      type="checkbox"
+                      value={ingredient}
+                      checked={ingredientsFilter.includes(ingredient)}
+                      onChange={(e) => {
+                        const newIngredientsFilter = e.target.checked
+                          ? [...ingredientsFilter, ingredient]
+                          : ingredientsFilter.filter(
+                              (item) => item !== ingredient
+                            );
+                        setIngredientsFilter(newIngredientsFilter);
+                      }}
+                    />
+                    <span className="ml-2 text-sm">
+                      {ingredient} ({count})
+                    </span>
+                  </label>
+                ))}
+            </div>
           </div>
-
           <div className="flex justify-end">
             <button
               onClick={closeFilterPopup}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
             >
-              Filter
+              Apply Filters
             </button>
           </div>
         </div>
