@@ -1,32 +1,56 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
+import Link from "next/link";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const getCookie = (name) => {
+    const cookieArr = document.cookie.split(";");
+    for (let i = 0; i < cookieArr.length; i++) {
+      let cookie = cookieArr[i].trim();
+      if (cookie.startsWith(name + "=")) {
+        return decodeURIComponent(cookie.substring(name.length + 1));
+      }
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const storedJwt = getCookie("jwt");
+    const storedUser = getCookie("user");
+
+    if (storedJwt && storedUser) {
+      router.push("/");
+      return;
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/auth/local`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`
-        },
-        body: JSON.stringify({
-          identifier: username,
-          password,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/auth/local`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: JSON.stringify({
+            identifier: username,
+            password,
+          }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -38,7 +62,9 @@ const Login = () => {
           document.cookie = `user=${data.user.email}; expires=${expiresString}; path=/`;
           document.cookie = `jwt=${data.jwt}; expires=${expiresString}; path=/`;
         }
-        setTimeout(() => { router.push("/") }, 1000);
+        setTimeout(() => {
+          router.push("/");
+        }, 1000);
       } else {
         toast.error(data.error?.message || "Invalid credentials.");
       }
@@ -48,7 +74,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="flex flex-col items-center justify-center px-6 py-12 mx-auto md:h-screen lg:py-0">
       <div className="w-full bg-white shadow-lg md:mt-0 sm:max-w-md xl:p-0">
@@ -58,7 +83,10 @@ const Login = () => {
           </h1>
           <form className="space-y-4 md:space-y-6" onSubmit={handleLogin}>
             <div>
-              <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900">
+              <label
+                htmlFor="username"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
                 Your Username or Email
               </label>
               <input
@@ -73,7 +101,10 @@ const Login = () => {
               />
             </div>
             <div>
-              <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
+              <label
+                htmlFor="password"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
                 Password
               </label>
               <input
@@ -86,6 +117,14 @@ const Login = () => {
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5"
                 required
               />
+              <div className="text-right">
+                <Link
+                  href={"/forget-password"}
+                  className="underline text-blue-500 hover:text-blue-700 text-xs text-right"
+                >
+                  forget password?
+                </Link>
+              </div>
             </div>
             <button
               type="submit"

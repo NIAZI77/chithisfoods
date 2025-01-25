@@ -1,15 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const Signup = () => {
-  const [username, setUsername] = useState("");
+const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const getCookie = (name) => {
@@ -32,19 +29,19 @@ const Signup = () => {
       return;
     }
   }, []);
-  const handleSignup = async (e) => {
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match. Please try again.");
+    if (!email) {
+      toast.error("Please enter your email address.");
       setLoading(false);
       return;
     }
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/auth/local/register`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/auth/forgot-password`,
         {
           method: "POST",
           headers: {
@@ -52,25 +49,24 @@ const Signup = () => {
             Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
           },
           body: JSON.stringify({
-            username,
             email,
-            password,
           }),
         }
       );
       const data = await response.json();
       if (response.ok) {
-        toast.success("Sign up successful! Please log in.");
+        toast.success("Password reset link sent! Please check your email.");
         setTimeout(() => {
-          router.push("/login");
-        }, 1000);
+          router.push("/");
+        }, 2000);
       } else {
         toast.error(
-          data.error.message || "Failed to create account. Please try again."
+          data.error.message ||
+            "Failed to send password reset link. Please try again."
         );
       }
     } catch (err) {
-      toast.error("An error occurred during signup.");
+      toast.error("An error occurred while processing your request.");
     } finally {
       setLoading(false);
     }
@@ -82,9 +78,12 @@ const Signup = () => {
         <div className="w-full bg-white shadow-lg md:mt-0 sm:max-w-md xl:p-0">
           <div className="p-2 space-y-2 md:space-y-3 sm:p-8 bg-slate-50">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl text-center">
-              Sign Up
+              Forgot Password
             </h1>
-            <form className="space-y-4 md:space-y-6" onSubmit={handleSignup}>
+            <form
+              className="space-y-4 md:space-y-6"
+              onSubmit={handleForgotPassword}
+            >
               <div>
                 <label
                   htmlFor="email"
@@ -103,72 +102,18 @@ const Signup = () => {
                   required
                 />
               </div>
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block mb-1 text-sm font-medium text-gray-900"
-                >
-                  Your Username
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5"
-                  placeholder="Your Username"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block mb-1 text-sm font-medium text-gray-900"
-                >
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block mb-1 text-sm font-medium text-gray-900"
-                >
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  id="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-orange-600 focus:border-orange-600 block w-full p-2.5"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
               <button
                 type="submit"
                 className="w-full font-bold text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 rounded-lg text-sm px-5 py-2.5 text-center"
                 disabled={loading}
               >
-                {loading ? "Signing Up..." : "Sign Up"}
+                {loading ? "Sending..." : "Send Reset Link"}
               </button>
             </form>
 
             <div className="mt-4 text-center">
               <p className="text-sm">
-                Already have an account?{" "}
+                Remember your password?{" "}
                 <button
                   onClick={() => router.push("/login")}
                   className="font-medium text-orange-600 hover:text-orange-700"
@@ -185,4 +130,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default ForgotPassword;
