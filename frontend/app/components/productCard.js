@@ -18,11 +18,17 @@ const ProductCard = ({ product, logo, location, documentId }) => {
 
     const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+    // Check if today is available
+    if (availableDays.includes(today)) {
+      return fullDayNames[today]; // If today is available, return today
+    }
+
+    // Otherwise, find the next available day
     for (let i = 1; i <= 7; i++) {
       const nextDayIndex = (daysOfWeek.indexOf(today) + i) % 7;
       const nextDay = daysOfWeek[nextDayIndex];
       if (availableDays.includes(nextDay)) {
-        return fullDayNames[nextDay];
+        return fullDayNames[nextDay]; 
       }
     }
   }
