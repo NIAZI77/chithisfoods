@@ -1,14 +1,14 @@
 "use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { FaInstagram, FaFacebook, FaTwitter } from 'react-icons/fa';
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { FaInstagram, FaFacebook, FaTwitter } from "react-icons/fa";
 
 export default function Footer() {
   const pathname = usePathname();
 
-  if (pathname.includes("/vendor/")) {
+  if (pathname.includes("/vendor/") || pathname.includes("/admin/")) {
     return null;
   }
 
@@ -56,7 +56,10 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms-and-conditions" className="hover:underline">
+                  <Link
+                    href="/terms-and-conditions"
+                    className="hover:underline"
+                  >
                     Terms &amp; Conditions
                   </Link>
                 </li>
@@ -74,24 +77,15 @@ export default function Footer() {
             . All Rights Reserved.
           </span>
           <div className="flex mt-4 sm:justify-center sm:mt-0">
-            <Link
-              href="/"
-              className="text-gray-500 hover:text-gray-900 mr-5"
-            >
+            <Link href="/" className="text-gray-500 hover:text-gray-900 mr-5">
               <FaFacebook className="w-4 h-4" />
               <span className="sr-only">Facebook</span>
             </Link>
-            <Link
-              href="/"
-              className="text-gray-500 hover:text-gray-900 mr-5"
-            >
+            <Link href="/" className="text-gray-500 hover:text-gray-900 mr-5">
               <FaInstagram className="w-4 h-4" />
               <span className="sr-only">Instagram</span>
             </Link>
-            <Link
-              href="/"
-              className="text-gray-500 hover:text-gray-900 mr-5"
-            >
+            <Link href="/" className="text-gray-500 hover:text-gray-900 mr-5">
               <FaTwitter className="w-4 h-4" />
               <span className="sr-only">Twitter</span>
             </Link>

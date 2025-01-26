@@ -118,12 +118,12 @@ const Order = () => {
         }
       );
 
+      const updatedOrder = await response.json();
       if (response.ok) {
-        const updatedOrder = await response.json();
         setOrder(updatedOrder.data);
         toast.success(`Order ${status}`);
       } else {
-        toast.error("Error updating order status");
+        toast.error(updateOrder.error.message || "Error updating order status");
       }
     } catch (error) {
       toast.error("Error updating order status");

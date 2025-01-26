@@ -4,18 +4,17 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   AiOutlineDashboard,
-  AiOutlineShoppingCart,
   AiOutlineSetting,
   AiOutlineMenu,
   AiOutlineClose,
 } from "react-icons/ai";
-import { MdOutlineInventory } from "react-icons/md";
+import { FaClipboardList } from "react-icons/fa";
 
-const VendorSideBar = () => {
+const AdminSideBar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
 
-  if (!pathname.includes("/vendor/")) {
+  if (!pathname.includes("/admin/")) {
     return null;
   }
 
@@ -23,18 +22,17 @@ const VendorSideBar = () => {
     {
       name: "Dashboard",
       icon: <AiOutlineDashboard />,
-      path: "/vendor/dashboard",
+      path: "/admin/dashboard",
     },
     {
-      name: "Manage Inventory",
-      icon: <MdOutlineInventory />,
-      path: "/vendor/inventory",
+      name: "Manage Orders",
+      icon: <FaClipboardList />,
+      path: "/admin/manage-orders",
     },
-    { name: "Orders", icon: <AiOutlineShoppingCart />, path: "/vendor/orders" },
     {
       name: "Account Settings",
       icon: <AiOutlineSetting />,
-      path: "/vendor/settings",
+      path: "/admin/account-settings",
     },
   ];
 
@@ -43,7 +41,6 @@ const VendorSideBar = () => {
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         aria-label={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
-        aria-expanded={isSidebarOpen ? "true" : "false"}
         className="md:hidden fixed top-4 right-4 z-50 bg-gray-100 rounded-md p-2 shadow-md"
       >
         {isSidebarOpen ? (
@@ -59,10 +56,7 @@ const VendorSideBar = () => {
         } md:block`}
       >
         <div className="p-4 flex items-center justify-between md:justify-start">
-          <Link
-            href="/vendor/dashboard"
-            className="flex items-center space-x-3"
-          >
+          <Link href="/admin/dashboard" className="flex items-center space-x-3">
             <img
               height={36}
               width={48}
@@ -98,4 +92,4 @@ const VendorSideBar = () => {
   );
 };
 
-export default VendorSideBar;
+export default AdminSideBar;

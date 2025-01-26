@@ -9,6 +9,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
+  const [taxRate, setTaxRate] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
@@ -24,6 +25,8 @@ export default function CheckoutPage() {
     const cart = localStorage.getItem("cart");
     setCartItems(JSON.parse(cart) || []);
     const subtotal = localStorage.getItem("total");
+    const taxRate = localStorage.getItem("taxRate");
+    setTaxRate(taxRate);
     setTotal(subtotal);
     if (!cart || cart.length === 0) {
       router.push("/");
@@ -59,7 +62,7 @@ export default function CheckoutPage() {
     const orders = transformData({
       products: cartItems,
     });
-
+    const cOrderID = new Date().getTime();
     Promise.all(
       orders.map(async (item) => {
         const orderID = new Date().getTime();
@@ -85,6 +88,9 @@ export default function CheckoutPage() {
                   customer_name: formData.name,
                   vendor_id: item.products[0].vendorID,
                   products: item.products,
+                  cOrderID,
+                  cTotal: total,
+                  taxRate,
                 },
               }),
             }
@@ -94,6 +100,7 @@ export default function CheckoutPage() {
           if (response.ok) {
             localStorage.removeItem("cart");
             localStorage.removeItem("total");
+            localStorage.removeItem("taxRate");
             setSuccess(true);
             return true;
           } else {

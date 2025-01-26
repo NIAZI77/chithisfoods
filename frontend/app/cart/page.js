@@ -47,6 +47,7 @@ const Cart = () => {
 
   useEffect(() => {
     localStorage.setItem("total", finalTotal.toFixed(2));
+    localStorage.setItem("taxRate", taxRate);
   }, [cartItems, finalTotal]);
 
   return (

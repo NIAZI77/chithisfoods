@@ -2,6 +2,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import "./globals.css";
 import VendorSideBar from "./components/VendorSideBar";
+import AdminSideBar from "./components/adminSidebar";
 
 export const metadata = {
   title: "ChithisFoods",
@@ -14,7 +15,8 @@ export default function RootLayout({ children }) {
       <body className={`antialiased`} cz-shortcut-listen="true">
         <Navbar />
         <VendorSideBar/>
-        <div className="min-h-screen">
+        <AdminSideBar/>
+                <div className="min-h-screen">
           {children}
         </div>
         <Footer />

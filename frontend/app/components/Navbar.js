@@ -150,7 +150,7 @@ export default function Navbar() {
     setLogin(false);
   };
 
-  if (pathname.includes("/vendor/")) {
+  if (pathname.includes("/vendor/")  || pathname.includes("/admin/")) {
     return null;
   }
 

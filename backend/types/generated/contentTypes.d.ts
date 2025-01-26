@@ -383,9 +383,11 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
   attributes: {
     address: Schema.Attribute.String & Schema.Attribute.Required;
     addressLine: Schema.Attribute.String;
+    cOrderID: Schema.Attribute.BigInteger & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    cTotal: Schema.Attribute.Decimal;
     customer_name: Schema.Attribute.String & Schema.Attribute.Required;
     email: Schema.Attribute.Email & Schema.Attribute.Required;
     instruction: Schema.Attribute.String;
@@ -399,6 +401,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     phone: Schema.Attribute.BigInteger & Schema.Attribute.Required;
     products: Schema.Attribute.JSON & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
+    taxRate: Schema.Attribute.Integer & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

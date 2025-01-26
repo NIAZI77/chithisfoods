@@ -50,6 +50,17 @@
     "vendor_id": {
       "type": "string",
       "required": true
+    },
+    "cOrderID": {
+      "type": "biginteger",
+      "required": true
+    },
+    "cTotal": {
+      "type": "decimal"
+    },
+    "taxRate": {
+      "type": "integer",
+      "required": true
     }
   }
 }

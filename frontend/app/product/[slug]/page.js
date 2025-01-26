@@ -276,18 +276,18 @@ const Page = () => {
               </div>
 
               <div className="space-y-3">
-                <Link href={`/vendors/${vendor.documentId}`}>
-                  <div className="flex items-center font-bold text-lg text-slate-700 py-2 select-text">
-                    <Image
-                      height={50}
-                      width={50}
-                      src={vendor.logo.url}
-                      alt={`${vendor.name} profile`}
-                      className="w-14 h-14 rounded-full object-cover mr-4"
-                    />
+                <div className="flex items-center font-bold text-lg text-slate-700 py-2 select-text">
+                  <Image
+                    height={50}
+                    width={50}
+                    src={vendor.logo.url}
+                    alt={`${vendor.name} profile`}
+                    className="w-14 h-14 rounded-full object-cover mr-4"
+                  />
+                  <Link href={`/vendors/${vendor.documentId}`}>
                     By {vendor.name}
-                  </div>
-                </Link>
+                  </Link>
+                </div>
                 <div>
                   {dish.vegetarian ? (
                     <div className="font-bold text-sm text-slate-500">
