@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,9 +12,24 @@ import { FaClipboardList } from "react-icons/fa";
 
 const AdminSideBar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [admin, setAdmin] = useState(false)
   const pathname = usePathname();
-
-  if (!pathname.includes("/admin/")) {
+  const getCookie = (name) => {
+    const cookieArr = document.cookie.split(";");
+    for (let i = 0; i < cookieArr.length; i++) {
+      let cookie = cookieArr[i].trim();
+      if (cookie.startsWith(name + "=")) {
+        return decodeURIComponent(cookie.substring(name.length + 1));
+      }
+    }
+    return null;
+  };
+  useEffect(() => {
+    const storedAdmin = getCookie("admin");
+    setAdmin(storedAdmin)
+    
+  }, []);
+  if (!pathname.includes("/admin/") || !admin) {
     return null;
   }
 

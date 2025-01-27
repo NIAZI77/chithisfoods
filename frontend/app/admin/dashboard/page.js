@@ -21,7 +21,7 @@ const DashboardPage = () => {
         return decodeURIComponent(cookie.substring(name.length + 1));
       }
     }
-    return null;
+    return;
   };
 
   useEffect(() => {
@@ -29,7 +29,7 @@ const DashboardPage = () => {
     const storedUser = getCookie("user");
     const storedAdmin = getCookie("admin");
 
-    if (!storedJwt && !storedUser && !storedAdmin) {
+    if (!storedJwt || !storedUser || !storedAdmin) {
       router.push("/admin/login");
       return;
     }

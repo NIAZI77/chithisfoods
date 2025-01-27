@@ -59,7 +59,7 @@ const OrderPage = () => {
     const storedAdmin = getCookie("admin");
 
     if (!storedJwt || !storedUser || !storedAdmin) {
-      router.push("/login");
+      router.push("/admin/login");
     }
   }, [router]);
 
