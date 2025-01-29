@@ -12,7 +12,12 @@ export default function SearchPage() {
   const [dishes, setDishes] = useState([]);
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [vendorPage, setVendorPage] = useState(1);
+  const [dishPage, setDishPage] = useState(1);
+  const [locationPage, setLocationPage] = useState(1);
+  const itemsPerPage = 9;
 
   const fetchVendors = async () => {
     setLoading(true);
@@ -34,6 +39,7 @@ export default function SearchPage() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchVendors();
   }, []);
@@ -62,13 +68,38 @@ export default function SearchPage() {
         item.location.country.toLowerCase().includes(query.toLowerCase())
     );
     setLocations(filteredLocations);
+
     setSearching(false);
+    if (vendors.length === 0 && dishes.length === 0 && locations.length === 0) {
+      setNotFound(true);
+    } else {
+      setNotFound(false);
+    }
   };
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       handleSearch();
     }
+  };
+
+  const getPaginatedResults = (data, page) => {
+    const startIndex = (page - 1) * itemsPerPage;
+    return data.slice(startIndex, startIndex + itemsPerPage);
+  };
+
+  const loadMoreResults = (category) => {
+    if (category === "vendors") {
+      setVendorPage((prevPage) => prevPage + 1);
+    } else if (category === "dishes") {
+      setDishPage((prevPage) => prevPage + 1);
+    } else if (category === "locations") {
+      setLocationPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const hasMoreResults = (data, page) => {
+    return data.length > page * itemsPerPage;
   };
 
   if (loading) {
@@ -94,66 +125,84 @@ export default function SearchPage() {
           <FaSearch />
         </button>
       </div>
-      {searching && <div>Searching...</div>}
-      <div>
-        {vendors.length === 0 &&
-        dishes.length === 0 &&
-        locations.length === 0 &&
-        query.length !== 0 ? (
-          <div>No results</div>
-        ) : (
-          <>
-            {dishes.length > 0 && (
-              <div className="mt-4">
-                <h2 className="text-2xl font-semibold my-4 text-center">
-                  Dishes
-                </h2>
-                <div className="grid md:grid-cols-3 grid-cols-1">
-                  {dishes.map((dish, index) => (
-                    <div key={index}>
-                      <ProductCard
-                        product={dish}
-                        logo={dish.vendor.logo}
-                        location={dish.vendor.location}
-                        documentId={dish.vendor.documentId}
-                      />
-                    </div>
-                  ))}
-                </div>
+      {!notFound && (
+        <div>
+          {dishes.length > 0 && (
+            <div className="mt-4">
+              <h2 className="text-2xl font-semibold my-4 text-center">Dishes</h2>
+              <div className="grid md:grid-cols-3 grid-cols-1">
+                {getPaginatedResults(dishes, dishPage).map((dish, index) => (
+                  <div key={index}>
+                    <ProductCard
+                      product={dish}
+                      logo={dish.vendor.logo}
+                      location={dish.vendor.location}
+                      documentId={dish.vendor.documentId}
+                    />
+                  </div>
+                ))}
               </div>
-            )}
-            {vendors.length > 0 && (
-              <div className="mt-4">
-                <h2 className="text-2xl font-semibold my-4 text-center">
-                  Vendors
-                </h2>
-                <div className="gap-6 grid md:grid-cols-3 grid-cols-1">
-                  {vendors.map((vendor, index) => (
-                    <div key={index}>
-                      <VendorCard vendor={vendor} className="mx-auto" />
-                    </div>
-                  ))}
+              {hasMoreResults(dishes, dishPage) && (
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => loadMoreResults("dishes")}
+                    className="bg-orange-500 text-white py-2 px-4 rounded"
+                  >
+                    View More
+                  </button>
                 </div>
+              )}
+            </div>
+          )}
+          {vendors.length > 0 && (
+            <div className="mt-4">
+              <h2 className="text-2xl font-semibold my-4 text-center">Vendors</h2>
+              <div className="gap-6 grid md:grid-cols-3 grid-cols-1">
+                {getPaginatedResults(vendors, vendorPage).map((vendor, index) => (
+                  <div key={index}>
+                    <VendorCard vendor={vendor} className="mx-auto" />
+                  </div>
+                ))}
               </div>
-            )}
+              {hasMoreResults(vendors, vendorPage) && (
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => loadMoreResults("vendors")}
+                    className="bg-orange-500 text-white py-2 px-4 rounded"
+                  >
+                    View More
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {locations.length > 0 && (
+            <div className="mt-4">
+              <h2 className="text-2xl font-semibold my-4 text-center">Locations</h2>
+              <div className="grid md:grid-cols-3 grid-cols-1 gap-6">
+                {getPaginatedResults(locations, locationPage).map((vendor, index) => (
+                  <div key={index}>
+                    <VendorCard vendor={vendor} className="mx-auto" />
+                  </div>
+                ))}
+              </div>
+              {hasMoreResults(locations, locationPage) && (
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => loadMoreResults("locations")}
+                    className="bg-orange-500 text-white py-2 px-4 rounded"
+                  >
+                    View More
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
-            {locations.length > 0 && (
-              <div className="mt-4">
-                <h2 className="text-2xl font-semibold my-4 text-center">
-                  Locations
-                </h2>
-                <div className="grid md:grid-cols-3 grid-cols-1 gap-6">
-                  {locations.map((vendor, index) => (
-                    <div key={index}>
-                      <VendorCard vendor={vendor} className="mx-auto" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      {notFound && <div>No Results Found</div>}
+      {searching && <div>Searching...</div>}
     </div>
   );
 }
