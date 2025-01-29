@@ -1,5 +1,4 @@
 "use client";
-
 import Loading from "@/app/loading";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,54 +11,68 @@ const OrderPage = () => {
   const [pendingOrders, setPendingOrders] = useState([]);
   const [acceptedOrders, setAcceptedOrders] = useState([]);
   const [completedOrders, setCompletedOrders] = useState([]);
+  const [declinedCancelledOrders, setDeclinedCancelledOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [pendingPage, setPendingPage] = useState(1);
+  const [acceptedPage, setAcceptedPage] = useState(1);
+  const [completedPage, setCompletedPage] = useState(1);
+  const [declinedCancelledPage, setDeclinedCancelledPage] = useState(1);
+
+  const ordersPerPage = 10;
+
   const router = useRouter();
 
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Error fetching orders: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.data) {
+        throw new Error("No orders data found");
+      }
+
+      setOrders(data.data);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCookie = (name) => {
+    const cookieArr = document.cookie.split(";");
+    for (let i = 0; i < cookieArr.length; i++) {
+      let cookie = cookieArr[i].trim();
+      if (cookie.startsWith(name + "=")) {
+        return decodeURIComponent(cookie.substring(name.length + 1));
+      }
+    }
+    return null;
+  };
+
   useEffect(() => {
-    const fetchOrders = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch order data");
-        }
-
-        const data = await response.json();
-
-        setOrders(data.data);
-      } catch (error) {
-        console.error("Error fetching order data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchOrders();
-    const getCookie = (name) => {
-      const cookieArr = document.cookie.split(";");
-      for (let i = 0; i < cookieArr.length; i++) {
-        let cookie = cookieArr[i].trim();
-        if (cookie.startsWith(name + "=")) {
-          return decodeURIComponent(cookie.substring(name.length + 1));
-        }
-      }
-      return null;
-    };
-
-    const storedJwt = getCookie("jwt");
-    const storedUser = getCookie("user");
     const storedAdmin = getCookie("admin");
 
-    if (!storedJwt || !storedUser || !storedAdmin) {
+    if (!storedAdmin) {
       router.push("/admin/login");
+      return;
+    } else {
+      fetchOrders();
     }
   }, [router]);
 
@@ -71,11 +84,13 @@ const OrderPage = () => {
       orders.filter((order) => order.order_status === "accepted")
     );
     setCompletedOrders(
+      orders.filter((order) => order.order_status === "fulfilled")
+    );
+    setDeclinedCancelledOrders(
       orders.filter(
         (order) =>
-          order.order_status === "fulfilled" ||
-          order.order_status === "cancelled" ||
-          order.order_status === "declined"
+          order.order_status === "declined" ||
+          order.order_status === "cancelled"
       )
     );
   }, [orders]);
@@ -86,6 +101,42 @@ const OrderPage = () => {
         return total + parseFloat(product.price) * product.quantity;
       }, 0)
       .toFixed(2);
+  };
+
+  const getOrderStatusColor = (status) => {
+    switch (status) {
+      case "cancelled":
+      case "declined":
+        return "bg-red-500";
+      case "fulfilled":
+      case "accepted":
+        return "bg-green-500";
+      case "pending":
+        return "bg-yellow-400";
+      default:
+        return "bg-gray-500";
+    }
+  };
+
+  const getPaginatedOrders = (orders, page) => {
+    const startIndex = (page - 1) * ordersPerPage;
+    return orders.slice(startIndex, startIndex + ordersPerPage);
+  };
+
+  const loadMoreOrders = (category) => {
+    if (category === "pending") {
+      setPendingPage((prevPage) => prevPage + 1);
+    } else if (category === "accepted") {
+      setAcceptedPage((prevPage) => prevPage + 1);
+    } else if (category === "fulfilled") {
+      setCompletedPage((prevPage) => prevPage + 1);
+    } else if (category === "declinedCancelled") {
+      setDeclinedCancelledPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const hasMoreOrders = (orders, page) => {
+    return orders.length > page * ordersPerPage;
   };
 
   if (loading) {
@@ -118,19 +169,74 @@ const OrderPage = () => {
 
           <OrderSection
             title="Pending Orders"
-            orders={pendingOrders}
+            orders={getPaginatedOrders(pendingOrders, pendingPage)}
             calculateTotal={calculateTotal}
+            getOrderStatusColor={getOrderStatusColor}
           />
+          {hasMoreOrders(pendingOrders, pendingPage) && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => loadMoreOrders("pending")}
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                View More
+              </button>
+            </div>
+          )}
+
           <OrderSection
             title="Accepted Orders"
-            orders={acceptedOrders}
+            orders={getPaginatedOrders(acceptedOrders, acceptedPage)}
             calculateTotal={calculateTotal}
+            getOrderStatusColor={getOrderStatusColor}
           />
+          {hasMoreOrders(acceptedOrders, acceptedPage) && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => loadMoreOrders("accepted")}
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                View More
+              </button>
+            </div>
+          )}
+
           <OrderSection
             title="Fulfilled Orders"
-            orders={completedOrders}
+            orders={getPaginatedOrders(completedOrders, completedPage)}
             calculateTotal={calculateTotal}
+            getOrderStatusColor={getOrderStatusColor}
           />
+          {hasMoreOrders(completedOrders, completedPage) && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => loadMoreOrders("fulfilled")}
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                View More
+              </button>
+            </div>
+          )}
+
+          <OrderSection
+            title="Declined/Cancelled Orders"
+            orders={getPaginatedOrders(
+              declinedCancelledOrders,
+              declinedCancelledPage
+            )}
+            calculateTotal={calculateTotal}
+            getOrderStatusColor={getOrderStatusColor}
+          />
+          {hasMoreOrders(declinedCancelledOrders, declinedCancelledPage) && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => loadMoreOrders("declinedCancelled")}
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                View More
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </main>
@@ -140,7 +246,7 @@ const OrderPage = () => {
 const DashboardCard = ({ title, count, icon }) => {
   return (
     <div className="bg-white p-4 rounded shadow">
-      <p className="text-lg font-bold space-x-1 flex items-center justify-center">
+      <p className="text-lg font-bold space-x-2 flex items-center justify-center">
         {icon}
         {title}
       </p>
@@ -149,7 +255,12 @@ const DashboardCard = ({ title, count, icon }) => {
   );
 };
 
-const OrderSection = ({ title, orders, calculateTotal }) => {
+const OrderSection = ({
+  title,
+  orders,
+  calculateTotal,
+  getOrderStatusColor,
+}) => {
   return (
     <div className="bg-white p-4 rounded shadow mt-4">
       <h2 className="text-xl font-medium mb-2">{title}</h2>
@@ -175,9 +286,9 @@ const OrderSection = ({ title, orders, calculateTotal }) => {
               </tr>
             </thead>
             <tbody className="bg-white divide-gray-200">
-              {orders.map((order, index) => (
+              {orders.map((order) => (
                 <tr
-                  key={index}
+                  key={order.id}
                   className="hover:bg-gray-100 transition-all my-2"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
@@ -195,7 +306,11 @@ const OrderSection = ({ title, orders, calculateTotal }) => {
                     ${order.cTotal}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
-                    <div className="px-2 py-1 font-bold text-white bg-yellow-400 rounded text-center">
+                    <div
+                      className={`px-2 py-2 font-bold text-white rounded text-center ${getOrderStatusColor(
+                        order.order_status
+                      )}`}
+                    >
                       {order.order_status
                         .split(" ")
                         .map(

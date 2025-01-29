@@ -361,7 +361,16 @@ const Page = () => {
                   <div key={index} className="bg-slate-100 p-4">
                     <h3 className="flex items-center justify-between text-gray-700">
                       <div className="font-medium">
-                        {review.user_name.substring(0, 3)}******
+                        {review.user_name
+                          .substring(0, 3)
+                          .split(" ")
+                          .map(
+                            (part) =>
+                              part.charAt(0).toUpperCase() +
+                              part.slice(1).toLowerCase()
+                          )
+                          .join(" ")}
+                        ******
                       </div>
                       <div className="text-sm text-gray-500">{review.date}</div>
                     </h3>

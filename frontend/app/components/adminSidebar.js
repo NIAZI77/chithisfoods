@@ -4,15 +4,14 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   AiOutlineDashboard,
-  AiOutlineSetting,
   AiOutlineMenu,
   AiOutlineClose,
 } from "react-icons/ai";
-import { FaClipboardList } from "react-icons/fa";
+import { FaClipboardList, FaSignOutAlt } from "react-icons/fa";
 
 const AdminSideBar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [admin, setAdmin] = useState(false)
+  const [admin, setAdmin] = useState(false);
   const pathname = usePathname();
   const getCookie = (name) => {
     const cookieArr = document.cookie.split(";");
@@ -26,10 +25,14 @@ const AdminSideBar = () => {
   };
   useEffect(() => {
     const storedAdmin = getCookie("admin");
-    setAdmin(storedAdmin)
-    
+    setAdmin(storedAdmin);
   }, []);
-  if (!pathname.includes("/admin/") || !admin) {
+
+  const handleLogout = () => {
+    document.cookie = "admin=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.reload();
+  };
+  if (!pathname.includes("/admin/") || pathname.includes("/admin/login")) {
     return null;
   }
 
@@ -43,11 +46,6 @@ const AdminSideBar = () => {
       name: "Manage Orders",
       icon: <FaClipboardList />,
       path: "/admin/manage-orders",
-    },
-    {
-      name: "Account Settings",
-      icon: <AiOutlineSetting />,
-      path: "/admin/account-settings",
     },
   ];
 
@@ -94,6 +92,15 @@ const AdminSideBar = () => {
               <span>{item.name}</span>
             </Link>
           ))}
+          <div
+            className={`flex items-center py-3 px-6 hover:bg-gray-100 transition duration-200`}
+            onClick={handleLogout}
+          >
+            <span className="mr-3 text-lg">
+              <FaSignOutAlt />
+            </span>
+            <span>Logout</span>
+          </div>
         </nav>
       </aside>
 

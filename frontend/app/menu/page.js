@@ -39,7 +39,7 @@ export default function MenuPage() {
         }
       );
       const data = await response.json();
-      const dishes = data.data
+      const dishes = data.data.sort((a, b) => b.rating - a.rating)
         .map((vendor) => {
           if (!vendor.menu) {
             return [];

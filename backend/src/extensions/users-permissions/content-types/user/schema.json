@@ -66,12 +66,17 @@
       "configurable": false
     },
     "profileImage": {
-      "allowedTypes": [
-        "images"
-      ],
       "type": "media",
       "multiple": false,
-      "required": true
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "isAdmin": {
+      "type": "boolean",
+      "default": false,
+      "required": false
     }
   }
 }

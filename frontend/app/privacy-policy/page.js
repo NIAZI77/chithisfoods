@@ -1,152 +1,179 @@
-import Link from "next/link";
+// pages/privacy-policy.js
+
 import React from "react";
 
-const PiracyPolicyPage = () => {
+const PrivacyPolicy = () => {
   return (
     <div className="md:w-[80%] w-[90%] mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-center mb-6">Piracy Policy</h1>
+      <h1 className="text-3xl font-semibold text-center mb-6">
+        Privacy Policy
+      </h1>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-orange-600 mb-4">
-          Introduction
+      <section className="mb-6">
+        <h2 className="text-2xl font-semibold mb-2">
+          Welcome to Chithis, Inc.
         </h2>
-        <p className="text-gray-600 leading-7">
-          At {process.env.NEXT_PUBLIC_NAME}, we are committed to upholding the integrity of
-          intellectual property and protecting the rights of creators. This
-          Piracy Policy outlines our stance on piracy, explains prohibited
-          activities, and outlines the consequences for engaging in piracy on
-          our platform.
+        <p className="text-gray-700 mb-4">
+          Chithis, Inc. ("Chithis," "we," "our," or "us") is committed to
+          protecting and respecting your privacy. This Privacy Policy explains
+          how we collect, use, share, and protect your information when you
+          access and use our website, mobile applications, and related services
+          (collectively, the "Service").
         </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-orange-600 mb-4">
-          Definition of Piracy
-        </h2>
-        <p className="text-gray-600 leading-7">
-          Piracy refers to the unauthorized use, reproduction, distribution, or
-          sharing of copyrighted material without the consent of the rightful
-          owner. This includes illegal downloads, distribution of stolen
-          content, or any form of content infringement that violates copyright
-          laws.
+        <p className="text-gray-700 mb-4">
+          By using our Service, you agree to the terms of this Privacy Policy.
+          If you disagree with any part of this policy, please refrain from
+          using the Service.
         </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-orange-600 mb-4">
-          Prohibited Activities
-        </h2>
-        <p className="text-gray-600 leading-7">
-          The following activities are prohibited on {process.env.NEXT_PUBLIC_NAME} and may result
-          in account suspension or other actions:
-        </p>
-        <ul className="list-disc pl-6 mt-4 space-y-2">
-          <li className="text-gray-600">
-            Uploading, sharing, or distributing pirated or copyrighted content
-            without permission.
-          </li>
-          <li className="text-gray-600">
-            Engaging in the sale or illegal distribution of content, including
-            recipes or images, without authorization.
-          </li>
-          <li className="text-gray-600">
-            Using our platform to promote or link to websites offering pirated
-            material.
-          </li>
-        </ul>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-orange-600 mb-4">
-          Consequences of Piracy
-        </h2>
-        <p className="text-gray-600 leading-7">
-          If you are found engaging in piracy, we may take the following
-          actions:
-        </p>
-        <ul className="list-disc pl-6 mt-4 space-y-2">
-          <li className="text-gray-600">
-            Suspension or termination of your account on {process.env.NEXT_PUBLIC_NAME}.
-          </li>
-          <li className="text-gray-600">
-            Removal of infringing content from our platform.
-          </li>
-          <li className="text-gray-600">
-            Legal actions, including the potential for fines or litigation,
-            depending on the severity of the infringement.
-          </li>
-        </ul>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-orange-600 mb-4">
-          Reporting Piracy
-        </h2>
-        <p className="text-gray-600 leading-7">
-          If you believe that your content or intellectual property rights have
-          been infringed upon, please contact us immediately. You can report
-          piracy by submitting a notice to our support team at{" "}
-          <Link href={`mailto:support@${process.env.NEXT_PUBLIC_NAME}.com`} className="text-blue-500">
-            support@{process.env.NEXT_PUBLIC_NAME}.com
-          </Link>
+        <p className="text-gray-700 mb-4">
+          For any questions regarding this Privacy Policy, please contact us at{" "}
+          <a href="mailto:privacy@chithis.com" className="text-blue-500">
+            privacy@chithis.com
+          </a>
           .
         </p>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-orange-600 mb-4">
-          Actions We Take
+      <section className="mb-6">
+        <h2 className="text-2xl font-semibold mb-2">
+          1. Information We Collect
         </h2>
-        <p className="text-gray-600 leading-7">
-          Upon receiving a piracy report, our team will investigate the claim
-          and take appropriate action, which may include:
+
+        <h3 className="text-xl font-medium mb-2">A. Information You Provide</h3>
+        <ul className="list-disc pl-6 text-gray-700 mb-4">
+          <li>
+            <strong>Profile Data</strong> Includes your name, email address,
+            phone number, physical address, account credentials, preferences,
+            demographic details, and favorite items.
+          </li>
+          <li>
+            <strong>Messages</strong> Any content of messages, reviews,
+            feedback, or comments you share with us or post publicly on our
+            platform.
+          </li>
+          <li>
+            <strong>Financial Data</strong> Necessary payment details for
+            processing transactions. This information is handled by a
+            third-party payment processor, Stripe, Inc.
+          </li>
+          <li>
+            <strong>Employment Data</strong> Information such as your employment
+            history, educational background, transcripts, and references when
+            you apply for a job.
+          </li>
+          <li>
+            <strong>Personal Contacts</strong> If you provide personal contact
+            information, such as names, email addresses, and phone numbers of
+            individuals in your network, we collect this data with your consent
+            for specific requests.
+          </li>
+        </ul>
+
+        <h3 className="text-xl font-medium mb-2">B. Usage Data</h3>
+        <p className="text-gray-700 mb-4">
+          We may collect information about your interactions with the Service,
+          including how you navigate our website or app, the pages you visit,
+          items you view or purchase, and other actions you take while using the
+          Service.
         </p>
-        <ul className="list-disc pl-6 mt-4 space-y-2">
-          <li className="text-gray-600">
-            Removing the infringing content.
+      </section>
+
+      <section className="mb-6">
+        <h2 className="text-2xl font-semibold mb-2">
+          2. How We Use Your Information
+        </h2>
+        <ul className="list-disc pl-6 text-gray-700 mb-4">
+          <li>
+            <strong>To Process Transactions</strong> We use your financial data
+            to complete transactions related to your purchases and other
+            activities within the Service.
           </li>
-          <li className="text-gray-600">
-            Suspending the involved user’s account until the issue is resolved.
+          <li>
+            <strong>To Improve the Service</strong> We analyze usage data to
+            enhance and personalize your experience, improve the functionality
+            of the Service, and address issues.
           </li>
-          <li className="text-gray-600">
-            Cooperating with legal authorities if necessary.
+          <li>
+            <strong>Communication</strong> We use your contact information to
+            respond to your inquiries, send service updates, and provide
+            customer support.
+          </li>
+          <li>
+            <strong>To Process Applications</strong> If you apply for a job with
+            us, we use your employment data to evaluate your application.
+          </li>
+          <li>
+            <strong>To Send Marketing Communications</strong> With your consent,
+            we may send you promotional information, but you can opt out at any
+            time.
           </li>
         </ul>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-orange-600 mb-4">
-          Collaboration with Copyright Holders
+      <section className="mb-6">
+        <h2 className="text-2xl font-semibold mb-2">3. Data Sharing</h2>
+        <p className="text-gray-700 mb-4">
+          We do not sell or rent your personal data. However, we may share your
+          information with trusted third parties in the following ways:
+        </p>
+        <ul className="list-disc pl-6 text-gray-700 mb-4">
+          <li>
+            <strong>Service Providers</strong> We may share data with service
+            providers like Stripe, Inc., who process payments and provide other
+            essential services.
+          </li>
+          <li>
+            <strong>Legal Requirements</strong> We may disclose your information
+            if required to do so by law, in response to a legal request, or to
+            protect our legal rights.
+          </li>
+          <li>
+            <strong>Business Transfers</strong> If Chithis is involved in a
+            merger, acquisition, or sale of assets, your information may be
+            transferred as part of that transaction.
+          </li>
+        </ul>
+      </section>
+
+      <section className="mb-6">
+        <h2 className="text-2xl font-semibold mb-2">
+          4. Your Choices Regarding Your Data
         </h2>
-        <p className="text-gray-600 leading-7">
-          {process.env.NEXT_PUBLIC_NAME} works diligently to comply with copyright laws and
-          support copyright holders. We will remove infringing content and take
-          appropriate actions in line with the Digital Millennium Copyright Act
-          (DMCA) or any applicable local laws.
-        </p>
+        <ul className="list-disc pl-6 text-gray-700 mb-4">
+          <li>
+            <strong>Access and Update Information</strong> You can access and
+            update your personal information by logging into your account or
+            contacting us directly.
+          </li>
+          <li>
+            <strong>Marketing Communications</strong> You may opt out of
+            receiving marketing communications by following the unsubscribe
+            instructions in each communication or by contacting us.
+          </li>
+          <li>
+            <strong>Deleting Your Account</strong> If you wish to delete your
+            account and the information associated with it, please contact us at{" "}
+            <a href="mailto:privacy@chithis.com" className="text-blue-500">
+              privacy@chithis.com
+            </a>
+            .
+          </li>
+        </ul>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-orange-600 mb-4">Disclaimer</h2>
-        <p className="text-gray-600 leading-7">
-          While we take efforts to monitor and prevent piracy, {process.env.NEXT_PUBLIC_NAME} is
-          not responsible for third-party content uploaded or shared by users.
-          We rely on the community to report piracy and comply with legal
-          procedures.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-orange-600 mb-4">Conclusion</h2>
-        <p className="text-gray-600 leading-7">
-          We are dedicated to protecting the rights of creators and ensuring a
-          fair, legal environment for all users. By using our platform, you
-          agree to comply with this piracy policy and help us uphold the law.
-          Thank you for supporting ethical practices on {process.env.NEXT_PUBLIC_NAME}.
+      <section className="mb-6">
+        <h2 className="text-2xl font-semibold mb-2">
+          5. Security of Your Information
+        </h2>
+        <p className="text-gray-700 mb-4">
+          We take reasonable steps to protect your information, but no method of
+          data transmission or storage is 100% secure. While we strive to use
+          commercially acceptable means to protect your personal data, we cannot
+          guarantee its absolute security.
         </p>
       </section>
     </div>
   );
 };
 
-export default PiracyPolicyPage;
+export default PrivacyPolicy;

@@ -24,11 +24,9 @@ const Login = () => {
   };
 
   useEffect(() => {
-    const storedJwt = getCookie("jwt");
-    const storedUser = getCookie("user");
     const storedAdmin = getCookie("admin");
 
-    if (storedJwt && storedUser && storedAdmin) {
+    if (storedAdmin) {
       router.push("/admin");
       return;
     }
@@ -50,26 +48,29 @@ const Login = () => {
           body: JSON.stringify({
             identifier: username,
             password,
+            isAdmin: true,
           }),
         }
       );
 
       const data = await response.json();
       if (response.ok) {
-        toast.success("Logged in successfully!");
-        if (typeof window !== "undefined" && data?.jwt) {
-          const expires = new Date();
-          expires.setDate(expires.getDate() + 7);
-          const expiresString = expires.toUTCString();
-          document.cookie = `user=${data.user.email}; expires=${expiresString}; path=/`;
-          document.cookie = `jwt=${data.jwt}; expires=${expiresString}; path=/`;
-          document.cookie = `admin=${data.jwt}; expires=${expiresString}; path=/`;
+        if (data.user.isAdmin) {
+          toast.success("Logged in successfully!");
+          if (typeof window !== "undefined" && data?.jwt) {
+            const expires = new Date();
+            expires.setDate(expires.getDate() + 7);
+            const expiresString = expires.toUTCString();
+            document.cookie = `admin=${data.jwt}; expires=${expiresString}; path=/`;
+          }
+          setTimeout(() => {
+            router.push("/admin");
+          }, 1000);
+        } else {
+          toast.error("Invalid Admin Credentials.");
         }
-        setTimeout(() => {
-          router.push("/admin");
-        }, 1000);
       } else {
-        toast.error(data.error?.message || "Invalid credentials.");
+        toast.error(data.error?.message || "Invalid Credentials.");
       }
     } catch (err) {
       toast.error("An error occurred during login.");

@@ -37,7 +37,7 @@ export default function CategoryPage() {
           }
         );
         const result = await response.json();
-        setData(result.data);
+        setData(result.data.sort((a, b) => b.rating - a.rating));
       } catch (error) {
         console.error("Error fetching vendors:", error);
       } finally {
@@ -302,7 +302,7 @@ export default function CategoryPage() {
               onClick={closeFilterPopup}
               className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
             >
-             Apply Filters
+              Apply Filters
             </button>
           </div>
         </div>

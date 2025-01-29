@@ -13,6 +13,10 @@ const OrderPage = () => {
   const [acceptedOrders, setAcceptedOrders] = useState([]);
   const [completedOrders, setCompletedOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pendingPage, setPendingPage] = useState(1);
+  const [acceptedPage, setAcceptedPage] = useState(1);
+  const [completedPage, setCompletedPage] = useState(1);
+  const ordersPerPage = 10;
   const router = useRouter();
 
   useEffect(() => {
@@ -120,6 +124,25 @@ const OrderPage = () => {
       .toFixed(2);
   };
 
+  const getPaginatedOrders = (orders, page) => {
+    const startIndex = (page - 1) * ordersPerPage;
+    return orders.slice(startIndex, startIndex + ordersPerPage);
+  };
+
+  const loadMoreOrders = (category) => {
+    if (category === "pending") {
+      setPendingPage((prevPage) => prevPage + 1);
+    } else if (category === "accepted") {
+      setAcceptedPage((prevPage) => prevPage + 1);
+    } else if (category === "completed") {
+      setCompletedPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const hasMoreOrders = (orders, page) => {
+    return orders.length > page * ordersPerPage;
+  };
+
   if (loading) {
     return <Loading />;
   }
@@ -150,19 +173,51 @@ const OrderPage = () => {
 
           <OrderSection
             title="Pending Orders"
-            orders={pendingOrders}
+            orders={getPaginatedOrders(pendingOrders, pendingPage)}
             calculateTotal={calculateTotal}
           />
+          {hasMoreOrders(pendingOrders, pendingPage) && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => loadMoreOrders("pending")}
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                View More
+              </button>
+            </div>
+          )}
+
           <OrderSection
             title="Accepted Orders"
-            orders={acceptedOrders}
+            orders={getPaginatedOrders(acceptedOrders, acceptedPage)}
             calculateTotal={calculateTotal}
           />
+          {hasMoreOrders(acceptedOrders, acceptedPage) && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => loadMoreOrders("accepted")}
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                View More
+              </button>
+            </div>
+          )}
+
           <OrderSection
             title="Fulfilled Orders"
-            orders={completedOrders}
+            orders={getPaginatedOrders(completedOrders, completedPage)}
             calculateTotal={calculateTotal}
           />
+          {hasMoreOrders(completedOrders, completedPage) && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => loadMoreOrders("completed")}
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                View More
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </main>

@@ -11,56 +11,53 @@ const Order = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const getCookie = (name) => {
-      const cookieArr = document.cookie.split(";");
-      for (let i = 0; i < cookieArr.length; i++) {
-        let cookie = cookieArr[i].trim();
-        if (cookie.startsWith(name + "=")) {
-          return decodeURIComponent(cookie.substring(name.length + 1));
-        }
+  const getCookie = (name) => {
+    const cookieArr = document.cookie.split(";");
+    for (let i = 0; i < cookieArr.length; i++) {
+      let cookie = cookieArr[i].trim();
+      if (cookie.startsWith(name + "=")) {
+        return decodeURIComponent(cookie.substring(name.length + 1));
       }
-      return null;
-    };
-
-    const storedJwt = getCookie("jwt");
-    const storedUser = getCookie("user");
+    }
+    return null;
+  };
+  useEffect(() => {
     const storedAdmin = getCookie("admin");
-    if (!storedJwt || !storedUser || !storedAdmin) {
-      router.push("/login");
+
+    if (!storedAdmin) {
+      router.push("/admin/login");
       return;
     }
-
-    const fetchOrder = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[cOrderID][$eq]=${orderId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          console.log("Error fetching order");
-          return;
+  }, [router]);
+  const fetchOrder = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[cOrderID][$eq]=${orderId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
         }
+      );
 
-        const data = await response.json();
-        setOrder(data.data);
-      } catch (error) {
-        console.log("Error fetching order data:", error);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        console.log("Error fetching order");
+        return;
       }
-    };
 
-    fetchOrder();
-  }, [orderId, router]);
+      const data = await response.json();
+      setOrder(data.data);
+    } catch (error) {
+      console.log("Error fetching order data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchOrder();
 
   if (loading) {
     return <Loading />;

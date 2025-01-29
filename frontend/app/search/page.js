@@ -28,7 +28,7 @@ export default function SearchPage() {
           }
         );
         const data = await response.json();
-        setData(data.data);
+        setData(data.data.sort((a, b) => b.rating - a.rating));
       } catch (error) {
         console.error("Error fetching vendors:", error);
       } finally {
