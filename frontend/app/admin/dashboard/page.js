@@ -10,6 +10,7 @@ const DashboardPage = () => {
   const [userCount, setUserCount] = useState(0);
   const [vendorCount, setVendorCount] = useState(0);
   const [ordersCount, setOrdersCount] = useState(0);
+  const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -77,7 +78,20 @@ const DashboardPage = () => {
           }
         );
         const ordersData = await ordersResponse.json();
-        if (ordersResponse.ok) {
+        if (ordersResponse.ok && Array.isArray(ordersData)) {
+          setRecentOrders(
+            ordersData
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .slice(0, 10)
+          );
+          setOrdersCount(ordersData.meta.pagination.total);
+        } else if (ordersResponse.ok && ordersData.data) {
+          // Check if ordersData is in a nested structure, e.g., ordersData.data
+          setRecentOrders(
+            ordersData.data
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .slice(0, 10)
+          );
           setOrdersCount(ordersData.meta.pagination.total);
         }
       } catch (error) {
@@ -125,18 +139,15 @@ const DashboardPage = () => {
       <div className="bg-white p-6 rounded-lg shadow-md mt-6">
         <h3 className="text-xl font-semibold mb-4">Recent Activities</h3>
         <ul>
-          <li className="flex justify-between py-2 border-b">
-            <span>New order placed by John</span>
-            <span className="text-gray-500">1 hour ago</span>
-          </li>
-          <li className="flex justify-between py-2 border-b">
-            <span>New vendor registered</span>
-            <span className="text-gray-500">3 hours ago</span>
-          </li>
-          <li className="flex justify-between py-2 border-b">
-            <span>Payment failure from user123</span>
-            <span className="text-gray-500">5 hours ago</span>
-          </li>
+          {recentOrders.map((order, index) => (
+            <li className="flex py-2 border-b space-x-2" key={index}>
+              <span>An Order Has Been Placed By </span>
+              <span className="text-gray-500 font-bold">
+                {" "}
+                {order.customer_name}
+              </span>
+            </li>
+          ))}
         </ul>
       </div>
     </div>

@@ -39,7 +39,7 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/" className="hover:underline">
+                  <Link href="/menu" className="hover:underline">
                     Menu
                   </Link>
                 </li>
@@ -56,8 +56,11 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li className="mb-4">
-                  <Link href="/vendor-privacy-policy" className="hover:underline">
-                   Vendor Privacy Policy
+                  <Link
+                    href="/vendor-privacy-policy"
+                    className="hover:underline"
+                  >
+                    Vendor Privacy Policy
                   </Link>
                 </li>
                 <li>
@@ -77,6 +80,7 @@ export default function Footer() {
           <span className="text-sm text-gray-500 sm:text-center">
             © 2023
             <Link href="/" className="hover:underline">
+              {" "}
               {process.env.NEXT_PUBLIC_NAME}™
             </Link>
             . All Rights Reserved.

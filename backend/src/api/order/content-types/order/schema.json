@@ -61,6 +61,14 @@
     "taxRate": {
       "type": "integer",
       "required": true
+    },
+    "productTotal": {
+      "type": "decimal",
+      "required": true
+    },
+    "totalWithTax": {
+      "type": "decimal",
+      "required": true
     }
   }
 }

@@ -400,8 +400,10 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     order_status: Schema.Attribute.String;
     phone: Schema.Attribute.BigInteger & Schema.Attribute.Required;
     products: Schema.Attribute.JSON & Schema.Attribute.Required;
+    productTotal: Schema.Attribute.Decimal & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     taxRate: Schema.Attribute.Integer & Schema.Attribute.Required;
+    totalWithTax: Schema.Attribute.Decimal & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

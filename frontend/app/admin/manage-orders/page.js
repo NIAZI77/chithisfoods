@@ -47,7 +47,9 @@ const OrderPage = () => {
         throw new Error("No orders data found");
       }
 
-      setOrders(data.data);
+      setOrders(data.data).sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
     } catch (error) {
     } finally {
       setLoading(false);
@@ -177,7 +179,7 @@ const OrderPage = () => {
             <div className="mt-4 text-center">
               <button
                 onClick={() => loadMoreOrders("pending")}
-                className="bg-blue-500 text-white py-2 px-4 rounded"
+                className="bg-orange-500 text-white py-2 px-4 rounded"
               >
                 View More
               </button>
@@ -194,7 +196,7 @@ const OrderPage = () => {
             <div className="mt-4 text-center">
               <button
                 onClick={() => loadMoreOrders("accepted")}
-                className="bg-blue-500 text-white py-2 px-4 rounded"
+                className="bg-orange-500 text-white py-2 px-4 rounded"
               >
                 View More
               </button>
@@ -211,7 +213,7 @@ const OrderPage = () => {
             <div className="mt-4 text-center">
               <button
                 onClick={() => loadMoreOrders("fulfilled")}
-                className="bg-blue-500 text-white py-2 px-4 rounded"
+                className="bg-orange-500 text-white py-2 px-4 rounded"
               >
                 View More
               </button>
@@ -231,7 +233,7 @@ const OrderPage = () => {
             <div className="mt-4 text-center">
               <button
                 onClick={() => loadMoreOrders("declinedCancelled")}
-                className="bg-blue-500 text-white py-2 px-4 rounded"
+                className="bg-orange-500 text-white py-2 px-4 rounded"
               >
                 View More
               </button>
@@ -303,7 +305,7 @@ const OrderSection = ({
                     {order.customer_name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
-                    ${order.cTotal}
+                    ${order.productTotal}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                     <div

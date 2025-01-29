@@ -38,7 +38,11 @@ const OrderPage = () => {
         }
 
         const data = await response.json();
-        setOrders(data.data);
+        setOrders(
+          data.data.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          )
+        );
       } catch (error) {
         console.error("Error fetching order data:", error);
       } finally {
@@ -180,7 +184,7 @@ const OrderPage = () => {
             <div className="mt-4 text-center">
               <button
                 onClick={() => loadMoreOrders("pending")}
-                className="bg-blue-500 text-white py-2 px-4 rounded"
+                className="bg-orange-500 text-white py-2 px-4 rounded"
               >
                 View More
               </button>
@@ -196,7 +200,7 @@ const OrderPage = () => {
             <div className="mt-4 text-center">
               <button
                 onClick={() => loadMoreOrders("accepted")}
-                className="bg-blue-500 text-white py-2 px-4 rounded"
+                className="bg-orange-500 text-white py-2 px-4 rounded"
               >
                 View More
               </button>
@@ -212,7 +216,7 @@ const OrderPage = () => {
             <div className="mt-4 text-center">
               <button
                 onClick={() => loadMoreOrders("completed")}
-                className="bg-blue-500 text-white py-2 px-4 rounded"
+                className="bg-orange-500 text-white py-2 px-4 rounded"
               >
                 View More
               </button>

@@ -66,6 +66,11 @@ export default function CheckoutPage() {
     Promise.all(
       orders.map(async (item) => {
         const orderID = new Date().getTime();
+        const productTotal = item.products.reduce(
+          (acc, product) => acc + product.price * product.quantity,
+          0
+        );
+        const withTax = productTotal + (productTotal * taxRate) / 100;
         try {
           setSubmitting(true);
           const response = await fetch(
@@ -91,6 +96,8 @@ export default function CheckoutPage() {
                   cOrderID,
                   cTotal: total,
                   taxRate,
+                  totalWithTax: withTax,
+                  productTotal,
                 },
               }),
             }

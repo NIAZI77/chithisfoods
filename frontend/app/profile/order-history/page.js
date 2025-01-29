@@ -105,7 +105,7 @@ const OrderHistory = () => {
         );
         toast.success(`Order ${status}`);
         setTimeout(() => {
-          window.location.reload()
+          window.location.reload();
         }, 1000);
       } else {
         toast.error("Error updating order status");
@@ -174,10 +174,6 @@ const OrderHistory = () => {
                     {odr[0].instruction}
                   </p>
                 )}
-                <p className="text-gray-600 my-8">
-                  <span className="font-bold text-gray-800 text-xl">Total</span>{" "}
-                  ${odr[0].cTotal}(tax included)
-                </p>
               </div>
               {odr.map((order, index) => (
                 <div key={index}>
@@ -232,6 +228,19 @@ const OrderHistory = () => {
                         </li>
                       ))}
                     </ul>
+                    <p className="text-gray-600 my-2">
+                      <span className="font-bold text-gray-800 text-lg mr-2">
+                        Products Total
+                      </span>
+                      ${order.productTotal}
+                    </p>
+                    <p className="text-gray-600 my-2">
+                      <span className="font-bold text-gray-800 text-lg mr-2">
+                        {" "}
+                        Products Total (tax included)
+                      </span>
+                      ${order.totalWithTax}
+                    </p>
                     {order.order_status.toLowerCase() === "pending" && (
                       <div>
                         <button
@@ -264,6 +273,12 @@ const OrderHistory = () => {
                   </div>
                 </div>
               ))}
+              <p className="text-gray-600 my-8 border-t-2 pt-4">
+                <span className="font-bold text-gray-800 text-2xl mr-4">
+                  Total
+                </span>{" "}
+                ${odr[0].cTotal}(tax included)
+              </p>
             </div>
           ))}
         </div>

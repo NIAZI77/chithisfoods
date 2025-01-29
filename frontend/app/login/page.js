@@ -54,17 +54,21 @@ const Login = () => {
 
       const data = await response.json();
       if (response.ok) {
-        toast.success("Logged in successfully!");
-        if (typeof window !== "undefined" && data?.jwt) {
-          const expires = new Date();
-          expires.setDate(expires.getDate() + 7);
-          const expiresString = expires.toUTCString();
-          document.cookie = `user=${data.user.email}; expires=${expiresString}; path=/`;
-          document.cookie = `jwt=${data.jwt}; expires=${expiresString}; path=/`;
+        if (!data.user.isAdmin) {
+          toast.success("Logged in successfully!");
+          if (typeof window !== "undefined" && data?.jwt) {
+            const expires = new Date();
+            expires.setDate(expires.getDate() + 7);
+            const expiresString = expires.toUTCString();
+            document.cookie = `user=${data.user.email}; expires=${expiresString}; path=/`;
+            document.cookie = `jwt=${data.jwt}; expires=${expiresString}; path=/`;
+          }
+          setTimeout(() => {
+            router.push("/");
+          }, 1000);
+        } else {
+          toast.error(data.error?.message || "Invalid credentials.");
         }
-        setTimeout(() => {
-          router.push("/");
-        }, 1000);
       } else {
         toast.error(data.error?.message || "Invalid credentials.");
       }

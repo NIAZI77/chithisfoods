@@ -14,28 +14,27 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
 
+  const fetchVendors = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?populate=*`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setData(data.data.sort((a, b) => b.rating - a.rating));
+    } catch (error) {
+      console.error("Error fetching vendors:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchVendors = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?populate=*`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-            },
-          }
-        );
-        const data = await response.json();
-        setData(data.data.sort((a, b) => b.rating - a.rating));
-      } catch (error) {
-        console.error("Error fetching vendors:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchVendors();
   }, []);
 
@@ -109,7 +108,7 @@ export default function SearchPage() {
                 <h2 className="text-2xl font-semibold my-4 text-center">
                   Dishes
                 </h2>
-                <div className="space-y-6 flex items-center justify-between flex-wrap">
+                <div className="grid md:grid-cols-3 grid-cols-1">
                   {dishes.map((dish, index) => (
                     <div key={index}>
                       <ProductCard
@@ -128,7 +127,7 @@ export default function SearchPage() {
                 <h2 className="text-2xl font-semibold my-4 text-center">
                   Vendors
                 </h2>
-                <div className="space-y-6 flex items-center justify-between flex-wrap">
+                <div className="gap-6 grid md:grid-cols-3 grid-cols-1">
                   {vendors.map((vendor, index) => (
                     <div key={index}>
                       <VendorCard vendor={vendor} className="mx-auto" />
@@ -143,7 +142,7 @@ export default function SearchPage() {
                 <h2 className="text-2xl font-semibold my-4 text-center">
                   Locations
                 </h2>
-                <div className="space-y-6 flex items-center justify-between flex-wrap">
+                <div className="grid md:grid-cols-3 grid-cols-1 gap-6">
                   {locations.map((vendor, index) => (
                     <div key={index}>
                       <VendorCard vendor={vendor} className="mx-auto" />

@@ -8,7 +8,8 @@ import Link from "next/link";
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [taxRate, setTaxRate] = useState(8);
-
+  
+  // Function to update cart quantity
   const incrementQuantity = (item_id, quantity) => {
     const updatedCartItems = cartItems.map((item) =>
       item.id === item_id ? { ...item, quantity: quantity + 1 } : item
@@ -33,12 +34,17 @@ const Cart = () => {
     localStorage.setItem("cart", JSON.stringify(updatedCartItems));
   };
 
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + parseFloat(item.price) * item.quantity,
-    0
-  );
-  const taxAmount = (totalPrice * taxRate) / 100;
-  const finalTotal = totalPrice + taxAmount;
+  const calculateTotals = () => {
+    const totalPrice = cartItems.reduce(
+      (total, item) => total + parseFloat(item.price) * item.quantity,
+      0
+    );
+    const taxAmount = totalPrice * (taxRate / 100);
+    const finalTotal = totalPrice + taxAmount;
+    return { totalPrice, taxAmount, finalTotal };
+  };
+
+  const { totalPrice, taxAmount, finalTotal } = calculateTotals();
 
   useEffect(() => {
     const cart = localStorage.getItem("cart");
@@ -48,7 +54,7 @@ const Cart = () => {
   useEffect(() => {
     localStorage.setItem("total", finalTotal.toFixed(2));
     localStorage.setItem("taxRate", taxRate);
-  }, [cartItems, finalTotal]);
+  }, [cartItems, finalTotal, taxRate]);
 
   return (
     <div className="container mx-auto my-10">

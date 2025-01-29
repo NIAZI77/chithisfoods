@@ -21,14 +21,15 @@ const Order = () => {
     }
     return null;
   };
+
   useEffect(() => {
     const storedAdmin = getCookie("admin");
-
     if (!storedAdmin) {
       router.push("/admin/login");
       return;
     }
   }, [router]);
+
   const fetchOrder = async () => {
     setLoading(true);
     try {
@@ -57,7 +58,9 @@ const Order = () => {
     }
   };
 
-  fetchOrder();
+  useEffect(() => {
+    fetchOrder();
+  }, [orderId]);
 
   if (loading) {
     return <Loading />;
@@ -69,7 +72,7 @@ const Order = () => {
 
   return (
     <div className="ml-0 md:ml-64 p-6 transition-padding duration-300">
-      <div className="p-5 bg-gray-100 ">
+      <div className="p-5 bg-gray-100">
         <div>
           <p className="text-gray-600 mb-2">
             <span className="font-bold text-gray-800">Placed On</span>{" "}
@@ -107,10 +110,6 @@ const Order = () => {
               {order[0].instruction}
             </p>
           )}
-          <p className="text-gray-600 my-8">
-            <span className="font-bold text-gray-800 text-xl">Total</span> $
-            {order[0].cTotal}(tax included)
-          </p>
         </div>
         {order.map((order, index) => (
           <div key={index}>
@@ -164,9 +163,26 @@ const Order = () => {
                   </li>
                 ))}
               </ul>
+              <p className="text-gray-600 my-2">
+                <span className="font-bold text-gray-800 text-lg mr-2">
+                  Products Total
+                </span>
+                ${order.productTotal}
+              </p>
+              <p className="text-gray-600 my-2">
+                <span className="font-bold text-gray-800 text-lg mr-2">
+                  {" "}
+                  Products Total (tax included)
+                </span>
+                ${order.totalWithTax}
+              </p>
             </div>
           </div>
         ))}
+        <p className="text-gray-600 my-8 border-t-2 pt-4">
+          <span className="font-bold text-gray-800 text-2xl mr-4">Total</span> $
+          {order[0].cTotal}(tax included)
+        </p>
       </div>
     </div>
   );
