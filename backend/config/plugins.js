@@ -32,12 +32,5 @@ module.exports = ({ env }) => ({
   },
   "vercel-deploy": {
     enabled: true,
-    config: {
-      deployHook:
-        "https://api.vercel.com/v1/integrations/deploy/prj_NUuQYwT3aA8DloO6CQa4KvxCBVkV/WOLjXYjLn0",
-      apiToken: "1TZysV5yP4tVnPP9hpCW5q8A",
-      appFilter: "chithisfoods-backend",
-      roles: ["strapi-super-admin"],
-    },
   },
 });
