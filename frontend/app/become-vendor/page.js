@@ -182,11 +182,11 @@ export default function VendorForm() {
         </div>
         <div className="relative w-full">
           <div
-            className="w-full md:h-72 h-36 bg-cover bg-center"
+            className="w-full md:h-80 h-36 bg-cover bg-center"
             style={{
               backgroundImage: formData.coverImage.url
                 ? `url('${formData.coverImage.url}')`
-                : "url('https://via.placeholder.com/300x800')",
+                : "url('https://via.placeholder.com/300x600')",
             }}
           >
             <label
