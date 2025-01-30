@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 export default function VendorForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     logo: {
@@ -77,13 +78,16 @@ export default function VendorForm() {
     formData.append("files", file);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         toast.error("Error uploading image");
@@ -115,21 +119,25 @@ export default function VendorForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-        },
-        body: JSON.stringify({
-          data: {
-            ...formData,
-            email: email,
-            description:"",
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
           },
-        }),
-      });
+          body: JSON.stringify({
+            data: {
+              ...formData,
+              email: email,
+              description: formData.description || "No description provided",
+            },
+          }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -141,6 +149,8 @@ export default function VendorForm() {
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("An error occurred while submitting the form");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -172,7 +182,7 @@ export default function VendorForm() {
         </div>
         <div className="relative w-full">
           <div
-            className="w-full md:h-56 h-36 bg-cover bg-center"
+            className="w-full md:h-72 h-36 bg-cover bg-center"
             style={{
               backgroundImage: formData.coverImage.url
                 ? `url('${formData.coverImage.url}')`
@@ -289,9 +299,10 @@ export default function VendorForm() {
         <div>
           <button
             type="submit"
-            className="w-full p-3 bg-orange-600 text-white rounded hover:bg-orange-700"
+            className="w-full p-3 bg-orange-600 font-bold text-white rounded hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed"
+            disabled={submitting}
           >
-            Submit
+            {submitting ? "Submitting..." : "Submit"}
           </button>
         </div>
       </form>

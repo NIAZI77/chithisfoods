@@ -173,7 +173,7 @@ export default function AccountSettings() {
               name: formData.name,
               logo: formData.logo.id,
               coverImage: formData.coverImage.id,
-              description: formData.description,
+              description: formData.description || "no description provided",
               location: formData.location,
             },
           }),
