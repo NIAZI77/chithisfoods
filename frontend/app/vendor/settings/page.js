@@ -4,7 +4,6 @@ import { toast, ToastContainer } from "react-toastify";
 import { FaCamera } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
-import { renderToReadableStream } from "next/dist/server/app-render/entry-base";
 
 export default function AccountSettings() {
   const router = useRouter();
@@ -58,7 +57,7 @@ export default function AccountSettings() {
       } else {
         const vendorData = data.data[0];
         if (vendorData.length == 0) {
-          renderToReadableStream.push("/become-vendor");
+          router.push("/become-vendor");
         } else {
           setFormData(vendorData);
         }

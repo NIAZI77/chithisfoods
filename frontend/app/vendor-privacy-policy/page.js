@@ -4,14 +4,14 @@ const VendorPrivacyPolicy = () => {
   return (
     <div className="md:w-[80%] w-[90%] mx-auto px-4 py-8">
       <h1 className="text-3xl font-semibold text-center mb-8">
-        Vendor Privacy Policy for Chithi's Foods
+        Vendor Privacy Policy for Chithi&apos;s Foods
       </h1>
       <p className="text-lg text-gray-700 mb-4">
-        At Chithi's Foods, we value the privacy and trust of our vendors. This
-        Vendor Privacy Policy ("Policy") outlines how we collect, use, disclose,
-        and protect the personal and business information of our vendors. By
-        partnering with Chithi's Foods, you agree to the practices described in
-        this Policy.
+        At Chithi&apos;s Foods, we value the privacy and trust of our vendors.
+        This Vendor Privacy Policy ({"Policy"}) outlines how we collect, use,
+        disclose, and protect the personal and business information of our
+        vendors. By partnering with Chithi&apos;s Foods, you agree to the
+        practices described in this Policy.
       </p>
 
       <section className="mb-6">
@@ -152,29 +152,9 @@ const VendorPrivacyPolicy = () => {
           periodically.
         </p>
       </section>
-{/* 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-          8. Contact Us
-        </h2>
-        <p className="text-lg text-gray-700">
-          If you have any questions or concerns about this Vendor Privacy
-          Policy, please contact us at:
-        </p>
-        <p className="text-lg text-gray-700 mt-2">Chithi's Foods</p>
-        <p className="text-lg text-gray-700 mt-2">
-          Email: [Insert Email Address]
-        </p>
-        <p className="text-lg text-gray-700 mt-2">
-          Phone: [Insert Phone Number]
-        </p>
-        <p className="text-lg text-gray-700 mt-2">
-          Address: [Insert Physical Address]
-        </p>
-      </section> */}
 
       <p className="text-center text-gray-700 mt-8">
-        Thank you for partnering with Chithi's Foods. We are committed to
+        Thank you for partnering with Chithi&apos;s Foods. We are committed to
         protecting your privacy and ensuring a transparent and secure business
         relationship.
       </p>

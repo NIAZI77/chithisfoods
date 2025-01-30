@@ -1,5 +1,3 @@
-// pages/privacy-policy.js
-
 import React from "react";
 
 const PrivacyPolicy = () => {
@@ -14,11 +12,12 @@ const PrivacyPolicy = () => {
           Welcome to Chithis, Inc.
         </h2>
         <p className="text-gray-700 mb-4">
-          Chithis, Inc. ("Chithis," "we," "our," or "us") is committed to
-          protecting and respecting your privacy. This Privacy Policy explains
-          how we collect, use, share, and protect your information when you
-          access and use our website, mobile applications, and related services
-          (collectively, the "Service").
+          Chithis, Inc. (&quot;Chithis,&quot; &quot;we,&quot; &quot;our,&quot;
+          or &quot;us&quot;) is committed to protecting and respecting your
+          privacy. This Privacy Policy explains how we collect, use, share, and
+          protect your information when you access and use our website, mobile
+          applications, and related services (collectively, the
+          &quot;Service&quot;).
         </p>
         <p className="text-gray-700 mb-4">
           By using our Service, you agree to the terms of this Privacy Policy.

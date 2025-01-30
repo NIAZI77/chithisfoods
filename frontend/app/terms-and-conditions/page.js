@@ -6,30 +6,30 @@ const TermsOfService = () => {
   return (
     <div className="md:w-[80%] w-[90%] mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-4 text-center">
-        Terms of Service for Chithi's Foods
+        Terms of Service for Chithi&apos;s Foods
       </h1>
 
       <p className="mb-4">
-        Welcome to Chithi's Foods! These Terms of Service ("Terms") govern your
-        use of our website, mobile applications, and services (collectively, the
-        "Services"). By accessing or using our Services, you agree to be bound
-        by these Terms. If you do not agree to these Terms, please do not use
-        our Services.
+        Welcome to Chithi&apos;s Foods! These Terms of Service ({"Terms"})
+        govern your use of our website, mobile applications, and services
+        (collectively, the {"Services"}). By accessing or using our Services,
+        you agree to be bound by these Terms. If you do not agree to these
+        Terms, please do not use our Services.
       </p>
 
       <h2 className="text-2xl font-semibold mt-6 mb-2">
         1. Acceptance of Terms
       </h2>
       <p className="mb-4">
-        By using Chithi's Foods' Services, you confirm that you are at least 18
-        years old or have the consent of a parent or legal guardian to use our
-        Services. You also agree to comply with all applicable laws and
+        By using Chithi&apos;s Foods&apos; Services, you confirm that you are at
+        least 18 years old or have the consent of a parent or legal guardian to
+        use our Services. You also agree to comply with all applicable laws and
         regulations.
       </p>
 
       <h2 className="text-2xl font-semibold mt-6 mb-2">2. Services Provided</h2>
       <p className="mb-4">
-        Chithi's Foods provides a platform for ordering food, purchasing
+        Chithi&apos;s Foods provides a platform for ordering food, purchasing
         products, and accessing related services. We reserve the right to
         modify, suspend, or discontinue any part of our Services at any time
         without notice.
@@ -67,10 +67,10 @@ const TermsOfService = () => {
 
       <h2 className="text-2xl font-semibold mt-6 mb-2">5. Delivery</h2>
       <p className="mb-4">
-        Chithi's Foods aims to deliver your orders promptly. However, delivery
-        times are estimates and may vary due to factors beyond our control. We
-        are not liable for delays caused by third-party delivery services or
-        unforeseen circumstances.
+        Chithi&apos;s Foods aims to deliver your orders promptly. However,
+        delivery times are estimates and may vary due to factors beyond our
+        control. We are not liable for delays caused by third-party delivery
+        services or unforeseen circumstances.
       </p>
 
       <h2 className="text-2xl font-semibold mt-6 mb-2">
@@ -103,7 +103,7 @@ const TermsOfService = () => {
       </h2>
       <p className="mb-4">
         All content on our Services, including text, graphics, logos, and
-        images, is the property of Chithi's Foods or its licensors and is
+        images, is the property of Chithi&apos;s Foods or its licensors and is
         protected by intellectual property laws. You may not use, reproduce, or
         distribute any content without our prior written consent.
       </p>
@@ -119,7 +119,7 @@ const TermsOfService = () => {
         10. Limitation of Liability
       </h2>
       <p className="mb-4">
-        Chithi's Foods is not liable for any indirect, incidental, or
+        Chithi&apos;s Foods is not liable for any indirect, incidental, or
         consequential damages arising from your use of our Services. Our total
         liability to you for any claim is limited to the amount you paid for the
         Services.
@@ -127,10 +127,10 @@ const TermsOfService = () => {
 
       <h2 className="text-2xl font-semibold mt-6 mb-2">11. Indemnification</h2>
       <p className="mb-4">
-        You agree to indemnify and hold harmless Chithi's Foods, its affiliates,
-        and their respective officers, directors, and employees from any claims,
-        damages, or expenses arising from your use of our Services or violation
-        of these Terms.
+        You agree to indemnify and hold harmless Chithi&apos;s Foods, its
+        affiliates, and their respective officers, directors, and employees from
+        any claims, damages, or expenses arising from your use of our Services
+        or violation of these Terms.
       </p>
 
       <h2 className="text-2xl font-semibold mt-6 mb-2">12. Termination</h2>
@@ -160,7 +160,7 @@ const TermsOfService = () => {
         us at:
       </p>
       <p className="mb-4">
-        Chithi's Foods
+        Chithi&apos;s Foods
         <br />
         Email: [Insert Email Address]
         <br />

@@ -140,7 +140,7 @@ const Login = () => {
           </form>
           <div className="mt-4 text-center">
             <p className="text-sm">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <button
                 onClick={() => router.push("/signup")}
                 className="font-medium text-orange-600 hover:text-orange-700"
