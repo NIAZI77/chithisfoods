@@ -65,7 +65,8 @@ export default function SearchPage() {
       (item) =>
         item.location.city.toLowerCase().includes(query.toLowerCase()) ||
         item.location.state.toLowerCase().includes(query.toLowerCase()) ||
-        item.location.country.toLowerCase().includes(query.toLowerCase())
+        item.location.country.toLowerCase().includes(query.toLowerCase()) ||
+        item.location.zipcode.includes(query)
     );
     setLocations(filteredLocations);
 
@@ -111,12 +112,12 @@ export default function SearchPage() {
       <h1 className="text-3xl font-bold text-center mb-4">Search</h1>
       <div className="flex justify-center mb-4">
         <input
-          type="text"
+          type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyPress}
           className="border border-gray-300 rounded-l-lg p-2 w-full"
-          placeholder="Search for Vendor, Dish, Location"
+          placeholder="Search for Vendor, Dish, Location, ZipCode"
         />
         <button
           onClick={handleSearch}
@@ -129,7 +130,9 @@ export default function SearchPage() {
         <div>
           {dishes.length > 0 && (
             <div className="mt-4">
-              <h2 className="text-2xl font-semibold my-4 text-center">Dishes</h2>
+              <h2 className="text-2xl font-semibold my-4 text-center">
+                Dishes
+              </h2>
               <div className="grid md:grid-cols-3 grid-cols-1">
                 {getPaginatedResults(dishes, dishPage).map((dish, index) => (
                   <div key={index}>
@@ -156,13 +159,17 @@ export default function SearchPage() {
           )}
           {vendors.length > 0 && (
             <div className="mt-4">
-              <h2 className="text-2xl font-semibold my-4 text-center">Vendors</h2>
+              <h2 className="text-2xl font-semibold my-4 text-center">
+                Vendors
+              </h2>
               <div className="gap-6 grid md:grid-cols-3 grid-cols-1">
-                {getPaginatedResults(vendors, vendorPage).map((vendor, index) => (
-                  <div key={index}>
-                    <VendorCard vendor={vendor} className="mx-auto" />
-                  </div>
-                ))}
+                {getPaginatedResults(vendors, vendorPage).map(
+                  (vendor, index) => (
+                    <div key={index}>
+                      <VendorCard vendor={vendor} className="mx-auto" />
+                    </div>
+                  )
+                )}
               </div>
               {hasMoreResults(vendors, vendorPage) && (
                 <div className="mt-4 text-center">
@@ -178,13 +185,17 @@ export default function SearchPage() {
           )}
           {locations.length > 0 && (
             <div className="mt-4">
-              <h2 className="text-2xl font-semibold my-4 text-center">Locations</h2>
+              <h2 className="text-2xl font-semibold my-4 text-center">
+                Locations
+              </h2>
               <div className="grid md:grid-cols-3 grid-cols-1 gap-6">
-                {getPaginatedResults(locations, locationPage).map((vendor, index) => (
-                  <div key={index}>
-                    <VendorCard vendor={vendor} className="mx-auto" />
-                  </div>
-                ))}
+                {getPaginatedResults(locations, locationPage).map(
+                  (vendor, index) => (
+                    <div key={index}>
+                      <VendorCard vendor={vendor} className="mx-auto" />
+                    </div>
+                  )
+                )}
               </div>
               {hasMoreResults(locations, locationPage) && (
                 <div className="mt-4 text-center">
