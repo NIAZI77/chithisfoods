@@ -63,7 +63,7 @@ const ProductCard = ({ product, logo, location, documentId }) => {
             className="w-14 h-14 rounded-full object-cover mr-4"
           />
           <div className="w-[70%]">
-            <h2 className="text-lg font-bold select-text">
+            <h2 className="text-md font-bold select-text">
               {product.name
                 .split(" ")
                 .map(
