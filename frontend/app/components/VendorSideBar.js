@@ -60,6 +60,7 @@ const VendorSideBar = () => {
       >
         <div className="p-4 flex items-center justify-between md:justify-start">
           <Link
+            title={process.env.NEXT_PUBLIC_NAME}
             href="/vendor/dashboard"
             className="flex items-center space-x-3"
           >

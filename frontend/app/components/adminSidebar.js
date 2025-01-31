@@ -69,7 +69,7 @@ const AdminSideBar = () => {
         } md:block`}
       >
         <div className="p-4 flex items-center justify-between md:justify-start">
-          <Link href="/admin/dashboard" className="flex items-center space-x-3">
+          <Link title={process.env.NEXT_PUBLIC_NAME} href="/admin/dashboard" className="flex items-center space-x-3">
             <img
               height={36}
               width={48}

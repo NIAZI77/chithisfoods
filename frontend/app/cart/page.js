@@ -177,7 +177,7 @@ const Cart = () => {
               <span>${finalTotal.toFixed(2)}</span>
             </div>
             {cartItems.length > 0 && (
-              <Link href={"/checkout"}>
+              <Link title={process.env.NEXT_PUBLIC_NAME} href={"/checkout"}>
                 <button className="bg-orange-500 font-semibold hover:bg-orange-600 py-3 text-sm text-white uppercase w-full">
                   Checkout
                 </button>

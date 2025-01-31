@@ -4,7 +4,7 @@ import { FaStar } from "react-icons/fa";
 
 const VendorCard = ({ vendor }) => {
   return (
-    <Link href={`/vendors/${vendor.documentId}`} passHref>
+    <Link title={process.env.NEXT_PUBLIC_NAME} href={`/vendors/${vendor.documentId}`} passHref>
       <div className="max-w-72 w-72 h-72 max-h-72 overflow-hidden bg-slate-50 rounded-md p-4 relative">
         {vendor.isTopRated && (
           <div

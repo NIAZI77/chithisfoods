@@ -122,7 +122,7 @@ const Login = () => {
                 required
               />
               <div className="text-right">
-                <Link
+                <Link  title={process.env.NEXT_PUBLIC_NAME}
                   href={"/forget-password"}
                   className="underline text-blue-500 hover:text-blue-700 text-xs text-right"
                 >

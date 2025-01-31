@@ -17,7 +17,7 @@ export default function Footer() {
       <div className="mx-auto w-full max-w-screen-xl p-4 py-6 md:py-8">
         <div className="md:flex md:justify-around">
           <div className="mb-6 md:mb-0 content-center">
-            <Link href="/" className="flex items-center">
+            <Link title={process.env.NEXT_PUBLIC_NAME} href="/" className="flex items-center">
               <Image
                 height={112}
                 width={112}
@@ -34,12 +34,12 @@ export default function Footer() {
               </h2>
               <ul className="text-gray-500 font-medium">
                 <li className="mb-4">
-                  <Link href="/" className="hover:underline">
+                  <Link title={process.env.NEXT_PUBLIC_NAME} href="/" className="hover:underline">
                     {process.env.NEXT_PUBLIC_NAME}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/menu" className="hover:underline">
+                  <Link title={process.env.NEXT_PUBLIC_NAME} href="/menu" className="hover:underline">
                     Menu
                   </Link>
                 </li>
@@ -51,7 +51,7 @@ export default function Footer() {
               </h2>
               <ul className="text-gray-500 font-medium">
                 <li className="mb-4">
-                  <Link href="/privacy-policy" className="hover:underline">
+                  <Link title={process.env.NEXT_PUBLIC_NAME} href="/privacy-policy" className="hover:underline">
                     Privacy Policy
                   </Link>
                 </li>
@@ -79,22 +79,22 @@ export default function Footer() {
         <div className="sm:flex sm:items-center sm:justify-between">
           <span className="text-sm text-gray-500 sm:text-center">
             © 2023
-            <Link href="/" className="hover:underline">
+            <Link title={process.env.NEXT_PUBLIC_NAME} href="/" className="hover:underline">
               {" "}
               {process.env.NEXT_PUBLIC_NAME}™
             </Link>
             . All Rights Reserved.
           </span>
           <div className="flex mt-4 sm:justify-center sm:mt-0">
-            <Link href="/" className="text-gray-500 hover:text-gray-900 mr-5">
+            <Link title={process.env.NEXT_PUBLIC_NAME} href="/" className="text-gray-500 hover:text-gray-900 mr-5">
               <FaFacebook className="w-4 h-4" />
               <span className="sr-only">Facebook</span>
             </Link>
-            <Link href="/" className="text-gray-500 hover:text-gray-900 mr-5">
+            <Link title={process.env.NEXT_PUBLIC_NAME} href="/" className="text-gray-500 hover:text-gray-900 mr-5">
               <FaInstagram className="w-4 h-4" />
               <span className="sr-only">Instagram</span>
             </Link>
-            <Link href="/" className="text-gray-500 hover:text-gray-900 mr-5">
+            <Link title={process.env.NEXT_PUBLIC_NAME} href="/" className="text-gray-500 hover:text-gray-900 mr-5">
               <FaTwitter className="w-4 h-4" />
               <span className="sr-only">Twitter</span>
             </Link>

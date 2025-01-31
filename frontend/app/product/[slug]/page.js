@@ -283,7 +283,7 @@ const Page = () => {
                     alt={`${vendor.name} profile`}
                     className="w-14 h-14 rounded-full object-cover mr-4"
                   />
-                  <Link href={`/vendors/${vendor.documentId}`}>
+                  <Link title={process.env.NEXT_PUBLIC_NAME} href={`/vendors/${vendor.documentId}`}>
                     By {vendor.name}
                   </Link>
                 </div>

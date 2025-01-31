@@ -158,7 +158,7 @@ export default function Navbar() {
     <>
       <nav className="bg-white border-gray-200 h-16 max-h-16 sticky top-0 w-full z-50 shadow-lg">
         <div className="max-w-screen-xl flex flex-wrap items-center md:justify-around justify-between mx-auto p-4">
-          <Link href="/" className="flex items-center space-x-3">
+          <Link title={process.env.NEXT_PUBLIC_NAME} href="/" className="flex items-center space-x-3">
             <img
               height={36}
               width={48}
