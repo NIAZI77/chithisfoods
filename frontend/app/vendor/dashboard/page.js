@@ -1,18 +1,22 @@
 "use client";
-
+import Pagination from "@/app/components/pagination";
 import Loading from "@/app/loading";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import { FaClipboardList, FaDollarSign } from "react-icons/fa";
+import { FaClipboardList } from "react-icons/fa";
 
-const VendorDashboard = () => {
+const Dashboard = () => {
   const [orders, setOrders] = useState([]);
   const [pendingOrders, setPendingOrders] = useState([]);
   const [acceptedOrders, setAcceptedOrders] = useState([]);
   const [completedOrders, setCompletedOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pendingPage, setPendingPage] = useState(1);
+  const [acceptedPage, setAcceptedPage] = useState(1);
+  const [completedPage, setCompletedPage] = useState(1);
+  const ordersPerPage = 10;
   const router = useRouter();
 
   useEffect(() => {
@@ -34,7 +38,11 @@ const VendorDashboard = () => {
         }
 
         const data = await response.json();
-        setOrders(data.data);
+        setOrders(
+          data.data.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          )
+        );
       } catch (error) {
         console.error("Error fetching order data:", error);
       } finally {
@@ -120,6 +128,21 @@ const VendorDashboard = () => {
       .toFixed(2);
   };
 
+  const getPaginatedOrders = (orders, page) => {
+    const startIndex = (page - 1) * ordersPerPage;
+    return orders.slice(startIndex, startIndex + ordersPerPage);
+  };
+
+  const loadMoreOrders = (category) => {
+    if (category === "pending") {
+      setPendingPage((prevPage) => prevPage + 1);
+    } else if (category === "accepted") {
+      setAcceptedPage((prevPage) => prevPage + 1);
+    } else if (category === "completed") {
+      setCompletedPage((prevPage) => prevPage + 1);
+    }
+  };
+
   if (loading) {
     return <Loading />;
   }
@@ -128,7 +151,7 @@ const VendorDashboard = () => {
     <main className="ml-0 md:ml-64 p-6 transition-padding duration-300 bg-gray-100">
       <div className="bg-gray-100 min-h-screen p-8">
         <div className="container mx-auto">
-          <h1 className="text-2xl font-bold mb-4">Vendor Dashboard</h1>
+          <h1 className="text-2xl font-bold mb-4">DashBoard</h1>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <DashboardCard
@@ -150,19 +173,42 @@ const VendorDashboard = () => {
 
           <OrderSection
             title="Pending Orders"
-            orders={pendingOrders}
+            orders={getPaginatedOrders(pendingOrders, pendingPage)}
             calculateTotal={calculateTotal}
           />
+          {pendingOrders.length > 10 && (
+            <Pagination
+              currentPage={pendingPage}
+              totalPages={Math.ceil(pendingOrders.length / ordersPerPage)}
+              onPageChange={(page) => setPendingPage(page)}
+            />
+          )}
           <OrderSection
             title="Accepted Orders"
-            orders={acceptedOrders}
+            orders={getPaginatedOrders(acceptedOrders, acceptedPage)}
             calculateTotal={calculateTotal}
           />
+
+          {acceptedOrders.length > 10 && (
+            <Pagination
+              currentPage={acceptedPage}
+              totalPages={Math.ceil(acceptedOrders.length / ordersPerPage)}
+              onPageChange={(page) => setAcceptedPage(page)}
+            />
+          )}
           <OrderSection
             title="Fulfilled Orders"
-            orders={completedOrders}
+            orders={getPaginatedOrders(completedOrders, completedPage)}
             calculateTotal={calculateTotal}
           />
+
+          {completedOrders.length > 10 && (
+            <Pagination
+              currentPage={completedPage}
+              totalPages={Math.ceil(completedOrders.length / ordersPerPage)}
+              onPageChange={(page) => setCompletedPage(page)}
+            />
+          )}
         </div>
       </div>
     </main>
@@ -267,4 +313,4 @@ const OrderSection = ({ title, orders, calculateTotal }) => {
   );
 };
 
-export default VendorDashboard;
+export default Dashboard;

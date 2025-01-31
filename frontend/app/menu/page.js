@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Loading from "../loading";
 import ProductCard from "../components/productCard";
 import { FaFilter } from "react-icons/fa";
+import Pagination from "../components/pagination";
 
 export default function MenuPage() {
   const [dishes, setDishes] = useState([]);
@@ -15,6 +16,9 @@ export default function MenuPage() {
   const [dishAvailabilityFilter, setDishAvailabilityFilter] = useState(true);
   const [priceFilter, setPriceFilter] = useState([0, 500]);
   const [showFilter, setShowFilter] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
 
   const getTodayDay = () => {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -39,7 +43,8 @@ export default function MenuPage() {
         }
       );
       const data = await response.json();
-      const dishes = data.data.sort((a, b) => b.rating - a.rating)
+      const dishes = data.data
+        .sort((a, b) => b.rating - a.rating)
         .map((vendor) => {
           if (!vendor.menu) {
             return [];
@@ -89,6 +94,12 @@ export default function MenuPage() {
       dish.price <= priceFilter[1]
   );
 
+  const totalPages = Math.ceil(filteredDishes.length / itemsPerPage);
+  const paginatedDishes = filteredDishes.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   const availableSpicinessLevels = dishes
     .map((dish) => dish.spiciness)
     .flat()
@@ -117,6 +128,10 @@ export default function MenuPage() {
 
   const closeFilterPopup = () => {
     setShowFilter(false);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -183,6 +198,7 @@ export default function MenuPage() {
               ))}
             </div>
           </div>
+
           <div className="mb-4">
             <label className="block font-bold text-lg">Dish Availability</label>
             <input
@@ -192,6 +208,7 @@ export default function MenuPage() {
             />
             <span className="ml-2">Today Available</span>
           </div>
+
           <div className="mb-4">
             <label className="block font-bold text-lg">
               Minimum Serving Size
@@ -262,6 +279,7 @@ export default function MenuPage() {
                 ))}
             </div>
           </div>
+
           <div className="flex justify-end">
             <button
               onClick={closeFilterPopup}
@@ -279,7 +297,7 @@ export default function MenuPage() {
         <div className="mt-4">
           <h2 className="text-2xl font-semibold my-4 text-center">Dishes</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {filteredDishes.map((dish, index) => (
+            {paginatedDishes.map((dish, index) => (
               <ProductCard
                 key={index}
                 product={dish}
@@ -289,6 +307,16 @@ export default function MenuPage() {
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
       )}
     </div>

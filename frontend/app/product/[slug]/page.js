@@ -274,7 +274,6 @@ const Page = () => {
                   <span className="pl-2 font-bold">Add To Cart</span>
                 </button>
               </div>
-
               <div className="space-y-3">
                 <div className="flex items-center font-bold text-lg text-slate-700 py-2 select-text">
                   <Image
@@ -332,9 +331,7 @@ const Page = () => {
       <div>
         <div className="p-4 md:w-[80%] w-[90%] mx-auto">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800">
-              Feedbacks
-            </h2>
+            <h2 className="text-2xl font-semibold text-gray-800">Feedbacks</h2>
             <div>
               {!hasReviewed && (
                 <div className="flex items-center justify-center">

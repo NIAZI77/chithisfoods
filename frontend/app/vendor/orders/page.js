@@ -1,11 +1,11 @@
 "use client";
-
+import Pagination from "@/app/components/pagination";
 import Loading from "@/app/loading";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import { FaClipboardList, FaDollarSign } from "react-icons/fa";
+import { FaClipboardList } from "react-icons/fa";
 
 const OrderPage = () => {
   const [orders, setOrders] = useState([]);
@@ -143,10 +143,6 @@ const OrderPage = () => {
     }
   };
 
-  const hasMoreOrders = (orders, page) => {
-    return orders.length > page * ordersPerPage;
-  };
-
   if (loading) {
     return <Loading />;
   }
@@ -180,47 +176,38 @@ const OrderPage = () => {
             orders={getPaginatedOrders(pendingOrders, pendingPage)}
             calculateTotal={calculateTotal}
           />
-          {hasMoreOrders(pendingOrders, pendingPage) && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => loadMoreOrders("pending")}
-                className="bg-orange-500 text-white py-2 px-4 rounded"
-              >
-                View More
-              </button>
-            </div>
+          {pendingOrders.length > 10 && (
+            <Pagination
+              currentPage={pendingPage}
+              totalPages={Math.ceil(pendingOrders.length / ordersPerPage)}
+              onPageChange={(page) => setPendingPage(page)}
+            />
           )}
-
           <OrderSection
             title="Accepted Orders"
             orders={getPaginatedOrders(acceptedOrders, acceptedPage)}
             calculateTotal={calculateTotal}
           />
-          {hasMoreOrders(acceptedOrders, acceptedPage) && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => loadMoreOrders("accepted")}
-                className="bg-orange-500 text-white py-2 px-4 rounded"
-              >
-                View More
-              </button>
-            </div>
-          )}
 
+          {acceptedOrders.length > 10 && (
+            <Pagination
+              currentPage={acceptedPage}
+              totalPages={Math.ceil(acceptedOrders.length / ordersPerPage)}
+              onPageChange={(page) => setAcceptedPage(page)}
+            />
+          )}
           <OrderSection
             title="Fulfilled Orders"
             orders={getPaginatedOrders(completedOrders, completedPage)}
             calculateTotal={calculateTotal}
           />
-          {hasMoreOrders(completedOrders, completedPage) && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => loadMoreOrders("completed")}
-                className="bg-orange-500 text-white py-2 px-4 rounded"
-              >
-                View More
-              </button>
-            </div>
+
+          {completedOrders.length > 10 && (
+            <Pagination
+              currentPage={completedPage}
+              totalPages={Math.ceil(completedOrders.length / ordersPerPage)}
+              onPageChange={(page) => setCompletedPage(page)}
+            />
           )}
         </div>
       </div>

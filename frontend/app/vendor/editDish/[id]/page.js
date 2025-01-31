@@ -394,7 +394,7 @@ export default function EditDish({ params }) {
             <input
               type="text"
               name="ingredients"
-              value={dish.ingredients.join(", ")}
+              value={dish.ingredients}
               onChange={handleChange}
               placeholder="e.g. Eggs, Pancetta, Parmesan, Pepper"
               className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"

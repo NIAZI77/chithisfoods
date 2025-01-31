@@ -5,6 +5,7 @@ import Loading from "@/app/loading";
 import ProductCard from "@/app/components/productCard";
 import Custom404 from "@/app/not-found";
 import { FaFilter } from "react-icons/fa";
+import Pagination from "@/app/components/pagination";
 
 export default function CategoryPage() {
   const { slug } = useParams();
@@ -21,6 +22,10 @@ export default function CategoryPage() {
   const [dishAvailabilityFilter, setDishAvailabilityFilter] = useState(true);
   const [priceFilter, setPriceFilter] = useState([0, 500]);
   const [showFilter, setShowFilter] = useState(false);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Fetch Vendors Data
   useEffect(() => {
@@ -89,6 +94,7 @@ export default function CategoryPage() {
       );
 
       setDishes(filtered);
+      setTotalPages(Math.ceil(filtered.length / 9));
     }
   }, [
     slug,
@@ -114,11 +120,18 @@ export default function CategoryPage() {
     const today = getTodayDay();
     return availableDays.includes(today);
   };
+  const displayedDishes = dishes.slice((currentPage - 1) * 9, currentPage * 9);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   if (loading) {
     return <Loading />;
   }
-
+  if (dishes.length == 0) {
+    return <Custom404 />;
+  }
   // Prepare available spiciness levels and ingredients with counts
   const availableSpicinessLevels = dishes
     .map((dish) => dish.spiciness)
@@ -309,9 +322,9 @@ export default function CategoryPage() {
       )}
       {/* Display Dishes */}
       <div className="mt-4">
-        <div className="space-y-6 flex items-center justify-between flex-wrap">
-          {dishes.length > 0 ? (
-            dishes.map((dish, index) => (
+        <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
+          {displayedDishes.length > 0 &&
+            displayedDishes.map((dish, index) => (
               <ProductCard
                 key={index}
                 product={dish}
@@ -319,12 +332,18 @@ export default function CategoryPage() {
                 location={dish.vendor.location}
                 documentId={dish.vendor.documentId}
               />
-            ))
-          ) : (
-            <Custom404 />
-          )}
+            ))}
         </div>
       </div>
+      {dishes.length > 8 && (
+        <div className="flex justify-center mt-6">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
     </div>
   );
 }

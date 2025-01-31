@@ -1,10 +1,11 @@
 "use client";
+import Pagination from "@/app/components/pagination";
 import Loading from "@/app/loading";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import { FaClipboardList } from "react-icons/fa";
+import { FaClipboardList } from "react-icons/fa"; // Adjust the path based on your project structure
 
 const OrderPage = () => {
   const [orders, setOrders] = useState([]);
@@ -20,7 +21,16 @@ const OrderPage = () => {
   const [declinedCancelledPage, setDeclinedCancelledPage] = useState(1);
 
   const ordersPerPage = 10;
-
+  const getCookie = (name) => {
+    const cookieArr = document.cookie.split(";");
+    for (let i = 0; i < cookieArr.length; i++) {
+      let cookie = cookieArr[i].trim();
+      if (cookie.startsWith(name + "=")) {
+        return decodeURIComponent(cookie.substring(name.length + 1));
+      }
+    }
+    return null;
+  };
   const router = useRouter();
 
   const fetchOrders = async () => {
@@ -47,24 +57,11 @@ const OrderPage = () => {
         throw new Error("No orders data found");
       }
 
-      setOrders(data.data).sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
+      setOrders(data.data);
     } catch (error) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const getCookie = (name) => {
-    const cookieArr = document.cookie.split(";");
-    for (let i = 0; i < cookieArr.length; i++) {
-      let cookie = cookieArr[i].trim();
-      if (cookie.startsWith(name + "=")) {
-        return decodeURIComponent(cookie.substring(name.length + 1));
-      }
-    }
-    return null;
   };
 
   useEffect(() => {
@@ -125,22 +122,6 @@ const OrderPage = () => {
     return orders.slice(startIndex, startIndex + ordersPerPage);
   };
 
-  const loadMoreOrders = (category) => {
-    if (category === "pending") {
-      setPendingPage((prevPage) => prevPage + 1);
-    } else if (category === "accepted") {
-      setAcceptedPage((prevPage) => prevPage + 1);
-    } else if (category === "fulfilled") {
-      setCompletedPage((prevPage) => prevPage + 1);
-    } else if (category === "declinedCancelled") {
-      setDeclinedCancelledPage((prevPage) => prevPage + 1);
-    }
-  };
-
-  const hasMoreOrders = (orders, page) => {
-    return orders.length > page * ordersPerPage;
-  };
-
   if (loading) {
     return <Loading />;
   }
@@ -175,51 +156,40 @@ const OrderPage = () => {
             calculateTotal={calculateTotal}
             getOrderStatusColor={getOrderStatusColor}
           />
-          {hasMoreOrders(pendingOrders, pendingPage) && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => loadMoreOrders("pending")}
-                className="bg-orange-500 text-white py-2 px-4 rounded"
-              >
-                View More
-              </button>
-            </div>
+          {pendingOrders.length > 10 && (
+            <Pagination
+              currentPage={pendingPage}
+              totalPages={Math.ceil(pendingOrders.length / ordersPerPage)}
+              onPageChange={setPendingPage}
+            />
           )}
-
           <OrderSection
             title="Accepted Orders"
             orders={getPaginatedOrders(acceptedOrders, acceptedPage)}
             calculateTotal={calculateTotal}
             getOrderStatusColor={getOrderStatusColor}
           />
-          {hasMoreOrders(acceptedOrders, acceptedPage) && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => loadMoreOrders("accepted")}
-                className="bg-orange-500 text-white py-2 px-4 rounded"
-              >
-                View More
-              </button>
-            </div>
+          {acceptedOrders.length > 10 && (
+            <Pagination
+              currentPage={acceptedPage}
+              totalPages={Math.ceil(acceptedOrders.length / ordersPerPage)}
+              onPageChange={setAcceptedPage}
+            />
           )}
-
           <OrderSection
             title="Fulfilled Orders"
             orders={getPaginatedOrders(completedOrders, completedPage)}
             calculateTotal={calculateTotal}
             getOrderStatusColor={getOrderStatusColor}
           />
-          {hasMoreOrders(completedOrders, completedPage) && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => loadMoreOrders("fulfilled")}
-                className="bg-orange-500 text-white py-2 px-4 rounded"
-              >
-                View More
-              </button>
-            </div>
-          )}
 
+          {completedOrders.length > 10 && (
+            <Pagination
+              currentPage={completedPage}
+              totalPages={Math.ceil(completedOrders.length / ordersPerPage)}
+              onPageChange={setCompletedPage}
+            />
+          )}
           <OrderSection
             title="Declined/Cancelled Orders"
             orders={getPaginatedOrders(
@@ -229,15 +199,14 @@ const OrderPage = () => {
             calculateTotal={calculateTotal}
             getOrderStatusColor={getOrderStatusColor}
           />
-          {hasMoreOrders(declinedCancelledOrders, declinedCancelledPage) && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => loadMoreOrders("declinedCancelled")}
-                className="bg-orange-500 text-white py-2 px-4 rounded"
-              >
-                View More
-              </button>
-            </div>
+          {completedOrders.length > 10 && (
+            <Pagination
+              currentPage={declinedCancelledPage}
+              totalPages={Math.ceil(
+                declinedCancelledOrders.length / ordersPerPage
+              )}
+              onPageChange={setDeclinedCancelledPage}
+            />
           )}
         </div>
       </div>

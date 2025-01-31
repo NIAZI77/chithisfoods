@@ -4,9 +4,12 @@ import { toast, ToastContainer } from "react-toastify";
 import { FaCamera } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
+import Loading from "@/app/loading";
 
 export default function AccountSettings() {
   const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     logo: { id: 0, url: "" },
@@ -39,6 +42,7 @@ export default function AccountSettings() {
   }, [router]);
 
   const fetchVendorData = async (email) => {
+    setLoading(true);
     try {
       const encodedEmail = encodeURIComponent(email);
       const response = await fetch(
@@ -65,6 +69,8 @@ export default function AccountSettings() {
     } catch (error) {
       toast.error("Error fetching vendor data.");
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -139,6 +145,7 @@ export default function AccountSettings() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     const { name, email, location } = formData;
 
     if (
@@ -193,9 +200,13 @@ export default function AccountSettings() {
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("An error occurred while submitting the form");
+    } finally {
+      setSubmitting(false);
     }
   };
-
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <main className="ml-0 md:ml-64 p-6 transition-padding duration-300 bg-gray-100">
       <div className="md:w-[70%] w-[90%] mx-auto">
@@ -349,9 +360,10 @@ export default function AccountSettings() {
           <div>
             <button
               type="submit"
-              className="w-full p-3 bg-orange-600 text-white rounded hover:bg-orange-700"
+              className="w-full p-3 font-bold bg-orange-600 text-white rounded hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed"
+              disabled={submitting}
             >
-              Submit
+              {submitting ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>
