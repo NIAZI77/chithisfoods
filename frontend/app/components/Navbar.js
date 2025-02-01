@@ -168,7 +168,7 @@ export default function Navbar() {
             />
           </Link>
 
-          <div className="flex items-center md:order-2 space-x-3 md:space-x-0">
+          <div className="flex items-center md:order-2 space-x-1 md:space-x-0">
             <Link
               href="/search"
               className="flex h-10 w-10 items-center justify-center text-sm bg-pink-100 rounded-full border-2 border-white focus:border-gray-400"

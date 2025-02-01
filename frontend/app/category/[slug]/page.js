@@ -157,7 +157,7 @@ export default function CategoryPage() {
   }, {});
 
   return (
-    <div className="container mx-auto p-4 md:w-[80%] w-[90%]">
+    <div className="container mx-auto p-4 md:w-[80%] w-full">
       {dishes.length > 0 && (
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold mb-4">

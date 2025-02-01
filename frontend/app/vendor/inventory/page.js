@@ -141,7 +141,6 @@ export default function MenuPage() {
             <div key={index} className="border-b py-4 last:border-b-0">
               <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
                 <div className="border p-2 text-gray-400 w-full md:w-40">
-
                   {dish.image && dish.image.url ? (
                     <img
                       src={dish.image.url}
@@ -151,7 +150,6 @@ export default function MenuPage() {
                   ) : (
                     <span>Please Add Photo</span>
                   )}
-                  
                 </div>
                 <div className="flex-grow">
                   <div className="flex justify-between items-start">
@@ -162,7 +160,15 @@ export default function MenuPage() {
                       <p className="text-gray-500">${dish.price}</p>
                     </div>
                     <div>
-                      <span className="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
+                      <span
+                        className="px-4 py-1 rounded-full text-xs font-bold text-white"
+                        style={{
+                          backgroundColor:
+                            dish.dish_availability === "Available"
+                              ? "green"
+                              : "red",
+                        }}
+                      >
                         {dish.dish_availability}
                       </span>
                     </div>

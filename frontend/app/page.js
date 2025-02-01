@@ -2,9 +2,10 @@
 
 import React from "react";
 import Banner from "@/app/components/banner";
-import StateShefs from "@/app/HomeComponents/StateShefs";
 import TopCategories from "./HomeComponents/topCategories";
 import TopShef from "./HomeComponents/topShef";
+import DeliciousDeals from "./HomeComponents/deliciousDeals";
+import StateShefs from "./HomeComponents/StateShefs";
 
 const Home = () => {
   return (
@@ -17,6 +18,9 @@ const Home = () => {
       </div>
       <div>
         <TopShef />
+      </div>
+      <div>
+        <DeliciousDeals />
       </div>
       <div>
         <StateShefs />

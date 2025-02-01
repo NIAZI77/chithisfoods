@@ -329,7 +329,7 @@ const Page = () => {
         )}
       </div>
       <div>
-        <div className="p-4 md:w-[80%] w-[90%] mx-auto">
+        <div className="p-4 md:w-[80%] w-full mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-semibold text-gray-800">Feedbacks</h2>
             <div>

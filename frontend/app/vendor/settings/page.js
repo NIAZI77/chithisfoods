@@ -245,7 +245,7 @@ export default function AccountSettings() {
 
           <div className="relative w-full">
             <div
-              className="w-full md:h-44 h-36 bg-cover bg-center"
+              className="md:w-3/4 max-w-[32rem] w-full mx-auto h-64 object-cover"
               style={{
                 backgroundImage: formData.coverImage.url
                   ? `url('${formData.coverImage.url}')`

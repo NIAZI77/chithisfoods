@@ -4,6 +4,7 @@ import { FaSearch } from "react-icons/fa";
 import Loading from "../loading";
 import VendorCard from "../components/vendorCard";
 import ProductCard from "../components/productCard";
+import Pagination from "../components/pagination";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -45,6 +46,12 @@ export default function SearchPage() {
   }, []);
 
   const handleSearch = () => {
+    if (query === "") {
+      setVendors([]);
+      setDishes([]);
+      setLocations([]);
+      return;
+    }
     setSearching(true);
     const filteredVendors = data.filter((item) =>
       item.name.toLowerCase().includes(query.toLowerCase())
@@ -71,11 +78,11 @@ export default function SearchPage() {
     setLocations(filteredLocations);
 
     setSearching(false);
-    if (vendors.length === 0 && dishes.length === 0 && locations.length === 0) {
-      setNotFound(true);
-    } else {
-      setNotFound(false);
-    }
+    setNotFound(
+      filteredVendors.length === 0 &&
+        filteredDishes.length === 0 &&
+        filteredLocations.length === 0
+    );
   };
 
   const handleKeyPress = (e) => {
@@ -89,26 +96,12 @@ export default function SearchPage() {
     return data.slice(startIndex, startIndex + itemsPerPage);
   };
 
-  const loadMoreResults = (category) => {
-    if (category === "vendors") {
-      setVendorPage((prevPage) => prevPage + 1);
-    } else if (category === "dishes") {
-      setDishPage((prevPage) => prevPage + 1);
-    } else if (category === "locations") {
-      setLocationPage((prevPage) => prevPage + 1);
-    }
-  };
-
-  const hasMoreResults = (data, page) => {
-    return data.length > page * itemsPerPage;
-  };
-
   if (loading) {
     return <Loading />;
   }
 
   return (
-    <div className="container mx-auto p-4 md:w-[80%] w-[90%]">
+    <div className="container mx-auto p-4 md:w-[80%] w-full">
       <h1 className="text-3xl font-bold text-center mb-4">Search</h1>
       <div className="flex justify-center mb-4">
         <input
@@ -135,25 +128,21 @@ export default function SearchPage() {
               </h2>
               <div className="grid md:grid-cols-3 grid-cols-1">
                 {getPaginatedResults(dishes, dishPage).map((dish, index) => (
-                  <div key={index}>
-                    <ProductCard
-                      product={dish}
-                      logo={dish.vendor.logo}
-                      location={dish.vendor.location}
-                      documentId={dish.vendor.documentId}
-                    />
-                  </div>
+                  <ProductCard
+                    key={index}
+                    product={dish}
+                    logo={dish.vendor.logo}
+                    location={dish.vendor.location}
+                    documentId={dish.vendor.documentId}
+                  />
                 ))}
               </div>
-              {hasMoreResults(dishes, dishPage) && (
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={() => loadMoreResults("dishes")}
-                    className="bg-orange-500 text-white py-2 px-4 rounded"
-                  >
-                    View More
-                  </button>
-                </div>
+              {dishes.length > itemsPerPage && (
+                <Pagination
+                  currentPage={dishPage}
+                  totalPages={Math.ceil(dishes.length / itemsPerPage)}
+                  onPageChange={setDishPage}
+                />
               )}
             </div>
           )}
@@ -165,21 +154,20 @@ export default function SearchPage() {
               <div className="gap-6 grid md:grid-cols-3 grid-cols-1">
                 {getPaginatedResults(vendors, vendorPage).map(
                   (vendor, index) => (
-                    <div key={index}>
-                      <VendorCard vendor={vendor} className="mx-auto" />
-                    </div>
+                    <VendorCard
+                      key={index}
+                      vendor={vendor}
+                      className="mx-auto"
+                    />
                   )
                 )}
               </div>
-              {hasMoreResults(vendors, vendorPage) && (
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={() => loadMoreResults("vendors")}
-                    className="bg-orange-500 text-white py-2 px-4 rounded"
-                  >
-                    View More
-                  </button>
-                </div>
+              {vendors.length > itemsPerPage && (
+                <Pagination
+                  currentPage={vendorPage}
+                  totalPages={Math.ceil(vendors.length / itemsPerPage)}
+                  onPageChange={setVendorPage}
+                />
               )}
             </div>
           )}
@@ -191,27 +179,25 @@ export default function SearchPage() {
               <div className="grid md:grid-cols-3 grid-cols-1 gap-6">
                 {getPaginatedResults(locations, locationPage).map(
                   (vendor, index) => (
-                    <div key={index}>
-                      <VendorCard vendor={vendor} className="mx-auto" />
-                    </div>
+                    <VendorCard
+                      key={index}
+                      vendor={vendor}
+                      className="mx-auto"
+                    />
                   )
                 )}
               </div>
-              {hasMoreResults(locations, locationPage) && (
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={() => loadMoreResults("locations")}
-                    className="bg-orange-500 text-white py-2 px-4 rounded"
-                  >
-                    View More
-                  </button>
-                </div>
+              {locations.length > itemsPerPage && (
+                <Pagination
+                  currentPage={locationPage}
+                  totalPages={Math.ceil(locations.length / itemsPerPage)}
+                  onPageChange={setLocationPage}
+                />
               )}
             </div>
           )}
         </div>
       )}
-
       {notFound && <div>No Results Found</div>}
       {searching && <div>Searching...</div>}
     </div>

@@ -23,7 +23,7 @@ export default function TopShef() {
           }
         );
         const data = await response.json();
-        setTopShefs(data);
+        setTopShefs(data.data.sort((a, b) => b.rating - a.rating));
       } catch (error) {
         console.error("Error fetching vendors:", error);
       } finally {
@@ -78,7 +78,10 @@ export default function TopShef() {
         <div className="mx-auto p-2">
           <h2 className="text-3xl font-bold mb-4">Top Shefs</h2>
           <div className="flex justify-center items-center">
-            <Slider {...settings} className="w-full mx-auto flex items-center justify-center">
+            <Slider
+              {...settings}
+              className="w-full mx-auto flex items-center justify-center"
+            >
               {topShefs.map((shef, index) => (
                 <div key={index} className="!flex justify-center items-center">
                   <VendorCard vendor={shef} className="mx-auto" />

@@ -282,11 +282,10 @@ export default function AddMenu() {
               src={
                 dish.image.url
                   ? dish.image.url
-                  : 
-                  "https://via.placeholder.com/300x600"
+                  : "https://via.placeholder.com/300x600"
               }
               alt="Dish"
-              className="md:w-3/4 w-full mx-auto h-64 object-cover"
+              className="md:w-3/4 max-w-[32rem] w-full mx-auto h-64 object-cover"
             />
             <label
               className="w-5 h-5 overflow-hidden absolute right-10 bottom-5 cursor-pointer"
@@ -302,7 +301,13 @@ export default function AddMenu() {
             <input
               type="text"
               name="name"
-              value={dish.name}
+              value={dish.name
+                .split(" ")
+                .map(
+                  (part) =>
+                    part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+                )
+                .join(" ")}
               onChange={handleChange}
               placeholder="e.g. Spaghetti Carbonara"
               className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"

@@ -5,8 +5,7 @@ import "slick-carousel/slick/slick-theme.css";
 import VendorCard from "../components/vendorCard";
 import Loading from "@/app/loading";
 
-export default function DeliciousDeals() {
-  const [shefs, setShefs] = useState([]);
+export default function StateShefs() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stateVendor, setStateVendor] = useState([]);
@@ -24,9 +23,9 @@ export default function DeliciousDeals() {
             },
           }
         );
-        const data = await response.json();
-        setData(data.data);
-        setShefs(data.data);
+        let data = await response.json();
+        data = data.data.sort((a, b) => b.rating - a.rating).slice(0, 10);
+        setData(data);
       } catch (error) {
         console.error("Error fetching vendors:", error);
       } finally {

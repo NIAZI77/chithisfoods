@@ -6,7 +6,8 @@ import AdminSideBar from "./components/adminSidebar";
 
 export const metadata = {
   title: "ChithisFoods",
-  description: "Homemade meals delivered to your door with ChithisFoods. Support local cooks and enjoy delicious dishes at home.",
+  description:
+    "Homemade meals delivered to your door with ChithisFoods. Support local cooks and enjoy delicious dishes at home.",
 };
 
 export default function RootLayout({ children }) {
@@ -14,11 +15,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`antialiased`} cz-shortcut-listen="true">
         <Navbar />
-        <VendorSideBar/>
-        <AdminSideBar/>
-                <div className="min-h-screen">
-          {children}
-        </div>
+        <VendorSideBar />
+        <AdminSideBar />
+        <div className="min-h-screen">{children}</div>
         <Footer />
       </body>
     </html>
