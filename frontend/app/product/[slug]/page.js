@@ -1,5 +1,4 @@
 "use client";
-import TopShef from "@/app/HomeComponents/topShef";
 import Loading from "@/app/loading";
 import Custom404 from "@/app/not-found";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -10,6 +9,7 @@ import { GiHotSpices } from "react-icons/gi";
 import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
 import ProductReviewPopup from "@/app/components/ProductReviewPopup";
+import DeliciousDeals from "@/app/HomeComponents/deliciousDeals";
 import Link from "next/link";
 
 const Page = () => {
@@ -283,9 +283,27 @@ const Page = () => {
                     alt={`${vendor.name} profile`}
                     className="w-14 h-14 rounded-full object-cover mr-4"
                   />
-                  <Link title={process.env.NEXT_PUBLIC_NAME} href={`/vendors/${vendor.documentId}`}>
-                    By {vendor.name}
-                  </Link>
+                  <div>
+                    <div>
+                      {vendor?.isTopRated && (
+                        <div
+                          className="w-32 h-6 bg-pink-600 px-3 font-bold text-white text-sm flex items-center rounded-r-md"
+                          style={{
+                            clipPath:
+                              "polygon(100% 0, 80% 50%, 100% 100%, 0 100%, 0 0)",
+                          }}
+                        >
+                          Top Rated
+                        </div>
+                      )}
+                    </div>
+                    <Link
+                      title={process.env.NEXT_PUBLIC_NAME}
+                      href={`/vendors/${vendor.documentId}`}
+                    >
+                      By {vendor.name}
+                    </Link>
+                  </div>
                 </div>
                 <div>
                   {dish.vegetarian ? (
@@ -391,8 +409,8 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="py-5">
-        <TopShef />
+      <div className="py-5 md:w-[80%] w-[90%] mx-auto">
+        <DeliciousDeals />
       </div>
       <ToastContainer />
     </>

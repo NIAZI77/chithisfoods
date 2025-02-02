@@ -192,7 +192,7 @@ export default function Navbar() {
                   <Image
                     height={32}
                     width={32}
-                    className="w-8 h-8 rounded-full"
+                    className="w-8 h-8 rounded-full object-cover"
                     src={profileImage}
                     alt="user photo"
                   />

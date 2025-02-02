@@ -60,7 +60,7 @@ const Signup = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        toast.success("Sign up successful! Please log in.");
+        toast.success("Sign up successful!");
         setTimeout(() => {
           router.push("/login");
         }, 1000);

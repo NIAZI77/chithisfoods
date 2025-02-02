@@ -269,8 +269,8 @@ export default function AddMenu() {
         <h1 className="text-2xl font-semibold text-center text-orange-500 mb-6">
           Add New Dish
         </h1>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="relative w-full md:h-56 h-36">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="relative w-full">
             <input
               type="file"
               id="image"
@@ -279,13 +279,10 @@ export default function AddMenu() {
               className="hidden"
             />
             <img
-              src={
-                dish.image.url
-                  ? dish.image.url
-                  : "/img.png"
-              }
+              src={dish.image.url ? dish.image.url : "/img.png"}
               alt="Dish"
-              className="md:w-3/4 max-w-[32rem] w-full mx-auto h-64 object-cover"
+              className="w-full object-cover bg-center"
+              style={{ aspectRatio: "2 / 1" }}
             />
             <label
               className="w-5 h-5 overflow-hidden absolute right-10 bottom-5 cursor-pointer"
@@ -294,7 +291,7 @@ export default function AddMenu() {
               <FaCamera />
             </label>
           </div>
-          <div className=" md:pt-12 pt-24">
+          <div className="mt-4">
             <label className="block text-sm font-medium text-gray-700">
               <FaTag className="inline mr-2" /> Dish Name
             </label>

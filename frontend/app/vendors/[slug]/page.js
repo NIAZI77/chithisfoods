@@ -55,9 +55,11 @@ const Page = () => {
   return (
     <div className="container mx-auto w-[80%] p-4">
       <div
-        className="md:h-96 h-36 relative bg-cover bg-center mt-6"
+        className="relative bg-cover bg-center mt-6 w-full"
         style={{
-          backgroundImage: vendor.coverImage.url && `url('${vendor.coverImage.url}')`,
+          backgroundImage:
+            vendor.coverImage.url && `url('${vendor.coverImage.url}')`,
+          aspectRatio: "3 / 1",
         }}
       >
         <div className="absolute md:bottom-[-60px] bottom-[-50px] left-1/2 transform -translate-x-1/2 md:w-32 md:h-32 w-24 h-24 rounded-full overflow-hidden border-4 border-white bg-red-400">
@@ -70,6 +72,7 @@ const Page = () => {
           />
         </div>
       </div>
+
       <div>
         <h1 className="text-2xl font-bold md:mt-20 mt-14 text-center">
           <div className="flex items-center justify-center space-x-4 select-text">
@@ -84,31 +87,34 @@ const Page = () => {
           {vendor.location.country
             .split(" ")
             .map(
-              (part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+              (part) =>
+                part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
             )
             .join(" ")}{" "}
           ·{" "}
           {vendor.location.state
             .split(" ")
             .map(
-              (part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+              (part) =>
+                part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
             )
             .join(" ")}{" "}
           ·{" "}
           {vendor.location.city
             .split(" ")
             .map(
-              (part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+              (part) =>
+                part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
             )
             .join(" ")}
         </p>
         <p className="text-center pt-2">{vendor.description}</p>
       </div>
       <div className="pt-24">
-        <h2 className="text-2xl text-center font-bold">Menu</h2>
-        <ul className="flex items-center justify-center flex-wrap">
-          {vendor.menu && vendor.menu.length > 0 ? (
-            vendor.menu.map((item,index) => (
+        <h2 className="text-2xl text-center font-bold mb-5">Menu</h2>
+        {vendor.menu && vendor.menu.length > 0 ? (
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
+            {vendor.menu.map((item, index) => (
               <li key={index}>
                 <ProductCard
                   product={item}
@@ -117,11 +123,11 @@ const Page = () => {
                   documentId={vendor.documentId}
                 />
               </li>
-            ))
-          ) : (
-            <div className="text-center w-full">No Menu Available</div>
-          )}
-        </ul>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-center w-full">No Menu Available</div>
+        )}
       </div>
     </div>
   );

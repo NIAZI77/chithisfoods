@@ -182,11 +182,12 @@ export default function VendorForm() {
         </div>
         <div className="relative w-full">
           <div
-            className="w-full md:h-80 h-36 bg-cover bg-center"
+            className="bg-cover bg-center w-full"
             style={{
               backgroundImage: formData.coverImage.url
                 ? `url('${formData.coverImage.url}')`
                 : "url('/img.png')",
+              aspectRatio: "3 / 1",
             }}
           >
             <label
@@ -201,11 +202,7 @@ export default function VendorForm() {
             <img
               height={100}
               width={100}
-              src={
-                formData.logo.url
-                  ? formData.logo.url
-                  : "/fallback-logo.png"
-              }
+              src={formData.logo.url ? formData.logo.url : "/fallback-logo.png"}
               alt="Profile"
               className="w-full h-full object-cover"
             />

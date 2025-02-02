@@ -250,6 +250,7 @@ export default function AccountSettings() {
                 backgroundImage: formData.coverImage.url
                   ? `url('${formData.coverImage.url}')`
                   : "url('/img.png')",
+                aspectRatio: "3 / 1",
               }}
             >
               <label
