@@ -31,7 +31,7 @@ const ProductCard = ({ product, logo, location, documentId }) => {
       <div className="max-w-72 w-72 h-80 mx-auto overflow-hidden bg-slate-50 rounded-md p-4 relative shadow-md transition hover:shadow-lg">
         {product?.dish_availability === "Unavailable" && (
           <div className="bg-red-600 px-2 py-1 rounded absolute top-4 left-4 font-bold text-white text-xs">
-            Not Available
+            Unavailable Now
           </div>
         )}
 
@@ -39,8 +39,8 @@ const ProductCard = ({ product, logo, location, documentId }) => {
           <Image
             src={product?.image?.url || "/fallback.png"}
             alt={product?.name || "Product Image"}
-            width={288} // Match w-72
-            height={128} // Approx. aspect ratio for h-32
+            width={256} 
+            height={128}
             className="w-full h-32 object-cover rounded-lg"
           />
         </div>

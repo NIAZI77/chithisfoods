@@ -23,7 +23,7 @@ export default function Banner() {
   };
 
   return (
-    <div className="relative w-full mx-auto pb-4">
+    <div className="relative w-full mx-auto pb-8">
       <Slider {...settings} className="w-[95%] mx-auto">
         {banners.map((image, index) => (
           <div
@@ -35,7 +35,8 @@ export default function Banner() {
               width={100}
               src={image}
               alt={`banner-${index}`}
-              className="w-full md:h-[400px] h-[250px] object-cover object-center rounded-xl mx-auto"
+              className="w-full object-cover object-center rounded-xl mx-auto"
+              style={{aspectRatio: "3/1.3"}}
             />
           </div>
         ))}

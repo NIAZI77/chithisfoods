@@ -351,6 +351,9 @@ const Page = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-semibold text-gray-800">Feedbacks</h2>
             <div>
+              {hasReviewed && (
+                <p className="text-gray-600 text-sm">you already reviewed</p>
+              )}
               {!hasReviewed && (
                 <div className="flex items-center justify-center">
                   <button
@@ -373,37 +376,48 @@ const Page = () => {
           </div>
 
           {dish.reviews && dish.reviews.length > 0 && (
-            <div className="grid md:grid-cols-3 grid-cols-1 gap-5 mx-auto">
-              {dish.reviews.slice(0, 9).map((review, index) => {
-                return (
-                  <div key={index} className="bg-slate-100 p-4">
-                    <h3 className="flex items-center justify-between text-gray-700">
-                      <div className="font-medium">
-                        {review.user_name
-                          .substring(0, 3)
-                          .split(" ")
-                          .map(
-                            (part) =>
-                              part.charAt(0).toUpperCase() +
-                              part.slice(1).toLowerCase()
-                          )
-                          .join(" ")}
-                        ******
+            <div className="grid md:grid-cols-2 grid-cols-1 gap-5 mx-auto">
+              {dish.reviews
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 8)
+                .sort((a, b) => a.text.length - b.text.length)
+                .map((review, index) => {
+                  return (
+                    <div key={index} className="bg-slate-100 p-4">
+                      <h3 className="flex items-center justify-between text-gray-700">
+                        <div className="font-medium">
+                          {review.user_name
+                            .substring(0, 3)
+                            .split(" ")
+                            .map(
+                              (part) =>
+                                part.charAt(0).toUpperCase() +
+                                part.slice(1).toLowerCase()
+                            )
+                            .join(" ")}
+                          ******
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {review.date}
+                        </div>
+                      </h3>
+                      <div className="flex items-center justify-center space-x-2">
+                        {[...Array(review.rating)].map((_, index) => (
+                          <FaStar
+                            key={index}
+                            className="text-yellow-400 inline"
+                          />
+                        ))}
                       </div>
-                      <div className="text-sm text-gray-500">{review.date}</div>
-                    </h3>
-                    <div className="flex items-center justify-center space-x-2">
-                      {[...Array(review.rating)].map((_, index) => (
-                        <FaStar
-                          key={index}
-                          className="text-yellow-400 inline"
-                        />
-                      ))}
+                      <p className="mt-2 text-gray-600">{review.text}</p>
                     </div>
-                    <p className="mt-2 text-gray-600">{review.text}</p>
-                  </div>
-                );
-              })}
+                  );
+                })}
+            </div>
+          )}
+          {dish.reviews && dish.reviews.length == 0 && (
+            <div className="flex items-center justify-center">
+              <p className="text-gray-600">No reviews yet</p>
             </div>
           )}
         </div>

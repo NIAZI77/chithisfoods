@@ -53,7 +53,7 @@ const Page = () => {
   if (!vendor) return <Custom404 />;
 
   return (
-    <div className="container mx-auto w-[80%] p-4">
+    <div className="container mx-auto md:w-[80%] p-4">
       <div
         className="relative bg-cover bg-center mt-6 w-full"
         style={{
@@ -76,7 +76,7 @@ const Page = () => {
       <div>
         <h1 className="text-2xl font-bold md:mt-20 mt-14 text-center">
           <div className="flex items-center justify-center space-x-4 select-text">
-            <div>{vendor.name}</div>
+            <div>{vendor.name.replace(/\b\w/g, (c) => c.toUpperCase())}</div>
             <div className="flex items-center justify-center text-orange-300">
               <FaStar className="pr-1" />
               {vendor.rating}
