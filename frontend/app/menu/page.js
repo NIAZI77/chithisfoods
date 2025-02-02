@@ -177,7 +177,7 @@ export default function MenuPage() {
 
           <div className="mb-4">
             <label className="block font-bold text-lg">Spiciness Level</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 ">
               {availableSpicinessLevels.map((level) => (
                 <label key={level}>
                   <input
@@ -296,7 +296,7 @@ export default function MenuPage() {
       ) : (
         <div className="mt-4">
           <h2 className="text-2xl font-semibold my-4 text-center">Dishes</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
             {paginatedDishes.map((dish, index) => (
               <ProductCard
                 key={index}

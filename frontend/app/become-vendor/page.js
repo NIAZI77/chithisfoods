@@ -186,7 +186,7 @@ export default function VendorForm() {
             style={{
               backgroundImage: formData.coverImage.url
                 ? `url('${formData.coverImage.url}')`
-                : "url('https://via.placeholder.com/300x600')",
+                : "url('/img.png')",
             }}
           >
             <label
@@ -204,7 +204,7 @@ export default function VendorForm() {
               src={
                 formData.logo.url
                   ? formData.logo.url
-                  : "https://via.placeholder.com/150"
+                  : "/fallback-logo.png"
               }
               alt="Profile"
               className="w-full h-full object-cover"

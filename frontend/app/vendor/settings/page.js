@@ -249,7 +249,7 @@ export default function AccountSettings() {
               style={{
                 backgroundImage: formData.coverImage.url
                   ? `url('${formData.coverImage.url}')`
-                  : "url('https://via.placeholder.com/300x800')",
+                  : "url('/img.png')",
               }}
             >
               <label
@@ -264,7 +264,7 @@ export default function AccountSettings() {
               <img
                 height={100}
                 width={100}
-                src={formData.logo.url || "https://via.placeholder.com/150"}
+                src={formData.logo.url || "/fallback-logo.png"}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />

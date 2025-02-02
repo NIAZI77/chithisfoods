@@ -3,76 +3,54 @@ import Link from "next/link";
 import { FaStar } from "react-icons/fa";
 
 const VendorCard = ({ vendor }) => {
+  const capitalizeWords = (text) =>
+    text?.replace(/\b\w/g, (char) => char.toUpperCase()) || "Unknown";
+
   return (
-    <Link title={process.env.NEXT_PUBLIC_NAME} href={`/vendors/${vendor.documentId}`} passHref>
-      <div className="max-w-72 w-72 h-72 max-h-72 overflow-hidden bg-slate-50 rounded-md p-4 relative">
-        {vendor.isTopRated && (
-          <div
-            className="w-32 h-6 bg-pink-600 px-3 font-bold text-white text-sm flex items-center absolute top-6 left-5"
-            style={{
-              clipPath: "polygon(100% 0, 80% 50%, 100% 100%, 0 100%, 0 0)",
-            }}
-          >
+    <Link
+      title={process.env.NEXT_PUBLIC_NAME}
+      href={`/vendors/${vendor?.documentId}`}
+      passHref
+    >
+      <div className="max-w-72 w-72 h-72 overflow-hidden bg-slate-50 rounded-md p-4 relative shadow-md transition hover:shadow-lg">
+        {vendor?.isTopRated && (
+          <div className="w-32 h-6 bg-pink-600 px-3 font-bold text-white text-sm flex items-center absolute top-4 left-4 rounded-r-md">
             Top Rated
           </div>
         )}
+
         <div className="mb-4">
-          <img
-            height={100}
-            width={100}
-            src={vendor.coverImage.url}
-            alt={`${vendor.name} profile`}
-            className="w-full h-32 object-cover rounded-lg mb-2"
+          <Image
+            src={vendor?.coverImage?.url || "/fallback.png"}
+            alt={`${vendor?.name || "Vendor"} Cover`}
+            width={288} // Matches w-72
+            height={128} // Approx. aspect ratio for h-32
+            className="w-full h-32 object-cover rounded-lg"
           />
         </div>
 
         <div className="flex items-center">
           <Image
-            height={50}
+            src={vendor?.logo?.url || "/fallback-logo.png"}
+            alt={`${vendor?.name || "Vendor"} Logo`}
             width={50}
-            src={vendor.logo.url}
-            alt={`${vendor.name} profile`}
+            height={50}
             className="w-14 h-14 rounded-full object-cover mr-4"
           />
-          <div className="">
+          <div>
             <h2 className="text-lg font-bold select-text">
-              {vendor.name
-                .split(" ")
-                .map(
-                  (part) =>
-                    part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-                )
-                .join(" ")}
+              {capitalizeWords(vendor?.name)}
             </h2>
             <p className="text-sm text-gray-500">
-              {vendor.location.city
-                .split(" ")
-                .map(
-                  (part) =>
-                    part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-                )
-                .join(" ")}{" "}
-              ·{" "}
-              {vendor.location.state
-                .split(" ")
-                .map(
-                  (part) =>
-                    part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-                )
-                .join(" ")}
+              {capitalizeWords(vendor?.location?.city)},{" "}
+              {capitalizeWords(vendor?.location?.state)}
               <br />
-              {vendor.location.country
-                .split(" ")
-                .map(
-                  (part) =>
-                    part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-                )
-                .join(" ")}
+              {capitalizeWords(vendor?.location?.country)}
             </p>
             <div className="flex items-center space-x-2">
               <FaStar className="text-yellow-400" />
               <p className="text-yellow-500 font-semibold">
-                {vendor.rating || 0}
+                {vendor?.rating || 0}
               </p>
             </div>
           </div>

@@ -286,7 +286,7 @@ export default function EditDish({ params }) {
               src={
                 dish.image.url
                   ? dish.image.url
-                  : "https://via.placeholder.com/300x600"
+                  : "/img.png"
               }
               alt="Dish"
               className="md:w-3/4 max-w-[32rem] w-full mx-auto h-64 object-cover"

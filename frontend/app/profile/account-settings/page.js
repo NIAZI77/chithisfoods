@@ -183,7 +183,7 @@ const Page = () => {
             src={
               formData.profileImage && formData.profileImage.url
                 ? formData.profileImage.url
-                : "https://via.placeholder.com/150"
+                : "/img.png"
             }
             alt="Profile"
             className="w-full h-full object-cover"
