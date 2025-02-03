@@ -4,6 +4,7 @@ import Loading from "../loading";
 import ProductCard from "../components/productCard";
 import { FaFilter } from "react-icons/fa";
 import Pagination from "../components/pagination";
+import ShefNearMeSwitchToggle from "../components/ShefNearMeSwitchToggle";
 
 export default function MenuPage() {
   const [dishes, setDishes] = useState([]);
@@ -16,6 +17,8 @@ export default function MenuPage() {
   const [dishAvailabilityFilter, setDishAvailabilityFilter] = useState(true);
   const [priceFilter, setPriceFilter] = useState([0, 500]);
   const [showFilter, setShowFilter] = useState(false);
+  const [zipcode, setZipcode] = useState("");
+  const [isOn, setIsOn] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
@@ -91,7 +94,10 @@ export default function MenuPage() {
       (dishAvailabilityFilter ? isAvailableToday(dish.available_days) : true) &&
       dish.dishAvailability === "Available" &&
       dish.price >= priceFilter[0] &&
-      dish.price <= priceFilter[1]
+      dish.price <= priceFilter[1] &&
+      (isOn && zipcode.length >= 5
+        ? dish.vendor.location.zipcode == zipcode 
+        : true)
   );
 
   const totalPages = Math.ceil(filteredDishes.length / itemsPerPage);
@@ -136,13 +142,15 @@ export default function MenuPage() {
 
   return (
     <div className="container mx-auto p-4 md:w-[80%] w-full">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold  mb-4">Menu</h1>
-
-        <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-3xl font-bold">Menu</h1>
+        <div>
+          <ShefNearMeSwitchToggle setZipcode={setZipcode} setIsOn={setIsOn} />
+        </div>
+        <div className="flex justify-between content-center items-center">
           <button
             onClick={() => setShowFilter(!showFilter)}
-            className="font-bold text-slate-600"
+            className="font-bold text-slate-600 "
           >
             Filter <FaFilter className="inline" />
           </button>

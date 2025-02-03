@@ -6,11 +6,16 @@ import { MdOutlineDateRange } from "react-icons/md";
 const ProductCard = ({ product, logo, location, documentId }) => {
   function getNextAvailableDay(availableDays = []) {
     if (!availableDays.length) return "No Availability";
-    
+
     const today = new Date().toLocaleString("en-us", { weekday: "short" });
     const fullDayNames = {
-      Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday",
-      Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday",
+      Mon: "Monday",
+      Tue: "Tuesday",
+      Wed: "Wednesday",
+      Thu: "Thursday",
+      Fri: "Friday",
+      Sat: "Saturday",
+      Sun: "Sunday",
     };
 
     const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -39,7 +44,7 @@ const ProductCard = ({ product, logo, location, documentId }) => {
           <Image
             src={product?.image?.url || "/fallback.png"}
             alt={product?.name || "Product Image"}
-            width={256} 
+            width={256}
             height={128}
             className="w-full h-32 object-cover rounded-lg"
           />
@@ -61,7 +66,9 @@ const ProductCard = ({ product, logo, location, documentId }) => {
               {product?.vegetarian ? "Vegetarian Dish" : "Non-Vegetarian Dish"}
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-bold text-sm text-gray-500">Serving Size</span>
+              <span className="font-bold text-sm text-gray-500">
+                Serving Size
+              </span>
               <span>{product?.serving || "N/A"}</span>
             </div>
             <div className="flex items-center justify-between space-x-2">

@@ -3,15 +3,17 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
 import ProductCard from "@/app/components/productCard";
-import Custom404 from "@/app/not-found";
 import { FaFilter } from "react-icons/fa";
 import Pagination from "@/app/components/pagination";
+import ShefNearMeSwitchToggle from "@/app/components/ShefNearMeSwitchToggle";
 
 export default function CategoryPage() {
   const { slug } = useParams();
   const [data, setData] = useState([]);
   const [dishes, setDishes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [zipcode, setZipcode] = useState("");
+  const [isOn, setIsOn] = useState(false);
 
   // Filters
   const [vegetarianFilter, setVegetarianFilter] = useState(false);
@@ -90,7 +92,10 @@ export default function CategoryPage() {
             : true) &&
           dish.dish_availability === "Available" &&
           dish.price >= priceFilter[0] &&
-          dish.price <= priceFilter[1]
+          dish.price <= priceFilter[1] &&
+          (isOn && zipcode.length >= 5
+            ? dish.vendor.location.zipcode == zipcode
+            : true)
       );
 
       setDishes(filtered);
@@ -106,6 +111,8 @@ export default function CategoryPage() {
     servingFilter,
     dishAvailabilityFilter,
     priceFilter,
+    isOn,
+    zipcode,
   ]);
 
   // Helper function to get today's day
@@ -128,9 +135,6 @@ export default function CategoryPage() {
 
   if (loading) {
     return <Loading />;
-  }
-  if (dishes.length == 0) {
-    return <Custom404 />;
   }
   // Prepare available spiciness levels and ingredients with counts
   const availableSpicinessLevels = dishes
@@ -158,28 +162,29 @@ export default function CategoryPage() {
 
   return (
     <div className="container mx-auto p-4 md:w-[80%] w-full">
-      {dishes.length > 0 && (
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold mb-4">
-            {slug
-              .replace("-", " ")
-              .split(" ")
-              .map(
-                (part) =>
-                  part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-              )
-              .join(" ")}
-          </h1>
-          <div className="flex justify-between items-center mb-4">
-            <button
-              onClick={() => setShowFilter(!showFilter)}
-              className="font-bold text-slate-600"
-            >
-              Filter <FaFilter className="inline" />
-            </button>
-          </div>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="md:text-2xl text-xl font-bold">
+          {slug
+            .replace("-", " ")
+            .split(" ")
+            .map(
+              (part) =>
+                part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+            )
+            .join(" ")}
+        </h1>
+        <div>
+          <ShefNearMeSwitchToggle setZipcode={setZipcode} setIsOn={setIsOn} />
         </div>
-      )}
+        <div className="flex justify-between content-center items-center">
+          <button
+            onClick={() => setShowFilter(!showFilter)}
+            className="font-bold text-slate-600"
+          >
+            Filter <FaFilter className="inline" />
+          </button>
+        </div>
+      </div>
 
       {/* Filter Popup */}
       {showFilter && (
@@ -322,19 +327,24 @@ export default function CategoryPage() {
       )}
       {/* Display Dishes */}
       <div className="mt-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
-          {displayedDishes.length > 0 &&
-            displayedDishes.map((dish, index) => (
-              <ProductCard
-                key={index}
-                product={dish}
-                logo={dish.vendor.logo}
-                location={dish.vendor.location}
-                documentId={dish.vendor.documentId}
-              />
-            ))}
-        </div>
+        {displayedDishes.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
+            {displayedDishes.length > 0 &&
+              displayedDishes.map((dish, index) => (
+                <ProductCard
+                  key={index}
+                  product={dish}
+                  logo={dish.vendor.logo}
+                  location={dish.vendor.location}
+                  documentId={dish.vendor.documentId}
+                />
+              ))}
+          </div>
+        ) : (
+          <div>No resut found</div>
+        )}
       </div>
+
       {dishes.length > 8 && (
         <div className="flex justify-center mt-6">
           <Pagination
