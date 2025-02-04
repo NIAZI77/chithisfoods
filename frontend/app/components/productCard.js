@@ -35,7 +35,7 @@ const ProductCard = ({ product, logo, location, documentId }) => {
     >
       <div className="max-w-72 w-72 h-80 mx-auto overflow-hidden bg-slate-50 rounded-md p-4 relative shadow-md transition hover:shadow-lg">
         {product?.dish_availability === "Unavailable" && (
-          <div className="bg-red-600 px-2 py-1 rounded absolute top-4 left-4 font-bold text-white text-xs">
+          <div className="bg-rose-600 px-2 py-1 rounded-full absolute top-4 left-4 font-bold text-white text-xs">
             Unavailable Now
           </div>
         )}
@@ -53,7 +53,7 @@ const ProductCard = ({ product, logo, location, documentId }) => {
         <div className="flex items-center">
           <Image
             src={logo?.url || "/fallback-logo.png"}
-            alt={`${product?.name} logo`}
+            alt={`${product?.vendor?.name || "Profile"} logo`}
             width={50}
             height={50}
             className="w-14 h-14 rounded-full object-cover mr-4"

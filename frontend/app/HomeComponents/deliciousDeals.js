@@ -8,7 +8,13 @@ import ProductCard from "../components/productCard";
 export default function DeliciousDeals() {
   const [loading, setLoading] = useState(true);
   const [dishes, setDishes] = useState([]);
-
+  function getAvailableDishesToday(dishes) {
+    const today = new Date().toLocaleString('en-US', { weekday: 'short' }); // Get today's day abbreviation (e.g., "Mon")
+  
+    return dishes.filter(dish => 
+      dish.available_days.includes(today) && dish.dish_availability === "Available"
+    );
+  }
   const fetchAllDishes = async () => {
     setLoading(true);
     try {
@@ -34,7 +40,7 @@ export default function DeliciousDeals() {
           vendor,
         }))
       );
-      dishes = dishes.sort((a, b) => b.rating - a.rating).slice(0, 10);
+      dishes = getAvailableDishesToday(dishes.sort((a, b) => b.rating - a.rating)).slice(0, 10);
       setDishes(dishes);
       return dishes;
     } catch (error) {

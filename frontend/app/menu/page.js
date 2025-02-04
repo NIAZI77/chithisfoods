@@ -5,6 +5,7 @@ import ProductCard from "../components/productCard";
 import { FaFilter } from "react-icons/fa";
 import Pagination from "../components/pagination";
 import ShefNearMeSwitchToggle from "../components/ShefNearMeSwitchToggle";
+import NoResultFound from "../components/noResultFound";
 
 export default function MenuPage() {
   const [dishes, setDishes] = useState([]);
@@ -142,15 +143,15 @@ export default function MenuPage() {
 
   return (
     <div className="container mx-auto p-4 md:w-[80%] w-full">
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="text-3xl font-bold">Menu</h1>
+      <div className="flex items-center justify-between md:mb-8 mb-2">
+        <h1 className="md:text-2xl text-lg font-bold">Menu</h1>
         <div>
           <ShefNearMeSwitchToggle setZipcode={setZipcode} setIsOn={setIsOn} />
         </div>
         <div className="flex justify-between content-center items-center">
           <button
             onClick={() => setShowFilter(!showFilter)}
-            className="font-bold text-slate-600 "
+            className="font-bold text-slate-600 md:text-lg text-xs"
           >
             Filter <FaFilter className="inline" />
           </button>
@@ -300,7 +301,7 @@ export default function MenuPage() {
       )}
 
       {filteredDishes.length === 0 ? (
-        <div>No Result Found</div>
+        <NoResultFound/>
       ) : (
         <div className="mt-4">
           <h2 className="text-2xl font-semibold my-4 text-center">Dishes</h2>

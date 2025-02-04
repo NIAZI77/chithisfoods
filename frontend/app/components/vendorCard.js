@@ -26,7 +26,7 @@ const VendorCard = ({ vendor }) => {
         <div className="mb-4">
           <Image
             src={vendor?.coverImage?.url || "/fallback.png"}
-            alt={`${vendor?.name || "Vendor"} Cover`}
+            alt={`${vendor?.name || "Vendor"} Cover Image`}
             width={300}
             height={100}
             className="w-full h-28 object-cover rounded-lg"

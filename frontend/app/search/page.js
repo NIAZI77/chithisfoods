@@ -5,6 +5,7 @@ import Loading from "../loading";
 import VendorCard from "../components/vendorCard";
 import ProductCard from "../components/productCard";
 import Pagination from "../components/pagination";
+import NoResultFound from "../components/noResultFound";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -198,7 +199,7 @@ export default function SearchPage() {
           )}
         </div>
       )}
-      {notFound && <div>No Results Found</div>}
+      {notFound && <NoResultFound/>}
       {searching && <div>Searching...</div>}
     </div>
   );

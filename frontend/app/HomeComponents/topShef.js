@@ -23,7 +23,7 @@ export default function TopShef() {
           }
         );
         const data = await response.json();
-        setTopShefs(data.data.sort((a, b) => b.rating - a.rating));
+        setTopShefs(data.data.sort((a, b) => b.rating - a.rating).slice(0, 10));
       } catch (error) {
         console.error("Error fetching vendors:", error);
       } finally {

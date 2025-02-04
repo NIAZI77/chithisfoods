@@ -6,6 +6,7 @@ import ProductCard from "@/app/components/productCard";
 import { FaFilter } from "react-icons/fa";
 import Pagination from "@/app/components/pagination";
 import ShefNearMeSwitchToggle from "@/app/components/ShefNearMeSwitchToggle";
+import NoResultFound from "@/app/components/noResultFound";
 
 export default function CategoryPage() {
   const { slug } = useParams();
@@ -162,8 +163,8 @@ export default function CategoryPage() {
 
   return (
     <div className="container mx-auto p-4 md:w-[80%] w-full">
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="md:text-2xl text-xl font-bold">
+      <div className="flex items-center justify-between md:mb-8 mb-2">
+        <h1 className="md:text-2xl text-sm font-bold">
           {slug
             .replace("-", " ")
             .split(" ")
@@ -179,7 +180,7 @@ export default function CategoryPage() {
         <div className="flex justify-between content-center items-center">
           <button
             onClick={() => setShowFilter(!showFilter)}
-            className="font-bold text-slate-600"
+            className="font-bold text-slate-600 md:text-lg text-xs"
           >
             Filter <FaFilter className="inline" />
           </button>
@@ -341,7 +342,7 @@ export default function CategoryPage() {
               ))}
           </div>
         ) : (
-          <div>No resut found</div>
+          <NoResultFound />
         )}
       </div>
 

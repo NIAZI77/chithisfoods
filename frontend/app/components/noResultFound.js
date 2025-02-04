@@ -1,15 +1,18 @@
+import Image from "next/image";
 import React from "react";
 
-const noResultFound = () => {
+const NoResultFound = () => {
   return (
-    <div>
-      <img
+    <div className="flex flex-col items-center justify-center max-h-screen p-4">
+      <Image
+        height={200}
+        width={200}
         src="/no-result-found.jpg"
         alt="No Result found"
-        className=" max-h-screen mx-auto w-80 object-cover bg-center"
+        className="w-64 h-64 md:w-80 md:h-80 object-cover bg-center"
       />
     </div>
   );
 };
 
-export default noResultFound;
+export default NoResultFound;
