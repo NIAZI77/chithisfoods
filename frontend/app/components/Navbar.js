@@ -9,6 +9,7 @@ import {
   FaUserAlt,
   FaSignOutAlt,
 } from "react-icons/fa";
+import { BiSolidFoodMenu } from "react-icons/bi";
 import { FaShop } from "react-icons/fa6";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -150,7 +151,7 @@ export default function Navbar() {
     setLogin(false);
   };
 
-  if (pathname.includes("/vendor/")  || pathname.includes("/admin/")) {
+  if (pathname.includes("/vendor/") || pathname.includes("/admin/")) {
     return null;
   }
 
@@ -158,7 +159,11 @@ export default function Navbar() {
     <>
       <nav className="bg-white border-gray-200 h-16 max-h-16 sticky top-0 w-full z-50 shadow-lg">
         <div className="max-w-screen-xl flex flex-wrap items-center md:justify-around justify-between mx-auto p-4">
-          <Link title={process.env.NEXT_PUBLIC_NAME} href="/" className="flex items-center space-x-3">
+          <Link
+            title={process.env.NEXT_PUBLIC_NAME}
+            href="/"
+            className="flex items-center space-x-3"
+          >
             <img
               height={36}
               width={48}
@@ -249,18 +254,10 @@ export default function Navbar() {
             <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 md:flex-row md:mt-0 md:border-0 md:bg-white">
               <li>
                 <Link
-                  href="/"
-                  className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0"
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/menu"
-                  className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0"
+                  className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0 flex items-center justify-center"
                 >
-                  Menu
+                  <BiSolidFoodMenu className="inline mr-1" /> Menu
                 </Link>
               </li>
             </ul>

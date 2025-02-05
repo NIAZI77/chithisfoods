@@ -1,15 +1,9 @@
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaStar } from "react-icons/fa";
 import { MdOutlineDateRange } from "react-icons/md";
 
 const ProductCard = ({ product, logo, location, documentId }) => {
-  const [productImg, setProductImg] = useState(
-    product?.image?.url || "/fallback.png"
-  );
-  const [logoImg, setLogoImg] = useState(logo?.url || "/fallback-logo.png");
-
   function getNextAvailableDay(availableDays = []) {
     if (!availableDays.length) return "No Availability";
 
@@ -48,36 +42,26 @@ const ProductCard = ({ product, logo, location, documentId }) => {
 
         <div className="mb-4">
           <Image
-            src={productImg}
+            src={product?.image?.url || "/fallback.png"}
             alt={product?.name || "Product Image"}
             width={256}
             height={128}
             className="w-full h-32 object-cover rounded-lg"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              setProductImg("/fallback.png");
-            }}
           />
         </div>
 
         <div className="flex items-center">
           <Image
-            src={logoImg}
+            src={logo?.url || "/fallback-logo.png"}
             alt={`${product?.vendor?.name || "Profile"} logo`}
             width={50}
             height={50}
             className="w-14 h-14 rounded-full object-cover mr-4"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              setLogoImg("/fallback-logo.png");
-            }}
           />
           <div className="w-[70%]">
             <h2 className="text-md font-bold capitalize select-text">
               {product?.name?.length > 15
-                ? (product?.name?.slice(0, 12) + "...").replace(/\b\w/g, (c) =>
-                    c.toUpperCase()
-                  )
+                ? (product?.name?.slice(0, 12) + "...").replace(/\b\w/g, (c) => c.toUpperCase())
                 : product?.name?.replace(/\b\w/g, (c) => c.toUpperCase())}
             </h2>
             <div className="text-sm font-semibold text-gray-500">

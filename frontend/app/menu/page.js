@@ -22,7 +22,7 @@ export default function MenuPage() {
   const [isOn, setIsOn] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
+  const itemsPerPage = 15;
 
   const getTodayDay = () => {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

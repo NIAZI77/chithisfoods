@@ -1,16 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { FaStar } from "react-icons/fa";
 
 const VendorCard = ({ vendor }) => {
-  const [coverImage, setCoverImage] = useState(
-    vendor?.coverImage?.url || "/fallback.png"
-  );
-  const [logoImg, setLogoImg] = useState(
-    vendor?.logo?.url || "/fallback-logo.png"
-  );
-
   const capitalizeWords = (text) =>
     text?.replace(/\b\w/g, (char) => char.toUpperCase()) || "Unknown";
 
@@ -33,29 +25,21 @@ const VendorCard = ({ vendor }) => {
 
         <div className="mb-4">
           <Image
-            src={coverImage}
+            src={vendor?.coverImage?.url || "/fallback.png"}
             alt={`${vendor?.name || "Vendor"} Cover Image`}
             width={300}
             height={100}
             className="w-full h-28 object-cover rounded-lg"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              setCoverImage("/fallback.png");
-            }}
           />
         </div>
 
         <div className="flex items-center">
           <Image
-            src={logoImg}
+            src={vendor?.logo?.url || "/fallback-logo.png"}
             alt={`${vendor?.name || "Vendor"} Logo`}
             width={50}
             height={50}
             className="w-14 h-14 rounded-full object-cover mr-4"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              setLogoImg("/fallback-logo.png");
-            }}
           />
           <div>
             <h2 className="text-lg font-bold select-text">
