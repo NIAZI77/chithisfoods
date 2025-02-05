@@ -16,7 +16,7 @@ const VendorCard = ({ vendor }) => {
 
   return (
     <Link
-      title={process.env.NEXT_PUBLIC_NAME}
+      title={vendor.name || process.env.NEXT_PUBLIC_NAME}
       href={`/vendors/${vendor?.documentId}`}
     >
       <div className="max-w-72 w-72 h-64 overflow-hidden bg-slate-50 rounded-md p-4 relative shadow-md transition hover:shadow-lg">
@@ -62,7 +62,7 @@ const VendorCard = ({ vendor }) => {
               {capitalizeWords(vendor?.name)}
             </h2>
             <p className="text-sm text-gray-500">
-              {capitalizeWords(vendor?.location?.city)},{" "}
+              {capitalizeWords(vendor?.location?.city)} ·{" "}
               {capitalizeWords(vendor?.location?.state)}
               <br />
               {capitalizeWords(vendor?.location?.country)}

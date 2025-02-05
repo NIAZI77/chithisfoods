@@ -5,7 +5,7 @@ export default function Banner() {
   return (
     <div className="relative w-full overflow-hidden pb-8 flex justify-center items-center">
       <video
-        className="w-full rounded-xl 2xl:max-h-[530px] max-h-[480px] object-cover"
+        className="w-full max-h-[calc(100vh-100px)] h-full rounded-xl object-cover"
         autoPlay
         loop
         muted

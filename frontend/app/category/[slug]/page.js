@@ -7,6 +7,7 @@ import { FaFilter } from "react-icons/fa";
 import Pagination from "@/app/components/pagination";
 import ShefNearMeSwitchToggle from "@/app/components/ShefNearMeSwitchToggle";
 import NoResultFound from "@/app/components/noResultFound";
+import TopRatedChefsToggle from "@/app/components/TopRatedChefsToggle";
 
 export default function CategoryPage() {
   const { slug } = useParams();
@@ -15,6 +16,7 @@ export default function CategoryPage() {
   const [loading, setLoading] = useState(true);
   const [zipcode, setZipcode] = useState("");
   const [isOn, setIsOn] = useState(false);
+  const [isTopRated, setIsTopRated] = useState(false);
 
   // Filters
   const [vegetarianFilter, setVegetarianFilter] = useState(false);
@@ -96,7 +98,8 @@ export default function CategoryPage() {
           dish.price <= priceFilter[1] &&
           (isOn && zipcode.length >= 5
             ? dish.vendor.location.zipcode == zipcode
-            : true)
+            : true) &&
+          (isTopRated ? dish.vendor.isTopRated === true : true)
       );
 
       setDishes(filtered);
@@ -114,6 +117,7 @@ export default function CategoryPage() {
     priceFilter,
     isOn,
     zipcode,
+    isTopRated,
   ]);
 
   // Helper function to get today's day
@@ -186,7 +190,9 @@ export default function CategoryPage() {
           </button>
         </div>
       </div>
-
+      <div>
+        <TopRatedChefsToggle setIsTopRated={setIsTopRated} />
+      </div>
       {/* Filter Popup */}
       {showFilter && (
         <div className="bg-white p-6 rounded-lg shadow-md mb-4">

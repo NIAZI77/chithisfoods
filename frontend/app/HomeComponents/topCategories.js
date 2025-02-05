@@ -84,7 +84,7 @@ export default function TopCategories() {
     <div className="container mx-auto p-2">
       <h2 className="text-3xl font-bold mb-4">Top Categories</h2>
       <div className="flex flex-wrap justify-evenly items-center">
-        <Slider {...settings} className='w-[95%] mx-auto'>
+        <Slider {...settings} className='w-full mx-auto'>
           {topCategories.map((category, index) => (
             <Link key={index} href={category.linkUrl} className="mx-4 my-4 flex justify-center items-center flex-col p-5">
               <Image height={100} width={100}

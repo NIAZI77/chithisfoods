@@ -35,7 +35,7 @@ const ProductCard = ({ product, logo, location, documentId }) => {
 
   return (
     <Link
-      title={process.env.NEXT_PUBLIC_NAME}
+      title={product.name || process.env.NEXT_PUBLIC_NAME}
       href={`/product/${documentId}?productId=${product?.id}`}
       className="content-center w-fit"
     >
@@ -83,11 +83,13 @@ const ProductCard = ({ product, logo, location, documentId }) => {
             <div className="text-sm font-semibold text-gray-500">
               {product?.vegetarian ? "Vegetarian Dish" : "Non-Vegetarian Dish"}
             </div>
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-sm text-gray-500">
-                Serving Size
-              </span>
-              <span>{product?.serving || "N/A"}</span>
+            <div className="flex items-center justify-end py-2">
+              <div className="inline-flex items-center justify-end text-slate-500 px-2 bg-gray-200 rounded-lg font-bold">
+                Servings{" "}
+                {product?.serving > 1
+                  ? `1-${product?.serving}`
+                  : product?.serving || "N/A"}
+              </div>
             </div>
             <div className="flex items-center justify-between space-x-2">
               <div className="font-semibold text-lg text-gray-700">

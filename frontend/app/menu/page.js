@@ -6,6 +6,7 @@ import { FaFilter } from "react-icons/fa";
 import Pagination from "../components/pagination";
 import ShefNearMeSwitchToggle from "../components/ShefNearMeSwitchToggle";
 import NoResultFound from "../components/noResultFound";
+import TopRatedChefsToggle from "../components/TopRatedChefsToggle";
 
 export default function MenuPage() {
   const [dishes, setDishes] = useState([]);
@@ -20,6 +21,7 @@ export default function MenuPage() {
   const [showFilter, setShowFilter] = useState(false);
   const [zipcode, setZipcode] = useState("");
   const [isOn, setIsOn] = useState(false);
+  const [isTopRated, setIsTopRated] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
@@ -97,8 +99,9 @@ export default function MenuPage() {
       dish.price >= priceFilter[0] &&
       dish.price <= priceFilter[1] &&
       (isOn && zipcode.length >= 5
-        ? dish.vendor.location.zipcode == zipcode 
-        : true)
+        ? dish.vendor.location.zipcode == zipcode
+        : true) &&
+      (isTopRated ? dish.vendor.isTopRated === true : true)
   );
 
   const totalPages = Math.ceil(filteredDishes.length / itemsPerPage);
@@ -156,6 +159,9 @@ export default function MenuPage() {
             Filter <FaFilter className="inline" />
           </button>
         </div>
+      </div>
+      <div>
+        <TopRatedChefsToggle setIsTopRated={setIsTopRated} />
       </div>
 
       {showFilter && (
@@ -301,7 +307,7 @@ export default function MenuPage() {
       )}
 
       {filteredDishes.length === 0 ? (
-        <NoResultFound/>
+        <NoResultFound />
       ) : (
         <div className="mt-4">
           <h2 className="text-2xl font-semibold my-4 text-center">Dishes</h2>

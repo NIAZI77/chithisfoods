@@ -9,9 +9,11 @@ import {
   FaUserAlt,
   FaSignOutAlt,
 } from "react-icons/fa";
+import { RiMenu3Fill } from "react-icons/ri";
 import { BiSolidFoodMenu } from "react-icons/bi";
 import { FaShop } from "react-icons/fa6";
 import { useRouter, usePathname } from "next/navigation";
+import { CgClose } from "react-icons/cg";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -175,6 +177,12 @@ export default function Navbar() {
 
           <div className="flex items-center md:order-2 space-x-1 md:space-x-0">
             <Link
+              href="/menu"
+              className=" mr-2 py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0 md:flex hidden items-center justify-center"
+            >
+              <BiSolidFoodMenu className="inline mr-1" /> Menu
+            </Link>
+            <Link
               href="/search"
               className="flex h-10 w-10 items-center justify-center text-sm bg-pink-100 rounded-full border-2 border-white focus:border-gray-400"
             >
@@ -217,7 +225,7 @@ export default function Navbar() {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               type="button"
-              className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+              className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden font-bold"
               aria-controls="navbar-user"
               aria-expanded={menuOpen ? "true" : "false"}
               onBlur={() => {
@@ -226,22 +234,11 @@ export default function Navbar() {
                 }, 50);
               }}
             >
-              <span className="sr-only">Open main menu</span>
-              <svg
-                className="w-5 h-5"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 17 14"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M1 1h15M1 7h15M1 13h15"
-                />
-              </svg>
+              {menuOpen ? (
+                <CgClose className="w-full h-full" />
+              ) : (
+                <RiMenu3Fill className="w-full h-full" />
+              )}
             </button>
           </div>
 
@@ -251,11 +248,11 @@ export default function Navbar() {
             } items-center justify-between w-full md:flex md:w-auto md:order-1`}
             id="navbar-user"
           >
-            <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 md:flex-row md:mt-0 md:border-0 md:bg-white">
+            <ul className="md:hidden flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 md:flex-row md:mt-0 md:border-0 md:bg-white">
               <li>
                 <Link
                   href="/menu"
-                  className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0 flex items-center justify-center"
+                  className="py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0 flex items-center justify-center"
                 >
                   <BiSolidFoodMenu className="inline mr-1" /> Menu
                 </Link>
@@ -292,7 +289,8 @@ export default function Navbar() {
                 onClick={() => setProfile(false)}
                 className="block px-4 py-2 font-semibold text-orange-900 hover:bg-orange-100"
               >
-                <FaShop className="mr-2 inline " /> Vendor Profile
+                <FaShop className="mr-2 inline " />{" "}
+                {isVendor ? "Vendor Profile" : "Become a Vendor"}
               </Link>
             </li>
             <li>
