@@ -358,9 +358,9 @@ const Page = () => {
                 <div className="flex items-center justify-center">
                   <button
                     onClick={handleOpenPopup}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 flex items-center justify-center"
+                    className="px-4 py-2 bg-slate-50 text-orange-500 font-bold rounded-md hover:bg-slate-100 flex items-center justify-center"
                   >
-                    <FaStar className="inline mr-2" /> Rate
+                   Rate <FaStar className="inline ml-2" /> 
                   </button>
 
                   <ProductReviewPopup

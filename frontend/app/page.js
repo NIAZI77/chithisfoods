@@ -1,13 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Banner from "@/app/components/banner";
 import TopCategories from "./HomeComponents/topCategories";
 import TopShef from "./HomeComponents/topShef";
 import DeliciousDeals from "./HomeComponents/deliciousDeals";
 import StateShefs from "./HomeComponents/StateShefs";
+import ShefNearMeSwitchToggle from "./components/ShefNearMeSwitchToggle";
 
 const Home = () => {
+  const [isOn, setIsOn] = useState(false);
+  const [zipcode, setZipcode] = useState("");
   return (
     <div className="md:w-[80%] w-[90%] mx-auto py-5 space-y-10">
       <div>
@@ -16,14 +19,19 @@ const Home = () => {
       <div>
         <TopCategories />
       </div>
-      <div>
-        <TopShef />
+      <div className="flex items-center justify-end">
+        <div className="inline-flex items-center">
+          <ShefNearMeSwitchToggle setZipcode={setZipcode} setIsOn={setIsOn} />
+        </div>
       </div>
       <div>
-        <DeliciousDeals />
+        <TopShef zipcode={zipcode} />
       </div>
       <div>
-        <StateShefs />
+        <DeliciousDeals zipcode={zipcode} />
+      </div>
+      <div>
+        <StateShefs zipcode={zipcode} />
       </div>
     </div>
   );

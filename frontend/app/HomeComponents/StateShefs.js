@@ -5,43 +5,44 @@ import "slick-carousel/slick/slick-theme.css";
 import VendorCard from "../components/vendorCard";
 import Loading from "@/app/loading";
 
-export default function StateShefs() {
+export default function StateShefs({ zipcode }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stateVendor, setStateVendor] = useState([]);
 
+  const fetchVendors = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?populate=*`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+      let data = await response.json();
+      data = data.data;
+      setData(data);
+    } catch (error) {
+      console.error("Error fetching vendors:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchVendors = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?populate=*`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-            },
-          }
-        );
-        let data = await response.json();
-        data = data.data.sort((a, b) => b.rating - a.rating).slice(0, 10);
-        setData(data);
-      } catch (error) {
-        console.error("Error fetching vendors:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchVendors();
   }, []);
 
   useEffect(() => {
-    if (data.length > 0) {
+    if (data.length > 0 && !zipcode && zipcode.length < 5) {
       const groupedVendors = groupVendorsByState(data);
       setStateVendor(groupedVendors);
+    } else {
+      setStateVendor([]);
     }
-  }, [data]);
+  }, [data, zipcode]);
 
   const settings = {
     dots: false,
@@ -117,7 +118,7 @@ export default function StateShefs() {
                   {...settings}
                   className="w-full mx-auto flex items-center justify-center"
                 >
-                  {group.vendorData.map((chef, index) => (
+                  {group.vendorData.sort((a, b) => b.rating - a.rating).slice(0, 10).map((chef, index) => (
                     <div
                       key={index}
                       className="!flex justify-center items-center"

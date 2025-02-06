@@ -69,7 +69,6 @@ const ShefNearMeSwitchToggle = ({ setZipcode, setIsOn }) => {
                 className="w-full border border-gray-300 p-2 mt-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter zipcode"
                 min={10000}
-                minLength="5"
               />
               <div className="mt-4 flex justify-between">
                 <button

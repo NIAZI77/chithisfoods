@@ -5,9 +5,10 @@ import "slick-carousel/slick/slick-theme.css";
 import Loading from "@/app/loading";
 import ProductCard from "../components/productCard";
 
-export default function DeliciousDeals() {
+export default function DeliciousDeals({zipcode}) {
   const [loading, setLoading] = useState(true);
   const [dishes, setDishes] = useState([]);
+  const [dishData, setDishData] = useState([]);
   function getAvailableDishesToday(dishes) {
     const today = new Date().toLocaleString('en-US', { weekday: 'short' }); // Get today's day abbreviation (e.g., "Mon")
   
@@ -40,8 +41,9 @@ export default function DeliciousDeals() {
           vendor,
         }))
       );
-      dishes = getAvailableDishesToday(dishes.sort((a, b) => b.rating - a.rating)).slice(0, 10);
-      setDishes(dishes);
+      dishes = getAvailableDishesToday(dishes.sort((a, b) => b.rating - a.rating));
+      setDishData(dishes);
+      setDishes(dishes.slice(0, 10));
       return dishes;
     } catch (error) {
       console.error("Error fetching dishes:", error);
@@ -53,6 +55,12 @@ export default function DeliciousDeals() {
   useEffect(() => {
     fetchAllDishes();
   }, []);
+  useEffect(() => {
+    if(zipcode) {
+      const filteredDishes = dishData.filter(dish => dish.vendor.location.zipcode == zipcode);
+      setDishes(filteredDishes.slice(0, 10));
+    }
+  }, [zipcode]);
 
   const settings = {
     dots: false,
