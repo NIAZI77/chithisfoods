@@ -110,7 +110,7 @@ const Page = () => {
         </p>
         <p className="text-center pt-2">{vendor.description}</p>
       </div>
-      <div className="pt-24">
+      <div className="pt-10">
         <h2 className="text-2xl text-center font-bold mb-5">Menu</h2>
         {vendor.menu && vendor.menu.length > 0 ? (
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">

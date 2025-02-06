@@ -25,7 +25,7 @@ const ProductCard = ({ product, logo, location, documentId }) => {
     };
 
     const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    if (availableDays.includes(today)) return fullDayNames[today];
+    if (availableDays.includes(today)) return "Today";
 
     for (let i = 1; i <= 7; i++) {
       const nextDay = daysOfWeek[(daysOfWeek.indexOf(today) + i) % 7];
@@ -97,12 +97,13 @@ const ProductCard = ({ product, logo, location, documentId }) => {
               </div>
               <div className="flex items-center space-x-2">
                 <FaStar className="text-yellow-400" />
-                <p className="text-yellow-500 font-semibold">
-                  {product?.rating || 0} ({product?.reviews?.length || 0})
+                <p className="text-yellow-500 font-semibold space-x-1">
+                  <span>{product?.rating || 0}</span>
+                  <span>({product?.reviews?.length || 0})</span>
                 </p>
               </div>
             </div>
-            <div className="flex items-center font-bold pt-2 text-red-700">
+            <div className="flex items-center font-bold pt-1 text-red-700">
               <MdOutlineDateRange className="mr-2 scale-125" />
               {getNextAvailableDay(product?.available_days)}
             </div>

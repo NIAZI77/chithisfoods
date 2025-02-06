@@ -100,7 +100,10 @@ const ProductReviewPopup = ({
       });
 
       const updatedVendorRating = updateVendorRating(updatedMenu);
-      const isTopRated = updatedVendorRating > 4;
+      cont;
+      const isTopRated =
+        vendor.menu.reduce((total, dish) => total + dish.reviews.length, 0) >=
+          20 && updatedVendorRating > 4;
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}`,

@@ -17,10 +17,10 @@ const Home = () => {
         <TopCategories />
       </div>
       <div>
-        <DeliciousDeals />
+        <TopShef />
       </div>
       <div>
-        <TopShef />
+        <DeliciousDeals />
       </div>
       <div>
         <StateShefs />
