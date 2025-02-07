@@ -124,7 +124,7 @@ const OrderHistory = () => {
 
   return (
     <div className="md:w-[80%] w-[90%] mx-auto p-6 bg-white lg mt-8">
-      <h2 className="text-3xl font-semibold text-gray-800 mb-6">
+      <h2 className="md:text-2xl text-xl font-semibold text-gray-800 mb-6">
         Order History
       </h2>
       {orders.length === 0 ? (

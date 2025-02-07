@@ -2,13 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap");
+@font-face {
+  font-family: "AirbnbCereal";
+  src: url("/fonts/AirbnbCereal_W_Bk.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 html {
   scroll-behavior: smooth;
   user-select: none;
 }
 * {
-  font-family: "Oswald", sans-serif;
+  font-family: "AirbnbCereal", sans-serif !important;
+  font-style: normal;
+  line-height: 1.5;
   word-spacing: 5px;
   font-style: normal;
   letter-spacing: 0.5px;

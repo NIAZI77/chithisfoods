@@ -5,7 +5,7 @@ import React from "react";
 const TermsOfService = () => {
   return (
     <div className="md:w-[80%] w-[90%] mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-4 text-center">
+      <h1 className="md:text-2xl text-xl font-bold mb-4 text-center">
         Terms of Service for Chithi&apos;s Foods
       </h1>
 
@@ -17,7 +17,7 @@ const TermsOfService = () => {
         Terms, please do not use our Services.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">
+      <h2 className="text-xl font-semibold mt-6 mb-2">
         1. Acceptance of Terms
       </h2>
       <p className="mb-4">
@@ -27,7 +27,7 @@ const TermsOfService = () => {
         regulations.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">2. Services Provided</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">2. Services Provided</h2>
       <p className="mb-4">
         Chithi&apos;s Foods provides a platform for ordering food, purchasing
         products, and accessing related services. We reserve the right to
@@ -35,7 +35,7 @@ const TermsOfService = () => {
         without notice.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">3. User Accounts</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">3. User Accounts</h2>
       <p className="mb-4">
         To access certain features of our Services, you may need to create an
         account. You are responsible for maintaining the confidentiality of your
@@ -44,7 +44,7 @@ const TermsOfService = () => {
         use of your account.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">
+      <h2 className="text-xl font-semibold mt-6 mb-2">
         4. Ordering and Payments
       </h2>
       <h3 className="text-xl font-medium">Orders:</h3>
@@ -65,7 +65,7 @@ const TermsOfService = () => {
         Once an order is processed, cancellations may not be possible.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">5. Delivery</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">5. Delivery</h2>
       <p className="mb-4">
         Chithi&apos;s Foods aims to deliver your orders promptly. However,
         delivery times are estimates and may vary due to factors beyond our
@@ -73,7 +73,7 @@ const TermsOfService = () => {
         services or unforeseen circumstances.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">
+      <h2 className="text-xl font-semibold mt-6 mb-2">
         6. Refunds and Returns
       </h2>
       <h3 className="text-xl font-medium">Refunds:</h3>
@@ -88,7 +88,7 @@ const TermsOfService = () => {
         24 hours of delivery to arrange a return or replacement.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">7. User Conduct</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">7. User Conduct</h2>
       <p className="mb-4">You agree not to:</p>
       <ul className="list-disc ml-6 mb-4">
         <li>Use our Services for any unlawful purpose.</li>
@@ -98,7 +98,7 @@ const TermsOfService = () => {
         <li>Upload or transmit viruses or malicious code.</li>
       </ul>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">
+      <h2 className="text-xl font-semibold mt-6 mb-2">
         8. Intellectual Property
       </h2>
       <p className="mb-4">
@@ -108,14 +108,14 @@ const TermsOfService = () => {
         distribute any content without our prior written consent.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">9. Privacy</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">9. Privacy</h2>
       <p className="mb-4">
         Your use of our Services is subject to our Privacy Policy, which
         explains how we collect, use, and protect your personal information. By
         using our Services, you agree to the terms of our Privacy Policy.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">
+      <h2 className="text-xl font-semibold mt-6 mb-2">
         10. Limitation of Liability
       </h2>
       <p className="mb-4">
@@ -125,7 +125,7 @@ const TermsOfService = () => {
         Services.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">11. Indemnification</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">11. Indemnification</h2>
       <p className="mb-4">
         You agree to indemnify and hold harmless Chithi&apos;s Foods, its
         affiliates, and their respective officers, directors, and employees from
@@ -133,28 +133,28 @@ const TermsOfService = () => {
         or violation of these Terms.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">12. Termination</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">12. Termination</h2>
       <p className="mb-4">
         We reserve the right to suspend or terminate your access to our Services
         at any time, without notice, for any reason, including violation of
         these Terms.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">13. Changes to Terms</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">13. Changes to Terms</h2>
       <p className="mb-4">
         We may update these Terms from time to time. Any changes will be posted
         on this page, and your continued use of our Services constitutes
         acceptance of the revised Terms.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-2">14. Governing Law</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">14. Governing Law</h2>
       <p className="mb-4">
         These Terms are governed by the laws of [Insert Jurisdiction]. Any
         disputes arising from these Terms or your use of our Services will be
         resolved in the courts of [Insert Jurisdiction].
       </p>
 
-      {/* <h2 className="text-2xl font-semibold mt-6 mb-2">15. Contact Us</h2>
+      {/* <h2 className="text-xl font-semibold mt-6 mb-2">15. Contact Us</h2>
       <p className="mb-4">
         If you have any questions or concerns about these Terms, please contact
         us at:

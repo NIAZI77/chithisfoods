@@ -92,7 +92,7 @@ export default function TopCategories() {
         },
       },
       {
-        breakpoint: 400,
+        breakpoint: 450,
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
@@ -103,7 +103,7 @@ export default function TopCategories() {
 
   return (
     <div className="container mx-auto p-2">
-      <h2 className="md:text-3xl text-2xl font-bold">Top Categories</h2>
+      <h2 className="md:text-2xl text-xl font-bold">Top Categories</h2>
       <div className="flex flex-wrap justify-evenly items-center">
         <Slider {...settings} className='md:w-full w-[90%] mx-auto relative'>
           {topCategories.map((category, index) => (

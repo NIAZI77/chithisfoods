@@ -68,8 +68,8 @@ export default function TopShef({ zipcode }) {
   const settings = {
     dots: false,
     infinite: true,
-    speed: 500,
-    slidesToShow: 3,
+    speed: 1000,
+    slidesToShow: 4,
     slidesToScroll: 2,
     autoplay: true,
     pauseOnHover: true,
@@ -77,27 +77,9 @@ export default function TopShef({ zipcode }) {
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
     responsive: [
-      {
-        breakpoint: 699,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        },
-      },
-      {
-        breakpoint: 700,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-        },
-      },
-      {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-        },
-      },
+      { breakpoint: 760, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+      { breakpoint: 1200, settings: { slidesToShow: 2, slidesToScroll: 1 } },
+      { breakpoint: 1600, settings: { slidesToShow: 3, slidesToScroll: 1 } },
     ],
   };
 
@@ -109,7 +91,7 @@ export default function TopShef({ zipcode }) {
     <>
       {topShefs.length > 2 && (
         <div className="mx-auto p-2 py-5">
-          <h2 className="md:text-3xl text-2xl font-bold mb-8">Top Shefs</h2>
+          <h2 className="md:text-2xl text-xl font-bold mb-8">Top Shefs</h2>
           <div className="flex justify-center items-center md:w-full w-[90%] mx-auto relative">
             <Slider
               {...settings}

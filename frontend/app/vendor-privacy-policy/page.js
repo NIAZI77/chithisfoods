@@ -3,7 +3,7 @@ import React from "react";
 const VendorPrivacyPolicy = () => {
   return (
     <div className="md:w-[80%] w-[90%] mx-auto px-4 py-8">
-      <h1 className="text-3xl font-semibold text-center mb-8">
+      <h1 className="md:text-2xl text-xl font-semibold text-center mb-8">
         Vendor Privacy Policy for Chithi&apos;s Foods
       </h1>
       <p className="text-lg text-gray-700 mb-4">
@@ -15,7 +15,7 @@ const VendorPrivacyPolicy = () => {
       </p>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
           1. Information We Collect
         </h2>
         <p className="text-lg text-gray-700">
@@ -46,7 +46,7 @@ const VendorPrivacyPolicy = () => {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
           2. How We Use Your Information
         </h2>
         <p className="text-lg text-gray-700">
@@ -65,7 +65,7 @@ const VendorPrivacyPolicy = () => {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
           3. Information Sharing and Disclosure
         </h2>
         <p className="text-lg text-gray-700">
@@ -90,7 +90,7 @@ const VendorPrivacyPolicy = () => {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
           4. Data Security
         </h2>
         <p className="text-lg text-gray-700">
@@ -103,7 +103,7 @@ const VendorPrivacyPolicy = () => {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
           5. Data Retention
         </h2>
         <p className="text-lg text-gray-700">
@@ -114,7 +114,7 @@ const VendorPrivacyPolicy = () => {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
           6. Your Rights
         </h2>
         <p className="text-lg text-gray-700">
@@ -143,7 +143,7 @@ const VendorPrivacyPolicy = () => {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
           7. Changes to This Policy
         </h2>
         <p className="text-lg text-gray-700">

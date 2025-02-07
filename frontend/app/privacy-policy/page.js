@@ -3,12 +3,12 @@ import React from "react";
 const PrivacyPolicy = () => {
   return (
     <div className="md:w-[80%] w-[90%] mx-auto px-4 py-8">
-      <h1 className="text-3xl font-semibold text-center mb-6">
+      <h1 className="md:text-2xl text-xl font-semibold text-center mb-6">
         Privacy Policy
       </h1>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">
+        <h2 className="text-xl font-semibold mb-2">
           Welcome to Chithis, Inc.
         </h2>
         <p className="text-gray-700 mb-4">
@@ -34,7 +34,7 @@ const PrivacyPolicy = () => {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">
+        <h2 className="text-xl font-semibold mb-2">
           1. Information We Collect
         </h2>
 
@@ -78,7 +78,7 @@ const PrivacyPolicy = () => {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">
+        <h2 className="text-xl font-semibold mb-2">
           2. How We Use Your Information
         </h2>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
@@ -110,7 +110,7 @@ const PrivacyPolicy = () => {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">3. Data Sharing</h2>
+        <h2 className="text-xl font-semibold mb-2">3. Data Sharing</h2>
         <p className="text-gray-700 mb-4">
           We do not sell or rent your personal data. However, we may share your
           information with trusted third parties in the following ways:
@@ -135,7 +135,7 @@ const PrivacyPolicy = () => {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">
+        <h2 className="text-xl font-semibold mb-2">
           4. Your Choices Regarding Your Data
         </h2>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
@@ -161,7 +161,7 @@ const PrivacyPolicy = () => {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">
+        <h2 className="text-xl font-semibold mb-2">
           5. Security of Your Information
         </h2>
         <p className="text-gray-700 mb-4">

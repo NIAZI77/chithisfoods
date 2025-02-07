@@ -64,36 +64,18 @@ export default function StateShefs({ zipcode }) {
   const settings = {
     dots: false,
     infinite: true,
-    speed: 500,
-    slidesToShow: 3,
+    speed: 1000,
+    slidesToShow: 4,
     slidesToScroll: 2,
-    nextArrow: <NextArrow />,
-    prevArrow: <PrevArrow />,
     autoplay: true,
     pauseOnHover: true,
     autoplaySpeed: 3000,
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevArrow />,
     responsive: [
-      {
-        breakpoint: 699,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        },
-      },
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-        },
-      },
-      {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-        },
-      },
+      { breakpoint: 760, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+      { breakpoint: 1200, settings: { slidesToShow: 2, slidesToScroll: 1 } },
+      { breakpoint: 1600, settings: { slidesToShow: 3, slidesToScroll: 1 } },
     ],
   };
 
@@ -123,7 +105,7 @@ export default function StateShefs({ zipcode }) {
         <div key={index}>
           {group.vendorData.length > 2 && (
             <div className="mx-auto p-2 py-5">
-              <h2 className="md:text-3xl text-2xl font-bold mb-8">
+              <h2 className="md:text-2xl text-xl font-bold mb-8">
                 {group.state
                   .split(" ")
                   .map(

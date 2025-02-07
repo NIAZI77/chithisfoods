@@ -103,7 +103,7 @@ export default function SearchPage() {
 
   return (
     <div className="container mx-auto p-4 md:w-[80%] w-full">
-      <h1 className="text-3xl font-bold text-center mb-4">Search</h1>
+      <h1 className="md:text-2xl text-xl font-bold text-center mb-4">Search</h1>
       <div className="flex justify-center mb-4">
         <input
           type="search"

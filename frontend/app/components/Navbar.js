@@ -159,23 +159,23 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="bg-white border-gray-200 h-16 max-h-16 sticky top-0 w-full z-50 shadow-lg">
-        <div className="max-w-screen-xl flex flex-wrap items-center md:justify-around justify-between mx-auto p-4">
+      <nav className="bg-white w-full border-gray-200 md:h-20 md:max-h-20 h-16 max-h-16 sticky top-0 z-50 shadow-lg">
+        <div className="flex flex-wrap items-center md:justify-around justify-between w-full mx-auto p-2">
           <Link
             title={process.env.NEXT_PUBLIC_NAME}
             href="/"
-            className="flex items-center space-x-3"
+            className="flex items-center"
           >
             <img
               height={36}
               width={48}
               src="/logo.png"
-              className="w-12 h-fit scale-150"
+              className="md:w-20 w-12 h-fit mx-4 scale-150"
               alt={process.env.NEXT_PUBLIC_NAME}
             />
           </Link>
 
-          <div className="flex items-center md:order-2 space-x-1 md:space-x-0">
+          <div className="flex items-center md:order-2 space-x-1 md:space-x-0 md:mt-3">
             <Link
               href="/search"
               className="flex h-10 w-10 items-center justify-center text-sm bg-pink-100 rounded-full border-2 border-white focus:border-gray-400"
@@ -246,7 +246,7 @@ export default function Navbar() {
               <li>
                 <Link
                   href="/menu"
-                  className="py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0 flex items-center justify-center"
+                  className="py-2 px-3 md:mt-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-slate-700 font-semibold md:p-0 flex items-center justify-center"
                 >
                   <BiSolidFoodMenu className="inline mr-1" /> Menu
                 </Link>

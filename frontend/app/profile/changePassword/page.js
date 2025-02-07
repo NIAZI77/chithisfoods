@@ -99,7 +99,7 @@ export default function ChangePassword() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Change Password</h1>
+      <h1 className="md:text-2xl text-xl font-bold mb-6">Change Password</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
