@@ -8,28 +8,34 @@ import Link from "next/link";
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [taxRate, setTaxRate] = useState(8);
-  
-  // Function to update cart quantity
-  const incrementQuantity = (item_id, quantity) => {
-    const updatedCartItems = cartItems.map((item) =>
-      item.id === item_id ? { ...item, quantity: quantity + 1 } : item
-    );
-    setCartItems(updatedCartItems);
-    localStorage.setItem("cart", JSON.stringify(updatedCartItems));
-  };
 
-  const decrementQuantity = (item_id, quantity) => {
+  const incrementQuantity = (item_id, selectedSpiciness) => {
     const updatedCartItems = cartItems.map((item) =>
-      item.id === item_id && quantity > 1
-        ? { ...item, quantity: quantity - 1 }
+      item.id === item_id && item.selectedSpiciness === selectedSpiciness
+        ? { ...item, quantity: item.quantity + 1 }
         : item
     );
     setCartItems(updatedCartItems);
     localStorage.setItem("cart", JSON.stringify(updatedCartItems));
   };
 
-  const removeItem = (item_id) => {
-    const updatedCartItems = cartItems.filter((item) => item.id !== item_id);
+  const decrementQuantity = (item_id, selectedSpiciness) => {
+    const updatedCartItems = cartItems.map((item) =>
+      item.id === item_id &&
+      item.selectedSpiciness === selectedSpiciness &&
+      item.quantity > 1
+        ? { ...item, quantity: item.quantity - 1 }
+        : item
+    );
+    setCartItems(updatedCartItems);
+    localStorage.setItem("cart", JSON.stringify(updatedCartItems));
+  };
+
+  const removeItem = (item_id, selectedSpiciness) => {
+    const updatedCartItems = cartItems.filter(
+      (item) =>
+        !(item.id === item_id && item.selectedSpiciness === selectedSpiciness)
+    );
     setCartItems(updatedCartItems);
     localStorage.setItem("cart", JSON.stringify(updatedCartItems));
   };
@@ -54,6 +60,7 @@ const Cart = () => {
   useEffect(() => {
     localStorage.setItem("total", finalTotal.toFixed(2));
     localStorage.setItem("taxRate", taxRate);
+    console.log("Cart Items", JSON.stringify(cartItems));
   }, [cartItems, finalTotal, taxRate]);
 
   return (
@@ -98,16 +105,16 @@ const Cart = () => {
                     <div className="flex items-center justify-center font-semibold border-orange-100">
                       <span
                         onClick={() =>
-                          decrementQuantity(item.id, item.quantity)
+                          decrementQuantity(item.id, item.selectedSpiciness)
                         }
                         className="cursor-pointer rounded-l font-bold bg-orange-100 py-1 px-3.5 duration-100 hover:bg-orange-500 hover:text-orange-50 "
                       >
                         -
                       </span>
-                      <span className="text-center px-2">{item.quantity}</span>
+                      <span className="py-1 px-3">{item.quantity}</span>
                       <span
                         onClick={() =>
-                          incrementQuantity(item.id, item.quantity)
+                          incrementQuantity(item.id, item.selectedSpiciness)
                         }
                         className="cursor-pointer rounded-r font-bold bg-orange-100 py-1 px-3 duration-100 hover:bg-orange-500 hover:text-orange-50"
                       >
@@ -116,11 +123,13 @@ const Cart = () => {
                     </div>
                   </div>
                 </div>
-                <div className=" py-3 flex items-center justify-between">
-                  <p className="text-base font-black leading-none text-gray-800">
-                    <FaConciergeBell className="inline mr-1" /> Serving Size
-                  </p>
-                  <p className="mr-9">{item.serving * item.quantity}</p>
+                <div className="flex items-center justify-end py-2">
+                  <div className="inline-flex items-center justify-center text-slate-500 px-2 bg-gray-200 rounded-lg font-bold">
+                    Servings{" "}
+                    {item?.serving > 1
+                      ? `1-${item?.serving}`
+                      : item?.serving || "N/A"}
+                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <p className="text-base font-black leading-none text-gray-600">
@@ -132,7 +141,7 @@ const Cart = () => {
                   </p>
                   <p
                     className="text-xs leading-3 text-red-500 pl-5 cursor-pointer flex items-center pr-8"
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem(item.id, item.selectedSpiciness)}
                   >
                     <FaTrashAlt className="mr-1 scale-150" />
                   </p>

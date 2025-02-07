@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
+import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Loading from "@/app/loading";
 import ProductCard from "../components/productCard";
 
-export default function DeliciousDeals({zipcode}) {
+export default function DeliciousDeals({ zipcode }) {
   const [loading, setLoading] = useState(true);
   const [dishes, setDishes] = useState([]);
   const [dishData, setDishData] = useState([]);
+
   function getAvailableDishesToday(dishes) {
-    const today = new Date().toLocaleString('en-US', { weekday: 'short' }); // Get today's day abbreviation (e.g., "Mon")
-  
-    return dishes.filter(dish => 
-      dish.available_days.includes(today) && dish.dish_availability === "Available"
+    const today = new Date().toLocaleString("en-US", { weekday: "short" });
+
+    return dishes.filter(
+      (dish) =>
+        dish.available_days.includes(today) &&
+        dish.dish_availability === "Available"
     );
   }
+
   const fetchAllDishes = async () => {
     setLoading(true);
     try {
@@ -41,7 +46,9 @@ export default function DeliciousDeals({zipcode}) {
           vendor,
         }))
       );
-      dishes = getAvailableDishesToday(dishes.sort((a, b) => b.rating - a.rating));
+      dishes = getAvailableDishesToday(
+        dishes.sort((a, b) => b.rating - a.rating)
+      );
       setDishData(dishes);
       setDishes(dishes.slice(0, 10));
       return dishes;
@@ -52,15 +59,38 @@ export default function DeliciousDeals({zipcode}) {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchAllDishes();
   }, []);
+
   useEffect(() => {
-    if(zipcode) {
-      const filteredDishes = dishData.filter(dish => dish.vendor.location.zipcode == zipcode);
+    if (zipcode) {
+      const filteredDishes = dishData.filter(
+        (dish) => dish.vendor.location.zipcode == zipcode
+      );
       setDishes(filteredDishes.slice(0, 10));
     }
   }, [zipcode]);
+
+  // Custom arrow components
+  const NextArrow = ({ onClick }) => (
+    <div
+      className="absolute right-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      onClick={onClick}
+    >
+      <FaAngleRight />
+    </div>
+  );
+
+  const PrevArrow = ({ onClick }) => (
+    <div
+      className="absolute left-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      onClick={onClick}
+    >
+      <FaAngleLeft />
+    </div>
+  );
 
   const settings = {
     dots: false,
@@ -71,6 +101,8 @@ export default function DeliciousDeals({zipcode}) {
     autoplay: true,
     pauseOnHover: true,
     autoplaySpeed: 3000,
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevArrow />,
     responsive: [
       { breakpoint: 699, settings: { slidesToShow: 1, slidesToScroll: 1 } },
       { breakpoint: 1024, settings: { slidesToShow: 2, slidesToScroll: 1 } },
@@ -83,13 +115,10 @@ export default function DeliciousDeals({zipcode}) {
   return (
     <>
       {dishes.length > 2 && (
-        <div className="mx-auto p-2 py-6">
-          <h2 className="text-3xl font-bold mb-4">Delicious Deals</h2>
-          <div className="flex justify-center items-center">
-            <Slider
-              {...settings}
-              className="w-full mx-auto flex items-center justify-center"
-            >
+        <div className="mx-auto p-2 py-5">
+          <h2 className="md:text-3xl text-2xl font-bold mb-8">Delicious Deals</h2>
+          <div className="flex justify-center items-center md:w-full w-[90%] mx-auto relative">
+            <Slider {...settings} className="w-full mx-auto">
               {dishes.map((dish, index) => {
                 return (
                   <ProductCard

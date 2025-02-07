@@ -15,8 +15,7 @@ import Link from "next/link";
 const Page = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const params = useParams();
-  const { slug } = params;
+  const { slug } = useParams();
   const productId = searchParams.get("productId");
 
   const [dish, setDish] = useState(null);
@@ -28,12 +27,13 @@ const Page = () => {
   const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
   const [user, setUser] = useState("");
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
     const getCookie = (name) => {
       const cookieArr = document.cookie.split(";");
-      for (let i = 0; i < cookieArr.length; i++) {
-        let cookie = cookieArr[i].trim();
+      for (let cookie of cookieArr) {
+        cookie = cookie.trim();
         if (cookie.startsWith(name + "=")) {
           return decodeURIComponent(cookie.substring(name.length + 1));
         }
@@ -48,14 +48,13 @@ const Page = () => {
     if (!storedJwt || !storedUser) {
       router.push("/login");
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (slug && productId && user) {
       fetchDish();
     }
-  }, [user]);
-
+  }, [slug, productId, user]);
   const handleOpenPopup = () => {
     if (!hasReviewed) {
       setIsReviewPopupOpen(true);
@@ -66,6 +65,17 @@ const Page = () => {
 
   const handleClosePopup = () => {
     setIsReviewPopupOpen(false);
+  };
+
+  useEffect(() => {
+    if (vendor && user && vendor?.email === user) {
+      setIsPreviewMode(true);
+    }
+  }, [vendor, user]);
+  const getShortDayName = () => {
+    const shortDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const dayOfWeek = new Date().getDay();
+    return shortDayNames[dayOfWeek];
   };
 
   const fetchDish = async () => {
@@ -83,35 +93,27 @@ const Page = () => {
         }
       );
 
+      if (!response.ok) throw new Error("Failed to fetch vendor");
+
       const data = await response.json();
-
-      if (response.ok) {
-        if (!data || !data.data) {
-          setProductNotFound(true);
-          setLoading(false);
-          return;
-        } else {
-          setVendor(data.data);
-          const foundDish = data.data.menu.find(
-            (dishItem) => dishItem.id == productId
-          );
-          if (foundDish) {
-            setDish(foundDish);
-            setSelectedSpiciness(foundDish.spiciness[0]);
-
-            const userReview =
-              foundDish.reviews &&
-              foundDish.reviews.some((review) => review.user_name === user);
-
-            if (userReview) {
-              setHasReviewed(true);
-            }
-          } else {
-            setProductNotFound(true);
-          }
-        }
-      } else {
+      if (!data?.data) {
         setProductNotFound(true);
+        return;
+      }
+
+      setVendor(data.data);
+      const foundDish = data.data.menu?.find((dish) => dish.id == productId);
+
+      if (!foundDish) {
+        setProductNotFound(true);
+        return;
+      }
+
+      setDish(foundDish);
+      setSelectedSpiciness(foundDish.spiciness?.[0]);
+
+      if (foundDish.reviews?.some((review) => review.user_name === user)) {
+        setHasReviewed(true);
       }
     } catch (error) {
       console.error("Error fetching vendor:", error);
@@ -124,63 +126,56 @@ const Page = () => {
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   const decrementQuantity = () =>
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-
   const handleSpicinessSelect = (s) => setSelectedSpiciness(s);
 
-  const addToCart = (item, quantity, selectedSpiciness) => {
+  const addToCart = () => {
     if (!selectedSpiciness) {
       toast.error("Please select a spiciness level.");
       return;
     }
 
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
     const existingItemIndex = cart.findIndex(
-      (cartItem) =>
-        cartItem.productId === item.id &&
-        cartItem.selectedSpiciness === selectedSpiciness
+      (item) =>
+        item.productId === dish.id &&
+        item.selectedSpiciness === selectedSpiciness
     );
 
     if (existingItemIndex > -1) {
       cart[existingItemIndex].quantity += quantity;
     } else {
       cart.push({
-        productId: item.id,
-        vendorID: slug,
-        ...item,
+        ...dish,
+        productId: dish.id,
         quantity,
         selectedSpiciness,
+        vendorID: slug,
+        vendor_name: vendor.name,
       });
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-    toast.success(`${item.name} added to cart`);
+    toast.success(`${dish.name} added to cart`);
   };
 
-  const getShortDayName = () => {
-    const shortDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const dayOfWeek = new Date().getDay();
-    return shortDayNames[dayOfWeek];
-  };
-
-  if (loading) {
-    return <Loading />;
-  }
-
-  if (productNotFound) {
-    return <Custom404 />;
-  }
+  if (loading) return <Loading />;
+  if (productNotFound) return <Custom404 />;
 
   return (
     <>
-      <div className="min-h-screen content-center mx-auto py-10 px-4">
+      {isPreviewMode && (
+        <div className="bg-red-500 text-white text-center py-2 mt-5 w-[80%] mx-auto font-bold rounded-md">
+          You are in preview mode
+        </div>
+      )}
+      <div className="min-h-[500px] content-center mx-auto py-5 px-4">
         {dish && (
           <div className="md:flex md:justify-around">
             <div className="md:py-10 mx-auto">
               <img
                 className="md:w-96 md:h-96 w-full h-full rounded-lg object-contain object-center transition-opacity duration-300"
-                src={dish.image.url}
-                alt="Main product"
+                src={dish.image.url || "/img.png"}
+                alt={dish.name || "dish"}
               />
             </div>
             <div className="md:w-[50%] mx-auto relative md:p-10 p-4">
@@ -267,7 +262,8 @@ const Page = () => {
                   onClick={() => addToCart(dish, quantity, selectedSpiciness)}
                   disabled={
                     !dish.available_days.includes(getShortDayName()) ||
-                    dish.dish_availability !== "Available"
+                    dish.dish_availability !== "Available" ||
+                    isPreviewMode
                   }
                 >
                   <FaCartArrowDown />
@@ -354,7 +350,7 @@ const Page = () => {
               {hasReviewed && (
                 <p className="text-gray-600 text-sm">you already reviewed</p>
               )}
-              {!hasReviewed && (
+              {!hasReviewed && !isPreviewMode && (
                 <div className="flex items-center justify-center">
                   <button
                     onClick={handleOpenPopup}

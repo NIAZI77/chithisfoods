@@ -4,6 +4,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import VendorCard from "../components/vendorCard";
 import Loading from "@/app/loading";
+import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
 export default function StateShefs({ zipcode }) {
   const [data, setData] = useState([]);
@@ -43,13 +44,31 @@ export default function StateShefs({ zipcode }) {
       setStateVendor([]);
     }
   }, [data, zipcode]);
+  const NextArrow = ({ onClick }) => (
+    <div
+      className="absolute right-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      onClick={onClick}
+    >
+      <FaAngleRight />
+    </div>
+  );
 
+  const PrevArrow = ({ onClick }) => (
+    <div
+      className="absolute left-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      onClick={onClick}
+    >
+      <FaAngleLeft />
+    </div>
+  );
   const settings = {
     dots: false,
     infinite: true,
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 2,
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevArrow />,
     autoplay: true,
     pauseOnHover: true,
     autoplaySpeed: 3000,
@@ -103,8 +122,8 @@ export default function StateShefs({ zipcode }) {
       {stateVendor.map((group, index) => (
         <div key={index}>
           {group.vendorData.length > 2 && (
-            <div className="mx-auto p-2 py-6">
-              <h2 className="text-3xl font-bold mb-4">
+            <div className="mx-auto p-2 py-5">
+              <h2 className="md:text-3xl text-2xl font-bold mb-8">
                 {group.state
                   .split(" ")
                   .map(
@@ -116,16 +135,19 @@ export default function StateShefs({ zipcode }) {
               <div className="flex justify-center items-center">
                 <Slider
                   {...settings}
-                  className="w-full mx-auto flex items-center justify-center"
+                  className="flex items-center justify-center md:w-full w-[90%] mx-auto relative"
                 >
-                  {group.vendorData.sort((a, b) => b.rating - a.rating).slice(0, 10).map((chef, index) => (
-                    <div
-                      key={index}
-                      className="!flex justify-center items-center"
-                    >
-                      <VendorCard vendor={chef} className="mx-auto" />
-                    </div>
-                  ))}
+                  {group.vendorData
+                    .sort((a, b) => b.rating - a.rating)
+                    .slice(0, 10)
+                    .map((chef, index) => (
+                      <div
+                        key={index}
+                        className="!flex justify-center items-center"
+                      >
+                        <VendorCard vendor={chef} className="mx-auto" />
+                      </div>
+                    ))}
                 </Slider>
               </div>
             </div>

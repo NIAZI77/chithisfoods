@@ -5,6 +5,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Link from 'next/link';
 import Image from 'next/image';
+import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 
 export default function TopCategories() {
   const [topCategories, setTopCategories] = useState([
@@ -39,6 +40,24 @@ export default function TopCategories() {
       linkUrl: '/category/butter'
     },
   ]);
+    const NextArrow = ({ onClick }) => (
+      <div
+        className="absolute right-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+        onClick={onClick}
+      >
+        <FaAngleRight />
+      </div>
+    );
+  
+    const PrevArrow = ({ onClick }) => (
+      <div
+        className="absolute left-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+        onClick={onClick}
+      >
+        <FaAngleLeft />
+      </div>
+    );
+  
   const settings = {
     dots: false,
     infinite: true,
@@ -46,6 +65,8 @@ export default function TopCategories() {
     slidesToShow: 5,
     slidesToScroll: 2,
     autoplay: true,
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevArrow />,
     pauseOnHover: true,
     autoplaySpeed: 3000,
     responsive: [
@@ -82,11 +103,11 @@ export default function TopCategories() {
 
   return (
     <div className="container mx-auto p-2">
-      <h2 className="text-3xl font-bold mb-4">Top Categories</h2>
+      <h2 className="md:text-3xl text-2xl font-bold">Top Categories</h2>
       <div className="flex flex-wrap justify-evenly items-center">
-        <Slider {...settings} className='w-full mx-auto'>
+        <Slider {...settings} className='md:w-full w-[90%] mx-auto relative'>
           {topCategories.map((category, index) => (
-            <Link key={index} href={category.linkUrl} className="mx-4 my-4 flex justify-center items-center flex-col p-5">
+            <Link key={index} href={category.linkUrl} className="m-2 flex justify-center items-center flex-col p-5">
               <Image height={100} width={100}
                 src={category.imageUrl}
                 alt={category.name}
