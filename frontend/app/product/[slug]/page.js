@@ -360,7 +360,7 @@ const Page = () => {
                     onClick={handleOpenPopup}
                     className="px-4 py-2 bg-slate-50 text-orange-500 font-bold rounded-md hover:bg-slate-100 flex items-center justify-center"
                   >
-                   Rate <FaStar className="inline ml-2" /> 
+                    Rate <FaStar className="inline ml-2" />
                   </button>
 
                   <ProductReviewPopup
@@ -409,7 +409,11 @@ const Page = () => {
                           />
                         ))}
                       </div>
-                      <p className="mt-2 text-gray-600">{review.text}</p>
+                      <p className="mt-2 text-gray-600">
+                        {review.text.length > 100
+                          ? review.text.substr(0, 97) + "..."
+                          : review.text}
+                      </p>
                     </div>
                   );
                 })}
