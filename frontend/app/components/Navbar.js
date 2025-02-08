@@ -160,7 +160,7 @@ export default function Navbar() {
   return (
     <>
       <nav className="bg-white w-full border-gray-200 md:h-20 md:max-h-20 h-16 max-h-16 sticky top-0 z-50 shadow-lg">
-        <div className="flex flex-wrap items-center md:justify-around justify-between w-full mx-auto p-2">
+        <div className="flex flex-wrap items-center md:justify-around justify-between w-full mx-auto md:p-2 p-4">
           <Link
             title={process.env.NEXT_PUBLIC_NAME}
             href="/"

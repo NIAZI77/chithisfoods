@@ -1,63 +1,69 @@
 "use client";
-import React, { useState } from 'react';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-import Link from 'next/link';
-import Image from 'next/image';
-import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
+import React, { useState } from "react";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import Link from "next/link";
+import Image from "next/image";
+import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
 export default function TopCategories() {
   const [topCategories, setTopCategories] = useState([
     {
-      name: 'Cooked Food',
-      imageUrl: 'https://images.pexels.com/photos/20350178/pexels-photo-20350178/free-photo-of-food-on-plate.jpeg?auto=compress&cs=tinysrgb&w=600',
-      linkUrl: '/category/cooked-food'
+      name: "Cooked Food",
+      imageUrl:
+        "https://images.pexels.com/photos/20350178/pexels-photo-20350178/free-photo-of-food-on-plate.jpeg?auto=compress&cs=tinysrgb&w=600",
+      linkUrl: "/category/cooked-food",
     },
     {
-      name: 'Fruit',
-      imageUrl: 'https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?auto=compress&cs=tinysrgb&w=600',
-      linkUrl: '/category/fruit'
+      name: "Fruit",
+      imageUrl:
+        "https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?auto=compress&cs=tinysrgb&w=600",
+      linkUrl: "/category/fruit",
     },
     {
-      name: 'Vegetable',
-      imageUrl: 'https://images.pexels.com/photos/1435904/pexels-photo-1435904.jpeg?auto=compress&cs=tinysrgb&w=600',
-      linkUrl: '/category/vegetable'
+      name: "Vegetable",
+      imageUrl:
+        "https://images.pexels.com/photos/1435904/pexels-photo-1435904.jpeg?auto=compress&cs=tinysrgb&w=600",
+      linkUrl: "/category/vegetable",
     },
     {
-      name: 'Fish',
-      imageUrl: 'https://images.pexels.com/photos/25440737/pexels-photo-25440737/free-photo-of-baked-bass-on-black-plate.jpeg?auto=compress&cs=tinysrgb&w=600',
-      linkUrl: '/category/fish'
+      name: "Fish",
+      imageUrl:
+        "https://images.pexels.com/photos/25440737/pexels-photo-25440737/free-photo-of-baked-bass-on-black-plate.jpeg?auto=compress&cs=tinysrgb&w=600",
+      linkUrl: "/category/fish",
     },
     {
-      name: 'Spice',
-      imageUrl: 'https://images.pexels.com/photos/2802527/pexels-photo-2802527.jpeg?auto=compress&cs=tinysrgb&w=600',
-      linkUrl: '/category/spice'
+      name: "Spice",
+      imageUrl:
+        "https://images.pexels.com/photos/2802527/pexels-photo-2802527.jpeg?auto=compress&cs=tinysrgb&w=600",
+      linkUrl: "/category/spice",
     },
     {
-      name: 'Butter',
-      imageUrl: 'https://images.pexels.com/photos/94443/pexels-photo-94443.jpeg?auto=compress&cs=tinysrgb&w=600',
-      linkUrl: '/category/butter'
+      name: "Butter",
+      imageUrl:
+        "https://images.pexels.com/photos/94443/pexels-photo-94443.jpeg?auto=compress&cs=tinysrgb&w=600",
+      linkUrl: "/category/butter",
     },
   ]);
-    const NextArrow = ({ onClick }) => (
-      <div
-        className="absolute right-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
-        onClick={onClick}
-      >
-        <FaAngleRight />
-      </div>
-    );
-  
-    const PrevArrow = ({ onClick }) => (
-      <div
-        className="absolute left-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
-        onClick={onClick}
-      >
-        <FaAngleLeft />
-      </div>
-    );
-  
+  const NextArrow = ({ onClick }) => (
+    <div
+      className="absolute right-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      onClick={onClick}
+    >
+      <FaAngleRight />
+    </div>
+  );
+
+  const PrevArrow = ({ onClick }) => (
+    <div
+      className="absolute left-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      onClick={onClick}
+    >
+      <FaAngleLeft />
+    </div>
+  );
+
   const settings = {
     dots: false,
     infinite: true,
@@ -105,15 +111,23 @@ export default function TopCategories() {
     <div className="container mx-auto p-2">
       <h2 className="md:text-2xl text-xl font-bold">Top Categories</h2>
       <div className="flex flex-wrap justify-evenly items-center">
-        <Slider {...settings} className='md:w-full w-[90%] mx-auto relative'>
+        <Slider {...settings} className="md:w-full w-[90%] mx-auto relative">
           {topCategories.map((category, index) => (
-            <Link key={index} href={category.linkUrl} className="m-2 flex justify-center items-center flex-col p-5">
-              <Image height={100} width={100}
+            <Link
+              key={index}
+              href={category.linkUrl}
+              className="m-2 flex justify-center items-center flex-col p-5"
+            >
+              <Image
+                height={100}
+                width={100}
                 src={category.imageUrl}
                 alt={category.name}
                 className="w-32 h-32 object-cover rounded-full mx-auto"
               />
-              <div className="text-center mt-2 font-bold text-lg">{category.name}</div>
+              <div className="text-center mt-2 font-bold text-lg">
+                {category.name}
+              </div>
             </Link>
           ))}
         </Slider>
