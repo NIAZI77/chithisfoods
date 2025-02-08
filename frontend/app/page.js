@@ -12,7 +12,7 @@ const Home = () => {
   const [isOn, setIsOn] = useState(false);
   const [zipcode, setZipcode] = useState("");
   return (
-    <div className="md:w-[80%] w-[90%] mx-auto py-5">
+    <div className=" w-[95%] mx-auto py-5">
       <div>
         <Banner />
       </div>

@@ -145,7 +145,7 @@ export default function MenuPage() {
   };
 
   return (
-    <div className="container mx-auto p-4 md:w-[80%] w-full">
+    <div className="container mx-auto p-4 w-[95%]">
       <div className="flex items-center justify-between md:mb-8 mb-2">
         <h1 className="md:text-2xl text-lg font-bold">Menu</h1>
         <div>

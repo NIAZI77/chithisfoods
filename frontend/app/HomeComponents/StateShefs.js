@@ -46,7 +46,7 @@ export default function StateShefs({ zipcode }) {
   }, [data, zipcode]);
   const NextArrow = ({ onClick }) => (
     <div
-      className="absolute right-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      className="absolute -right-10 top-[60%] transform -translate-y-1/2 text-2xl p-1 cursor-pointer text-white bg-orange-400 hover:bg-orange-600 rounded-full content-center z-10"
       onClick={onClick}
     >
       <FaAngleRight />
@@ -55,7 +55,7 @@ export default function StateShefs({ zipcode }) {
 
   const PrevArrow = ({ onClick }) => (
     <div
-      className="absolute left-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      className="absolute -right-10 top-[40%] transform -translate-y-1/2 text-2xl p-1 cursor-pointer text-white bg-orange-400 hover:bg-orange-600 rounded-full content-center z-10"
       onClick={onClick}
     >
       <FaAngleLeft />
@@ -117,7 +117,7 @@ export default function StateShefs({ zipcode }) {
               <div className="flex justify-center items-center">
                 <Slider
                   {...settings}
-                  className="flex items-center justify-center md:w-full w-[90%] mx-auto relative"
+                  className="flex items-center justify-center w-[95%] mx-auto relative"
                 >
                   {group.vendorData
                     .sort((a, b) => b.rating - a.rating)

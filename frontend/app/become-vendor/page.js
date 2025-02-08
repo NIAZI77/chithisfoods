@@ -155,7 +155,7 @@ export default function VendorForm() {
   };
 
   return (
-    <div className="md:w-[70%] w-[90%] mx-auto">
+    <div className="w-[95%] mx-auto">
       <form onSubmit={handleSubmit} className="space-y-6">
         <h1 className="text-center text-2xl font-bold pt-8">Become Vendor</h1>
         <div className="flex flex-wrap gap-4">

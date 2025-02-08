@@ -73,10 +73,9 @@ export default function DeliciousDeals({ zipcode }) {
     }
   }, [zipcode]);
 
-  // Custom arrow components
   const NextArrow = ({ onClick }) => (
     <div
-      className="absolute right-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      className="absolute -right-10 top-[60%] transform -translate-y-1/2 text-2xl p-1 cursor-pointer text-white bg-orange-400 hover:bg-orange-600 rounded-full content-center z-10"
       onClick={onClick}
     >
       <FaAngleRight />
@@ -85,7 +84,7 @@ export default function DeliciousDeals({ zipcode }) {
 
   const PrevArrow = ({ onClick }) => (
     <div
-      className="absolute left-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      className="absolute -right-10 top-[40%] transform -translate-y-1/2 text-2xl p-1 cursor-pointer text-white bg-orange-400 hover:bg-orange-600 rounded-full content-center z-10"
       onClick={onClick}
     >
       <FaAngleLeft />
@@ -119,7 +118,7 @@ export default function DeliciousDeals({ zipcode }) {
           <h2 className="md:text-2xl text-xl font-bold mb-8">
             Delicious Deals
           </h2>
-          <div className="flex justify-center items-center md:w-full w-[90%] mx-auto relative">
+          <div className="flex justify-center items-center  w-[95%] mx-auto relative">
             <Slider {...settings} className="w-full mx-auto">
               {dishes.map((dish, index) => {
                 return (

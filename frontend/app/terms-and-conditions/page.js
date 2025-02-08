@@ -4,7 +4,7 @@ import React from "react";
 
 const TermsOfService = () => {
   return (
-    <div className="md:w-[80%] w-[90%] mx-auto px-4 py-8">
+    <div className="w-[95%] mx-auto px-4 py-8">
       <h1 className="md:text-2xl text-xl font-bold mb-4 text-center">
         Terms of Service for Chithi&apos;s Foods
       </h1>

@@ -48,7 +48,7 @@ export default function TopCategories() {
   ]);
   const NextArrow = ({ onClick }) => (
     <div
-      className="absolute right-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      className="absolute -right-10 top-[60%] transform -translate-y-1/2 text-2xl p-1 cursor-pointer text-white bg-orange-400 hover:bg-orange-600 rounded-full content-center z-10"
       onClick={onClick}
     >
       <FaAngleRight />
@@ -57,7 +57,7 @@ export default function TopCategories() {
 
   const PrevArrow = ({ onClick }) => (
     <div
-      className="absolute left-[-30px] top-1/2 transform -translate-y-1/2 text-3xl text-gray-700 cursor-pointer hover:text-gray-900"
+      className="absolute -right-10 top-[40%] transform -translate-y-1/2 text-2xl p-1 cursor-pointer text-white bg-orange-400 hover:bg-orange-600 rounded-full content-center z-10"
       onClick={onClick}
     >
       <FaAngleLeft />
@@ -108,10 +108,10 @@ export default function TopCategories() {
   };
 
   return (
-    <div className="container mx-auto p-2">
+    <div className="w-full mx-auto p-2">
       <h2 className="md:text-2xl text-xl font-bold">Top Categories</h2>
       <div className="flex flex-wrap justify-evenly items-center">
-        <Slider {...settings} className="md:w-full w-[90%] mx-auto relative">
+        <Slider {...settings} className="w-[95%] mx-auto relative">
           {topCategories.map((category, index) => (
             <Link
               key={index}

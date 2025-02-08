@@ -170,15 +170,15 @@ const Page = () => {
       )}
       <div className="min-h-[500px] content-center mx-auto py-5 px-4">
         {dish && (
-          <div className="md:flex md:justify-around">
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-5">
             <div className="md:py-10 mx-auto">
               <img
-                className="md:w-96 md:h-96 w-full h-full rounded-lg object-contain object-center transition-opacity duration-300"
+                className="md:h-1/2 w-full h-full rounded-lg object-contain object-center transition-opacity duration-300"
                 src={dish.image.url || "/img.png"}
                 alt={dish.name || "dish"}
               />
             </div>
-            <div className="md:w-[50%] mx-auto relative md:p-10 p-4">
+            <div className="w-[95%] mx-auto relative md:p-10 p-4">
               <div className="md:mt-4 mt-10 px-5 pb-5">
                 <div className="flex items-center justify-between">
                   <h1 className="text-2xl tracking-tight font-bold text-slate-900 select-text">
@@ -343,7 +343,7 @@ const Page = () => {
         )}
       </div>
       <div>
-        <div className="p-4 md:w-[80%] w-full mx-auto">
+        <div className="p-4 w-[95%] mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-semibold text-gray-800">Feedbacks</h2>
             <div>
@@ -423,7 +423,7 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="py-5 md:w-[80%] w-[90%] mx-auto">
+      <div className="py-5 w-[95%] mx-auto">
         <DeliciousDeals />
       </div>
       <ToastContainer />

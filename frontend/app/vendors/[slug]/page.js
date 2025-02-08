@@ -53,7 +53,7 @@ const Page = () => {
   if (!vendor) return <Custom404 />;
 
   return (
-    <div className="container mx-auto md:w-[80%] p-4">
+    <div className="container mx-auto w-[95%] p-4">
       <div
         className="relative bg-cover bg-center mt-6 w-full"
         style={{
