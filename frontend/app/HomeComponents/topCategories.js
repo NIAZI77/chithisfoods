@@ -111,7 +111,7 @@ export default function TopCategories() {
     <div className="w-full mx-auto p-2">
       <h2 className="md:text-2xl text-xl font-bold">Top Categories</h2>
       <div className="flex flex-wrap justify-evenly items-center">
-        <Slider {...settings} className="w-[95%] mx-auto relative">
+        <Slider {...settings} className="md:w-[95%] w-[80%] mx-auto relative">
           {topCategories.map((category, index) => (
             <Link
               key={index}

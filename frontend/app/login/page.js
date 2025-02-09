@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
+import { FaGoogle } from "react-icons/fa";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
   const getCookie = (name) => {
     const cookieArr = document.cookie.split(";");
     for (let i = 0; i < cookieArr.length; i++) {
@@ -28,9 +30,8 @@ const Login = () => {
 
     if (storedJwt && storedUser) {
       router.push("/");
-      return;
     }
-  }, []);
+  }, [router]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -53,6 +54,7 @@ const Login = () => {
       );
 
       const data = await response.json();
+
       if (response.ok) {
         if (!data.user.isAdmin) {
           toast.success("Logged in successfully!");
@@ -63,21 +65,21 @@ const Login = () => {
             document.cookie = `user=${data.user.email}; expires=${expiresString}; path=/`;
             document.cookie = `jwt=${data.jwt}; expires=${expiresString}; path=/`;
           }
-          setTimeout(() => {
-            router.push("/");
-          }, 1000);
+          setTimeout(() => router.push("/"), 1000);
         } else {
-          toast.error(data.error?.message || "Invalid credentials.");
+          toast.error("You do not have access to the dashboard.");
         }
       } else {
-        toast.error(data.error?.message || "Invalid credentials.");
+        toast.error("Invalid credentials.");
       }
     } catch (err) {
       toast.error("An error occurred during login.");
     } finally {
       setLoading(false);
     }
+  
   };
+
   return (
     <div className="flex flex-col items-center justify-center px-6 py-12 mx-auto md:h-screen lg:py-0">
       <div className="w-full bg-white shadow-lg md:mt-0 sm:max-w-md xl:p-0">
@@ -122,11 +124,11 @@ const Login = () => {
                 required
               />
               <div className="text-right">
-                <Link  title={process.env.NEXT_PUBLIC_NAME}
-                  href={"/forget-password"}
+                <Link
+                  href="/forget-password"
                   className="underline text-blue-500 hover:text-blue-700 text-xs text-right"
                 >
-                  forget password?
+                  Forget password?
                 </Link>
               </div>
             </div>
@@ -138,6 +140,18 @@ const Login = () => {
               {loading ? "Logging In..." : "Log In"}
             </button>
           </form>
+          <div className="flex items-center justify-center flex-col space-y-2">
+            <button
+              className="w-full font-bold rounded-lg border-2 content-center transition-all border-orange-600 text-orange-700 hover:text-white hover:bg-orange-600 py-2"
+              onClick={() => {
+                router.push(
+                  `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/connect/google/`
+                );
+              }}
+            >
+              <FaGoogle className="inline" /> Login With Google
+            </button>
+          </div>
           <div className="mt-4 text-center">
             <p className="text-sm">
               Don&apos;t have an account?{" "}

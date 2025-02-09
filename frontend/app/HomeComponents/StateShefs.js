@@ -117,7 +117,7 @@ export default function StateShefs({ zipcode }) {
               <div className="flex justify-center items-center">
                 <Slider
                   {...settings}
-                  className="flex items-center justify-center w-[95%] mx-auto relative"
+                  className="flex items-center justify-center md:w-[95%] w-[80%] mx-auto relative"
                 >
                   {group.vendorData
                     .sort((a, b) => b.rating - a.rating)

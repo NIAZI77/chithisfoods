@@ -118,7 +118,7 @@ export default function DeliciousDeals({ zipcode }) {
           <h2 className="md:text-2xl text-xl font-bold mb-8">
             Delicious Deals
           </h2>
-          <div className="flex justify-center items-center  w-[95%] mx-auto relative">
+          <div className="flex justify-center items-center md:w-[95%] w-[80%] mx-auto relative">
             <Slider {...settings} className="w-full mx-auto">
               {dishes.map((dish, index) => {
                 return (

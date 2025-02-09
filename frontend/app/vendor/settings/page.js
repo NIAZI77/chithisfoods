@@ -16,16 +16,21 @@ export default function AccountSettings() {
     email: "",
     coverImage: { id: 0, url: "" },
     description: "",
-    location: { city: "", state: "", zipcode: "", country: "" },
+    location: {
+      city: "",
+      state: "",
+      zipcode: "",
+      country: "",
+      fullAddress: "",
+    },
   });
 
   const getCookie = (name) => {
     const cookieArr = document.cookie.split(";");
-    for (let i = 0; i < cookieArr.length; i++) {
-      let cookie = cookieArr[i].trim();
-      if (cookie.startsWith(name + "=")) {
+    for (let cookie of cookieArr) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + "="))
         return decodeURIComponent(cookie.substring(name.length + 1));
-      }
     }
     return null;
   };
@@ -33,7 +38,6 @@ export default function AccountSettings() {
   useEffect(() => {
     const storedJwt = getCookie("jwt");
     const storedUser = getCookie("user");
-
     if (!storedJwt || !storedUser) {
       router.push("/login");
     } else {
@@ -54,13 +58,12 @@ export default function AccountSettings() {
           },
         }
       );
-
       const data = await response.json();
       if (!response.ok) {
         toast.error(data.error.message || "Error fetching vendor data.");
       } else {
         const vendorData = data.data[0];
-        if (vendorData.length == 0) {
+        if (!vendorData) {
           router.push("/become-vendor");
         } else {
           setFormData(vendorData);
@@ -68,7 +71,6 @@ export default function AccountSettings() {
       }
     } catch (error) {
       toast.error("Error fetching vendor data.");
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -93,10 +95,9 @@ export default function AccountSettings() {
     }
   };
 
-  async function uploadImage(file, name) {
+  const uploadImage = async (file, name) => {
     const formData = new FormData();
     formData.append("files", file);
-
     if (!file.type.startsWith("image/")) {
       toast.error("Please upload an image file.");
       return;
@@ -113,34 +114,24 @@ export default function AccountSettings() {
           body: formData,
         }
       );
-
       if (!response.ok) {
-        toast.error("Error uploading image");
+        toast.error("Error uploading image.");
         return;
       }
 
       const data = await response.json();
       const { id, url } = data[0];
-
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: { id, url },
-      }));
-
+      setFormData((prevData) => ({ ...prevData, [name]: { id, url } }));
       toast.success("Image uploaded successfully!");
     } catch (error) {
-      console.error("Error uploading image", error);
-      toast.error("Error uploading image");
+      toast.error("Error uploading image.");
     }
-  }
+  };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
-
-    if (file) {
-      uploadImage(file, name);
-    }
+    if (file) uploadImage(file, name);
   };
 
   const handleSubmit = async (e) => {
@@ -154,7 +145,8 @@ export default function AccountSettings() {
       !location.city ||
       !location.state ||
       !location.zipcode ||
-      !location.country
+      !location.country ||
+      !location.fullAddress
     ) {
       toast.error("Please fill all required fields.");
       return;
@@ -162,7 +154,7 @@ export default function AccountSettings() {
 
     const storedJwt = getCookie("jwt");
     if (!storedJwt) {
-      toast.error("Authentication token is missing");
+      toast.error("Authentication token is missing.");
       return;
     }
 
@@ -188,25 +180,25 @@ export default function AccountSettings() {
       );
 
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         toast.success("Account settings updated!");
         setTimeout(() => {
           router.push("/vendor/dashboard");
         }, 1000);
       } else {
-        toast.error(data.error.message || "An error occurred");
+        toast.error(data.error.message || "An error occurred.");
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error("An error occurred while submitting the form");
+      toast.error("An error occurred while submitting the form.");
     } finally {
       setSubmitting(false);
     }
   };
+
   if (loading) {
     return <Loading />;
   }
+
   return (
     <main className="ml-0 md:ml-64 p-6 transition-padding duration-300 bg-gray-100">
       <div className="md:w-[70%] w-[90%] mx-auto">
@@ -305,57 +297,33 @@ export default function AccountSettings() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-semibold">Country</label>
-              <input
-                required
-                type="text"
-                name="location.country"
-                value={formData.location.country}
-                onChange={handleChange}
-                placeholder="USA"
-                className="w-full p-2 border border-slate-200"
-              />
-            </div>
+            {["Country", "State", "City", "Zipcode"].map((label, index) => (
+              <div key={index}>
+                <label className="block text-sm font-semibold">{label}</label>
+                <input
+                  required
+                  type="text"
+                  name={`location.${label.toLowerCase()}`}
+                  value={formData.location[label.toLowerCase()]}
+                  onChange={handleChange}
+                  placeholder={label}
+                  className="w-full p-2 border border-slate-200"
+                />
+              </div>
+            ))}
+          </div>
 
-            <div>
-              <label className="block text-sm font-semibold">State</label>
-              <input
-                required
-                type="text"
-                name="location.state"
-                value={formData.location.state}
-                onChange={handleChange}
-                placeholder="New York"
-                className="w-full p-2 border border-slate-200"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold">City</label>
-              <input
-                required
-                type="text"
-                name="location.city"
-                value={formData.location.city}
-                onChange={handleChange}
-                placeholder="Buffalo"
-                className="w-full p-2 border border-slate-200"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold">Zipcode</label>
-              <input
-                required
-                type="text"
-                name="location.zipcode"
-                value={formData.location.zipcode}
-                onChange={handleChange}
-                placeholder="10001"
-                className="w-full p-2 border border-slate-200"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-semibold">Full Address</label>
+            <input
+              required
+              type="text"
+              name="location.fullAddress"
+              value={formData.location.fullAddress}
+              onChange={handleChange}
+              placeholder="123 Main St, Buffalo, NY 10001"
+              className="w-full p-2 border border-slate-200"
+            />
           </div>
 
           <div>

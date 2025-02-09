@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { FaCamera } from "react-icons/fa";
@@ -11,21 +12,16 @@ export default function VendorForm() {
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    logo: {
-      id: 0,
-      url: "",
-    },
+    logo: { id: 0, url: "" },
     email: "",
-    coverImage: {
-      id: 0,
-      url: "",
-    },
+    coverImage: { id: 0, url: "" },
     description: "",
     location: {
       city: "",
       state: "",
       zipcode: "",
       country: "",
+      fullAddress: "",
     },
     rating: 0,
     menu: [],
@@ -35,8 +31,8 @@ export default function VendorForm() {
 
   const getCookie = (name) => {
     const cookieArr = document.cookie.split(";");
-    for (let i = 0; i < cookieArr.length; i++) {
-      let cookie = cookieArr[i].trim();
+    for (let cookie of cookieArr) {
+      cookie = cookie.trim();
       if (cookie.startsWith(name + "=")) {
         return decodeURIComponent(cookie.substring(name.length + 1));
       }
@@ -49,9 +45,7 @@ export default function VendorForm() {
     const storedUser = getCookie("user");
     setEmail(storedUser);
 
-    if (!storedJwt || !storedUser) {
-      router.push("/login");
-    }
+    if (!storedJwt || !storedUser) router.push("/login");
   }, [router]);
 
   const handleChange = (e) => {
@@ -60,20 +54,14 @@ export default function VendorForm() {
       const locationField = name.split(".")[1];
       setFormData((prevData) => ({
         ...prevData,
-        location: {
-          ...prevData.location,
-          [locationField]: value,
-        },
+        location: { ...prevData.location, [locationField]: value },
       }));
     } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
+      setFormData((prevData) => ({ ...prevData, [name]: value }));
     }
   };
 
-  async function uploadImage(file, name) {
+  const uploadImage = async (file, name) => {
     const formData = new FormData();
     formData.append("files", file);
 
@@ -97,29 +85,29 @@ export default function VendorForm() {
       toast.success("Image uploaded successfully!");
       const data = await response.json();
       const { id, url } = data[0];
-
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: { id, url },
-      }));
+      setFormData((prevData) => ({ ...prevData, [name]: { id, url } }));
     } catch (error) {
-      console.log("Error uploading image", error);
+      console.error("Error uploading image", error);
       toast.error("Error uploading image");
     }
-  }
+  };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
-
-    if (file) {
-      uploadImage(file, name);
-    }
+    if (file) uploadImage(file, name);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+
+    if (!formData.logo.url || !formData.coverImage.url) {
+      toast.error("Please upload both logo and cover image.");
+      setSubmitting(false);
+      return;
+    }
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors`,
@@ -132,7 +120,7 @@ export default function VendorForm() {
           body: JSON.stringify({
             data: {
               ...formData,
-              email: email,
+              email,
               description: formData.description || "No description provided",
             },
           }),
@@ -140,9 +128,12 @@ export default function VendorForm() {
       );
 
       const data = await response.json();
+
       if (response.ok) {
         toast.success("Now you are Vendor!");
-        router.push("/vendor/dashboard");
+        setTimeout(() => {
+          router.push("/vendor/dashboard");
+        }, 1000);
       } else {
         toast.error(data.error.message || "An error occurred");
       }
@@ -155,13 +146,12 @@ export default function VendorForm() {
   };
 
   return (
-    <div className="w-[95%] mx-auto">
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="w-[80%] mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <h1 className="text-center text-2xl font-bold pt-8">Become Vendor</h1>
         <div className="flex flex-wrap gap-4">
           <div className="flex-1">
             <input
-              required
               type="file"
               id="logo"
               name="logo"
@@ -171,7 +161,6 @@ export default function VendorForm() {
           </div>
           <div className="flex-1">
             <input
-              required
               type="file"
               id="coverImage"
               name="coverImage"
@@ -202,7 +191,7 @@ export default function VendorForm() {
             <img
               height={100}
               width={100}
-              src={formData.logo.url ? formData.logo.url : "/fallback-logo.png"}
+              src={formData.logo.url || "/fallback-logo.png"}
               alt="Profile"
               className="w-full h-full object-cover"
             />
@@ -232,6 +221,7 @@ export default function VendorForm() {
           <label className="block text-sm font-semibold">Bio</label>
           <textarea
             name="description"
+            required
             value={formData.description}
             onChange={handleChange}
             placeholder="A brief description of the vendor's services"
@@ -240,57 +230,33 @@ export default function VendorForm() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-semibold">Country</label>
-            <input
-              required
-              type="text"
-              name="location.country"
-              value={formData.location.country}
-              onChange={handleChange}
-              placeholder="USA"
-              className="w-full p-2 border border-slate-200"
-            />
-          </div>
+          {["Country", "State", "City", "Zipcode"].map((label, index) => (
+            <div key={index}>
+              <label className="block text-sm font-semibold">{label}</label>
+              <input
+                required
+                type="text"
+                name={`location.${label.toLowerCase()}`}
+                value={formData.location[label.toLowerCase()]}
+                onChange={handleChange}
+                placeholder={label}
+                className="w-full p-2 border border-slate-200"
+              />
+            </div>
+          ))}
+        </div>
 
-          <div>
-            <label className="block text-sm font-semibold">State</label>
-            <input
-              required
-              type="text"
-              name="location.state"
-              value={formData.location.state}
-              onChange={handleChange}
-              placeholder="New York"
-              className="w-full p-2 border border-slate-200"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold">City</label>
-            <input
-              required
-              type="text"
-              name="location.city"
-              value={formData.location.city}
-              onChange={handleChange}
-              placeholder="Buffalo"
-              className="w-full p-2 border border-slate-200"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold">Zipcode</label>
-            <input
-              required
-              type="text"
-              name="location.zipcode"
-              value={formData.location.zipcode}
-              onChange={handleChange}
-              placeholder="10001"
-              className="w-full p-2 border border-slate-200"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-semibold">Full Address</label>
+          <input
+            required
+            type="text"
+            name="location.fullAddress"
+            value={formData.location.fullAddress}
+            onChange={handleChange}
+            placeholder="123 Main St, Buffalo, NY 10001"
+            className="w-full p-2 border border-slate-200"
+          />
         </div>
 
         <div>

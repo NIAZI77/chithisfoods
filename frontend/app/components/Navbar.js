@@ -257,7 +257,7 @@ export default function Navbar() {
       </nav>
 
       {profile && (
-        <div className="fixed md:right-4 right-4 top-16 z-10 mt-2 w-56 bg-white border rounded-md shadow-lg">
+        <div className="fixed md:right-4 right-4 top-20 mt-2 w-56 bg-white border rounded-md shadow-lg z-20">
           <ul className="flex flex-col">
             <li>
               <Link

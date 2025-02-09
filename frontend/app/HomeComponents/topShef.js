@@ -92,7 +92,7 @@ export default function TopShef({ zipcode }) {
       {topShefs.length > 2 && (
         <div className="mx-auto p-2 py-5">
           <h2 className="md:text-2xl text-xl font-bold mb-8">Top Shefs</h2>
-          <div className="flex justify-center items-center w-[95%] mx-auto relative">
+          <div className="flex justify-center items-center md:w-[95%] w-[80%] mx-auto relative">
             <Slider
               {...settings}
               className="w-full mx-auto flex items-center justify-center"

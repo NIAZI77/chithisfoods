@@ -1,9 +1,12 @@
 "use client";
 
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+const usernameRegex = /^[a-z0-9_]{3,15}$/;
 
 const Signup = () => {
   const [username, setUsername] = useState("");
@@ -12,10 +15,11 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
   const getCookie = (name) => {
     const cookieArr = document.cookie.split(";");
     for (let i = 0; i < cookieArr.length; i++) {
-      let cookie = cookieArr[i].trim();
+      const cookie = cookieArr[i].trim();
       if (cookie.startsWith(name + "=")) {
         return decodeURIComponent(cookie.substring(name.length + 1));
       }
@@ -29,12 +33,34 @@ const Signup = () => {
 
     if (storedJwt && storedUser) {
       router.push("/");
-      return;
     }
-  }, []);
+  }, [router]);
+
   const handleSignup = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    // Validate email and username
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email.");
+      setLoading(false);
+      return;
+    }
+
+    if (password > 6 || password < 15) {
+      toast.error(
+        "Password must be between 6 and 15 characters long."
+      );
+      setLoading(false);
+      return;
+    }
+    if (!usernameRegex.test(username)) {
+      toast.error(
+        "can contain letters, numbers, and underscores."
+      );
+      setLoading(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match. Please try again.");
@@ -51,14 +77,12 @@ const Signup = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
           },
-          body: JSON.stringify({
-            username,
-            email,
-            password,
-          }),
+          body: JSON.stringify({ username, email, password }),
         }
       );
+
       const data = await response.json();
+
       if (response.ok) {
         toast.success("Sign up successful!");
         setTimeout(() => {
@@ -165,7 +189,6 @@ const Signup = () => {
                 {loading ? "Signing Up..." : "Sign Up"}
               </button>
             </form>
-
             <div className="mt-4 text-center">
               <p className="text-sm">
                 Already have an account?{" "}
