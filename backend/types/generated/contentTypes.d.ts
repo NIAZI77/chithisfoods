@@ -408,6 +408,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     vendor_id: Schema.Attribute.String & Schema.Attribute.Required;
+    vendor_name: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 

@@ -12,7 +12,7 @@
 
 html {
   scroll-behavior: smooth;
-  user-select: none;
+  user-select: text;
 }
 * {
   font-family: "AirbnbCereal", sans-serif !important;

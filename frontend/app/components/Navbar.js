@@ -167,10 +167,8 @@ export default function Navbar() {
             className="flex items-center"
           >
             <img
-              height={36}
-              width={48}
               src="/logo.png"
-              className="md:w-20 w-12 h-fit mx-4 scale-150"
+              className="md:w-20 w-12 h-auto mx-4 scale-150"
               alt={process.env.NEXT_PUBLIC_NAME}
             />
           </Link>

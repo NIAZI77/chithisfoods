@@ -123,7 +123,7 @@ const OrderHistory = () => {
   }
 
   return (
-    <div className="md:w-[80%] w-[90%] mx-auto p-6 bg-white lg mt-8">
+    <div className="w-[95%] mx-auto p-6 bg-white lg mt-8">
       <h2 className="md:text-2xl text-xl font-semibold text-gray-800 mb-6">
         Order History
       </h2>
@@ -179,8 +179,9 @@ const OrderHistory = () => {
                 <div key={index}>
                   <div className="border-t pt-4">
                     {" "}
-                    <div className="flex items-center justify-end mb-4">
-                      <span
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="font-bold text-xl">By {order.products[0].vendor_name}</div>
+                      <div
                         className={`px-3 py-1 rounded-full text-sm font-bold ${
                           order.order_status === "pending"
                             ? "bg-yellow-300 text-yellow-800"
@@ -195,7 +196,7 @@ const OrderHistory = () => {
                               part.slice(1).toLowerCase()
                           )
                           .join(" ")}
-                      </span>
+                      </div>
                     </div>
                     <h4 className="font-semibold text-lg text-gray-800 mb-3 mt-6">
                       Ordered Items:

@@ -133,15 +133,6 @@ const OrderPage = () => {
     return orders.slice(startIndex, startIndex + ordersPerPage);
   };
 
-  const loadMoreOrders = (category) => {
-    if (category === "pending") {
-      setPendingPage((prevPage) => prevPage + 1);
-    } else if (category === "accepted") {
-      setAcceptedPage((prevPage) => prevPage + 1);
-    } else if (category === "completed") {
-      setCompletedPage((prevPage) => prevPage + 1);
-    }
-  };
 
   if (loading) {
     return <Loading />;

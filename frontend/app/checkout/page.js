@@ -92,6 +92,7 @@ export default function CheckoutPage() {
                   instruction: formData.deliveryInstructions,
                   customer_name: formData.name,
                   vendor_id: item.products[0].vendorID,
+                  vendor_name: item.products[0].vendor_name,
                   products: item.products,
                   cOrderID,
                   cTotal: total,
@@ -103,7 +104,7 @@ export default function CheckoutPage() {
             }
           );
           const data = await response.json();
-
+          console.log(data);
           if (response.ok) {
             localStorage.removeItem("cart");
             localStorage.removeItem("total");
