@@ -2,6 +2,7 @@
 
 import Loading from "@/app/loading";
 import Custom404 from "@/app/not-found";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
@@ -100,6 +101,19 @@ const Order = () => {
   };
 
   const updateOrderStatus = async (status) => {
+    if (status == "declined") {
+      const cnfrm = confirm("Are you sure you want to decline this order?");
+      if (cnfrm) {
+        var reason = prompt("Please provide a reason for decline the order:");
+        if (!reason) {
+          toast.error("A reason is required to decline the order.");
+          return;
+        }
+      } else {
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
       const response = await fetch(
@@ -113,6 +127,7 @@ const Order = () => {
           body: JSON.stringify({
             data: {
               order_status: status,
+              reason,
             },
           }),
         }
@@ -167,7 +182,6 @@ const Order = () => {
                 .join(" ")}
             </span>
           </div>
-
           <p className="text-gray-600 mb-2">
             <span className="font-bold text-gray-800">Placed On</span>{" "}
             {new Date(order.createdAt).toLocaleDateString()}
@@ -194,15 +208,25 @@ const Order = () => {
               {order.addressLine}
             </p>
           )}
-          {order.instruction && (
-            <p className="text-gray-600 mb-4">
-              <span className="font-bold text-gray-800">
-                Delivery Instructions
-              </span>{" "}
-              {order.instruction}
-            </p>
-          )}
+          {order.order_status === "cancelled" ||
+            (order.order_status === "declined" && (
+              <p className=" mb-4 text-xl flex items-center justify-center flex-col text-center">
+                <span className="font-bold text-center text-red-600">
+                  {order.order_status} Reason <br />
+                </span>{" "}
+                <span>{order.reason}</span>
+              </p>
+            ))}
 
+          <p className="text-gray-600 mb-4 text-center text-xl font-bold">
+            {order.orderType
+              .split(" ")
+              .map(
+                (part) =>
+                  part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+              )
+              .join(" ")}
+          </p>
           <div className="border-t pt-4">
             <h4 className="font-semibold text-lg text-gray-800 mb-3">
               Ordered Items:
@@ -214,7 +238,9 @@ const Order = () => {
                     key={index}
                     className="flex items-center space-x-4 p-2 rounded-lg transition-all"
                   >
-                    <img
+                    <Image
+                      height={100}
+                      width={100}
                       src={product.image.url}
                       alt={product.name}
                       className="md:w-32 w-20 md:h-16 h-10 object-cover rounded-md"
@@ -238,7 +264,6 @@ const Order = () => {
               </ul>
             </div>
           </div>
-
           <div className="mt-6 flex justify-between items-center">
             <p className="font-bold text-lg text-gray-800">Total</p>
             <p className="text-xl text-gray-800">${total.toFixed(2)}</p>

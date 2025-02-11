@@ -1,6 +1,7 @@
 "use client";
 
 import Loading from "@/app/loading";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
@@ -76,6 +77,17 @@ const OrderHistory = () => {
   }, [router]);
 
   const updateOrderStatus = async (orderId, status) => {
+    const cnfrm = confirm("Are you sure you want to cancel this order?");
+    if (cnfrm) {
+      var reason = prompt("Please provide a reason for canceling the order:");
+      if (!reason) {
+        toast.error("A reason is required to cancel the order.");
+        return;
+      }
+    } else {
+      return;
+    }
+
     setCancelling(true);
     try {
       const response = await fetch(
@@ -89,6 +101,7 @@ const OrderHistory = () => {
           body: JSON.stringify({
             data: {
               order_status: status,
+              reason,
             },
           }),
         }
@@ -174,13 +187,26 @@ const OrderHistory = () => {
                     {odr[0].instruction}
                   </p>
                 )}
+
+                <p className="text-gray-600 mb-4 text-center text-xl font-bold">
+                  {odr[0].orderType
+                    .split(" ")
+                    .map(
+                      (part) =>
+                        part.charAt(0).toUpperCase() +
+                        part.slice(1).toLowerCase()
+                    )
+                    .join(" ")}
+                </p>
               </div>
               {odr.map((order, index) => (
                 <div key={index}>
                   <div className="border-t pt-4">
                     {" "}
                     <div className="flex items-center justify-between mb-4">
-                      <div className="font-bold text-xl">By {order.products[0].vendor_name}</div>
+                      <div className="font-bold text-xl">
+                        By {order.products[0].vendor_name}
+                      </div>
                       <div
                         className={`px-3 py-1 rounded-full text-sm font-bold ${
                           order.order_status === "pending"
@@ -198,6 +224,15 @@ const OrderHistory = () => {
                           .join(" ")}
                       </div>
                     </div>
+                    {order.order_status === "cancelled" ||
+                      (order.order_status === "declined" && (
+                        <p className="mb-4 text-xl flex items-center justify-center flex-col text-center">
+                          <span className="font-bold text-center text-red-600">
+                            {order.order_status} Reason <br />
+                          </span>{" "}
+                          <span>{order.reason}</span>
+                        </p>
+                      ))}
                     <h4 className="font-semibold text-lg text-gray-800 mb-3 mt-6">
                       Ordered Items:
                     </h4>
@@ -207,7 +242,9 @@ const OrderHistory = () => {
                           key={index}
                           className="flex items-center space-x-4 p-2 rounded-lg transition-all"
                         >
-                          <img
+                          <Image
+                            height={100}
+                            width={100}
                             src={product.image.url}
                             alt={product.name}
                             className="md:w-32 w-20 md:h-16 h-10 object-cover rounded-md"

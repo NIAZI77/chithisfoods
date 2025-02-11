@@ -381,7 +381,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    address: Schema.Attribute.String & Schema.Attribute.Required;
+    address: Schema.Attribute.String;
     addressLine: Schema.Attribute.String;
     cOrderID: Schema.Attribute.BigInteger & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
@@ -389,7 +389,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     cTotal: Schema.Attribute.Decimal;
     customer_name: Schema.Attribute.String & Schema.Attribute.Required;
-    email: Schema.Attribute.Email & Schema.Attribute.Required;
+    email: Schema.Attribute.Email;
     instruction: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::order.order'> &
@@ -398,10 +398,14 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
     order_status: Schema.Attribute.String;
-    phone: Schema.Attribute.BigInteger & Schema.Attribute.Required;
+    orderType: Schema.Attribute.Enumeration<['delivery', 'pickup']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'delivery'>;
+    phone: Schema.Attribute.BigInteger;
     products: Schema.Attribute.JSON & Schema.Attribute.Required;
     productTotal: Schema.Attribute.Decimal & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
+    reason: Schema.Attribute.String;
     taxRate: Schema.Attribute.Integer & Schema.Attribute.Required;
     totalWithTax: Schema.Attribute.Decimal & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;

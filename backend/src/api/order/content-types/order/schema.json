@@ -18,16 +18,16 @@
     },
     "email": {
       "type": "email",
-      "required": true,
+      "required": false,
       "unique": false
     },
     "phone": {
       "type": "biginteger",
-      "required": true
+      "required": false
     },
     "address": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "addressLine": {
       "type": "string"
@@ -73,6 +73,18 @@
     "vendor_id": {
       "type": "string",
       "required": true
+    },
+    "orderType": {
+      "type": "enumeration",
+      "enum": [
+        "delivery",
+        "pickup"
+      ],
+      "default": "delivery",
+      "required": true
+    },
+    "reason": {
+      "type": "string"
     }
   }
 }

@@ -51,12 +51,12 @@ const Cart = () => {
   useEffect(() => {
     const cart = localStorage.getItem("cart");
     setCartItems(JSON.parse(cart) || []);
+    console.log(cart)
   }, []);
 
   useEffect(() => {
     localStorage.setItem("total", finalTotal.toFixed(2));
     localStorage.setItem("taxRate", taxRate);
-    console.log(cartItems)
   }, [cartItems, finalTotal, taxRate]);
 
   const groupedCart = groupCartItemsByVendor(cartItems);

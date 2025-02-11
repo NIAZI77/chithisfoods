@@ -110,6 +110,15 @@ const Order = () => {
               {order[0].instruction}
             </p>
           )}
+          <p className="text-gray-600 mb-4 text-center text-xl font-bold">
+            {order.orderType
+              .split(" ")
+              .map(
+                (part) =>
+                  part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+              )
+              .join(" ")}
+          </p>
         </div>
         {order.map((order, index) => (
           <div key={index}>

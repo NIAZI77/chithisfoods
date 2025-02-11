@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
@@ -20,6 +19,7 @@ export default function CheckoutPage() {
     addressLine: "",
     deliveryInstructions: "",
   });
+  const [orderType, setOrderType] = useState("delivery");
 
   useEffect(() => {
     const cart = localStorage.getItem("cart");
@@ -32,10 +32,34 @@ export default function CheckoutPage() {
       router.push("/");
     }
   }, [router]);
+  useEffect(() => {
+    const getCookie = (name) => {
+      const cookieArr = document.cookie.split(";");
+      for (let i = 0; i < cookieArr.length; i++) {
+        let cookie = cookieArr[i].trim();
+        if (cookie.startsWith(name + "=")) {
+          return decodeURIComponent(cookie.substring(name.length + 1));
+        }
+      }
+      return null;
+    };
+
+    const storedJwt = getCookie("jwt");
+    const storedUser = getCookie("user");
+    if (!storedJwt || !storedUser) {
+      router.push("/login");
+    } else {
+      setFormData((prev) => ({ ...prev, email: storedUser }));
+    }
+  }, [cartItems, router]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleOrderTypeChange = (e) => {
+    setOrderType(e.target.value); // Update the order type based on the radio button selection
   };
 
   function transformData(data) {
@@ -99,12 +123,12 @@ export default function CheckoutPage() {
                   taxRate,
                   totalWithTax: withTax,
                   productTotal,
+                  orderType, // Include order type in the request
                 },
               }),
             }
           );
           const data = await response.json();
-          console.log(data);
           if (response.ok) {
             localStorage.removeItem("cart");
             localStorage.removeItem("total");
@@ -135,27 +159,6 @@ export default function CheckoutPage() {
       }
     });
   };
-
-  useEffect(() => {
-    const getCookie = (name) => {
-      const cookieArr = document.cookie.split(";");
-      for (let i = 0; i < cookieArr.length; i++) {
-        let cookie = cookieArr[i].trim();
-        if (cookie.startsWith(name + "=")) {
-          return decodeURIComponent(cookie.substring(name.length + 1));
-        }
-      }
-      return null;
-    };
-
-    const storedJwt = getCookie("jwt");
-    const storedUser = getCookie("user");
-    if (!storedJwt || !storedUser) {
-      router.push("/login");
-    } else {
-      setFormData((prev) => ({ ...prev, email: storedUser }));
-    }
-  }, [cartItems, router]);
 
   return (
     <>
@@ -248,6 +251,41 @@ export default function CheckoutPage() {
                     className="w-full p-2 border border-gray-300"
                     placeholder="Leave at the front door."
                   />
+                </div>
+
+                {/* Order Type Selection */}
+                <div className="mt-4">
+                  <label className="block text-sm font-medium">
+                    Order Type
+                  </label>
+                  <div className="flex space-x-4">
+                    <div>
+                      <input
+                        type="radio"
+                        id="delivery"
+                        name="orderType"
+                        value="delivery"
+                        checked={orderType === "delivery"}
+                        onChange={handleOrderTypeChange}
+                      />
+                      <label htmlFor="delivery" className="ml-2 text-sm">
+                        Delivery
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        id="pickup"
+                        name="orderType"
+                        value="pickup"
+                        checked={orderType === "pickup"}
+                        onChange={handleOrderTypeChange}
+                      />
+                      <label htmlFor="pickup" className="ml-2 text-sm">
+                        Pickup
+                      </label>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="mt-6">
