@@ -2,6 +2,7 @@
 
 import Loading from "@/app/loading";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
@@ -147,7 +148,7 @@ const OrderHistory = () => {
       ) : (
         <div className="space-y-6">
           {orders.map((odr, index) => (
-            <div key={index} className="p-5 bg-gray-100 ">
+            <div key={index} className="p-5 bg-gray-100">
               <div>
                 <p className="text-gray-600 mb-2">
                   <span className="font-bold text-gray-800">Placed On</span>{" "}
@@ -157,20 +158,24 @@ const OrderHistory = () => {
                   <span className="font-bold text-gray-800">Customer Name</span>{" "}
                   {odr[0].customer_name}
                 </p>
-                <p className="text-gray-600 mb-2">
-                  <span className="font-bold text-gray-800">Email</span>{" "}
-                  {odr[0].email}
-                </p>
+                {odr[0].email && (
+                  <p className="text-gray-600 mb-2">
+                    <span className="font-bold text-gray-800">Email</span>{" "}
+                    {odr[0].email}
+                  </p>
+                )}
                 <p className="text-gray-600 mb-4">
                   <span className="font-bold text-gray-800">Phone</span>{" "}
                   {odr[0].phone}
                 </p>
-                <p className="text-gray-600 mb-4">
-                  <span className="font-bold text-gray-800">
-                    Delivery Address
-                  </span>{" "}
-                  {odr[0].address}
-                </p>
+                {odr[0].address && odr[0].orderType == "delivery" && (
+                  <p className="text-gray-600 mb-4">
+                    <span className="font-bold text-gray-800">
+                      Delivery Address
+                    </span>{" "}
+                    {odr[0].address}
+                  </p>
+                )}
                 {odr[0].addressLine && odr[0].addressLine.length > 0 && (
                   <p className="text-gray-600 mb-4">
                     <span className="font-bold text-gray-800">
@@ -187,16 +192,17 @@ const OrderHistory = () => {
                     {odr[0].instruction}
                   </p>
                 )}
+                {odr[0].orderType !== "delivery" && (
+                  <p className="text-gray-600 mb-4">
+                    <span className="font-bold text-gray-800">
+                      Vendor Address:{" "}
+                    </span>
+                    The vendor&apos;s address is mentioned in their profile.
+                  </p>
+                )}
 
                 <p className="text-gray-600 mb-4 text-center text-xl font-bold">
-                  {odr[0].orderType
-                    .split(" ")
-                    .map(
-                      (part) =>
-                        part.charAt(0).toUpperCase() +
-                        part.slice(1).toLowerCase()
-                    )
-                    .join(" ")}
+                  {odr[0].orderType}
                 </p>
               </div>
               {odr.map((order, index) => (
@@ -204,8 +210,11 @@ const OrderHistory = () => {
                   <div className="border-t pt-4">
                     {" "}
                     <div className="flex items-center justify-between mb-4">
-                      <div className="font-bold text-xl">
-                        By {order.products[0].vendor_name}
+                      <div className="font-bold text-xl hover:underline">
+                        <Link href={`/vendors/${order.vendor_id}`}>
+                          {" "}
+                          By {order.vendor_name}
+                        </Link>
                       </div>
                       <div
                         className={`px-3 py-1 rounded-full text-sm font-bold ${
@@ -224,15 +233,17 @@ const OrderHistory = () => {
                           .join(" ")}
                       </div>
                     </div>
-                    {order.order_status === "cancelled" ||
-                      (order.order_status === "declined" && (
-                        <p className="mb-4 text-xl flex items-center justify-center flex-col text-center">
-                          <span className="font-bold text-center text-red-600">
-                            {order.order_status} Reason <br />
-                          </span>{" "}
-                          <span>{order.reason}</span>
-                        </p>
-                      ))}
+                    {(order.order_status === "cancelled" ||
+                      order.order_status === "declined") && (
+                      <p className="mb-4 text-xl flex items-center justify-center flex-col text-center">
+                        <span className="font-bold text-center">
+                          {order.order_status} Reason <br />
+                        </span>{" "}
+                        <span className="inline-block bg-red-500 px-4 py-1 rounded-full font-bold text-white">
+                          {order.reason}
+                        </span>
+                      </p>
+                    )}
                     <h4 className="font-semibold text-lg text-gray-800 mb-3 mt-6">
                       Ordered Items:
                     </h4>

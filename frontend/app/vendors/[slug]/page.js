@@ -84,29 +84,12 @@ const Page = () => {
           </div>
         </h1>
         <p className="text-center pt-2 font-semibold">
-          {vendor.location.country
-            .split(" ")
-            .map(
-              (part) =>
-                part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-            )
-            .join(" ")}{" "}
-          ·{" "}
-          {vendor.location.state
-            .split(" ")
-            .map(
-              (part) =>
-                part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-            )
-            .join(" ")}{" "}
-          ·{" "}
-          {vendor.location.city
-            .split(" ")
-            .map(
-              (part) =>
-                part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-            )
-            .join(" ")}
+          {vendor.location.country.replace(/\b\w/g, (c) => c.toUpperCase())} ·{" "}
+          {vendor.location.state.replace(/\b\w/g, (c) => c.toUpperCase())} ·{" "}
+          {vendor.location.city.replace(/\b\w/g, (c) => c.toUpperCase())}
+          {vendor.location.fullAddress && (
+            <p className="text-center pt-2">{vendor.location.fullAddress}</p>
+          )}
         </p>
         <p className="text-center pt-2">{vendor.description}</p>
       </div>

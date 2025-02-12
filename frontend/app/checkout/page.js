@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { MdDeliveryDining } from "react-icons/md";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaShoppingBag } from "react-icons/fa";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -123,7 +125,7 @@ export default function CheckoutPage() {
                   taxRate,
                   totalWithTax: withTax,
                   productTotal,
-                  orderType, // Include order type in the request
+                  orderType,
                 },
               }),
             }
@@ -201,65 +203,69 @@ export default function CheckoutPage() {
                     required
                   />
                 </div>
-                <div>
-                  <label
-                    className="block text-sm font-medium"
-                    htmlFor="address"
-                  >
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300"
-                    placeholder="123 Main St"
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    className="block text-sm font-medium"
-                    htmlFor="addressLine"
-                  >
-                    Address Line 2
-                  </label>
-                  <input
-                    type="text"
-                    id="addressLine"
-                    name="addressLine"
-                    value={formData.addressLine}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300"
-                    placeholder="Apt 4B"
-                  />
-                </div>
-                <div>
-                  <label
-                    className="block text-sm font-medium"
-                    htmlFor="deliveryInstructions"
-                  >
-                    Delivery Instructions
-                  </label>
-                  <textarea
-                    id="deliveryInstructions"
-                    name="deliveryInstructions"
-                    value={formData.deliveryInstructions}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300"
-                    placeholder="Leave at the front door."
-                  />
-                </div>
+                {orderType == "delivery" && (
+                  <div className="space-y-6">
+                    <div>
+                      <label
+                        className="block text-sm font-medium"
+                        htmlFor="address"
+                      >
+                        Address
+                      </label>
+                      <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        className="w-full p-2 border border-gray-300"
+                        placeholder="123 Main St"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label
+                        className="block text-sm font-medium"
+                        htmlFor="addressLine"
+                      >
+                        Address Line 2
+                      </label>
+                      <input
+                        type="text"
+                        id="addressLine"
+                        name="addressLine"
+                        value={formData.addressLine}
+                        onChange={handleInputChange}
+                        className="w-full p-2 border border-gray-300"
+                        placeholder="Apt 4B"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        className="block text-sm font-medium"
+                        htmlFor="deliveryInstructions"
+                      >
+                        Delivery Instructions
+                      </label>
+                      <textarea
+                        id="deliveryInstructions"
+                        name="deliveryInstructions"
+                        value={formData.deliveryInstructions}
+                        onChange={handleInputChange}
+                        className="w-full p-2 border border-gray-300"
+                        placeholder="Leave at the front door."
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* Order Type Selection */}
-                <div className="mt-4">
+                <div className="mt-4 font-bold">
                   <label className="block text-sm font-medium">
                     Order Type
                   </label>
                   <div className="flex space-x-4">
-                    <div>
+                    <div className="flex items-center justify-center">
                       <input
                         type="radio"
                         id="delivery"
@@ -268,11 +274,11 @@ export default function CheckoutPage() {
                         checked={orderType === "delivery"}
                         onChange={handleOrderTypeChange}
                       />
-                      <label htmlFor="delivery" className="ml-2 text-sm">
-                        Delivery
+                      <label htmlFor="delivery" className="ml-2 flex items-center justify-center">
+                        <MdDeliveryDining className="inline mr-2" /> Delivery
                       </label>
                     </div>
-                    <div>
+                    <div className="flex items-center justify-center">
                       <input
                         type="radio"
                         id="pickup"
@@ -281,8 +287,8 @@ export default function CheckoutPage() {
                         checked={orderType === "pickup"}
                         onChange={handleOrderTypeChange}
                       />
-                      <label htmlFor="pickup" className="ml-2 text-sm">
-                        Pickup
+                      <label htmlFor="pickup" className="ml-2 flex items-center justify-center">
+                        <FaShoppingBag className="inline mr-2" /> Pickup
                       </label>
                     </div>
                   </div>

@@ -133,7 +133,6 @@ const OrderPage = () => {
     return orders.slice(startIndex, startIndex + ordersPerPage);
   };
 
-
   if (loading) {
     return <Loading />;
   }
@@ -284,14 +283,7 @@ const OrderSection = ({ title, orders, calculateTotal }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div className="px-2 py-1 font-bold text-white bg-yellow-400 rounded text-center">
-                      {order.order_status
-                        .split(" ")
-                        .map(
-                          (part) =>
-                            part.charAt(0).toUpperCase() +
-                            part.slice(1).toLowerCase()
-                        )
-                        .join(" ")}
+                      {order.order_status.replace(/\b\w/g, (c) => c.toUpperCase())}
                     </div>
                   </td>
                 </tr>

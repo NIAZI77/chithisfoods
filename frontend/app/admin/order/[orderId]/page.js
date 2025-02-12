@@ -2,6 +2,7 @@
 
 import Loading from "@/app/loading";
 import Custom404 from "@/app/not-found";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
@@ -111,21 +112,18 @@ const Order = () => {
             </p>
           )}
           <p className="text-gray-600 mb-4 text-center text-xl font-bold">
-            {order.orderType
-              .split(" ")
-              .map(
-                (part) =>
-                  part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-              )
-              .join(" ")}
+            {order.orderType}
           </p>
         </div>
         {order.map((order, index) => (
           <div key={index}>
             <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-4">
-                <div className="font-bold text-xl">
-                  By {order.products[0].vendor_name}
+                <div className="font-bold text-xl hover:underline">
+                  <Link href={`/vendors/${order.vendor_id}`}>
+                    {" "}
+                    By {order.vendor_name}
+                  </Link>
                 </div>
                 <div
                   className={`px-3 py-1 rounded-full text-sm font-bold ${
@@ -134,14 +132,7 @@ const Order = () => {
                       : "bg-green-300 text-green-800"
                   }`}
                 >
-                  {order.order_status
-                    .split(" ")
-                    .map(
-                      (part) =>
-                        part.charAt(0).toUpperCase() +
-                        part.slice(1).toLowerCase()
-                    )
-                    .join(" ")}
+                  {order.order_status.replace(/\b\w/g, (c) => c.toUpperCase())}
                 </div>
               </div>
               <h4 className="font-semibold text-lg text-gray-800 mb-3 mt-6">

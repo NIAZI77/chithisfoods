@@ -190,16 +190,21 @@ const Order = () => {
             <span className="font-bold text-gray-800">Customer Name</span>{" "}
             {order.customer_name}
           </p>
-          <p className="text-gray-600 mb-2">
-            <span className="font-bold text-gray-800">Email</span> {order.email}
-          </p>
+          {order.email && (
+            <p className="text-gray-600 mb-2">
+              <span className="font-bold text-gray-800">Email</span>{" "}
+              {order.email}
+            </p>
+          )}
           <p className="text-gray-600 mb-4">
             <span className="font-bold text-gray-800">Phone</span> {order.phone}
           </p>
-          <p className="text-gray-600 mb-4">
-            <span className="font-bold text-gray-800">Delivery Address</span>{" "}
-            {order.address}
-          </p>
+          {order.address && (
+            <p className="text-gray-600 mb-4">
+              <span className="font-bold text-gray-800">Delivery Address</span>{" "}
+              {order.address}
+            </p>
+          )}
           {order.addressLine && (
             <p className="text-gray-600 mb-4">
               <span className="font-bold text-gray-800">
@@ -208,15 +213,17 @@ const Order = () => {
               {order.addressLine}
             </p>
           )}
-          {order.order_status === "cancelled" ||
-            (order.order_status === "declined" && (
-              <p className=" mb-4 text-xl flex items-center justify-center flex-col text-center">
-                <span className="font-bold text-center text-red-600">
-                  {order.order_status} Reason <br />
-                </span>{" "}
-                <span>{order.reason}</span>
-              </p>
-            ))}
+          {(order.order_status === "cancelled" ||
+            order.order_status === "declined") && (
+            <p className=" mb-4 text-xl flex items-center justify-center flex-col text-center">
+              <span className="font-bold text-center">
+                {order.order_status} Reason <br />
+              </span>{" "}
+              <span className="inline-block bg-red-500 px-4 py-1 rounded-full font-bold text-white">
+                {order.reason}
+              </span>
+            </p>
+          )}
 
           <p className="text-gray-600 mb-4 text-center text-xl font-bold">
             {order.orderType
