@@ -129,14 +129,21 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-## Contact Us
-
-If you have any questions, feedback, or concerns, feel free to get in touch with us:
-
-- **Email**: support@chithisfoods.com
-- **Phone**: (XXX) XXX-XXXX
-- **Social Media**: [Facebook](https://facebook.com/chithisfoods), [Instagram](https://instagram.com/chithisfoods)
-
----
-
 Thank you for visiting **ChithisFoods.com** – your source for delicious, homemade meals delivered with love!
+
+
+
+
+# Website Configuration
+
+This README provides instructions on how to configure the environment variables for your website. Make sure to update the values in your `.env` file with the correct information before deploying your application.
+
+## Environment Variables
+
+### 1. Host Configuration
+
+The following environment variables define the host URLs for your website and Strapi backend.
+
+```bash
+NEXT_PUBLIC_HOST=your-app-url
+NEXT_PUBLIC_STRAPI_HOST=your-strapi-url
