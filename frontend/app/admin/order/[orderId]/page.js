@@ -119,10 +119,10 @@ const Order = () => {
           <div key={index}>
             <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-4">
-                <div className="font-bold text-xl hover:underline">
+                <div className="font-bold text-xl">
                   <Link href={`/vendors/${order.vendor_id}`}>
-                    {" "}
-                    By {order.vendor_name}
+                    By{" "}
+                    <span className="hover:underline">{order.vendor_name}</span>
                   </Link>
                 </div>
                 <div

@@ -297,7 +297,7 @@ const Page = () => {
                       title={process.env.NEXT_PUBLIC_NAME}
                       href={`/vendors/${vendor.documentId}`}
                     >
-                      By {vendor.name}
+                      By <span className="hover:underline">{vendor.name}</span>
                     </Link>
                   </div>
                 </div>

@@ -37,9 +37,9 @@ const ProductCard = ({ product, logo, location, documentId }) => {
     <Link
       title={product.name || process.env.NEXT_PUBLIC_NAME}
       href={`/product/${documentId}?productId=${product?.id}`}
-      className="content-center w-fit"
+      className="content-center w-fit p-2"
     >
-      <div className="max-w-72 w-72 h-80 mx-auto overflow-hidden bg-slate-50 rounded-md p-4 relative shadow-md transition hover:shadow-lg">
+      <div className="max-w-72 w-72 h-84 mx-auto overflow-hidden bg-slate-50 rounded-md p-4 relative shadow-md transition hover:shadow-lg">
         {product?.dish_availability === "Unavailable" && (
           <div className="bg-rose-600 px-2 py-1 rounded-full absolute top-4 left-4 font-bold text-white text-xs">
             Unavailable Now
@@ -80,6 +80,9 @@ const ProductCard = ({ product, logo, location, documentId }) => {
                   )
                 : product?.name?.replace(/\b\w/g, (c) => c.toUpperCase())}
             </h2>
+            <div className="inline-flex items-center justify-end text-orange-500 px-2 text-xs bg-orange-50 rounded-lg font-bold">
+            {product?.category?.replace(/\b\w/g, (c) => c.toUpperCase())}
+            </div>
             <div className="text-sm font-semibold text-gray-500">
               {product?.vegetarian ? "Vegetarian Dish" : "Non-Vegetarian Dish"}
             </div>

@@ -49,6 +49,7 @@ const VendorCard = ({ vendor }) => {
     <Link
       title={vendor.name || process.env.NEXT_PUBLIC_NAME}
       href={`/vendors/${vendor?.documentId}`}
+      className="p-2"
     >
       <div className="max-w-72 w-72 h-72 overflow-hidden bg-slate-50 rounded-md p-4 relative shadow-md transition hover:shadow-lg">
         {vendor?.isTopRated && (
