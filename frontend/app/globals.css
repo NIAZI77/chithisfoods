@@ -171,3 +171,19 @@ button {
     @apply bg-background text-foreground;
   }
 }
+@keyframes zoomInOut {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.5); /* Zoom in */
+  }
+  100% {
+    transform: scale(1); /* Back to normal */
+  }
+}
+
+.zoom-animation {
+  animation: zoomInOut 1.5s ease-in-out infinite;
+  transition: transform 0.3s ease-in-out;
+}

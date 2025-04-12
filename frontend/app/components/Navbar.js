@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   FaUser,
@@ -12,6 +12,8 @@ import { FaGear, FaShop } from "react-icons/fa6";
 import { RiFileList2Fill, RiMenu3Fill } from "react-icons/ri";
 import { BiSolidFoodMenu } from "react-icons/bi";
 import { CgClose } from "react-icons/cg";
+import { usePathname, useRouter } from "next/navigation";
+import { deleteCookie, getCookie } from "cookies-next";
 import Image from "next/image";
 import {
   DropdownMenu,
@@ -24,9 +26,24 @@ import {
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [login, setLogin] = useState(true);
+  const [login, setLogin] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
   const closeMenuOnBlur = () => {
     setTimeout(() => setMenuOpen(false), 50);
+  };
+  useEffect(() => {
+    const jwt = getCookie("jwt");
+    const user = getCookie("user");
+    setLogin(!!jwt && !!user);
+  }, [pathname]);
+
+  const handleLogout = () => {
+    deleteCookie("jwt");
+    deleteCookie("user");
+    setLogin(false);
+    router.push("/");
   };
   return (
     <>
@@ -97,7 +114,7 @@ export default function Navbar() {
                     </Link>
 
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="w-full">
+                    <DropdownMenuItem className="w-full" onClick={handleLogout}>
                       <FaSignOutAlt /> <span>Logout</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>

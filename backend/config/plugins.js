@@ -30,4 +30,11 @@ module.exports = ({ env }) => ({
       },
     },
   },
+  'users-permissions': {
+    config: {
+      email: {
+        confirmation: true,
+      },
+    },
+  },
 });

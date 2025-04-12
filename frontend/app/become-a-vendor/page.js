@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaCamera } from "react-icons/fa";
 import Hero from "../components/Hero";
 
 export default function BecomeVendor() {
@@ -12,6 +12,7 @@ export default function BecomeVendor() {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const totalSteps = 4;
+  const [email, setEmail] = useState("");
 
   const [formData, setFormData] = useState({
     businessName: "",
@@ -20,14 +21,33 @@ export default function BecomeVendor() {
     fullName: "",
     phoneNumber: "",
     emailAddress: "",
-    profilePicture: "",
-    coverImage: "",
+    logo: { id: 0, url: "" },
+    coverImage: { id: 0, url: "" },
     ein: "",
     governmentId: "",
     tin: "",
     salesTaxPermit: "",
     bankAccount: "",
   });
+
+  const getCookie = (name) => {
+    const cookieArr = document.cookie.split(";");
+    for (let cookie of cookieArr) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + "=")) {
+        return decodeURIComponent(cookie.substring(name.length + 1));
+      }
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const storedJwt = getCookie("jwt");
+    const storedUser = getCookie("user");
+    setEmail(storedUser);
+
+    if (!storedJwt || !storedUser) router.push("/login");
+  }, [router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,7 +64,7 @@ export default function BecomeVendor() {
       case 2:
         return ["fullName", "phoneNumber", "emailAddress"];
       case 3:
-        return ["profilePicture", "coverImage"];
+        return ["logo", "coverImage"];
       case 4:
         return ["ein", "governmentId", "tin", "salesTaxPermit", "bankAccount"];
       default:
@@ -55,9 +75,10 @@ export default function BecomeVendor() {
   const handleNext = (e) => {
     e.preventDefault();
     const requiredFields = getFieldsForStep();
-    const allFilled = requiredFields.every(
-      (field) => formData[field].trim() !== ""
-    );
+    const allFilled = requiredFields.every((field) => {
+      const value = formData[field];
+      return typeof value === "object" ? value.url : value.trim() !== "";
+    });
 
     if (!allFilled) {
       toast.error("Fill all fields of this step");
@@ -71,14 +92,79 @@ export default function BecomeVendor() {
     }
   };
 
-  const handleSubmit = () => {
+  const uploadImage = async (file, name) => {
+    const form = new FormData();
+    form.append("files", file);
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: form,
+        }
+      );
+      if (!res.ok) {
+        toast.error("Error uploading image");
+        return;
+      }
+
+      const data = await res.json();
+      const { id, url } = data[0];
+      setFormData((prevData) => ({ ...prevData, [name]: { id, url } }));
+      toast.success("Image uploaded successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Error uploading image");
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    const file = files[0];
+    if (file) uploadImage(file, name);
+  };
+
+  const handleSubmit = async () => {
     setSubmitting(true);
-    console.log(JSON.stringify(formData));
-    setTimeout(() => {
-      // router.push("/");
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: JSON.stringify({
+            data: {
+              ...formData,
+              email: email,
+              description: "Vendor registration",
+            },
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success("Now You Are A Vendor");
+        setTimeout(() => {
+          router.push("/vendor/dashboard");
+        }, 1500);
+      } else {
+        toast.error(data?.error?.message || "An error occurred");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("An error occurred while submitting the form");
+    } finally {
       setSubmitting(false);
-      toast.success("Now You Are A Vendor");
-    }, 1500);
+    }
   };
 
   return (
@@ -129,6 +215,7 @@ export default function BecomeVendor() {
                 />
               </div>
             )}
+
             {step === 2 && (
               <div>
                 <h2 className="font-bold text-2xl my-4">Vendor Details</h2>
@@ -157,25 +244,60 @@ export default function BecomeVendor() {
                 />
               </div>
             )}
+
             {step === 3 && (
               <div>
                 <h2 className="font-bold text-2xl my-4">Display Profile</h2>
-                <input
-                  name="profilePicture"
-                  value={formData.profilePicture}
-                  onChange={handleChange}
-                  placeholder="Profile Picture URL"
-                  className="w-full p-3 border rounded-lg my-2"
-                />
-                <input
-                  name="coverImage"
-                  value={formData.coverImage}
-                  onChange={handleChange}
-                  placeholder="Cover Image URL"
-                  className="w-full p-3 border rounded-lg my-2"
-                />
+                <div className="relative w-full mb-16">
+                  <div
+                    className="bg-cover bg-center w-full"
+                    style={{
+                      backgroundImage: formData.coverImage.url
+                        ? `url('${formData.coverImage.url}')`
+                        : "url('/img.png')",
+                      aspectRatio: "3 / 1",
+                    }}
+                  >
+                    <input
+                      type="file"
+                      id="coverImage"
+                      name="coverImage"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                    <label
+                      htmlFor="coverImage"
+                      className="w-5 h-5 overflow-hidden absolute right-10 bottom-5 cursor-pointer"
+                    >
+                      <FaCamera />
+                    </label>
+                  </div>
+                  <div className="absolute bottom-[-50px] left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white">
+                    <img
+                      height={100}
+                      width={100}
+                      src={formData.logo.url || "/fallback-logo.png"}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <label
+                    htmlFor="logo"
+                    className="absolute bottom-[-40px] ml-1 cursor-pointer left-1/2 transform -translate-x-1/2 w-5 h-5 overflow-hidden"
+                  >
+                    <input
+                      type="file"
+                      id="logo"
+                      name="logo"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                    <FaCamera />
+                  </label>
+                </div>
               </div>
             )}
+
             {step === 4 && (
               <div>
                 <h2 className="font-bold text-2xl my-4">
@@ -236,8 +358,11 @@ export default function BecomeVendor() {
                 } bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:bg-rose-300 disabled:cursor-not-allowed`}
                 disabled={submitting}
               >
-               {submitting ? "Submitting..." : step === totalSteps ? "Submit" : "Next"}
-
+                {submitting
+                  ? "Submitting..."
+                  : step === totalSteps
+                  ? "Submit"
+                  : "Next"}
               </button>
             </div>
           </form>
