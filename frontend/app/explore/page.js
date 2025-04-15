@@ -7,8 +7,13 @@ import TopCategories from "../components/TopCategories";
 import FoodPromo from "../components/FoodPromo";
 import TopChefs from "../components/TopChefs";
 import PopularDishes from "../components/PopularDishes";
-
+import { useRouter } from "next/navigation";
 export default function Explore() {
+  const router = useRouter();
+  const handleChangeLocation = () => {
+    router.push("/");
+    // localStorage.removeItem("zipcode");
+  };
   return (
     <div className="space-y-10">
       <section className="bg-slate-800 min-h-screen flex items-center px-4">
@@ -21,9 +26,19 @@ export default function Explore() {
             <p className="text-lg text-gray-300">
               Order food from favorite chefs near you.
             </p>
-            <div className="flex items-center justify-center lg:justify-start gap-4 text-green-400 font-bold text-5xl">
-              <FiMapPin />
-              30340
+            <div className="flex space-x-4 justify-center lg:justify-start">
+              <div className="flex items-center justify-center lg:justify-start gap-4 text-green-400 font-bold md:text-5xl text-xl">
+                <FiMapPin />
+                30340
+              </div>
+              <div className="flex items-center justify-center py-4">
+                <button
+                  onClick={handleChangeLocation}
+                  className="bg-green-400 text-white md:px-4 px-2 md:py-3 py-1.5 rounded-full shadow-md hover:bg-green-500 transition-all font-semibold"
+                >
+                  Change Location
+                </button>
+              </div>
             </div>
           </div>
 

@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Lobster&family=Special+Gothic+Condensed+One&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -6,16 +7,33 @@
 @font-face {
   font-family: "AirbnbCereal";
   src: url("/Fonts/AirbnbCereal.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
+}
+
+body {
+  font-family: "AirbnbCereal", sans-serif;
+  user-select: none;
+}
+
+h1,
+h2 {
+  font-family: "Lobster", "Special Gothic Condensed One", cursive;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  user-select: text;
+}
+p {
+  user-select: text;
 }
 
 html {
   scroll-behavior: smooth;
 }
 * {
-  font-family: "AirbnbCereal", sans-serif !important;
   font-style: normal;
   line-height: 1.5;
   word-spacing: 5px;

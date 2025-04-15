@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
+import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import {
   FaApple,
@@ -191,7 +191,11 @@ export default function SignupPage() {
               Login
             </Link>
           </p>
-
+          <div className="relative my-4 flex items-center justify-center overflow-hidden">
+            <Separator />
+            <div className="px-2 text-center bg-background text-sm">OR</div>
+            <Separator />
+          </div>
           <div className="mt-6 space-y-3">
             <button
               onClick={handleGoogleSignup}
@@ -211,7 +215,6 @@ export default function SignupPage() {
           </div>
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 }

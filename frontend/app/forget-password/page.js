@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { getCookie } from "cookie-next";
+import { toast } from "react-toastify";
 import Link from "next/link";
 import { FaEnvelope } from "react-icons/fa";
 import Hero from "../components/Hero";
@@ -13,35 +13,24 @@ export default function ForgetPassword() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const getCookie = (name) => {
-    const cookieArr = document.cookie.split(";");
-    for (let i = 0; i < cookieArr.length; i++) {
-      let cookie = cookieArr[i].trim();
-      if (cookie.startsWith(name + "=")) {
-        return decodeURIComponent(cookie.substring(name.length + 1));
-      }
-    }
-    return null;
-  };
-
   useEffect(() => {
-    const storedJwt = getCookie("jwt");
-    const storedUser = getCookie("user");
+    const jwt = getCookie("jwt");
+    const user = getCookie("user");
 
-    if (storedJwt && storedUser) {
+    if (jwt && user) {
       router.push("/");
     }
   }, [router]);
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     if (!email) {
       toast.error("Please enter your email address.");
-      setLoading(false);
       return;
     }
+
+    setLoading(true);
 
     try {
       const response = await fetch(
@@ -60,13 +49,11 @@ export default function ForgetPassword() {
 
       if (response.ok) {
         toast.success("Password reset link sent! Please check your email.");
-        setTimeout(() => {
-          router.push("/login");
-        }, 2000);
+        setTimeout(() => router.push("/login"), 2000);
       } else {
         toast.error(data?.error?.message || "Something went wrong.");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while processing your request.");
     } finally {
       setLoading(false);
@@ -118,8 +105,6 @@ export default function ForgetPassword() {
           </div>
         </div>
       </div>
-
-      <ToastContainer />
     </>
   );
 }

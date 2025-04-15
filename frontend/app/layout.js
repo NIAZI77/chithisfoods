@@ -1,5 +1,7 @@
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 
 export const metadata = {
@@ -15,6 +17,7 @@ export default function RootLayout({ children }) {
         <Navbar />
         <div className="min-h-screen">{children}</div>
         <Footer />
+        <ToastContainer />
       </body>
     </html>
   );

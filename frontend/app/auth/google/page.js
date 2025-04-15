@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { setCookie } from "cookies-next";
 import Loading from "@/app/loading";
 
@@ -26,20 +26,15 @@ const GoogleAuth = () => {
 
         const data = await response.json();
 
-        if (response.ok && data?.jwt && data?.user) {
+        if (response.ok) {
           toast.success("Logged in successfully!");
-
-          const options = {
-            path: "/",
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-          };
-
-          setCookie("jwt", data.jwt, options);
-          setCookie("user", JSON.stringify(data.user), options);
-
+          const expires = new Date();
+          expires.setDate(expires.getDate() + 7);
+          setCookie("jwt", data.jwt, { expires });
+          setCookie("user", data.user.email, { expires });
           setTimeout(() => router.push("/"), 1000);
         } else {
-          toast.error("An error occurred during login.");
+          toast.error(data.error.message || "An error occurred during login.");
           setTimeout(() => router.push("/login"), 1000);
         }
       } catch (err) {
@@ -54,7 +49,6 @@ const GoogleAuth = () => {
   return (
     <>
       <Loading />
-      <ToastContainer />
     </>
   );
 };

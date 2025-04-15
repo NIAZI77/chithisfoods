@@ -4,7 +4,7 @@ import Image from "next/image";
 const Hero = () => {
   return (
     <div>
-      <div className="flex bg-gradient-to-b from-rose-100 to-green-100 justify-center items-center p-6 md:p-12 min-h-screen rounded-lg shadow-sm">
+      <div className="flex bg-gradient-to-b from-rose-100 to-green-100 justify-center items-center p-6 md:p-12 min-h-screen rounded-lg shadow-sm sticky top-20 z-10">
         <div className="text-center">
           <Image
             src="/logo.png"

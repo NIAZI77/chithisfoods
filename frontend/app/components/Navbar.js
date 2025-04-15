@@ -2,9 +2,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  FaUser,
-  FaSearch,
-  FaShoppingCart,
   FaSignInAlt,
   FaSignOutAlt,
 } from "react-icons/fa";
@@ -23,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Search, ShoppingCart, User } from "lucide-react";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -65,20 +63,20 @@ export default function Navbar() {
               href="/search"
               className="h-10 w-10 text-xl flex items-center justify-center rounded-full hover:text-rose-500 transition-all"
             >
-              <FaSearch />
+              <Search />
             </Link>
             <Link
               href="/cart"
               className="h-10 w-10 text-xl flex items-center justify-center rounded-full hover:text-rose-500 transition-all"
             >
-              <FaShoppingCart />
+              <ShoppingCart />
             </Link>
 
             {login ? (
               <div className="h-10 w-10 text-xl flex items-center justify-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger>
-                    <FaUser className="hover:text-rose-500 transition-all" />
+                    <User className="hover:text-rose-500 transition-all" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="m-2">
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>

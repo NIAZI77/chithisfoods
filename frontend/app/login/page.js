@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "react-toastify";
 import Link from "next/link";
 import {
   FaApple,
@@ -23,6 +23,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+
 
   useEffect(() => {
     const jwt = getCookie("jwt");
@@ -55,15 +57,14 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-          toast.success("Logged in successfully!");
-          const expires = new Date();
-          expires.setDate(expires.getDate() + 7);
-          setCookie("user", data.user.email, { expires });
-          setCookie("jwt", data.jwt, { expires });
-          setTimeout(() => router.push("/"), 1000);
-       
+        toast.success("Logged in successfully!");
+        const expires = new Date();
+        expires.setDate(expires.getDate() + 7);
+        setCookie("jwt", data.jwt, { expires });
+        setCookie("user", data.user.email, { expires });
+        setTimeout(() => router.push("/"), 1000);
       } else {
-        toast.error("Invalid credentials.");
+        toast.error(data.error.message || "Invalid credentials.");
       }
     } catch (error) {
       toast.error("An error occurred during login.");
@@ -140,7 +141,11 @@ export default function LoginPage() {
               Sign Up
             </Link>
           </p>
-
+          <div className="relative my-4 flex items-center justify-center overflow-hidden">
+            <Separator />
+            <div className="px-2 text-center bg-background text-sm">OR</div>
+            <Separator />
+          </div>
           <div className="mt-6 space-y-3">
             <button
               className="w-full flex items-center justify-start border p-3 px-10 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all"
@@ -164,7 +169,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 }

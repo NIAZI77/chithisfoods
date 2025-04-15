@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { getCookie } from "cookie-next";
+import { toast } from "react-toastify";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import Hero from "../components/Hero";
 
@@ -19,35 +19,33 @@ export default function ResetPasswordPage() {
   const code = searchParams.get("code");
 
   useEffect(() => {
-    const jwt = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("jwt="));
-    const user = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("user="));
-    if (jwt && user) router.push("/");
-  }, []);
+    const jwt = getCookie("jwt");
+    const user = getCookie("user");
+
+    if (jwt && user) {
+      router.push("/");
+    }
+  }, [router]);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    
+
     if (password.length < 6 || password.length > 15) {
       toast.error("Password must be between 6 and 15 characters.");
-      setLoading(false);
       return;
     }
+
     if (!code) {
       toast.error("Reset code is missing or invalid.");
-      setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match.");
-      setLoading(false);
       return;
     }
+
+    setLoading(true);
 
     try {
       const res = await fetch(
@@ -140,7 +138,6 @@ export default function ResetPasswordPage() {
           </div>
         </div>
       </div>
-      <ToastContainer />
     </>
   );
 }
