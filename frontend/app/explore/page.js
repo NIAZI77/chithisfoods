@@ -19,7 +19,7 @@ export default function Explore() {
       <section className="bg-slate-800 min-h-screen flex items-center px-4">
         <div className="w-full md:w-[90%] mx-auto grid lg:grid-cols-2 grid-cols-1 items-center">
           <div className="space-y-5 order-2 text-center lg:text-left lg:order-1">
-            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight text-white">
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight text-white cursive">
               Tasty food in your <br />
               <span className="text-green-400">Neighborhood</span>
             </h1>

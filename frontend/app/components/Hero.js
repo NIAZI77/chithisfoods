@@ -14,7 +14,7 @@ const Hero = () => {
             className="mx-auto"
           />
 
-          <h2 className="text-lg font-semibold mt-4">
+          <h2 className="text-lg font-semibold mt-4 cursive">
             Welcome to Chithi&apos;s Foods
           </h2>
           <p className="text-gray-600">Order your favorite dishes with ease</p>

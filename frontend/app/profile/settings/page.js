@@ -77,7 +77,8 @@ export default function AccountSettings() {
     }));
   };
 
-  const handleProfileSave = async () => {
+  const handleProfileSave = async (e) => {
+    e.preventDefault();
     if (!username) {
       toast.error("Username cannot be empty.");
       return;

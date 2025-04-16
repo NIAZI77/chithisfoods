@@ -19,7 +19,7 @@ const FoodPromo = () => {
       </div>
 
       <div className="order-2 md:order-1 text-center md:text-left md:col-span-2 md:px-4">
-        <h2 className="lg:text-4xl md:text-2xl text-xl font-extrabold text-gray-900">
+        <h2 className="lg:text-4xl md:text-2xl text-xl font-extrabold text-gray-900 cursive">
           A Guilt-Free Shortcut to <br />
           <span className="text-green-500">Delicious Dinners</span>
         </h2>

@@ -21,7 +21,7 @@ const page = () => {
         </div>
 
         <div className="text-center px-4 max-w-2xl">
-          <h1 className="text-4xl md:text-6xl font-extrabold">
+          <h1 className="text-4xl md:text-6xl font-extrabold cursive">
             Claim Best Offer
             <br /> on
             <span className="font-semibold text-rose-500"> Food & Chef</span>

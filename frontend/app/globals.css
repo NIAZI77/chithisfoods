@@ -14,8 +14,7 @@ body {
   user-select: none;
 }
 
-h1,
-h2 {
+.cursive {
   font-family: "Lobster", "Special Gothic Condensed One", cursive;
 }
 h1,
