@@ -1,51 +1,70 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { Star, Plus } from 'lucide-react';
+import Image from "next/image";
+import { Star, Plus } from "lucide-react";
+import { FaUser } from "react-icons/fa";
 
 export default function ProductCard() {
+  const product = {
+    name: "Spicy Chicken Biryani",
+    image: "/baryani.jpeg",
+    price: 9.99,
+    rating: 4.5,
+    servings: 2,
+    category: "Main Course",
+    subcategory: "Rice Dishes",
+    chef: {
+      name: "Ali Raza",
+      avatar: "/person.jpeg",
+      rating: 4.9,
+    },
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-md p-4 w-72 ">
+    <div className="bg-white rounded-2xl shadow-md p-4 w-72">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Image
-            src="/person.jpeg" // Replace with actual image or use a placeholder
-            alt="Seller"
+            src={product.chef.avatar}
+            alt={product.chef.name}
             width={32}
             height={32}
             className="rounded-full w-8 h-8 object-cover object-center"
           />
-          <p className="font-semibold text-sm">Smith’s Food</p>
+          <p className="font-semibold text-sm">{product.chef.name}</p>
         </div>
         <div className="flex items-center gap-1 text-yellow-500 text-sm font-semibold">
           <Star className="w-4 h-4 fill-yellow-500" />
-          <span>4.8</span>
+          <span>{product.rating}</span>
         </div>
       </div>
 
       {/* Image */}
       <div className="rounded-xl overflow-hidden mb-3">
         <Image
-          src="/food.png" // Replace with actual image path
-          alt="Sausage Pasta"
+          src={product.image}
+          alt={product.name}
           width={268}
           height={144}
-          className="w-64 h-36 aspect-video object-cover object-center bg-red-100 rounded-xl mx-auto"
+          className="w-64 h-36 aspect-video object-cover object-center rounded-xl mx-auto"
         />
       </div>
 
       {/* Title and Serving */}
       <div className="flex items-center justify-between mb-1">
-        <h3 className="text-lg font-semibold">Sausage Pasta</h3>
-        <div className="bg-gray-100 text-gray-700 text-sm px-2 py-0.5 rounded-lg">
-          Servings 1-2
+        <h3 className="text-lg font-semibold">{product.name}</h3>
+        <div className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-sm flex items-center gap-1 justify-center">
+          Servings <FaUser /> {product.servings}
         </div>
       </div>
 
-      {/* Category and Distance */}
+      {/* Category and Subcategory */}
       <p className="text-sm text-gray-500">
-        Cooked Food · <span className="text-green-500 font-medium">Pasta</span>
+        {product.category} ·{" "}
+        <span className="text-green-500 font-medium">
+          {product.subcategory}
+        </span>
       </p>
 
       {/* Add to Cart Section */}
@@ -54,7 +73,9 @@ export default function ProductCard() {
           <Plus className="w-6 h-6 p-1 bg-rose-600 text-white font-bold rounded-full" />
           ADD TO CART
         </div>
-        <div className="text-red-500 font-bold text-md text-right">$19.99</div>
+        <div className="text-red-500 font-bold text-md text-right">
+          ${product.price.toFixed(2)}
+        </div>
       </div>
     </div>
   );

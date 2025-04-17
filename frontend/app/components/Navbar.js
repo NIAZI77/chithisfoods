@@ -26,6 +26,12 @@ export default function Navbar() {
     const jwt = getCookie("jwt");
     const user = getCookie("user");
     setLogin(!!jwt && !!user);
+  }, []);
+
+  useEffect(() => {
+    const jwt = getCookie("jwt");
+    const user = getCookie("user");
+    setLogin(!!jwt && !!user);
   }, [pathname]);
 
   const handleLogout = () => {

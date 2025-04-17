@@ -1,15 +1,14 @@
 import React from "react";
 import FoodPromo from "./components/FoodPromo";
 import Testimonials from "./components/Testimonial";
-import { FaBitbucket } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 
 const page = () => {
   return (
     <div>
-      <section className="relative h-screen flex items-center justify-center text-white">
-        <div className="absolute inset-0 z-[-1]">
+      <section className="relative h-screen max-h-[700px] flex items-center justify-center text-white">
+        <div className="absolute inset-0 -z-10">
           <Image
             height={100}
             width={100}
@@ -41,7 +40,7 @@ const page = () => {
         </div>
       </section>
       <section className="py-12 bg-white">
-        <div className="container mx-auto text-center">
+        <div className="text-center">
           <h4 className="text-rose-500 font-semibold tracking-wide uppercase">
             What We Serve
           </h4>
@@ -50,9 +49,9 @@ const page = () => {
             Delivery Partner
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 w-[90%] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 w-[95%] mx-auto">
             {/* Card 1 */}
-            <div className="flex flex-col items-center text-center space-y-4 p-6">
+            <div className="flex flex-col items-center text-center space-y-4">
               <Image
                 height={100}
                 width={100}
@@ -71,7 +70,7 @@ const page = () => {
             </div>
 
             {/* Card 2 */}
-            <div className="flex flex-col items-center text-center space-y-4 p-6">
+            <div className="flex flex-col items-center text-center space-y-4">
               <Image
                 height={100}
                 width={100}
@@ -90,7 +89,7 @@ const page = () => {
             </div>
 
             {/* Card 3 */}
-            <div className="flex flex-col items-center text-center space-y-4 p-6">
+            <div className="flex flex-col items-center text-center space-y-4">
               <Image
                 height={100}
                 width={100}

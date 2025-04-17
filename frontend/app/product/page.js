@@ -1,21 +1,20 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LuPlus, LuMinus } from "react-icons/lu";
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaUser } from "react-icons/fa";
 import { Timer } from "lucide-react";
 
-const product = {
+const baseProduct = {
   name: "Spicy Chicken Biryani",
   image: "/baryani.jpeg",
-  price: 14.99,
+  price: 9.99,
   rating: 4.5,
   reviewsCount: 2,
   servings: 2,
   category: "Main Course",
   subcategory: "Rice Dishes",
   preparation_time: 30,
-
   description:
     "Aromatic basmati rice cooked with tender chicken, Indian spices, and herbs. Served with raita and salad.",
   chef: {
@@ -32,12 +31,6 @@ const product = {
     "Onions",
     "Mint",
   ],
-  nutrition: {
-    calories: "560 kcal",
-    fat: "18g",
-    protein: "35g",
-    carbs: "60g",
-  },
   reviews: [
     {
       name: "Emily R.",
@@ -50,11 +43,57 @@ const product = {
       text: "Great flavor, but could use a bit more chicken.",
     },
   ],
+  extras: [
+    {
+      name: "Extra Chicken Piece",
+      options: [
+        { label: "1 Piece", price: 2 },
+        { label: "2 Pieces", price: 3.5 },
+      ],
+    },
+  ],
+  toppings: [
+    {
+      name: "Raita",
+      options: [{ label: "Included", price: 1.5 }],
+    },
+  ],
 };
 
 export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("ingredients");
+  const [product, setProduct] = useState(baseProduct);
+  const [selectedExtras, setSelectedExtras] = useState({});
+  const [selectedToppings, setSelectedToppings] = useState({});
+
+  useEffect(() => {
+    const productWithNoneOptions = {
+      ...baseProduct,
+      extras: baseProduct.extras.map((extra) => ({
+        ...extra,
+        options: [{ label: "None", price: 0 }, ...extra.options],
+      })),
+      toppings: baseProduct.toppings.map((topping) => ({
+        ...topping,
+        options: [{ label: "None", price: 0 }, ...topping.options],
+      })),
+    };
+    setProduct(productWithNoneOptions);
+
+    const defaultExtras = {};
+    productWithNoneOptions.extras.forEach((extra) => {
+      defaultExtras[extra.name] = 0;
+    });
+
+    const defaultToppings = {};
+    productWithNoneOptions.toppings.forEach((topping) => {
+      defaultToppings[topping.name] = 0;
+    });
+
+    setSelectedExtras(defaultExtras);
+    setSelectedToppings(defaultToppings);
+  }, []);
 
   const renderStars = (rating) =>
     Array.from({ length: 5 }, (_, i) => (
@@ -65,6 +104,41 @@ export default function ProductPage() {
         }`}
       />
     ));
+
+  const getTotalPrice = () => {
+    const extrasPrice = Object.values(selectedExtras).reduce(
+      (sum, price) => sum + price,
+      0
+    );
+    const toppingsPrice = Object.values(selectedToppings).reduce(
+      (sum, price) => sum + price,
+      0
+    );
+    return (product.price + extrasPrice + toppingsPrice) * quantity;
+  };
+
+  const handleAddToCart = () => {
+    const extras = Object.entries(selectedExtras)
+      .filter(([, price]) => price > 0)
+      .map(([name, price]) => ({ name, price }));
+
+    const toppings = Object.entries(selectedToppings)
+      .filter(([, price]) => price > 0)
+      .map(([name, price]) => ({ name, price }));
+
+    const cartItem = {
+      name: product.name,
+      image: product.image,
+      basePrice: product.price,
+      chef: product.chef,
+      quantity,
+      extras,
+      toppings,
+      total: getTotalPrice().toFixed(2),
+    };
+
+    console.log("Added to cart:", cartItem);
+  };
 
   return (
     <div className="min-h-screen bg-white text-gray-800 w-[90%] mx-auto py-4">
@@ -77,23 +151,17 @@ export default function ProductPage() {
             alt={product.name}
             className="rounded-xl w-full object-cover aspect-video"
           />
-          <div className="text-sm text-gray-600 mt-8">
-            <div>
-              <h2 className="font-bold text-lg">Description</h2>
-              <p>{product.description}</p>
-            </div>
-            <div className="flex items-center justify-between mt-4">
-              <h2 className="font-bold text-lg flex items-center justify-center gap-x-1">
-              <Timer /> Preparation Time
-              </h2>
-              <p>{product.preparation_time} minutes</p>
-            </div>
-          </div>
         </div>
 
-        <div className="space-y-4">
-          <h1 className="text-2xl font-bold">{product.name}</h1>
-          <div className="flex items-center justify-between gap-4 text-sm text-gray-500">
+        <div className="space-y-4 p-4 rounded-lg shadow-lg bg-white h-fit">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold">{product.name}</h1>
+            <div className="text-2xl font-bold text-red-600">
+              ${getTotalPrice().toFixed(2)}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-start gap-4 text-sm text-gray-500">
             <div>
               {product.category} |{" "}
               <span className="text-green-500 font-bold">
@@ -106,16 +174,88 @@ export default function ProductPage() {
                 ({product.reviewsCount})
               </span>
             </div>
-            <div className="bg-slate-200 rounded px-2 py-1">
-              <span className="font-bold">Servings</span> {product.servings}
+            <div className="bg-slate-200 rounded px-2 py-1 flex items-center gap-1">
+              <span className="font-bold flex items-center gap-1">
+                Servings <FaUser />
+              </span>{" "}
+              {product.servings}
             </div>
           </div>
 
-          <div className="text-2xl font-bold text-red-600">
-            ${product.price}
-          </div>
+         
 
-          <div className="gap-2">
+          {product.toppings.length > 0 && (
+            <div className="space-y-4">
+              <div className="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 flex items-center justify-between">
+                <h3>Toppings</h3>
+                <p className="text-gray-400">Additonal Charges Apply</p>
+              </div>
+
+              {product.toppings.map((topping, index) => (
+                <div key={index} className="flex justify-between items-center">
+                  <span className="text-gray-800">{topping.name}</span>
+                  <div className="flex gap-2">
+                    {topping.options.map((option, i) => (
+                      <button
+                        key={i}
+                        onClick={() =>
+                          setSelectedToppings((prev) => ({
+                            ...prev,
+                            [topping.name]: option.price,
+                          }))
+                        }
+                        className={`px-4 py-1 rounded-full border text-sm font-medium transition-all
+                          ${
+                            selectedToppings[topping.name] === option.price
+                              ? "bg-red-500 text-white"
+                              : "bg-white text-red-500 border-red-500"
+                          }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {product.extras.length > 0 && (
+            <div className="space-y-4">
+              <div className="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 flex items-center justify-between">
+                <h3>Extras</h3>
+                <p className="text-gray-400">Additonal Charges Apply</p>
+              </div>
+
+              {product.extras.map((extra, index) => (
+                <div key={index} className="flex justify-between items-center">
+                  <span className="text-gray-800">{extra.name}</span>
+                  <div className="flex gap-2">
+                    {extra.options.map((option, i) => (
+                      <button
+                        key={i}
+                        onClick={() =>
+                          setSelectedExtras((prev) => ({
+                            ...prev,
+                            [extra.name]: option.price,
+                          }))
+                        }
+                        className={`px-4 py-1 rounded-full border text-sm font-medium transition-all
+                          ${
+                            selectedExtras[extra.name] === option.price
+                              ? "bg-red-500 text-white"
+                              : "bg-white text-red-500 border-red-500"
+                          }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+           <div className="gap-2">
             <div className="text-sm text-rose-500 font-bold mb-2">
               Prepared by
             </div>
@@ -151,7 +291,10 @@ export default function ProductPage() {
                 <LuPlus size={16} />
               </button>
             </div>
-            <button className="w-full bg-rose-600 text-white py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold">
+            <button
+              onClick={handleAddToCart}
+              className="w-full bg-rose-600 text-white py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold"
+            >
               Add to cart
             </button>
           </div>
@@ -160,7 +303,7 @@ export default function ProductPage() {
 
       <div className="mt-8">
         <div className="flex gap-6 border-b pb-2">
-          {["ingredients", "nutrition", "reviews"].map((tab) => (
+          {["ingredients", "description", "reviews"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -172,8 +315,8 @@ export default function ProductPage() {
             >
               {tab === "ingredients"
                 ? "Ingredients"
-                : tab === "nutrition"
-                ? "Nutritional information"
+                : tab === "description"
+                ? "Description"
                 : "Ratings & reviews"}
             </button>
           ))}
@@ -195,20 +338,15 @@ export default function ProductPage() {
           </div>
         )}
 
-        {activeTab === "nutrition" && (
-          <div className="mt-6 space-y-2">
-            <p>
-              <strong>Calories:</strong> {product.nutrition.calories}
-            </p>
-            <p>
-              <strong>Fat:</strong> {product.nutrition.fat}
-            </p>
-            <p>
-              <strong>Protein:</strong> {product.nutrition.protein}
-            </p>
-            <p>
-              <strong>Carbs:</strong> {product.nutrition.carbs}
-            </p>
+        {activeTab === "description" && (
+          <div className="text-sm text-gray-600 mt-6">
+            <p>{product.description}</p>
+            <div className="flex items-center justify-start gap-x-4 mt-4">
+              <h2 className="font-bold text-lg flex items-center gap-x-1">
+                <Timer /> Preparation Time
+              </h2>
+              <p>{product.preparation_time} minutes</p>
+            </div>
           </div>
         )}
 

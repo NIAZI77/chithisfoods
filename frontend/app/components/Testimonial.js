@@ -27,7 +27,7 @@ const testimonials = [
 export default function Testimonials() {
   return (
     <section className="py-16 bg-white">
-      <h2 className="text-3xl font-bold mb-16 text-gray-900 text-center">
+      <h2 className="text-3xl px-4 font-bold mb-16 text-gray-900 text-center">
         What clients say about us
       </h2>
       <div className="flex flex-wrap justify-center gap-16">
