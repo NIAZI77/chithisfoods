@@ -3,12 +3,14 @@
 import Image from "next/image";
 import { Star, Plus } from "lucide-react";
 import { FaUser } from "react-icons/fa";
+import Link from "next/link";
 
 export default function ProductCard() {
   const product = {
     name: "Spicy Chicken Biryani",
     image: "/baryani.jpeg",
-    price: 9.99,
+    link:"/product",
+    price: 99.99,
     rating: 4.5,
     servings: 2,
     category: "Main Course",
@@ -21,7 +23,7 @@ export default function ProductCard() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-4 w-72">
+    <Link href={product.link} className="bg-white rounded-2xl shadow-md p-4 w-72 block">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
@@ -69,14 +71,14 @@ export default function ProductCard() {
 
       {/* Add to Cart Section */}
       <div className="mt-4 grid grid-cols-3 border border-red-500 rounded-xl px-3 py-2">
-        <div className="flex items-center gap-2 text-red-500 font-semibold text-xs border-r-2 border-r-rose-500 col-span-2">
-          <Plus className="w-6 h-6 p-1 bg-rose-600 text-white font-bold rounded-full" />
-          ADD TO CART
+        <div className="flex items-center gap-1 text-red-500 font-semibold text-xs col-span-2">
+          <Plus className="uppercase w-6 h-6 p-1 bg-rose-600 text-white font-bold rounded-full" />
+          Add Customization
         </div>
-        <div className="text-red-500 font-bold text-md text-right">
+        <div className="text-red-500 font-bold text-md text-right border-l-2 border-l-rose-500 ml-1.5">
           ${product.price.toFixed(2)}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

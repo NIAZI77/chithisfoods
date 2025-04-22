@@ -6,7 +6,7 @@ import ProductCard from "../components/ProductCard";
 
 const Page = () => {
   return (
-    <div className="w-[80%] mx-auto">
+    <div className="md:w-[80%] w-[90%] mx-auto">
       <section className="relative">
         <Image
           src="/baryani.jpeg"

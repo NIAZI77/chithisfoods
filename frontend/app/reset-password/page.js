@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getCookie } from "cookie-next";
+import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import Hero from "../components/Hero";

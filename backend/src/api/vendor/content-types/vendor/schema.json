@@ -1,0 +1,61 @@
+{
+  "kind": "collectionType",
+  "collectionName": "vendors",
+  "info": {
+    "singularName": "vendor",
+    "pluralName": "vendors",
+    "displayName": "Vendor",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "storeName": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "businessAddress": {
+      "type": "string",
+      "required": true
+    },
+    "city": {
+      "type": "string",
+      "required": true
+    },
+    "zipCode": {
+      "type": "biginteger"
+    },
+    "fullName": {
+      "type": "string",
+      "required": true
+    },
+    "phoneNumber": {
+      "type": "biginteger",
+      "required": true,
+      "unique": true
+    },
+    "avatar": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "coverImage": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "email": {
+      "type": "email",
+      "required": true,
+      "unique": true
+    }
+  }
+}

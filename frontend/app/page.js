@@ -7,7 +7,7 @@ import Link from "next/link";
 const page = () => {
   return (
     <div>
-      <section className="relative h-screen max-h-[700px] flex items-center justify-center text-white">
+      <section className="relative h-screen max-h-[700px] -mt-20 flex items-center justify-center text-white">
         <div className="absolute inset-0 -z-10">
           <Image
             height={100}

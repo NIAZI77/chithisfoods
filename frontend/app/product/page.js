@@ -51,6 +51,12 @@ const baseProduct = {
         { label: "2 Pieces", price: 3.5 },
       ],
     },
+    {
+      name: "Extra Cheese",
+      options: [
+        { label: "cheese", price: 2 },
+      ],
+    },
   ],
   toppings: [
     {
@@ -141,7 +147,7 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 w-[90%] mx-auto py-4">
+    <div className="min-h-screen bg-white text-gray-800 mx-auto p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-5">
         <div>
           <Image
@@ -153,7 +159,7 @@ export default function ProductPage() {
           />
         </div>
 
-        <div className="space-y-4 p-4 rounded-lg shadow-lg bg-white h-fit">
+        <div className="space-y-4 p-4 h-fit">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">{product.name}</h1>
             <div className="text-2xl font-bold text-red-600">
@@ -204,7 +210,7 @@ export default function ProductPage() {
                             [topping.name]: option.price,
                           }))
                         }
-                        className={`px-4 py-1 rounded-full border text-sm font-medium transition-all
+                        className={`px-4 py-1 rounded-full border text-xs font-medium transition-all
                           ${
                             selectedToppings[topping.name] === option.price
                               ? "bg-red-500 text-white"
@@ -228,9 +234,9 @@ export default function ProductPage() {
               </div>
 
               {product.extras.map((extra, index) => (
-                <div key={index} className="flex justify-between items-center">
+                <div key={index} className="flex justify-between items-center flex-wrap">
                   <span className="text-gray-800">{extra.name}</span>
-                  <div className="flex gap-2">
+                  <div className="flex gap-y-4 gap-x-2 flex-wrap">
                     {extra.options.map((option, i) => (
                       <button
                         key={i}
@@ -240,7 +246,7 @@ export default function ProductPage() {
                             [extra.name]: option.price,
                           }))
                         }
-                        className={`px-4 py-1 rounded-full border text-sm font-medium transition-all
+                        className={`px-4 py-1 rounded-full border text-xs font-medium transition-all
                           ${
                             selectedExtras[extra.name] === option.price
                               ? "bg-red-500 text-white"
@@ -255,7 +261,7 @@ export default function ProductPage() {
               ))}
             </div>
           )}
-           <div className="gap-2">
+           <div className="gap-2 my-8">
             <div className="text-sm text-rose-500 font-bold mb-2">
               Prepared by
             </div>

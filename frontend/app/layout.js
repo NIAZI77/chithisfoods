@@ -1,8 +1,9 @@
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
+import Sidebar from "./components/vendorSidebar";
 
 export const metadata = {
   title: "ChithisFoods – Love Every Bite",
@@ -15,6 +16,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body cz-shortcut-listen="true">
         <Navbar />
+        <Sidebar />
         <div className="min-h-screen">{children}</div>
         <Footer />
         <ToastContainer />

@@ -4,7 +4,8 @@ export default function ThankYouPage() {
   return (
     <>
       {/* Header */}
-      <div className="bg-green-100 h-40 relative mb-10 border-b-5 border-rose-500">
+      <div className="bg-green-100 h-44 relative mb-10 border-b-5 border-rose-500"
+      style={{backgroundImage: "url('/thankyoubg.png')"}}>
         <div className="absolute -bottom-6  left-[calc(50%-24px)] w-12 h-12 bg-red-600 rounded-full mx-auto flex items-center justify-center text-white text-3xl font-extrabold">
           ✓
         </div>

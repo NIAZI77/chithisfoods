@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCookie } from "cookie-next";
+import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { FaEnvelope } from "react-icons/fa";

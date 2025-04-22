@@ -1,12 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { Star, MapPin, BadgeCheck } from "lucide-react";
+import { MapPin, BadgeCheck } from "lucide-react";
 import { FaStar } from "react-icons/fa";
+import Link from "next/link";
 
 const VendorCard = () => {
   return (
-    <div className="w-72 bg-white rounded-2xl shadow-md overflow-hidden relative">
+    <Link
+      href={"/vendors"}
+      className="block w-72 bg-white rounded-2xl shadow-md overflow-hidden relative"
+    >
       <div className="relative h-40 w-full">
         <Image
           src="/baryani.jpeg"
@@ -35,10 +39,9 @@ const VendorCard = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-1 text-yellow-500 text-sm">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} size={16} fill="currentColor" stroke="none" />
-          ))}
+        <div className="flex items-center justify-center text-yellow-500 text-sm">
+          <FaStar />
+
           <span className="text-gray-600 ml-1">4.8</span>
         </div>
 
@@ -51,7 +54,7 @@ const VendorCard = () => {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
