@@ -1,0 +1,79 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dishes",
+  "info": {
+    "singularName": "dish",
+    "pluralName": "dishes",
+    "displayName": "Dish",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "price": {
+      "type": "decimal",
+      "required": true
+    },
+    "rating": {
+      "type": "decimal",
+      "default": 0
+    },
+    "reviewsCount": {
+      "type": "integer",
+      "required": false,
+      "default": 0
+    },
+    "servings": {
+      "type": "integer",
+      "required": true
+    },
+    "category": {
+      "type": "string",
+      "required": true
+    },
+    "subcategory": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "available": {
+      "type": "boolean"
+    },
+    "chef": {
+      "type": "json",
+      "required": true
+    },
+    "toppings": {
+      "type": "json"
+    },
+    "extras": {
+      "type": "json"
+    },
+    "reviews": {
+      "type": "json"
+    },
+    "ingredients": {
+      "type": "json",
+      "required": true
+    },
+    "preparation_time": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}

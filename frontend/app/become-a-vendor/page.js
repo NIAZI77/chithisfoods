@@ -13,15 +13,16 @@ export default function BecomeVendor() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const totalSteps = 3;
 
   const [formData, setFormData] = useState({
     storeName: "",
+    username: "",
     businessAddress: "",
     email: "",
     city: "",
-    zipCode: "",
+    zipcode: "",
     fullName: "",
     phoneNumber: "",
     avatar: { id: 0, url: "" },
@@ -38,7 +39,7 @@ export default function BecomeVendor() {
       checkIfVendor(storedUser);
       setFormData((prev) => ({ ...prev, email: storedUser }));
     }
-  }, [router]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,7 +49,7 @@ export default function BecomeVendor() {
   const getFieldsForStep = () => {
     switch (step) {
       case 1:
-        return ["storeName", "businessAddress", "zipCode", "city"];
+        return ["storeName", "businessAddress", "zipcode", "city"];
       case 2:
         return ["fullName", "phoneNumber"];
       case 3:
@@ -184,6 +185,14 @@ export default function BecomeVendor() {
   };
 
   const handleSubmit = async () => {
+    const usernameRegex = /^[a-z0-9_]{3,15}$/;
+    if (!usernameRegex.test(username)) {
+      toast.error(
+        "Username can contain lowercase letters, numbers, and underscores (3-15 chars)."
+      );
+      setLoading(false);
+      return;
+    }
     await createVendor();
   };
   if (loading) return <Loading />;
@@ -216,6 +225,13 @@ export default function BecomeVendor() {
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400"
               />
               <input
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Username"
+                className="w-full p-3 border rounded-lg my-2 outline-rose-400"
+              />
+              <input
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
@@ -230,8 +246,8 @@ export default function BecomeVendor() {
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400"
               />
               <input
-                name="zipCode"
-                value={formData.zipCode}
+                name="zipcode"
+                value={formData.zipcode}
                 onChange={handleChange}
                 placeholder="ZIP Code"
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400"
@@ -265,7 +281,7 @@ export default function BecomeVendor() {
               <h2 className="font-bold text-2xl my-4">Display Profile</h2>
               <div className="relative w-full mb-16">
                 <div
-                  className="bg-cover bg-center w-full aspect-video bg-slate-100"
+                  className="bg-cover bg-center w-full aspect-video rounded-lg"
                   style={{
                     backgroundImage: `url("${
                       formData.coverImage?.url || "/fallback.png"
@@ -281,7 +297,7 @@ export default function BecomeVendor() {
                   />
                   <label
                     htmlFor="coverImage"
-                    className="w-5 h-5 overflow-hidden absolute right-10 bottom-5 cursor-pointer"
+                    className="w-8 h-8 overflow-hidden absolute right-2 bottom-2 cursor-pointer bg-white rounded-full flex items-center justify-center shadow-md"
                   >
                     <FaCamera />
                   </label>
@@ -299,7 +315,7 @@ export default function BecomeVendor() {
 
                 <label
                   htmlFor="avatar"
-                  className="absolute bottom-[-40px] ml-1 cursor-pointer left-1/2 transform -translate-x-1/2 w-5 h-5 overflow-hidden"
+                  className="absolute bottom-[-40px] cursor-pointer left-1/2 transform -translate-x-1/2 w-8 h-8 overflow-hidden bg-white rounded-full flex items-center justify-center shadow-md"
                 >
                   <input
                     type="file"

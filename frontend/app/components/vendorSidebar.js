@@ -5,13 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { GoSidebarCollapse } from "react-icons/go";
 import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
-import {
-  Boxes,
-  LayoutDashboard,
-  Menu,
-  Settings,
-  ShoppingBag,
-} from "lucide-react";
+import { Boxes, LayoutDashboard, Settings, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 
 export default function Sidebar() {
@@ -61,8 +55,9 @@ export default function Sidebar() {
       <nav className="flex flex-col gap-1 p-1 mt-3">
         <Link
           href="/vendor/dashboard"
-          className={`flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/10 ${
-            isActive("/vendor/dashboard") ? "bg-white/10" : ""
+          className={`flex items-center gap-3 px-3 py-2 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-3 border-transparent ${
+            isActive("/vendor/dashboard") &&
+            "text-orange-500 !border-orange-500"
           }`}
         >
           <LayoutDashboard />
@@ -71,8 +66,9 @@ export default function Sidebar() {
 
         <Link
           href="/vendor/manage-inventory"
-          className={`flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/10 ${
-            isActive("/vendor/manage-inventory") ? "bg-white/10" : ""
+          className={`flex items-center gap-3 px-3 py-2 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-3 border-transparent ${
+            isActive("/vendor/manage-inventory") &&
+            "text-orange-500 !border-orange-500"
           }`}
         >
           <Boxes />
@@ -83,8 +79,9 @@ export default function Sidebar() {
 
         <Link
           href="/vendor/order-management"
-          className={`flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/10 ${
-            isActive("/vendor/order-management") ? "bg-white/10" : ""
+          className={`flex items-center gap-3 px-3 py-2 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-3 border-transparent  ${
+            isActive("/vendor/order-management") &&
+            "text-orange-500 !border-orange-500"
           }`}
         >
           <ShoppingBag />
@@ -95,8 +92,8 @@ export default function Sidebar() {
 
         <Link
           href="/vendor/settings"
-          className={`flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/10 ${
-            isActive("/vendor/settings") ? "bg-white/10" : ""
+          className={`flex items-center gap-3 px-3 py-2 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-3 border-transparent ${
+            isActive("/vendor/settings") && "text-orange-500 !border-orange-500"
           }`}
         >
           <Settings />

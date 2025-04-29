@@ -24,7 +24,7 @@
       "type": "string",
       "required": true
     },
-    "zipCode": {
+    "zipcode": {
       "type": "biginteger"
     },
     "fullName": {
@@ -56,6 +56,14 @@
       "type": "email",
       "required": true,
       "unique": true
+    },
+    "rating": {
+      "type": "decimal",
+      "required": false,
+      "default": 0
+    },
+    "username": {
+      "type": "uid"
     }
   }
 }
