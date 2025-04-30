@@ -72,7 +72,6 @@ export default function Navbar() {
     const user = getCookie("user");
     if (jwt && user) {
       setIsLoggedIn(true);
-      checkIfVendor(user);
     }
     if (pathname.includes("/vendor/")) {
       return;
@@ -159,9 +158,7 @@ export default function Navbar() {
                   >
                     <DropdownMenuItem className="w-full">
                       <FaShop className="mr-2" />
-                      <span>
-                        {vendorStatus ? "Vendor Profile" : "Become A Vendor"}
-                      </span>
+                      <span>Vendor Profile</span>
                     </DropdownMenuItem>
                   </Link>
 

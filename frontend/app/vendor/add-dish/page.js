@@ -31,9 +31,12 @@ export default function AddDishPage() {
     category: "fruits",
     subcategory: "apple",
     preparation_time: "",
+    vendorId:"",
     ingredients: "",
     toppings: [],
     extras: [],
+    spiciness: [],
+    email: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -68,11 +71,13 @@ export default function AddDishPage() {
         setDishData((prev) => ({
           ...prev,
           chef: {
-            vendorID: data.data[0].documentId,
+            username: data.data[0].username,
             name: data.data[0].storeName,
             avatar: { id: data.data[0].id, url: data.data[0].avatar.url },
             rating: data.data[0].rating,
           },
+          vendorId: data.data[0].documentId,
+          email: data.data[0].email,
         }));
       } else {
         toast.error("We couldn't verify your vendor.");
@@ -201,16 +206,34 @@ export default function AddDishPage() {
       );
     return complete(dishData.toppings) && complete(dishData.extras);
   };
+  const handleSpicinessChange = (spicinessLevel) => {
+    setDishData((prevDishData) => {
+      const updatedSpiciness = prevDishData.spiciness.includes(spicinessLevel)
+        ? prevDishData.spiciness.filter((level) => level !== spicinessLevel)
+        : [...prevDishData.spiciness, spicinessLevel];
 
+      return {
+        ...prevDishData,
+        spiciness: updatedSpiciness,
+      };
+    });
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
 
     if (!isValid()) {
       toast.error("Please complete all topping and extra fields.");
-      setSubmitting(false);
       return;
     }
+    if (dishData.spiciness.length === 0) {
+      toast.warning("Please select at least one spiciness level.");
+      return;
+    }
+    if (dishData.image.url.length === 0) {
+      toast.warning("Please upload image for the dish.");
+      return;
+    }
+    setSubmitting(true);
 
     try {
       const payload = {
@@ -454,6 +477,22 @@ export default function AddDishPage() {
           />
         </div>
 
+        <div className="flex items-center justify-between mt-2 flex-wrap space-y-2">
+          {["Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map((level) => (
+            <div
+              key={level}
+              onClick={() => handleSpicinessChange(level)}
+              className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md mx-2 text-xs font-semibold transition-all ${
+                dishData.spiciness.includes(level)
+                  ? "bg-orange-500 text-white border-orange-500"
+                  : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
+              }`}
+            >
+              {level}
+            </div>
+          ))}
+        </div>
+
         <section>
           <h2 className="text-xl font-semibold text-orange-500 mb-2">
             Toppings
@@ -461,117 +500,168 @@ export default function AddDishPage() {
           <button
             type="button"
             onClick={() => addOptionGroup("toppings")}
-            className="btn-orange mb-4 flex items-center gap-2"
+            className="mb-4 flex items-center gap-2"
           >
             <PlusCircle size={20} /> Add Topping
           </button>
-          {dishData.toppings.map((top, i) => (
-            <div key={i} className="p-4 rounded-lg mb-4 shadow-sm space-y-2">
-              <div className="flex justify-between gap-2">
+          {dishData.toppings.map((group, groupIndex) => (
+            <div
+              key={groupIndex}
+              className="p-4 rounded-lg mb-4 shadow-sm space-y-2"
+            >
+              <div className="flex justify-between items-center">
                 <input
-                  required
-                  placeholder="i.e Parmesan Cheese"
-                  value={top.name}
+                  type="text"
+                  placeholder="Topping Group Name"
+                  value={group.name}
                   onChange={(e) =>
-                    handleArrayChange("toppings", i, "name", e.target.value)
+                    handleArrayChange(
+                      "toppings",
+                      groupIndex,
+                      "name",
+                      e.target.value
+                    )
                   }
                   className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
                 />
                 <button
-                  onClick={() => deleteOptionGroup("toppings", i)}
-                  className="text-red-500 hover:text-red-600"
+                  type="button"
+                  onClick={() => deleteOptionGroup("toppings", groupIndex)}
+                  className="text-red-500"
                 >
                   <Trash2 />
                 </button>
               </div>
-              {top.options.map((opt, j) => (
-                <div key={j} className="flex gap-2">
+              {group.options.map((option, optionIndex) => (
+                <div key={optionIndex} className="flex gap-2 items-center">
                   <input
-                    required
-                    placeholder="i.e Included"
-                    value={opt.label}
+                    type="text"
+                    placeholder="Label"
+                    value={option.label}
                     onChange={(e) =>
                       handleArrayChange(
                         "toppings",
-                        i,
+                        groupIndex,
                         "label",
                         e.target.value,
-                        j
+                        optionIndex
                       )
                     }
                     className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
                   />
                   <input
-                    required
-                    placeholder="i.e 1.50"
-                    value={opt.price}
+                    type="text"
+                    placeholder="Price"
+                    value={option.price}
                     onChange={(e) =>
                       handleArrayChange(
                         "toppings",
-                        i,
+                        groupIndex,
                         "price",
                         e.target.value,
-                        j
+                        optionIndex
                       )
                     }
                     className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
                   />
                 </div>
               ))}
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [...dishData.toppings];
+                  updated[groupIndex].options.push({ label: "", price: "" });
+                  setDishData((prev) => ({ ...prev, toppings: updated }));
+                }}
+                className="text-sm text-orange-500 mt-2"
+              >
+                + Add Option
+              </button>
             </div>
           ))}
         </section>
-
         <section>
           <h2 className="text-xl font-semibold text-orange-500 mb-2">Extras</h2>
           <button
             type="button"
             onClick={() => addOptionGroup("extras")}
-            className="btn-orange mb-4 flex items-center gap-2"
+            className="mb-4 flex items-center gap-2"
           >
             <PlusCircle size={20} /> Add Extra
           </button>
-          {dishData.extras.map((extra, i) => (
-            <div key={i} className="p-4 rounded-lg mb-4 shadow-sm space-y-2">
-              <div className="flex justify-between gap-2">
+          {dishData.extras.map((group, groupIndex) => (
+            <div
+              key={groupIndex}
+              className="p-4 rounded-lg mb-4 shadow-sm space-y-2"
+            >
+              <div className="flex justify-between items-center">
                 <input
-                  required
-                  placeholder="i.e Garlic Bread"
-                  value={extra.name}
+                  type="text"
+                  placeholder="Extra Group Name"
+                  value={group.name}
                   onChange={(e) =>
-                    handleArrayChange("extras", i, "name", e.target.value)
+                    handleArrayChange(
+                      "extras",
+                      groupIndex,
+                      "name",
+                      e.target.value
+                    )
                   }
                   className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
                 />
                 <button
-                  onClick={() => deleteOptionGroup("extras", i)}
-                  className="text-red-500 hover:text-red-600"
+                  type="button"
+                  onClick={() => deleteOptionGroup("extras", groupIndex)}
+                  className="text-red-500"
                 >
                   <Trash2 />
                 </button>
               </div>
-              {extra.options.map((opt, j) => (
-                <div key={j} className="flex gap-2">
+              {group.options.map((option, optionIndex) => (
+                <div key={optionIndex} className="flex gap-2 items-center">
                   <input
-                    required
-                    placeholder="i.e +1 piece"
-                    value={opt.label}
+                    type="text"
+                    placeholder="Label"
+                    value={option.label}
                     onChange={(e) =>
-                      handleArrayChange("extras", i, "label", e.target.value, j)
+                      handleArrayChange(
+                        "extras",
+                        groupIndex,
+                        "label",
+                        e.target.value,
+                        optionIndex
+                      )
                     }
                     className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
                   />
                   <input
-                    required
-                    placeholder="i.e 0.50"
-                    value={opt.price}
+                    type="text"
+                    placeholder="Price"
+                    value={option.price}
                     onChange={(e) =>
-                      handleArrayChange("extras", i, "price", e.target.value, j)
+                      handleArrayChange(
+                        "extras",
+                        groupIndex,
+                        "price",
+                        e.target.value,
+                        optionIndex
+                      )
                     }
                     className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
                   />
                 </div>
               ))}
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [...dishData.extras];
+                  updated[groupIndex].options.push({ label: "", price: "" });
+                  setDishData((prev) => ({ ...prev, extras: updated }));
+                }}
+                className="text-sm text-orange-500 mt-2"
+              >
+                + Add Option
+              </button>
             </div>
           ))}
         </section>

@@ -2,10 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { FaFacebookF, FaTwitter } from "react-icons/fa";
 import { RiInstagramFill } from "react-icons/ri";
 
 const Footer = () => {
+  const pathname = usePathname();
+  useEffect(() => {
+    if (pathname.includes("/vendor/")) {
+      return;
+    }
+  }, [pathname]);
+  if (pathname.includes("/vendor/")) {
+    return;
+  }
+
   return (
     <footer className="bg-white pt-10">
       <div className="mx-auto w-full max-w-screen-xl px-6 md:px-8">

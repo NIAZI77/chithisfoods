@@ -1,113 +1,106 @@
 "use client";
 
-import { useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Edit, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-
-const sampleData = [
-  {
-    id: "302012",
-    name: "Green Beans",
-    image: "/baryani.jpeg",
-    price: 121.0,
-    rating: 4.3,
-    category: "Vegetables",
-    subcategory: "Organic",
-    available: true,
-  },
-  {
-    id: "302011",
-    name: "Carrot Mix",
-    image: "/baryani.jpeg",
-    price: 590.0,
-    rating: 4.7,
-    category: "Vegetables",
-    subcategory: "Organic",
-    available: true,
-  },
-  {
-    id: "302002",
-    name: "Organic Spinach",
-    image: "/baryani.jpeg",
-    price: 125.0,
-    rating: 4.5,
-    category: "Vegetables",
-    subcategory: "Leafy Greens",
-    available: false,
-  },
-  {
-    id: "301901",
-    name: "Bell Peppers",
-    image: "/baryani.jpeg",
-    price: 348.0,
-    rating: 4.6,
-    category: "Vegetables",
-    subcategory: "Sweet Peppers",
-    available: true,
-  },
-  {
-    id: "301643",
-    name: "Broccoli Florets",
-    image: "/baryani.jpeg",
-    price: 760.0,
-    rating: 4.8,
-    category: "Vegetables",
-    subcategory: "Cruciferous",
-    available: true,
-  },
-];
+import { toast } from "react-toastify";
+import { getCookie } from "cookies-next";
 
 export default function ManageInventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
+  const [dishes, setDishes] = useState([]);
   const router = useRouter();
 
-  const filteredData = sampleData.filter((item) => {
-    const matchesSearch = item.name
+  const filteredDishes = dishes.filter((dish) => {
+    const matchesSearch = dish.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
+    const isAvailable = dish.available === true;
     const matchesStatus =
       filterStatus === "All" ||
-      (filterStatus === "Available" && item.available) ||
-      (filterStatus === "Out of Stock" && !item.available);
+      (filterStatus === "Available" && isAvailable) ||
+      (filterStatus === "Unavailable" && !isAvailable);
     return matchesSearch && matchesStatus;
   });
 
-  const statusStyles = {
-    true: "bg-green-100 text-green-700",
-    false: "bg-gray-200 text-gray-700",
-  };
-
-  const handleAddDish = () => {
-    router.push("/vendor/add-dish")
-  };
+  const handleAddDish = () => router.push("/vendor/add-dish");
 
   const handleEdit = (id) => {
-    alert(`Dish with ID ${id} has been successfully updated.`);
+    toast.info("Redirecting to edit dish page...");
+    router.push(`/vendor/edit-dish/${id}`);
   };
 
   const handleDelete = (id) => {
-    alert(`Dish with ID ${id} has been removed from your inventory.`);
+    setDishes((prev) => prev.filter((dish) => dish.id !== id));
+    toast.success("Dish removed from your inventory.");
   };
 
+  const toggleAvailability = (id) => {
+    setDishes((prevDishes) =>
+      prevDishes.map((dish) =>
+        dish.id === id ? { ...dish, available: !dish.available } : dish
+      )
+    );
+
+    const updatedDish = dishes.find((dish) => dish.id === id);
+    const newStatus = updatedDish?.available ? "unavailable" : "available";
+
+    toast.success(`Dish "${updatedDish?.name}" is now marked as ${newStatus}.`);
+  };
+
+  const fetchInventory = async (email) => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[email][$eq]=${email}&populate=*`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      const json = await res.json();
+      if (!res.ok) throw new Error("Failed to fetch");
+      setDishes(json.data);
+      console.log("Fetched dishes:", json.data);
+      toast.success("Inventory loaded successfully.");
+    } catch (error) {
+      console.error("Inventory fetch failed:", error);
+      toast.error("Unable to load inventory. Please try again later.");
+    }
+  };
+
+  useEffect(() => {
+    const storedJwt = getCookie("jwt");
+    const storedUser = getCookie("user");
+
+    if (!storedJwt || !storedUser) {
+      router.push("/login");
+    } else {
+      fetchInventory(storedUser);
+    }
+  }, []);
+
   return (
-    <div className="p-2 py-6 md:p-8 !pl-16">
+    <div className="p-2 py-6 md:p-8 !pl-16 md:!pl-24">
       <div className="flex justify-between items-center mb-6">
         <h1 className="md:text-2xl text-lg font-semibold text-orange-600">
           Manage Inventory
         </h1>
         <button
           onClick={handleAddDish}
-          className="bg-orange-500 text-white md:px-4 md:py-2 px-2 py-1 rounded-md font-medium"
+          className="bg-orange-500 text-white md:px-4 md:py-2 px-2 py-1 rounded-md font-medium flex items-center jusctrify-center gap-2 hover:bg-orange-600 transition-all"
         >
-          + Add Dish
+          <Plus /> Add Dish
         </button>
       </div>
 
       <section className="flex items-center justify-between gap-2 md:flex-row flex-col mb-4">
         <div className="flex flex-wrap gap-1 w-fit p-1 border-1 rounded-lg mb-4 md:p-2 md:border-2">
-          {["All", "Available", "Out of Stock"].map((status) => (
+          {["All", "Available", "Unavailable"].map((status) => (
             <button
               key={status}
               onClick={() => setFilterStatus(status)}
@@ -117,7 +110,7 @@ export default function ManageInventory() {
                   : "bg-white text-gray-600"
               }`}
             >
-              {status === "All" ? "All Dishes" : status}
+              {status}
             </button>
           ))}
         </div>
@@ -149,52 +142,63 @@ export default function ManageInventory() {
             </tr>
           </thead>
           <tbody className="text-gray-700">
-            {filteredData.length === 0 ? (
+            {filteredDishes.length === 0 ? (
               <tr className="h-12">
                 <td colSpan="9" className="p-4 text-center text-gray-400">
                   No matching dishes found.
                 </td>
               </tr>
             ) : (
-              filteredData.map((item) => (
-                <tr key={item.id} className="border-b hover:bg-gray-50 h-12">
+              filteredDishes.map((dish) => (
+                <tr key={dish.id} className="border-b hover:bg-gray-50 h-12">
                   <td className="font-medium hover:underline hover:text-orange-400 pl-3">
-                    {item.id}
+                    {dish.id}
                   </td>
-                  <td>{item.name}</td>
+                  <td>{dish.name}</td>
                   <td>
                     <Image
-                      src={item.image}
-                      alt={item.name}
+                      src={dish.image?.url || "/placeholder.jpg"}
+                      alt={dish.name}
                       height={40}
                       width={64}
-                      priority={true}
+                      priority
                       className="h-10 w-16 object-cover rounded-md"
                     />
                   </td>
-                  <td>${item.price.toFixed(2)}</td>
-                  <td>{item.rating}</td>
-                  <td>{item.category}</td>
-                  <td>{item.subcategory}</td>
+                  <td>${dish.price?.toFixed(2)}</td>
+                  <td>{dish.rating ?? 0}</td>
+                  <td>{dish.category}</td>
+                  <td>{dish.subcategory}</td>
                   <td>
-                    <span
-                      className={`inline-block min-w-[80px] text-center px-2 py-1 w-28 rounded-md text-xs font-semibold ${
-                        statusStyles[item.available]
+                    <button
+                      onClick={() => toggleAvailability(dish.id)}
+                      className={`relative w-12 h-6 flex items-center p-0.5 rounded-full transition-all shadow-md mx-auto ${
+                        dish.available ? "bg-emerald-500" : "bg-rose-500"
                       }`}
                     >
-                      {item.available ? "Available" : "Out of Stock"}
-                    </span>
+                      <span
+                        className={`w-5 h-5 rounded-full flex items-center justify-center transition-all bg-white ${
+                          dish.available ? "translate-x-6" : "translate-x-0"
+                        }`}
+                      >
+                        {dish.available ? (
+                          <div className="w-3 h-3 border-2 border-black rounded-full"></div>
+                        ) : (
+                          <div className="w-3 h-0.5 bg-black"></div>
+                        )}
+                      </span>
+                    </button>
                   </td>
                   <td>
                     <div className="flex pl-4 gap-2">
                       <button
-                        onClick={() => handleEdit(item.id)}
+                        onClick={() => handleEdit(dish.id)}
                         className="text-orange-500 hover:text-orange-700"
                       >
-                        <Pencil size={16} />
+                        <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => handleDelete(dish.id)}
                         className="text-red-500 hover:text-red-700"
                       >
                         <Trash2 size={16} />

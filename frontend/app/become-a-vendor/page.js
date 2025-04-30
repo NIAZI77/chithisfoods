@@ -186,15 +186,15 @@ export default function BecomeVendor() {
 
   const handleSubmit = async () => {
     const usernameRegex = /^[a-z0-9_]{3,15}$/;
-    if (!usernameRegex.test(username)) {
+    if (!usernameRegex.test(formData.username)) {
       toast.error(
         "Username can contain lowercase letters, numbers, and underscores (3-15 chars)."
       );
-      setLoading(false);
       return;
     }
     await createVendor();
   };
+
   if (loading) return <Loading />;
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">

@@ -63,7 +63,9 @@
       "default": 0
     },
     "username": {
-      "type": "uid"
+      "type": "string",
+      "required": true,
+      "unique": true
     }
   }
 }

@@ -381,13 +381,14 @@ export interface ApiDishDish extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    available: Schema.Attribute.Boolean;
+    available: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     category: Schema.Attribute.String & Schema.Attribute.Required;
     chef: Schema.Attribute.JSON & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.String;
+    email: Schema.Attribute.Email & Schema.Attribute.Required;
     extras: Schema.Attribute.JSON;
     image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     ingredients: Schema.Attribute.JSON & Schema.Attribute.Required;
@@ -402,11 +403,13 @@ export interface ApiDishDish extends Struct.CollectionTypeSchema {
     reviews: Schema.Attribute.JSON;
     reviewsCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     servings: Schema.Attribute.Integer & Schema.Attribute.Required;
+    spiciness: Schema.Attribute.JSON & Schema.Attribute.Required;
     subcategory: Schema.Attribute.String & Schema.Attribute.Required;
     toppings: Schema.Attribute.JSON;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    vendorId: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -450,7 +453,9 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    username: Schema.Attribute.UID;
+    username: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
     zipcode: Schema.Attribute.BigInteger;
   };
 }

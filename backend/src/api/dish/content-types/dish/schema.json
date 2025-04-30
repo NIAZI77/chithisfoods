@@ -52,7 +52,8 @@
       "type": "string"
     },
     "available": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "chef": {
       "type": "json",
@@ -73,6 +74,18 @@
     },
     "preparation_time": {
       "type": "integer",
+      "required": true
+    },
+    "spiciness": {
+      "type": "json",
+      "required": true
+    },
+    "vendorId": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "email",
       "required": true
     }
   }
