@@ -17,9 +17,10 @@ import { FaCamera } from "react-icons/fa";
 import Image from "next/image";
 import { getCookie } from "cookies-next";
 import Loading from "@/app/loading";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
-export default function AddDishPage() {
+export default function EditDishPage() {
+  const { id } = useParams();
   const router = useRouter();
   const [dishData, setDishData] = useState({
     name: "",
@@ -31,7 +32,7 @@ export default function AddDishPage() {
     category: "fruits",
     subcategory: "apple",
     preparation_time: "",
-    vendorId:"",
+    vendorId: "",
     ingredients: "",
     toppings: [],
     extras: [],
@@ -45,50 +46,36 @@ export default function AddDishPage() {
     const user = getCookie("user");
 
     if (jwt && user) {
-      getChefData(user);
+      getDishData(id);
     } else {
       toast.error("Please login to continue.");
       router.push("/login");
     }
   }, []);
-  const getChefData = async (email) => {
-    setLoading(true);
+  const getDishData = async (id) => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${email}&populate=*`,
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${id}?populate=*`,
         {
           method: "GET",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
           },
         }
       );
-
-      const data = await res.json();
-
-      if (res.ok && data?.data?.length > 0) {
-        setDishData((prev) => ({
-          ...prev,
-          chef: {
-            username: data.data[0].username,
-            name: data.data[0].storeName,
-            avatar: { id: data.data[0].id, url: data.data[0].avatar.url },
-            rating: data.data[0].rating,
-          },
-          vendorId: data.data[0].documentId,
-          email: data.data[0].email,
-        }));
-      } else {
-        toast.error("We couldn't verify your vendor.");
-        router.push("/become-a-vendor");
+      if (!response.ok) {
+        throw new Error("Failed to fetch dish data");
       }
-    } catch (err) {
-      toast.error("We couldn't verify your vendor. Please try again shortly.");
+      const data = await response.json();
+      setDishData(data.data);
+    } catch (error) {
+      console.error("Error fetching dish data", error);
+      toast.error("Error fetching dish data");
     } finally {
       setLoading(false);
     }
   };
+
   const uploadImage = async (file, name) => {
     const formData = new FormData();
     formData.append("files", file);
@@ -236,34 +223,55 @@ export default function AddDishPage() {
     setSubmitting(true);
 
     try {
+      // Handle ingredients conversion
+      let ingredientsArray;
+      if (Array.isArray(dishData.ingredients)) {
+        ingredientsArray = dishData.ingredients;
+      } else if (typeof dishData.ingredients === 'string') {
+        ingredientsArray = dishData.ingredients.split(",").map((item) => item.trim());
+      } else {
+        ingredientsArray = [];
+      }
+
       const payload = {
-        ...dishData,
-        price: parseFloat(dishData.price),
-        servings: parseInt(dishData.servings),
-        preparation_time: parseInt(dishData.preparation_time),
-        ingredients: dishData.ingredients.split(",").map((item) => item.trim()),
+        data: {
+          name: dishData.name,
+          description: dishData.description,
+          price: parseFloat(dishData.price),
+          servings: parseInt(dishData.servings),
+          preparation_time: parseInt(dishData.preparation_time),
+          category: dishData.category,
+          subcategory: dishData.subcategory,
+          ingredients: ingredientsArray,
+          toppings: dishData.toppings || [],
+          extras: dishData.extras || [],
+          spiciness: dishData.spiciness || [],
+          image: dishData.image.id,
+        }
       };
-      console.log(JSON.stringify({ data: payload }));
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${id}`,
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
           },
-          body: JSON.stringify({ data: payload }),
+          body: JSON.stringify(payload),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to save dish");
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Failed to save dish");
       }
 
       toast.success("Dish saved successfully!");
       setTimeout(() => router.push("/vendor/manage-inventory"), 1000);
     } catch (error) {
-      toast.error("Something went wrong. Please try again.");
+      console.error("Error saving dish:", error);
+      toast.error(error.message || "Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }

@@ -1,21 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getCookie } from "cookies-next";
 import { Edit, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { getCookie } from "cookies-next";
+import Loading from "@/app/loading";
 
 export default function ManageInventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [dishes, setDishes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [changingAvailability, setchangingAvailability] = useState(false);
+  const [loadingMenu, setLoadingMenu] = useState(false);
   const router = useRouter();
 
   const filteredDishes = dishes.filter((dish) => {
     const matchesSearch = dish.name
-      .toLowerCase()
+      ?.toLowerCase()
       .includes(searchTerm.toLowerCase());
     const isAvailable = dish.available === true;
     const matchesStatus =
@@ -25,32 +29,8 @@ export default function ManageInventory() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleAddDish = () => router.push("/vendor/add-dish");
-
-  const handleEdit = (id) => {
-    toast.info("Redirecting to edit dish page...");
-    router.push(`/vendor/edit-dish/${id}`);
-  };
-
-  const handleDelete = (id) => {
-    setDishes((prev) => prev.filter((dish) => dish.id !== id));
-    toast.success("Dish removed from your inventory.");
-  };
-
-  const toggleAvailability = (id) => {
-    setDishes((prevDishes) =>
-      prevDishes.map((dish) =>
-        dish.id === id ? { ...dish, available: !dish.available } : dish
-      )
-    );
-
-    const updatedDish = dishes.find((dish) => dish.id === id);
-    const newStatus = updatedDish?.available ? "unavailable" : "available";
-
-    toast.success(`Dish "${updatedDish?.name}" is now marked as ${newStatus}.`);
-  };
-
   const fetchInventory = async (email) => {
+    setLoadingMenu(true);
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[email][$eq]=${email}&populate=*`,
@@ -61,29 +41,85 @@ export default function ManageInventory() {
           },
         }
       );
+      if (!res.ok) throw new Error();
 
       const json = await res.json();
-      if (!res.ok) throw new Error("Failed to fetch");
       setDishes(json.data);
-      console.log("Fetched dishes:", json.data);
-      toast.success("Inventory loaded successfully.");
-    } catch (error) {
-      console.error("Inventory fetch failed:", error);
-      toast.error("Unable to load inventory. Please try again later.");
+    } catch {
+      toast.error("Failed to load inventory.");
+    } finally {
+      setLoadingMenu(false);
     }
   };
 
-  useEffect(() => {
-    const storedJwt = getCookie("jwt");
-    const storedUser = getCookie("user");
+  const toggleAvailability = async (id, currentAvailability) => {
+    setchangingAvailability(true);
+    try {
+      const updated = !currentAvailability;
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: JSON.stringify({ data: { available: updated } }),
+        }
+      );
+      if (!res.ok) throw new Error();
 
-    if (!storedJwt || !storedUser) {
+      fetchInventory(getCookie("user"));
+      toast.success(`Dish marked as ${updated ? "available" : "unavailable"}.`);
+    } catch {
+      toast.error("Update failed. Please try again.");
+    } finally {
+      setchangingAvailability(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+      if (!res.ok) throw new Error();
+
+      fetchInventory(getCookie("user"));
+      toast.success("Dish deleted.");
+    } catch {
+      toast.error("Delete failed. Please try again.");
+    }
+  };
+
+  const handleEdit = (id) => {
+    toast.info("Opening dish editor...");
+    router.push(`/vendor/edit-dish/${id}`);
+  };
+
+  const handleAddDish = () => {
+    router.push("/vendor/add-dish");
+  };
+
+  useEffect(() => {
+    const jwt = getCookie("jwt");
+    const email = getCookie("user");
+
+    if (!jwt || !email) {
       router.push("/login");
     } else {
-      fetchInventory(storedUser);
+      setLoading(true);
+      fetchInventory(email);
+      setLoading(false);
     }
   }, []);
-
+  if (loading) return <Loading />;
   return (
     <div className="p-2 py-6 md:p-8 !pl-16 md:!pl-24">
       <div className="flex justify-between items-center mb-6">
@@ -128,7 +164,7 @@ export default function ManageInventory() {
 
       <div className="overflow-x-auto border rounded-md">
         <table className="min-w-[800px] w-full text-sm text-left">
-          <thead className="bg-orange-100">
+          <thead className="bg-slate-100 p-2">
             <tr className="h-12">
               <th className="text-left pl-3 w-24">ID</th>
               <th className="text-left pl-3 w-36">Name</th>
@@ -142,7 +178,13 @@ export default function ManageInventory() {
             </tr>
           </thead>
           <tbody className="text-gray-700">
-            {filteredDishes.length === 0 ? (
+            {loadingMenu ? (
+              <tr className="h-12">
+                <td colSpan="9" className="p-4 text-center text-gray-400">
+                  Loading menu, please wait...
+                </td>
+              </tr>
+            ) : filteredDishes.length === 0 ? (
               <tr className="h-12">
                 <td colSpan="9" className="p-4 text-center text-gray-400">
                   No matching dishes found.
@@ -165,16 +207,23 @@ export default function ManageInventory() {
                       className="h-10 w-16 object-cover rounded-md"
                     />
                   </td>
-                  <td>${dish.price?.toFixed(2)}</td>
+                  <td>${dish.price?.toFixed(2) || "0.00"}</td>
                   <td>{dish.rating ?? 0}</td>
-                  <td>{dish.category}</td>
-                  <td>{dish.subcategory}</td>
+                  <td>{dish.category || "-"}</td>
+                  <td>{dish.subcategory || "-"}</td>
                   <td>
                     <button
-                      onClick={() => toggleAvailability(dish.id)}
+                      onClick={() =>
+                        toggleAvailability(dish.documentId, dish.available)
+                      }
                       className={`relative w-12 h-6 flex items-center p-0.5 rounded-full transition-all shadow-md mx-auto ${
                         dish.available ? "bg-emerald-500" : "bg-rose-500"
+                      } ${
+                        changingAvailability
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
                       }`}
+                      disabled={changingAvailability}
                     >
                       <span
                         className={`w-5 h-5 rounded-full flex items-center justify-center transition-all bg-white ${
@@ -192,14 +241,26 @@ export default function ManageInventory() {
                   <td>
                     <div className="flex pl-4 gap-2">
                       <button
-                        onClick={() => handleEdit(dish.id)}
-                        className="text-orange-500 hover:text-orange-700"
+                        onClick={() => handleEdit(dish.documentId)}
+                        className={`text-orange-500 hover:text-orange-700
+                        ${
+                          changingAvailability
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                        disabled={changingAvailability}
                       >
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => handleDelete(dish.id)}
-                        className="text-red-500 hover:text-red-700"
+                        onClick={() => handleDelete(dish.documentId)}
+                        className={`text-orange-500 hover:text-orange-700
+                          ${
+                            changingAvailability
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
+                        disabled={changingAvailability}
                       >
                         <Trash2 size={16} />
                       </button>
