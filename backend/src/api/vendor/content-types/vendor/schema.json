@@ -66,6 +66,10 @@
       "type": "string",
       "required": true,
       "unique": true
+    },
+    "bio": {
+      "type": "text",
+      "maxLength": 200
     }
   }
 }

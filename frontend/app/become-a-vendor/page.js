@@ -19,6 +19,7 @@ export default function BecomeVendor() {
   const [formData, setFormData] = useState({
     storeName: "",
     username: "",
+    bio: "",
     businessAddress: "",
     email: "",
     city: "",
@@ -250,6 +251,13 @@ export default function BecomeVendor() {
                 value={formData.zipcode}
                 onChange={handleChange}
                 placeholder="ZIP Code"
+                className="w-full p-3 border rounded-lg my-2 outline-rose-400"
+              />
+              <textarea
+                name="bio"
+                value={formData.bio}
+                onChange={handleChange}
+                placeholder="Bio"
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400"
               />
             </div>

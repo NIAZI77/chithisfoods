@@ -48,21 +48,25 @@ const Page = () => {
   return (
     <div className="md:w-[80%] w-[90%] mx-auto">
       <section className="relative">
-        <Image
-          src={vendor?.coverImage?.url}
-          alt="cover Image"
-          className="w-full aspect-video h-auto object-cover rounded-lg"
-          width={100}
-          height={100}
-        />
-        <Image
-          src={vendor?.avatar?.url}
-          alt="Profile"
-          className="md:w-48 md:h-48 w-24 h-24 rounded-full object-cover relative md:bottom-16 bottom-8 left-5 border-white border-8"
-          width={100}
-          height={100}
-        />
-        <div className="lg:mb-0 lg:absolute lg:bottom-0 lg:right-0 lg:p-5 lg:w-[75%] xl:w-[80%]">
+        {vendor?.coverImage?.url && (
+          <Image
+            src={vendor.coverImage.url}
+            alt="cover Image"
+            className="w-full h-auto aspect-4/1 object-cover rounded-lg"
+            width={100}
+            height={100}
+          />
+        )}
+        {vendor?.avatar?.url && (
+          <Image
+            src={vendor.avatar.url}
+            alt="Profile"
+            className="md:w-48 md:h-48 w-24 h-24 rounded-full object-cover relative md:bottom-16 bottom-8 left-5 border-white border-8"
+            width={100}
+            height={100}
+          />
+        )}
+        <div className="lg:mb-0 lg:absolute lg:bottom-0 lg:right-0 lg:w-[75%] xl:w-[80%] pl-4 -mt-6 lg:mt-0">
           <h2 className="text-lg font-semibold text-gray-800">
             {vendor?.storeName}
           </h2>
@@ -73,9 +77,9 @@ const Page = () => {
             @{username}
           </Link>
           <p className="text-sm text-gray-600 mt-2 leading-relaxed">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam atque dicta perspiciatis tempore nobis similiqu. Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus, aspernatur. Hic, perferendis tempora veniam, voluptatibus eius numquam, voluptates beatae laboriosam asperiores velit qui cumque magnam assumenda neque ducimus laudantium porro?
+            {vendor?.bio || "Welcome to our store! We take pride in offering high-quality products and exceptional service to our valued customers. Browse through our menu discover our delicious."}
           </p>
-          <p className="text-sm text-gray-600 mt-2 leading-relaxed bg-rose-50 px-2 rounded-full w-fit">
+          <p className="text-sm text-gray-600 mt-2 leading-relaxed bg-slate-50 px-4 rounded-full w-fit">
             {vendor?.businessAddress}, {vendor?.city}
           </p>
 

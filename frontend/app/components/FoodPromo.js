@@ -6,9 +6,9 @@ const FoodPromo = () => {
   return (
     <section className="bg-green-50 rounded-2xl p-8 grid md:grid-cols-2 lg:grid-cols-3 gap-8 w-[90%] mx-auto shadow-lg mt-10 items-center">
       <div className="order-1 md:order-2 relative w-64 h-64 md:w-80 md:h-80 mx-auto lg:col-span-1">
-        <div className="w-full h-full bg-black rounded-full overflow-hidden">
+        <div className="w-full h-full overflow-hidden">
           <Image
-            src="/food.png"
+            src="/foodPromo.png"
             alt="Delicious food"
             width={320}
             height={320}
