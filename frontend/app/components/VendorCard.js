@@ -1,58 +1,73 @@
 "use client";
 
 import Image from "next/image";
-import { MapPin, BadgeCheck } from "lucide-react";
-import { FaStar } from "react-icons/fa";
+import { MapPin } from "lucide-react";
+import { FaCheckCircle, FaStar } from "react-icons/fa";
 import Link from "next/link";
 
-const VendorCard = () => {
+const VendorCard = ({ chef }) => {
+  const isTopRated = chef.rating >= 1.5;
+  const verified = chef?.verified || true;
   return (
     <Link
-      href={"/vendors"}
+      href={`/vendors/@${chef?.username}`}
       className="block w-72 bg-white rounded-2xl shadow-md overflow-hidden relative"
     >
       <div className="relative h-40 w-full">
         <Image
-          src="/baryani.jpeg"
-          alt="Vendor Food"
+          src={chef?.coverImage?.url || "/vendor-food.jpg"}
+          alt={chef?.coverImage?.alternativeText || "Vendor Food"}
           fill
           className="object-cover"
         />
-        <div className="absolute top-3 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-md flex items-center justify-center">
-          <FaStar className="inline mr-1" /> Top Rated
-        </div>
+        {isTopRated && (
+          <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-md flex items-center gap-1 shadow">
+            <FaStar className="inline" />
+            Top Rated
+          </div>
+        )}
       </div>
-
-      <div className="p-4 space-y-2">
-        <div className="flex items-center space-x-3">
-          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white mt-5">
+      <div className="grid grid-cols-3 gap-1 p-1">
+        <div className="">
+          <div className="relative w-20 h-20 mx-auto -mt-10 mb-2">
             <Image
-              src="/person.jpeg"
-              alt="Vendor Avatar"
+              src={chef?.avatar?.url || "/vendor-avatar.jpg"}
+              alt={chef?.avatar?.alternativeText || "Vendor Avatar"}
               fill
-              className="object-cover"
+              className="object-cover rounded-full border-5 border-white"
             />
           </div>
-          <div>
-            <h3 className="font-semibold text-gray-800">BBQ Bros Grill</h3>
-            <p className="text-sm text-gray-500">Barbecue, American</p>
+        </div>
+        <div className="col-span-2 space-y-1 mt-3">
+          <h3 className="font-semibold text-gray-800 text-md">
+            {chef?.storeName.replace(/\b\w/g, c => c.toUpperCase()) || "Vendor Name here"}
+          </h3>
+
+          <div className="flex items-center gap-1">
+            {Array.from({ length: 5 }).map((_, i) =>
+              i < Math.round(chef.rating) ? (
+                <FaStar key={i} className="text-yellow-400" />
+              ) : (
+                <FaStar key={i} className="text-slate-300" />
+              )
+            )}
+            <span className="ml-2 text-gray-700 font-semibold text-base">
+              {chef.rating.toFixed(1)}
+            </span>
           </div>
         </div>
-
-        <div className="flex items-center justify-center text-yellow-500 text-sm">
-          <FaStar />
-
-          <span className="text-gray-600 ml-1">4.8</span>
-        </div>
-
-        <div className="flex flex-wrap gap-2 text-xs mt-2">
-          <span className="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded-full">
-            <BadgeCheck size={14} /> Verified
+      </div>
+      <div className="flex items-center justify-end gap-2 p-2">
+        {verified && (
+          <span className="flex items-center gap-1 bg-green-100 text-green-700 px-1 py-0.5 rounded-full font-medium text-xs">
+            <FaCheckCircle className="text-green-500" />
+            Verified
           </span>
-          <span className="flex items-center gap-1 bg-red-100 text-red-600 px-2 py-1 rounded-full">
-            <MapPin size={14} /> New York, NY
-          </span>
-        </div>
+        )}
+        <span className="flex  items-center gap-1 bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium text-xs">
+          <MapPin size={14} />
+          {chef?.city.replace(/\b\w/g, c => c.toUpperCase()) || "Location"}, {chef?.zipcode || "address"}
+        </span>
       </div>
     </Link>
   );

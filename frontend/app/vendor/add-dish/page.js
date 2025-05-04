@@ -26,6 +26,7 @@ export default function AddDishPage() {
     description: "",
     price: "",
     chef: {},
+    email: "",
     image: { id: 0, url: "" },
     servings: "",
     category: "fruits",
@@ -36,7 +37,7 @@ export default function AddDishPage() {
     toppings: [],
     extras: [],
     spiciness: [],
-    email: "",
+    reviews:[],
   });
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);

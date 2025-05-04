@@ -5,23 +5,23 @@ import { Star, Plus } from "lucide-react";
 import { FaUser } from "react-icons/fa";
 import Link from "next/link";
 
-const defaultDish = {
-  documentId: "biuucr56545y",
-  name: "Spicy Chicken Biryani",
-  image: { url: "/baryani.jpeg" },
-  price: 99.99,
-  rating: 4.5,
-  servings: 2,
-  category: "Main Course",
-  subcategory: "Rice Dishes",
-  chef: {
-    name: "Ali Raza",
-    avatar: { url: "/person.jpeg" },
-    rating: 4.9,
+export default function DishCard({
+  dish = {
+    documentId: "biuucr56545y",
+    name: "Spicy Chicken Biryani",
+    image: { url: "/baryani.jpeg" },
+    price: 99.99,
+    rating: 4.5,
+    servings: 2,
+    category: "Main Course",
+    subcategory: "Rice Dishes",
+    chef: {
+      name: "Ali Raza",
+      avatar: { url: "/person.jpeg" },
+      rating: 4.9,
+    },
   },
-};
-
-export default function ProductCard({ dish = defaultDish }) {
+}) {
   return (
     <Link
       href={`/dish/${dish.documentId}`}
@@ -36,7 +36,7 @@ export default function ProductCard({ dish = defaultDish }) {
             height={32}
             className="rounded-full w-8 h-8 object-cover object-center"
           />
-          <p className="font-semibold text-sm">{dish.chef.name}</p>
+          <p className="font-semibold text-sm">{dish.chef.name.replace(/\b\w/g, c => c.toUpperCase())}</p>
         </div>
         <div className="flex items-center gap-1 text-yellow-500 text-sm font-semibold">
           <Star className="w-4 h-4 fill-yellow-500" />
@@ -57,7 +57,7 @@ export default function ProductCard({ dish = defaultDish }) {
 
       {/* Title and Serving */}
       <div className="flex items-center justify-between mb-1">
-        <h3 className="text-lg font-semibold">{dish.name}</h3>
+        <h3 className="text-lg font-semibold">{dish.name.replace(/\b\w/g, c => c.toUpperCase())}</h3>
         <div className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-sm flex items-center gap-1 justify-center">
           Servings <FaUser /> {dish.servings}
         </div>
@@ -65,8 +65,8 @@ export default function ProductCard({ dish = defaultDish }) {
 
       {/* Category and Subcategory */}
       <p className="text-sm text-gray-500">
-        {dish.category} ·{" "}
-        <span className="text-green-500 font-medium">{dish.subcategory}</span>
+        {dish.category.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())} ·{" "}
+        <span className="text-green-500 font-medium">{dish.subcategory.replace(/\b\w/g, c => c.toUpperCase())}</span>
       </p>
 
       {/* Add to Cart Section */}

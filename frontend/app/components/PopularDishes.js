@@ -1,5 +1,5 @@
 "use client";
-import ProductCard from "./ProductCard";
+import ProductCard from "./DishCard";
 
 export default function PopularDishes() {
   return (

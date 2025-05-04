@@ -1,6 +1,6 @@
 'use client';
 
-import ProductCard from '@/app/components/ProductCard';
+import ProductCard from '@/app/components/DishCard';
 import { useParams } from 'next/navigation';
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';

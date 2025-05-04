@@ -3,19 +3,47 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { FaMapMarkerAlt, FaStar } from "react-icons/fa";
 import { Separator } from "@/components/ui/separator";
-import ProductCard from "../../components/ProductCard";
+import ProductCard from "../../components/DishCard";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Loading from "@/app/loading";
 
 const Page = () => {
   const [loading, setLoading] = useState(false);
-  const [vendor, setVendor] = useState(null);
+  const [vendorData, setVendorData] = useState(null);
+  const [menu, setMenu] = useState(null);
+  const [menuLoading, setMenuLoading] = useState(false);
   let { username } = useParams();
   username = username.replace(/%40/g, "");
 
   useEffect(() => {
     getVendor(username);
   }, [username]);
+
+  const getVendorMenu = async (id) => {
+    setMenuLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[vendorId][$eq]=${id}&populate=*`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok && data.data) {
+        setMenu(data.data);
+      }
+    } catch (error) {
+      console.error("Could not fetch vendor menu. Please try again.");
+    } finally {
+      setMenuLoading(false);
+    }
+  };
 
   const getVendor = async (username) => {
     setLoading(true);
@@ -34,7 +62,8 @@ const Page = () => {
       const data = await response.json();
 
       if (response.ok && data.data.length > 0) {
-        setVendor(data.data[0]);
+        setVendorData(data.data[0]);
+        getVendorMenu(data.data[0].documentId);
       }
     } catch (error) {
       console.error("Could not verify your vendor status. Please try again.");
@@ -43,32 +72,34 @@ const Page = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading />;
 
   return (
     <div className="md:w-[80%] w-[90%] mx-auto">
       <section className="relative">
-        {vendor?.coverImage?.url && (
+        {vendorData?.coverImage?.url && (
           <Image
-            src={vendor.coverImage.url}
+            src={vendorData.coverImage.url}
             alt="cover Image"
             className="w-full h-auto aspect-4/1 object-cover rounded-lg"
-            width={100}
-            height={100}
+            width={1200}
+            height={300}
+            priority
           />
         )}
-        {vendor?.avatar?.url && (
+        {vendorData?.avatar?.url && (
           <Image
-            src={vendor.avatar.url}
+            src={vendorData.avatar.url}
             alt="Profile"
             className="md:w-48 md:h-48 w-24 h-24 rounded-full object-cover relative md:bottom-16 bottom-8 left-5 border-white border-8"
-            width={100}
-            height={100}
+            width={192}
+            height={192}
+            priority
           />
         )}
         <div className="lg:mb-0 lg:absolute lg:bottom-0 lg:right-0 lg:w-[75%] xl:w-[80%] pl-4 -mt-6 lg:mt-0">
           <h2 className="text-lg font-semibold text-gray-800">
-            {vendor?.storeName}
+            {vendorData?.storeName?.replace(/\b\w/g, (c) => c.toUpperCase())}
           </h2>
           <Link
             href={`/vendor/@${username}`}
@@ -77,22 +108,23 @@ const Page = () => {
             @{username}
           </Link>
           <p className="text-sm text-gray-600 mt-2 leading-relaxed">
-            {vendor?.bio || "Welcome to our store! We take pride in offering high-quality products and exceptional service to our valued customers. Browse through our menu discover our delicious."}
+            {vendorData?.bio ||
+              "Welcome to our store! We take pride in offering high-quality products and exceptional service to our valued customers. Browse through our menu discover our delicious."}
           </p>
           <p className="text-sm text-gray-600 mt-2 leading-relaxed bg-slate-50 px-4 rounded-full w-fit">
-            {vendor?.businessAddress}, {vendor?.city}
+            {vendorData?.businessAddress}, {vendorData?.city}
           </p>
 
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-center text-sm">
               <FaStar className="text-yellow-400" />
               <span className="text-gray-800 font-semibold ml-1">
-                {vendor?.rating || 0}
+                {vendorData?.rating || 0}
               </span>
             </div>
             <div className="flex items-center bg-red-100 text-red-600 text-sm px-3 py-1 rounded-full font-medium gap-1">
               <FaMapMarkerAlt size={14} />
-              {vendor?.city}, {vendor?.zipcode}
+              {vendorData?.city}, {vendorData?.zipcode}
             </div>
           </div>
         </div>
@@ -104,11 +136,24 @@ const Page = () => {
           <div className="px-2 text-center bg-background text-sm">MENU</div>
           <Separator />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <ProductCard key={i} />
-          ))}
-        </div>
+        {menuLoading ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <Loading />
+          </div>
+        ) : menu?.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
+            {menu.map((dish) => (
+              <ProductCard key={dish.id} dish={dish} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center min-h-[200px] text-gray-500">
+            <p className="text-lg font-medium">No menu available</p>
+            <p className="text-sm mt-2">
+              This vendor hasn&apos;t added any dishes yet.
+            </p>
+          </div>
+        )}
       </section>
     </div>
   );
