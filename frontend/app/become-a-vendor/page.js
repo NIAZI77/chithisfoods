@@ -258,7 +258,7 @@ export default function BecomeVendor() {
                 value={formData.bio}
                 onChange={handleChange}
                 placeholder="Bio"
-                className="w-full p-3 border rounded-lg my-2 outline-rose-400"
+                className="w-full p-3 border rounded-lg my-2 outline-rose-400 md:h-24 resize-none"
               />
             </div>
           )}

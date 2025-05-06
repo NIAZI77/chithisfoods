@@ -5,7 +5,6 @@ import { FaMapMarkerAlt, FaStar } from "react-icons/fa";
 import { Separator } from "@/components/ui/separator";
 import ProductCard from "../../components/DishCard";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import Loading from "@/app/loading";
 
 const Page = () => {
@@ -101,12 +100,9 @@ const Page = () => {
           <h2 className="text-lg font-semibold text-gray-800">
             {vendorData?.storeName?.replace(/\b\w/g, (c) => c.toUpperCase())}
           </h2>
-          <Link
-            href={`/vendor/@${username}`}
-            className="block text-sm hover:underline text-gray-500"
-          >
+          <span className="block text-sm hover:underline text-gray-500">
             @{username}
-          </Link>
+          </span>
           <p className="text-sm text-gray-600 mt-2 leading-relaxed">
             {vendorData?.bio ||
               "Welcome to our store! We take pride in offering high-quality products and exceptional service to our valued customers. Browse through our menu discover our delicious."}

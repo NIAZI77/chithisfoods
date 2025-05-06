@@ -1,222 +1,379 @@
 "use client";
-import { useEffect, useState } from "react";
-import { FaTrashAlt } from "react-icons/fa";
-import { RiArrowLeftSLine } from "react-icons/ri";
-import { GiHotSpices } from "react-icons/gi";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import {
+  Trash2,
+  Minus,
+  Plus,
+  ArrowRight,
+  ShoppingCart,
+  ChefHat,
+  Flame,
+  Package,
+  Receipt,
+  CreditCard,
+} from "lucide-react";
+import { toast } from "react-toastify";
 import Image from "next/image";
 
-const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const [taxRate, setTaxRate] = useState(8);
+export default function CartPage() {
+  const [cart, setCart] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [subtotal, setSubtotal] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const pendingActionRef = useRef(null);
 
-  const groupCartItemsByVendor = (cart) =>
-    cart.reduce((acc, item) => {
-      const vendor = acc.find((v) => v.vendor_name === item.vendor_name);
-      if (vendor) vendor.products.push(item);
-      else acc.push({ vendor_name: item.vendor_name, products: [item] });
-      return acc;
-    }, []);
-
-  const updateCartItemQuantity = (item_id, selectedSpiciness, increment) => {
-    const updatedCartItems = cartItems.map((item) =>
-      item.id === item_id && item.selectedSpiciness === selectedSpiciness
-        ? { ...item, quantity: Math.max(1, item.quantity + increment) }
-        : item
-    );
-    setCartItems(updatedCartItems);
-    localStorage.setItem("cart", JSON.stringify(updatedCartItems));
-  };
-
-  const removeItem = (item_id, selectedSpiciness) => {
-    const updatedCartItems = cartItems.filter(
-      (item) =>
-        item.id !== item_id || item.selectedSpiciness !== selectedSpiciness
-    );
-    setCartItems(updatedCartItems);
-    localStorage.setItem("cart", JSON.stringify(updatedCartItems));
-  };
-
-  const calculateTotals = () => {
-    const totalPrice = cartItems.reduce(
-      (total, item) => total + parseFloat(item.price) * item.quantity,
-      0
-    );
-    const taxAmount = totalPrice * (taxRate / 100);
-    return { totalPrice, taxAmount, finalTotal: totalPrice + taxAmount };
-  };
-
-  const { totalPrice, taxAmount, finalTotal } = calculateTotals();
-
+  // Initialize cart from localStorage on mount
   useEffect(() => {
-    const cart = localStorage.getItem("cart");
-    setCartItems(JSON.parse(cart) || []);
-    console.log(cart);
+    try {
+      const savedCart = localStorage.getItem("cart");
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        if (Array.isArray(parsedCart)) {
+          setCart(parsedCart);
+        } else {
+          console.error("Invalid cart data in localStorage");
+          setCart([]);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading cart from localStorage:", error);
+      setCart([]);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
+  // Handle pending actions after cart updates
   useEffect(() => {
-    localStorage.setItem("total", finalTotal.toFixed(2));
-    localStorage.setItem("taxRate", taxRate);
-  }, [cartItems, finalTotal, taxRate]);
+    if (pendingActionRef.current) {
+      const { type, item, message } = pendingActionRef.current;
 
-  const groupedCart = groupCartItemsByVendor(cartItems);
+      if (type === "remove") {
+        if (cart.length === 0) {
+          toast.info("Your cart is now empty");
+        } else {
+          toast.success(message);
+        }
+      } else if (type === "clear") {
+        toast.success(message);
+      }
+
+      pendingActionRef.current = null;
+    }
+  }, [cart]);
+
+  // Calculate subtotal and total items whenever cart changes
+  useEffect(() => {
+    const newSubtotal = cart.reduce((sum, item) => {
+      const toppingsTotal = item.toppings.reduce(
+        (tSum, topping) => tSum + topping.price,
+        0
+      );
+      const extrasTotal = item.extras.reduce(
+        (eSum, extra) => eSum + extra.price,
+        0
+      );
+      return (
+        sum + (item.basePrice + toppingsTotal + extrasTotal) * item.quantity
+      );
+    }, 0);
+    const newTotalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+    setSubtotal(newSubtotal);
+    setTotalItems(newTotalItems);
+  }, [cart]);
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    if (!isLoading) {
+      try {
+        localStorage.setItem("cart", JSON.stringify(cart));
+      } catch (error) {
+        console.error("Error saving cart to localStorage:", error);
+        toast.error("Failed to save cart changes");
+      }
+    }
+  }, [cart, isLoading]);
+
+  const updateQty = (item, delta) => {
+    try {
+      setCart((prevCart) => {
+        return prevCart.map((cartItem) => {
+          if (
+            cartItem.id === item.id &&
+            cartItem.selectedSpiciness === item.selectedSpiciness &&
+            JSON.stringify(cartItem.toppings) ===
+              JSON.stringify(item.toppings) &&
+            JSON.stringify(cartItem.extras) === JSON.stringify(item.extras)
+          ) {
+            const newQuantity = Math.max(1, cartItem.quantity + delta);
+            return { ...cartItem, quantity: newQuantity };
+          }
+          return cartItem;
+        });
+      });
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      toast.error("Failed to update quantity");
+    }
+  };
+
+  const removeItem = (item) => {
+    try {
+      pendingActionRef.current = {
+        type: "remove",
+        item,
+        message: `${item.name} removed from cart`,
+      };
+
+      setCart((prevCart) => {
+        return prevCart.filter((cartItem) => {
+          return !(
+            cartItem.id === item.id &&
+            cartItem.selectedSpiciness === item.selectedSpiciness &&
+            JSON.stringify(cartItem.toppings) ===
+              JSON.stringify(item.toppings) &&
+            JSON.stringify(cartItem.extras) === JSON.stringify(item.extras)
+          );
+        });
+      });
+    } catch (error) {
+      console.error("Error removing item:", error);
+      toast.error("Failed to remove item");
+    }
+  };
+
+  const clearAll = () => {
+    try {
+      if (cart.length > 0) {
+        pendingActionRef.current = {
+          type: "clear",
+          message: "All items removed from cart",
+        };
+        setCart([]);
+      } else {
+        toast.info("Cart is already empty");
+      }
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+      toast.error("Failed to clear cart");
+    }
+  };
+
+  const handleCheckout = () => {
+    try {
+      if (cart.length === 0) {
+        toast.error("Your cart is empty");
+        return;
+      }
+      toast.success("Proceeding to checkout...");
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      toast.error("Failed to proceed with checkout");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <ShoppingCart className="w-12 h-12 mx-auto text-rose-500 animate-bounce mb-4" />
+          <p className="text-gray-600">Loading cart...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-[95%] mx-auto my-2">
-      <div className="sm:flex">
-        <div className="w-full bg-white p-4">
-          <div className="flex justify-between border-b pb-8">
-            <h1 className="font-semibold text-2xl">Shopping Cart</h1>
-            <h2 className="font-semibold text-2xl">{cartItems.length} Items</h2>
+    <div className="mx-3">
+      <div className="w-full mx-auto py-10 px-2 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] col-span-2">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
+              <ShoppingCart className="text-rose-500" />
+              Shopping Cart
+            </h2>
+            <div className="flex items-center gap-8">
+              <Link
+                href="/explore"
+                className="text-base font-bold text-rose-500 hover:underline underline-offset-2 flex items-center gap-2"
+              >
+                Continue shopping <ArrowRight />
+              </Link>
+            </div>
           </div>
-          <Link
-            href="/menu"
-            className="flex font-semibold text-rose-600 text-sm mt-10"
-          >
-            <RiArrowLeftSLine className="fill-current mr-2 text-rose-600 w-4" />{" "}
-            Continue Shopping
-          </Link>
-          {groupedCart.map((vendor, index) => (
-            <div key={index} className="bg-slate-50 p-6 rounded-md my-2">
-              <h3 className="font-semibold text-xl mt-8">
-                {vendor.vendor_name}
-              </h3>
-              {vendor.products.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="md:flex items-stretch py-4 border-t border-gray-50 my-2"
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-[2fr_1.6fr_1.2fr_0.75fr_0.5fr] px-2 pb-2 border-b border-gray-200 mb-2">
+            <div className="text-base font-bold text-rose-500">Product</div>
+            <div className="text-base font-bold text-rose-500 text-center">
+              AddOns
+            </div>
+            <div className="text-base font-bold text-rose-500 text-center">
+              Quantity
+            </div>
+            <div className="text-base font-bold text-rose-500 text-center">
+              Total Price
+            </div>
+            <div className="text-base font-bold text-rose-500 text-center">
+              {cart.length > 0 && (
+                <button
+                  onClick={clearAll}
+                  className="text-base font-bold text-red-500 hover:text-red-700 text-right"
                 >
-                  <Link
-                    href={`/product/${item.vendorID}?productId=${item.id}`}
-                    className="md:w-4/12 2xl:w-1/4 w-full mb-5"
+                  <Trash2 />
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="divide-y divide-gray-100">
+            {cart.length === 0 ? (
+              <div className="py-8 text-center">
+                <ShoppingCart className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-xl font-bold text-gray-600 mb-2">
+                  Your cart is empty
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  Looks like you haven&apos;t added any items to your cart yet.
+                </p>
+                <Link
+                  href="/explore"
+                  className="inline-flex items-center gap-2 text-rose-500 font-semibold hover:underline"
+                >
+                  Start shopping <ArrowRight size={16} />
+                </Link>
+              </div>
+            ) : (
+              cart.map((item, index) => {
+                // Create a unique key for React
+                const uniqueKey = `${item.id}-${
+                  item.selectedSpiciness || "none"
+                }-${JSON.stringify(item.toppings)}-${JSON.stringify(
+                  item.extras
+                )}-${index}`;
+
+                return (
+                  <div
+                    key={uniqueKey}
+                    className="grid grid-cols-1 md:grid-cols-[2fr_1.6fr_1.2fr_0.75fr_0.5fr] items-center py-4 px-0 md:px-2"
                   >
-                    <Image
-                      height={100}
-                      width={100}
-                      src={item.image.url}
-                      alt={item.name}
-                      className="h-full object-center object-cover md:block hidden w-full"
-                    />
-                    <Image
-                      height={100}
-                      width={100}
-                      src={item.image.url}
-                      alt={item.name}
-                      className="md:hidden w-full h-full object-center object-cover"
-                    />
-                  </Link>
-                  <div className="md:pl-3 md:w-8/12 2xl:w-3/4 flex flex-col justify-center">
-                    <div className="flex items-center justify-between w-full">
-                      <p className="text-base font-black leading-none text-gray-800">
-                        {item.name}
-                      </p>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center justify-center font-semibold border-rose-100">
-                          <span
-                            onClick={() =>
-                              updateCartItemQuantity(
-                                item.id,
-                                item.selectedSpiciness,
-                                -1
-                              )
-                            }
-                            className="cursor-pointer rounded-l font-bold bg-rose-100 py-1 px-3.5 duration-100 hover:bg-rose-500 hover:text-rose-50"
-                          >
-                            -
-                          </span>
-                          <span className="py-1 px-3">{item.quantity}</span>
-                          <span
-                            onClick={() =>
-                              updateCartItemQuantity(
-                                item.id,
-                                item.selectedSpiciness,
-                                1
-                              )
-                            }
-                            className="cursor-pointer rounded-r font-bold bg-rose-100 py-1 px-3 duration-100 hover:bg-rose-500 hover:text-rose-50"
-                          >
-                            +
-                          </span>
+                    <div className="flex items-center gap-4">
+                      <div className="relative h-10 aspect-video rounded-lg overflow-hidden">
+                        <Image
+                          src={item.image.url}
+                          alt={item.name}
+                          fill
+                          className="object-cover aspect-video"
+                        />
+                      </div>
+                      <div>
+                        <div className="font-black text-lg text-black leading-tight">
+                          {item.name}
+                        </div>
+                        <div className="text-sm text-gray-400 font-medium flex items-center gap-1">
+                          <ChefHat size={14} />
+                          {item.chef.name}
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-end py-2">
-                      <div className="inline-flex items-center justify-center text-slate-500 px-2 bg-gray-200 rounded-lg font-bold">
-                        Servings{" "}
-                        {item?.serving > 1
-                          ? `1-${item?.serving}`
-                          : item?.serving || "N/A"}
-                      </div>
+
+                    <div className="text-sm text-gray-600 space-y-1">
+                      {item.selectedSpiciness && (
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium flex items-center gap-1">
+                            <Flame size={14} />
+                          </span>
+                          <span>{item.selectedSpiciness}</span>
+                        </div>
+                      )}
+
+                      {item.toppings.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium flex items-center gap-1">
+                            <Package size={14} />
+                          </span>
+                          <span>
+                            {item.toppings
+                              .map((t) => `${t.name} (${t.option})`)
+                              .join(", ")}
+                          </span>
+                        </div>
+                      )}
+                      {item.extras.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium flex items-center gap-1">
+                            <Receipt size={14} />
+                          </span>
+                          <span>
+                            {item.extras.map((e) => `${e.name}`).join(", ") ||
+                              "None"}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-base font-black leading-none text-gray-600">
-                        ${item.price * item.quantity}
-                      </p>
-                      <p className="text-base font-black leading-none text-gray-600 flex items-center justify-center">
-                        <GiHotSpices className="inline text-rose-500" />{" "}
-                        {item.selectedSpiciness}
-                      </p>
-                      <p
-                        className="text-xs leading-3 text-red-500 pl-5 cursor-pointer flex items-center pr-8"
-                        onClick={() =>
-                          removeItem(item.id, item.selectedSpiciness)
-                        }
+                    <div className="bg-rose-500 text-white rounded-full flex items-center gap-2 p-2 w-fit mx-auto">
+                      <button
+                        onClick={() => updateQty(item, -1)}
+                        className="hover:bg-rose-400 rounded-full p-1"
                       >
-                        <FaTrashAlt className="mr-1 scale-150" />
-                      </p>
+                        <Minus size={16} />
+                      </button>
+                      <span className="w-7 text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQty(item, 1)}
+                        className="hover:bg-rose-400 rounded-full p-1"
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                    <div className="flex justify-start font-black text-lg text-black pl-1">
+                      $
+                      {(
+                        (item.basePrice +
+                          item.toppings.reduce((sum, t) => sum + t.price, 0) +
+                          item.extras.reduce((sum, e) => sum + e.price, 0)) *
+                        item.quantity
+                      ).toFixed(2)}
+                    </div>
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => removeItem(item)}
+                        className="text-gray-400 hover:text-red-500 flex items-center justify-center"
+                      >
+                        <Trash2 />
+                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-
-        <div id="summary" className="w-full sm:w-1/4 md:w-1/2 px-8 py-10">
-          <h1 className="font-semibold text-2xl border-b pb-8">
-            Order Summary
-          </h1>
-          <div className="flex justify-between mt-2 mb-5">
-            <span className="font-semibold text-sm uppercase">
-              Items {cartItems.length}
-            </span>
-            <span className="font-semibold text-sm">
-              ${totalPrice.toFixed(2)}
-            </span>
-          </div>
-
-          <div className="flex justify-between mt-2 mb-5">
-            <span className="font-semibold text-sm uppercase">Tax</span>
-            <span className="font-semibold text-sm">
-              Estimated Tax - ${taxAmount.toFixed(2)}{" "}
-              {taxAmount > 0 && <span>({taxRate}%)</span>}
-            </span>
-          </div>
-
-          <div className="border-t mt-8">
-            <div className="flex font-semibold justify-between py-6 text-sm uppercase">
-              <span>Total cost</span>
-              <span>${finalTotal.toFixed(2)}</span>
-            </div>
-            {cartItems.length > 0 ? (
-              <Link href="/checkout">
-                <button className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold">
-                  Checkout
-                </button>
-              </Link>
-            ) : (
-              <button
-                disabled
-                className="w-full bg-rose-400 text-white py-3 rounded-full cursor-not-allowed shadow-rose-300 shadow-md"
-              >
-                Checkout
-              </button>
+                );
+              })
             )}
           </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 h-fit flex flex-col min-w-[320px]">
+          <h3 className="font-black text-2xl mb-6 flex items-center gap-2">
+            Order Summary
+          </h3>
+          <div className="bg-[#F8F8F8] rounded-xl p-6 mb-6">
+            <div className="flex justify-between text-base font-bold mb-2">
+              <span>Total Meal Items:</span> <span>{totalItems}</span>
+            </div>
+            <div className="flex justify-between text-base font-bold">
+              <span>Total Price:</span>
+              <span className="text-red-500">${subtotal.toFixed(2)}</span>
+            </div>
+          </div>
+          <button
+            onClick={handleCheckout}
+            className={`w-full py-3 bg-rose-600 text-white shadow-rose-300 hover:bg-rose-700 rounded-full shadow-md transition-all font-semibold flex items-center justify-center gap-2 
+              ${cart.length === 0 && "opacity-50 cursor-not-allowed"}
+            `}
+            disabled={cart.length === 0}
+          >
+            <CreditCard size={20} />
+            Proceed to checkout
+          </button>
         </div>
       </div>
     </div>
   );
-};
-
-export default Cart;
+}

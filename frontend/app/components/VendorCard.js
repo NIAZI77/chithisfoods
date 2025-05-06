@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { MapPin } from "lucide-react";
+import { ChefHat, MapPin } from "lucide-react";
 import { FaCheckCircle, FaStar } from "react-icons/fa";
 import Link from "next/link";
 
@@ -11,18 +11,18 @@ const VendorCard = ({ chef }) => {
   return (
     <Link
       href={`/vendors/@${chef?.username}`}
-      className="block w-72 bg-white rounded-2xl shadow-md overflow-hidden relative"
+      className="block w-72 bg-white rounded-2xl shadow-md overflow-hidden relative pb-1 hover:shadow-lg transition-shadow duration-300 ease-in-out"
     >
       <div className="relative h-40 w-full">
         <Image
-          src={chef?.coverImage?.url || "/vendor-food.jpg"}
+          src={chef?.coverImage?.url || "/fallback.png"}
           alt={chef?.coverImage?.alternativeText || "Vendor Food"}
           fill
           className="object-cover"
         />
         {isTopRated && (
-          <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-md flex items-center gap-1 shadow">
-            <FaStar className="inline" />
+          <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-3 rounded-md flex items-center gap-1 shadow">
+            <ChefHat className="inline w-4" />
             Top Rated
           </div>
         )}
@@ -38,7 +38,7 @@ const VendorCard = ({ chef }) => {
             />
           </div>
         </div>
-        <div className="col-span-2 space-y-1 mt-3">
+        <div className="col-span-2 space-y-1">
           <h3 className="font-semibold text-gray-800 text-md">
             {chef?.storeName.replace(/\b\w/g, c => c.toUpperCase()) || "Vendor Name here"}
           </h3>
