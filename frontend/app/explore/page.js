@@ -8,12 +8,32 @@ import FoodPromo from "../components/FoodPromo";
 import TopChefs from "../components/TopChefs";
 import PopularDishes from "../components/PopularDishes";
 import { useRouter } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
+import Loading from "../loading";
+import ZipcodeDialogue from "../components/zipcodeDialogue";
+
 export default function Explore() {
+  const [loading, setLoading] = useState(true);
+  const [zipcode, setZipcode] = useState("");
   const router = useRouter();
-  const handleChangeLocation = () => {
-    router.push("/");
-    // localStorage.removeItem("zipcode");
-  };
+
+  const handleZipcodeChange = useCallback((e) => setZipcode(e.detail.zipcode), []);
+
+  useEffect(() => {
+    const savedZipcode = localStorage.getItem("zipcode");
+    if (!savedZipcode) {
+      router.push("/");
+      return;
+    }
+
+    setZipcode(savedZipcode);
+    setLoading(false);
+    window.addEventListener("zipcodeChange", handleZipcodeChange);
+    return () => window.removeEventListener("zipcodeChange", handleZipcodeChange);
+  }, [router, handleZipcodeChange]);
+
+  if (loading) return <Loading />;
+
   return (
     <div className="space-y-10">
       <section className="bg-slate-800 h-screen max-h-[700px] flex items-center px-4 -mt-20">
@@ -23,54 +43,38 @@ export default function Explore() {
               Tasty food in your <br />
               <span className="text-green-400">Neighborhood</span>
             </h1>
-            <p className="text-lg text-gray-300">
-              Order food from favorite chefs near you.
-            </p>
+            <p className="text-lg text-gray-300">Order food from favorite chefs near you.</p>
             <div className="flex space-x-4 justify-center lg:justify-start">
               <div className="flex items-center justify-center lg:justify-start gap-4 text-green-400 font-bold md:text-5xl text-xl">
                 <FiMapPin />
-                30340
+                <span>{zipcode}</span>
               </div>
               <div className="flex items-center justify-center py-4">
-                <button
-                  onClick={handleChangeLocation}
-                  className="bg-green-400 text-white md:px-4 px-2 md:py-3 py-1.5 rounded-full shadow-md hover:bg-green-500 transition-all font-semibold"
-                >
-                  Change Location
-                </button>
+                <ZipcodeDialogue />
               </div>
             </div>
           </div>
 
           <div className="flex justify-center items-center order-1 lg:order-2">
-            <div className="relative w-80 h-80">
+            <div className="w-full h-full flex justify-center items-center">
               <Image
                 src="/food.png"
                 width={400}
                 height={400}
                 className="object-contain"
                 alt="Delicious food"
+                priority
               />
             </div>
           </div>
         </div>
       </section>
-      <section>
-        <TopCategories />
-      </section>
-      <section>
-        <TopChefs />
-      </section>
-      <section>
-        <PopularDishes />
-      </section>
-      <section>
-        <Testimonials />
-      </section>
 
-      <section>
-        <FoodPromo />
-      </section>
+      <TopCategories />
+      <TopChefs />
+      <PopularDishes />
+      <Testimonials />
+      <FoodPromo />
     </div>
   );
 }

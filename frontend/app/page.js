@@ -1,10 +1,27 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import FoodPromo from "./components/FoodPromo";
 import Testimonials from "./components/Testimonial";
 import Image from "next/image";
-import Link from "next/link";
+import ZipcodeDialogue from "./components/zipcodeDialogue";
+import { useRouter } from "next/navigation";
+import Loading from "./loading";
 
-const page = () => {
+const Page = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const zipcode = localStorage.getItem("zipcode");
+    if (zipcode) {
+      router.push("/explore");
+    } else {
+      setLoading(false);
+    }
+  }, [router]);
+
+  if (loading) return <Loading />;
+
   return (
     <div>
       <section className="relative h-screen max-h-[700px] -mt-20 flex items-center justify-center text-white">
@@ -15,6 +32,7 @@ const page = () => {
             src="/hero-bg.jpg"
             alt="Chef preparing food"
             className="w-full h-full object-cover"
+            priority={true}
           />
           <div className="absolute inset-0 bg-black/60" />
         </div>
@@ -27,18 +45,13 @@ const page = () => {
           </h1>
           <div className="bg-pink-950 text-rose-100 rounded-lg p-5 mx-auto mt-8 md:w-96 w-80">
             <p className="mt-6 text-base md:text-lg leading-relaxed">
-              Delicious meals by expert chefs delivered fast and free to your
-              doorstep.
+              Delicious meals by expert chefs delivered fast and free to your doorstep.
             </p>
-            <Link
-              href="/explore"
-              className="uppercase w-full mt-8 px-8 py-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-semibold transition-all block"
-            >
-              Explore Chef Services
-            </Link>
+            <ZipcodeDialogue />
           </div>
         </div>
       </section>
+
       <section className="py-12 bg-white">
         <div className="text-center">
           <h4 className="text-rose-500 font-semibold tracking-wide uppercase">
@@ -50,13 +63,12 @@ const page = () => {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 w-[95%] mx-auto">
-            {/* Card 1 */}
             <div className="flex flex-col items-center text-center space-y-4">
               <Image
                 height={100}
                 width={100}
                 src="/pizza maker.svg"
-                alt="Chef preparing food"
+                alt="Savor Freshly Made Homemade Meals"
                 className="w-[60%] h-auto rounded-full mb-4"
                 priority={true}
               />
@@ -64,18 +76,16 @@ const page = () => {
                 Savor Freshly Made Homemade Meals
               </h3>
               <p className="text-gray-600">
-                Local chefs cook for select households, offering personal-chef
-                quality at a fraction of the price.
+                Local chefs cook for select households, offering personal-chef quality at a fraction of the price.
               </p>
             </div>
 
-            {/* Card 2 */}
             <div className="flex flex-col items-center text-center space-y-4">
               <Image
                 height={100}
                 width={100}
                 src="/pizza maker.svg"
-                alt="Chef preparing food"
+                alt="Shef: A Sharose Personal Chef"
                 className="w-[60%] h-auto rounded-full mb-4"
                 priority={true}
               />
@@ -83,18 +93,16 @@ const page = () => {
                 Shef: A Sharose Personal Chef
               </h3>
               <p className="text-gray-600">
-                Local chefs bring personal-chef quality to select households at
-                a fraction of the price.
+                Local chefs bring personal-chef quality to select households at a fraction of the price.
               </p>
             </div>
 
-            {/* Card 3 */}
             <div className="flex flex-col items-center text-center space-y-4">
               <Image
                 height={100}
                 width={100}
                 src="/pizza maker.svg"
-                alt="Chef preparing food"
+                alt="Choose From Flexible Delivery Options"
                 className="w-[60%] h-auto rounded-full mb-4"
                 priority={true}
               />
@@ -102,16 +110,17 @@ const page = () => {
                 Choose From Flexible Delivery Options
               </h3>
               <p className="text-gray-600">
-                Get curated meals from $54/week or make a one-time order with
-                any chef.
+                Get curated meals from $54/week or make a one-time order with any chef.
               </p>
             </div>
           </div>
         </div>
       </section>
+
       <section>
         <Testimonials />
       </section>
+
       <section>
         <FoodPromo />
       </section>
@@ -119,4 +128,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
