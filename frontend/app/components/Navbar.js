@@ -83,6 +83,7 @@ export default function Navbar() {
     deleteCookie("user");
     setIsLoggedIn(false);
     toast.success("You've been successfully logged out.");
+    localStorage.clear();
     router.push("/");
   };
 

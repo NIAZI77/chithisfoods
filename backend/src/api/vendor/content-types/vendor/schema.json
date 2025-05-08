@@ -25,7 +25,8 @@
       "required": true
     },
     "zipcode": {
-      "type": "biginteger"
+      "type": "biginteger",
+      "required": true
     },
     "fullName": {
       "type": "string",

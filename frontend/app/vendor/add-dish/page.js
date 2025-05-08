@@ -26,18 +26,19 @@ export default function AddDishPage() {
     description: "",
     price: "",
     chef: {},
+    zipcode: "",
     email: "",
     image: { id: 0, url: "" },
     servings: "",
     category: "fruits",
     subcategory: "apple",
     preparation_time: "",
-    vendorId:"",
+    vendorId: "",
     ingredients: "",
     toppings: [],
     extras: [],
     spiciness: [],
-    reviews:[],
+    reviews: [],
   });
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -71,6 +72,7 @@ export default function AddDishPage() {
       if (res.ok && data?.data?.length > 0) {
         setDishData((prev) => ({
           ...prev,
+          zipcode: data.data[0].zipcode,
           chef: {
             username: data.data[0].username,
             name: data.data[0].storeName,

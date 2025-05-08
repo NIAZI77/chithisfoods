@@ -31,11 +31,6 @@
       "type": "decimal",
       "default": 0
     },
-    "reviewsCount": {
-      "type": "integer",
-      "required": false,
-      "default": 0
-    },
     "servings": {
       "type": "integer",
       "required": true
@@ -86,6 +81,10 @@
     },
     "email": {
       "type": "email",
+      "required": true
+    },
+    "zipcode": {
+      "type": "biginteger",
       "required": true
     }
   }

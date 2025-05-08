@@ -1,24 +1,32 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
-import { useRouter } from "next/navigation";
 import VendorCard from "./VendorCard";
 import Loading from "../loading";
+import { useRouter } from "next/navigation";
 
-export default function TopChefs() {
+export default function TopChefs({ zipcode }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [chefs, setChefs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [topVendors, setTopVendors] = useState([]);
 
   useEffect(() => {
-    getTopChefs();
-  }, []);
-
-  const getTopChefs = async () => {
+    if (!zipcode) {
+      router.push("/");
+      setIsLoading(false);
+      return;
+    }
+  }, [router]);
+  useEffect(() => {
+    if (!zipcode) return;
+    fetchTopVendorsByZipcode(zipcode);
+  }, [zipcode]);
+  const fetchTopVendorsByZipcode = async (zipcode) => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?populate=*`,
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[zipcode][$eq]=${zipcode}&populate=*&sort=rating:desc&pagination[pageSize]=6`,
         {
           method: "GET",
           headers: {
@@ -28,33 +36,42 @@ export default function TopChefs() {
         }
       );
 
-      const data = await res.json();
+      const result = await response.json();
 
-      if (res.ok && data?.data?.length > 0) {
-        setChefs(data.data);
+      if (
+        response.ok &&
+        Array.isArray(result?.data) &&
+        result.data.length > 0
+      ) {
+        setTopVendors(result.data);
       } else {
-        toast.error("We couldn't verify your vendor.");
-        router.push("/become-a-vendor");
+        toast.info("No top-rated chefs found in your area.");
       }
-    } catch (err) {
-      toast.error("We couldn't verify your vendor. Please try again shortly.");
+    } catch (error) {
+      toast.error("Failed to load top chefs. Please try again later.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <Loading />;
   }
 
   return (
-    <div className="md:w-[80%] w-full mx-auto p-2">
-      <h2 className="md:text-2xl text-xl font-bold mb-4">Top Rated Chefs</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
-        {chefs.map((chef) => (
-          <VendorCard key={chef.id} chef={chef} className="mx-auto" />
-        ))}
-      </div>
-    </div>
+    <>
+      {topVendors.length > 0 && (
+        <div className="md:w-[80%] w-full mx-auto p-2">
+          <h2 className="md:text-2xl text-xl font-bold mb-4">
+            Top Rated Chefs
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
+            {topVendors.map((vendor) => (
+              <VendorCard key={vendor.id} chef={vendor} className="mx-auto" />
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

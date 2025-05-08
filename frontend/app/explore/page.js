@@ -8,7 +8,7 @@ import FoodPromo from "../components/FoodPromo";
 import TopChefs from "../components/TopChefs";
 import PopularDishes from "../components/PopularDishes";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Loading from "../loading";
 import ZipcodeDialogue from "../components/zipcodeDialogue";
 
@@ -17,7 +17,9 @@ export default function Explore() {
   const [zipcode, setZipcode] = useState("");
   const router = useRouter();
 
-  const handleZipcodeChange = useCallback((e) => setZipcode(e.detail.zipcode), []);
+  const handleZipcodeChange = (e) => {
+    setZipcode(e.detail.zipcode);
+  };
 
   useEffect(() => {
     const savedZipcode = localStorage.getItem("zipcode");
@@ -29,7 +31,8 @@ export default function Explore() {
     setZipcode(savedZipcode);
     setLoading(false);
     window.addEventListener("zipcodeChange", handleZipcodeChange);
-    return () => window.removeEventListener("zipcodeChange", handleZipcodeChange);
+    return () =>
+      window.removeEventListener("zipcodeChange", handleZipcodeChange);
   }, [router, handleZipcodeChange]);
 
   if (loading) return <Loading />;
@@ -43,7 +46,9 @@ export default function Explore() {
               Tasty food in your <br />
               <span className="text-green-400">Neighborhood</span>
             </h1>
-            <p className="text-lg text-gray-300">Order food from favorite chefs near you.</p>
+            <p className="text-lg text-gray-300">
+              Order food from favorite chefs near you.
+            </p>
             <div className="flex space-x-4 justify-center lg:justify-start">
               <div className="flex items-center justify-center lg:justify-start gap-4 text-green-400 font-bold md:text-5xl text-xl">
                 <FiMapPin />
@@ -71,8 +76,8 @@ export default function Explore() {
       </section>
 
       <TopCategories />
-      <TopChefs />
-      <PopularDishes />
+      <TopChefs zipcode={zipcode} />
+      <PopularDishes zipcode={zipcode} />
       <Testimonials />
       <FoodPromo />
     </div>

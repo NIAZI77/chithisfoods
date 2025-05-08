@@ -401,7 +401,6 @@ export interface ApiDishDish extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     rating: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
     reviews: Schema.Attribute.JSON;
-    reviewsCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     servings: Schema.Attribute.Integer & Schema.Attribute.Required;
     spiciness: Schema.Attribute.JSON & Schema.Attribute.Required;
     subcategory: Schema.Attribute.String & Schema.Attribute.Required;
@@ -410,6 +409,7 @@ export interface ApiDishDish extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     vendorId: Schema.Attribute.String & Schema.Attribute.Required;
+    zipcode: Schema.Attribute.BigInteger & Schema.Attribute.Required;
   };
 }
 
@@ -460,7 +460,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     username: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
-    zipcode: Schema.Attribute.BigInteger;
+    zipcode: Schema.Attribute.BigInteger & Schema.Attribute.Required;
   };
 }
 

@@ -300,7 +300,7 @@ export default function DishPage() {
               <div className="flex items-center text-yellow-400">
                 <FaStar /> {dishDetails.rating}
                 <span className="text-gray-600 text-sm">
-                  ({dishDetails.reviewsCount})
+                  ({dishDetails.reviews.length})
                 </span>
               </div>
               <div className="bg-slate-200 rounded px-2 py-1 flex items-center gap-1">
@@ -491,10 +491,16 @@ export default function DishPage() {
               {dishDetails.ingredients?.map((item, index) => (
                 <div
                   key={index}
-                  className="flex flex-col items-center justify-center p-4 border bg-slate-50 rounded-lg w-24 h-24"
+                  className="flex flex-col p-4 border bg-slate-50 rounded-lg w-24 h-24"
                 >
-                  <Image src="/a.png" width={30} height={30} alt={item} />
-                  <span className="mt-2 text-sm font-medium text-center">
+                  <Image
+                    src="/ingredients.png"
+                    width={30}
+                    height={30}
+                    alt={item}
+                    className="mx-auto"
+                  />
+                  <span className="mt-2 text-xs font-medium text-center">
                     {item}
                   </span>
                 </div>

@@ -209,8 +209,8 @@ export default function ManageInventory() {
                   </td>
                   <td>${dish.price?.toFixed(2) || "0.00"}</td>
                   <td>{dish.rating ?? 0}</td>
-                  <td>{dish.category || "-"}</td>
-                  <td>{dish.subcategory || "-"}</td>
+                  <td>{dish.category.replace("-", " ") || "-"}</td>
+                  <td>{dish.subcategory.replace("-", " ") || "-"}</td>
                   <td>
                     <button
                       onClick={() =>
