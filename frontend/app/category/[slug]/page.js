@@ -2,90 +2,155 @@
 
 import ProductCard from "@/app/components/DishCard";
 import { useParams } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Menu, X } from "lucide-react";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
+import Pagination from "@/app/components/pagination";
 
 const Page = () => {
   const { slug } = useParams();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [dishes, setDishes] = useState([]);
-  const [filteredDishes, setFilteredDishes] = useState([]);
+  const [allDishes, setAllDishes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [subcategories, setSubcategories] = useState([]);
   const [activeSubcategory, setActiveSubcategory] = useState("All");
+  const [dishCounts, setDishCounts] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 12;
 
-  const fetchDishes = async () => {
-    if (!slug) return;
+  const fetchDishes = useCallback(
+    async (subcategory, page) => {
+      if (!slug) return;
 
-    setLoading(true);
+      const zipcode = localStorage.getItem("zipcode");
+      if (!zipcode) {
+        toast.error(
+          "Please set your delivery location to view available dishes"
+        );
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes`;
+      const filters = `filters[zipcode][$eq]=${zipcode}&filters[category][$eq]=${slug}`;
+      const populate = "populate=*";
+      const pagination = `pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`;
+
+      const url =
+        subcategory === "All"
+          ? `${baseUrl}?${filters}&${populate}&${pagination}`
+          : `${baseUrl}?${filters}&filters[subcategory][$eq]=${subcategory}&${populate}&${pagination}`;
+
+      try {
+        const response = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch dishes: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const dishes = result?.data || [];
+        setAllDishes(dishes);
+        
+        // Update pagination info
+        setTotalItems(result.meta.pagination.total);
+        setTotalPages(result.meta.pagination.pageCount);
+
+        if (!dishes.length) {
+          toast.info("No dishes available in your area for this category");
+        }
+      } catch (error) {
+        console.error("Error fetching dishes:", error);
+        toast.error("Unable to load dishes. Please try again later");
+        setAllDishes([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [slug]
+  );
+
+  const getSubcategories = useCallback(async () => {
     const zipcode = localStorage.getItem("zipcode");
     if (!zipcode) {
-      toast.error("Please set your location to view dishes.");
+      toast.error("Please set your delivery location to view available dishes");
       return;
     }
-    // Fetch dishes based on the category slug only
-    const url = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[category][$eq]=${slug}&populate=*`;
-
-    // Fetch dishes based on the category slug and zipcode
-    // const url = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[zipcode][$eq]=${zipcode}&filters[category][$eq]=${slug}&populate=*`;
-
 
     try {
-      const response = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-        },
-      });
-
-      const resultText = await response.text();
-      try {
-        const result = JSON.parse(resultText);
-
-        if (response.ok && Array.isArray(result?.data)) {
-          setDishes(result.data);
-          setFilteredDishes(result.data);
-          const subcategoriesFromDishes = [
-            ...new Set(result.data.map((dish) => dish.subcategory)),
-          ];
-          setSubcategories(subcategoriesFromDishes);
-        } else {
-          toast.info("No dishes found in this category.");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[zipcode][$eq]=${zipcode}&filters[category][$eq]=${slug}&fields[0]=subcategory&pagination[limit]=1000`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
         }
-      } catch (jsonErr) {
-        console.error("Invalid JSON:", resultText);
-        toast.error("Unexpected response from server.");
-      }
-    } catch (err) {
-      toast.error("Unable to load dishes. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+      );
 
-  useEffect(() => {
-    fetchDishes();
+      if (!response.ok) {
+        throw new Error(`Failed to fetch subcategories: ${response.status}`);
+      }
+
+      const result = await response.json();
+      const dishes = result?.data || [];
+
+      // Extract unique subcategories and their counts
+      const subcategoryMap = dishes.reduce((acc, dish) => {
+        const subcategory = dish?.subcategory;
+        if (subcategory) {
+          acc[subcategory] = (acc[subcategory] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
+      const uniqueSubcategories = Object.keys(subcategoryMap);
+      setSubcategories(uniqueSubcategories);
+      setDishCounts(subcategoryMap);
+    } catch (error) {
+      console.error("Error fetching subcategories:", error);
+      toast.error("Unable to load subcategories. Please try again later");
+      setSubcategories([]);
+      setDishCounts({});
+    }
   }, [slug]);
 
-  const handleSubcategoryClick = (subcategory) => {
-    setActiveSubcategory(subcategory);
-    if (subcategory === "All") {
-      setFilteredDishes(dishes); // Show all dishes
-    } else {
-      const filtered = dishes.filter(
-        (dish) => dish?.subcategory?.toLowerCase() === subcategory.toLowerCase()
-      );
-      setFilteredDishes(filtered);
-    }
+  useEffect(() => {
+    getSubcategories();
+    fetchDishes("All", 1);
+  }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchDishes(activeSubcategory, 1);
+  }, [activeSubcategory, fetchDishes]);
+
+  const filteredDishes = useMemo(() => {
+    if (activeSubcategory === "All") return allDishes;
+    return allDishes.filter(
+      (dish) =>
+        dish?.subcategory?.toLowerCase() === activeSubcategory.toLowerCase()
+    );
+  }, [allDishes, activeSubcategory]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    fetchDishes(activeSubcategory, page);
   };
 
   if (loading) return <Loading />;
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row relative">
-      {/* Mobile menu toggle button */}
       <button
         className="md:hidden p-4 text-red-600 flex items-center gap-2"
         onClick={() => setSidebarOpen(true)}
@@ -94,7 +159,6 @@ const Page = () => {
         Menu
       </button>
 
-      {/* Backdrop */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-transparent z-10 md:hidden"
@@ -102,13 +166,11 @@ const Page = () => {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 duration-300 transition-all fixed md:static top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-20 p-6 flex flex-col gap-6 pt-16 md:pt-0`}
       >
-        {/* Close button for mobile */}
         <div className="md:hidden flex justify-end mb-4">
           <button onClick={() => setSidebarOpen(false)}>
             <X className="w-6 h-6 text-gray-700" />
@@ -122,27 +184,20 @@ const Page = () => {
               className={`cursor-pointer hover:text-red-600 ${
                 activeSubcategory === "All" ? "text-red-600 font-bold" : ""
               }`}
-              onClick={() => handleSubcategoryClick("All")}
+              onClick={() => setActiveSubcategory("All")}
             >
-              ({dishes.length}) All
+              ({Object.values(dishCounts).reduce((a, b) => a + b, 0)}) All
             </li>
             {subcategories.length > 0 ? (
               subcategories.map((item) => (
                 <li
                   key={item}
-                  className={`cursor-pointer hover:text-red-600 ${
+                  className={`cursor-pointer hover:text-red-600 capitalize ${
                     activeSubcategory === item ? "text-red-600 font-bold" : ""
                   }`}
-                  onClick={() => handleSubcategoryClick(item)}
+                  onClick={() => setActiveSubcategory(item)}
                 >
-                  (
-                  {
-                    dishes.filter(
-                      (dish) =>
-                        dish?.subcategory?.toLowerCase() === item.toLowerCase()
-                    ).length
-                  }
-                  ) {item}
+                  ({dishCounts[item] || 0}) {item}
                 </li>
               ))
             ) : (
@@ -152,7 +207,6 @@ const Page = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 px-6 md:pt-0">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 capitalize">
@@ -166,10 +220,18 @@ const Page = () => {
             ))
           ) : (
             <p className="text-gray-500 text-center w-full">
-              No dishes found in this category.
+              No dishes available in this category
             </p>
           )}
         </div>
+
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        )}
       </main>
     </div>
   );

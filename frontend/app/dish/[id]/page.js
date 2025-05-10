@@ -7,6 +7,7 @@ import { Timer } from "lucide-react";
 import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 export default function DishPage() {
   const { id } = useParams();
@@ -429,8 +430,14 @@ export default function DishPage() {
                   height={48}
                   className="rounded-full w-12 h-12 object-cover"
                 />
-                <span className="text-sm font-semibold">
+                <span className="text-md font-semibold inline-flex flex-col">
                   {dishDetails.chef?.name}
+                  {dishDetails.chef?.username && (
+                    <Link href={`/vendors/@${dishDetails.chef?.username}`} className="text-gray-500 text-xs hover:text-rose-500 hover:underline">
+                      {" "}
+                      @{dishDetails.chef?.username}
+                    </Link>
+                  )}
                 </span>
                 <div className="text-sm text-yellow-400 flex items-center gap-1">
                   <FaStar />

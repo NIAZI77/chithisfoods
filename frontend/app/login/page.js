@@ -159,10 +159,6 @@ export default function LoginPage() {
               <span>Sign in with Google</span>
             </button>
             <button className="w-full flex items-center justify-start border p-3 px-10 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all">
-              <FaApple />
-              <span>Sign in with Apple</span>
-            </button>
-            <button className="w-full flex items-center justify-start border p-3 px-10 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all">
               <FaFacebook />
               <span>Sign in with Facebook</span>
             </button>

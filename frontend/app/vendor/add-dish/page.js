@@ -246,7 +246,6 @@ export default function AddDishPage() {
         preparation_time: parseInt(dishData.preparation_time),
         ingredients: dishData.ingredients.split(",").map((item) => item.trim()),
       };
-      console.log(JSON.stringify({ data: payload }));
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes`,
         {

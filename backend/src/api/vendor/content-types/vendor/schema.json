@@ -14,7 +14,7 @@
     "storeName": {
       "type": "string",
       "required": true,
-      "unique": true
+      "unique": false
     },
     "businessAddress": {
       "type": "string",

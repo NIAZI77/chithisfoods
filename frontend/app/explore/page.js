@@ -39,9 +39,12 @@ export default function Explore() {
 
   return (
     <div className="space-y-10">
-      <section className="bg-slate-800 h-screen max-h-[700px] flex items-center px-4 -mt-20">
+      <section className="h-screen lg:max-h-[700px] max-h-[800px] flex items-center px-4 -mt-20 object-cover bg-cover bg-no-repeat bg-bottom"
+      style={{ backgroundImage: "url('/landing-page-bg.png')" }}
+
+      >
         <div className="w-full md:w-[90%] mx-auto grid lg:grid-cols-2 grid-cols-1 items-center">
-          <div className="space-y-5 order-2 text-center lg:text-left lg:order-1">
+          <div className="lg:space-y-5 order-2 text-center lg:text-left lg:order-1">
             <h1 className="text-4xl md:text-6xl font-extrabold leading-tight text-white cursive">
               Tasty food in your <br />
               <span className="text-green-400">Neighborhood</span>
@@ -66,7 +69,7 @@ export default function Explore() {
                 src="/food.png"
                 width={400}
                 height={400}
-                className="object-contain"
+                className="object-contain md:scale-125 xl:scale-175 2xl:scale-200"
                 alt="Delicious food"
                 priority
               />
