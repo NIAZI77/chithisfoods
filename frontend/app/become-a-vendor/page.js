@@ -187,6 +187,11 @@ export default function BecomeVendor() {
 
   const handleSubmit = async () => {
     const usernameRegex = /^[a-z0-9_]{3,15}$/;
+    if (formData.zipcode.length !== 5) {
+      toast.error("ZIP Code must be 5 digits.");
+      return;
+    }
+
     if (!usernameRegex.test(formData.username)) {
       toast.error(
         "Username can contain lowercase letters, numbers, and underscores (3-15 chars)."

@@ -59,13 +59,17 @@ export default function PopularDishes({ zipcode }) {
   if (isLoading) return <Loading />;
 
   return (
-    <div className="md:w-[80%] w-full mx-auto p-2">
-      <h2 className="md:text-2xl text-xl font-bold mb-4">Popular Dishes</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
-        {popularDishes.map((dish) => (
-          <ProductCard key={dish.id} dish={dish} />
-        ))}
-      </div>
-    </div>
+    <>
+      {popularDishes.length != 0 && (
+        <div className="md:w-[80%] w-full mx-auto p-2">
+          <h2 className="md:text-2xl text-xl font-bold mb-4">Popular Dishes</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
+            {popularDishes.map((dish) => (
+              <ProductCard key={dish.id} dish={dish} />
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

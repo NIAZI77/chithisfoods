@@ -24,6 +24,7 @@ export default function TopChefs({ zipcode }) {
     fetchTopVendorsByZipcode(zipcode);
   }, [zipcode]);
   const fetchTopVendorsByZipcode = async (zipcode) => {
+    setIsLoading(true);
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[zipcode][$eq]=${zipcode}&populate=*&sort=rating:desc&pagination[pageSize]=6`,

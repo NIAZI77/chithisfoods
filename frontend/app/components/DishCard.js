@@ -36,7 +36,9 @@ export default function DishCard({
             height={32}
             className="rounded-full w-8 h-8 object-cover object-center"
           />
-          <p className="font-semibold text-sm">{dish.chef.name.replace(/\b\w/g, c => c.toUpperCase())}</p>
+          <p className="font-semibold text-sm">
+            {dish.chef.name.replace(/\b\w/g, (c) => c.toUpperCase())}
+          </p>
         </div>
         <div className="flex items-center gap-1 text-yellow-500 text-sm font-semibold">
           <Star className="w-4 h-4 fill-yellow-500" />
@@ -57,7 +59,12 @@ export default function DishCard({
 
       {/* Title and Serving */}
       <div className="flex items-center justify-between mb-1">
-        <h3 className="text-md font-semibold">{dish.name.replace(/\b\w/g, c => c.toUpperCase())}</h3>
+        <h3 className="text-md font-semibold">
+          {dish.name.length > 15
+            ? dish.name.replace(/\b\w/g, (c) => c.toUpperCase()).slice(0, 12) +
+              "..."
+            : dish.name.replace(/\b\w/g, (c) => c.toUpperCase())}
+        </h3>
         <div className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-sm flex items-center gap-1 justify-center">
           Servings <FaUser /> {dish.servings}
         </div>
@@ -65,8 +72,13 @@ export default function DishCard({
 
       {/* Category and Subcategory */}
       <p className="text-sm text-gray-500">
-        {dish.category.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())} ·{" "}
-        <span className="text-green-500 font-medium">{dish.subcategory.replace(/\b\w/g, c => c.toUpperCase())}</span>
+        {dish.category
+          .replace("-", " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase())}{" "}
+        ·{" "}
+        <span className="text-green-500 font-medium">
+          {dish.subcategory.replace(/\b\w/g, (c) => c.toUpperCase())}
+        </span>
       </p>
 
       {/* Add to Cart Section */}

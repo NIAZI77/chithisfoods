@@ -7,7 +7,15 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 import { getCookie } from "cookies-next";
-import { Mail, Store, Image as ImageIcon, User, Phone, MapPin, Save } from "lucide-react";
+import {
+  Mail,
+  Store,
+  Image as ImageIcon,
+  User,
+  Phone,
+  MapPin,
+  Save,
+} from "lucide-react";
 
 const INITIAL_FORM_STATE = {
   storeName: "",
@@ -126,13 +134,15 @@ const Page = () => {
       }
 
       const { id, url } = data[0];
-      const fullUrl = url.startsWith('http') ? url : `${process.env.NEXT_PUBLIC_STRAPI_HOST}${url}`;
-      
+      const fullUrl = url.startsWith("http")
+        ? url
+        : `${process.env.NEXT_PUBLIC_STRAPI_HOST}${url}`;
+
       setFormData((prevData) => ({
         ...prevData,
-        [name]: { id, url: fullUrl }
+        [name]: { id, url: fullUrl },
       }));
-      
+
       toast.success("Image uploaded successfully!");
     } catch (error) {
       console.error("Upload error:", error);
@@ -166,15 +176,18 @@ const Page = () => {
 
     if (!validateForm()) return;
 
-    setSubmitting(true);
     const jwt = getCookie("jwt");
-
+    if (formData.zipcode.length !== 5) {
+      toast.error("ZIP Code must be 5 digits.");
+      return;
+    }
     if (!jwt) {
       toast.error("Your session has expired. Please login again");
       router.push("/login");
       return;
     }
 
+    setSubmitting(true);
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${formData.documentId}`,

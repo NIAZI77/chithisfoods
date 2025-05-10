@@ -40,7 +40,11 @@ const VendorCard = ({ chef }) => {
         </div>
         <div className="col-span-2 space-y-1">
           <h3 className="font-semibold text-gray-800 text-md">
-            {chef?.storeName.replace(/\b\w/g, c => c.toUpperCase()) || "Vendor Name here"}
+            {chef?.storeName.length > 18
+              ? chef?.storeName
+                  .replace(/\b\w/g, (c) => c.toUpperCase())
+                  .slice(0, 15) + "..."
+              : chef?.storeName.replace(/\b\w/g, (c) => c.toUpperCase())}
           </h3>
 
           <div className="flex items-center gap-1">
@@ -66,7 +70,8 @@ const VendorCard = ({ chef }) => {
         )}
         <span className="flex  items-center gap-1 bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium text-xs">
           <MapPin size={14} />
-          {chef?.city.replace(/\b\w/g, c => c.toUpperCase()) || "Location"}, {chef?.zipcode || "address"}
+          {chef?.city.replace(/\b\w/g, (c) => c.toUpperCase()) ||
+            "Location"}, {chef?.zipcode || "address"}
         </span>
       </div>
     </Link>
