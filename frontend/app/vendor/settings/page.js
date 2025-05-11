@@ -189,6 +189,7 @@ const Page = () => {
 
     setSubmitting(true);
     try {
+      // First update the vendor's information
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${formData.documentId}`,
         {
@@ -223,7 +224,44 @@ const Page = () => {
         throw new Error(data.error?.message || "Failed to update settings");
       }
 
-      toast.success("Your account settings have been updated successfully");
+      // Then update all dishes' zipcodes
+      const dishesResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[vendorId][$eq]=${formData.documentId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      const dishesData = await dishesResponse.json();
+      
+      if (dishesResponse.ok && dishesData.data) {
+        // Update each dish's zipcode
+        const updatePromises = dishesData.data.map(dish => 
+          fetch(
+            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dish.documentId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+              },
+              body: JSON.stringify({
+                data: {
+                  zipcode: formData.zipcode
+                }
+              }),
+            }
+          )
+        );
+
+        await Promise.all(updatePromises);
+      }
+
+      toast.success("Settings updated successfully");
       setTimeout(() => router.push("/vendor/dashboard"), 1000);
     } catch (error) {
       toast.error(

@@ -50,8 +50,8 @@ h3 {
 }
 
 ::selection {
-  color: #f1f5f9;
-  background: #475569;
+  color: white;
+  background: oklch(64.5% 0.246 16.439);
 }
 
 ::-webkit-scrollbar {

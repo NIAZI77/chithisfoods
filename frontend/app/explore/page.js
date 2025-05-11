@@ -66,11 +66,11 @@ export default function Explore() {
           <div className="flex justify-center items-center order-1 lg:order-2">
             <div className="w-full h-full flex justify-center items-center">
               <Image
-                src="/food.png"
+                src="/landing-page-hero.png"
                 width={400}
                 height={400}
-                className="object-contain md:scale-125 xl:scale-175 2xl:scale-200"
-                alt="Delicious food"
+                className="object-contain md:scale-125 xl:scale-150 2xl:scale-200"
+                alt="Landing page hero"
                 priority
               />
             </div>

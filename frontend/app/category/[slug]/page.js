@@ -3,7 +3,7 @@
 import ProductCard from "@/app/components/DishCard";
 import { useParams } from "next/navigation";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, Search, X, ChevronRight } from "lucide-react";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Pagination from "@/app/components/pagination";
@@ -20,9 +20,12 @@ const Page = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 12;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [currentSearchQuery, setCurrentSearchQuery] = useState("");
 
   const fetchDishes = useCallback(
-    async (subcategory, page) => {
+    async (subcategory, page, search = "") => {
       if (!slug) return;
 
       const zipcode = localStorage.getItem("zipcode");
@@ -39,11 +42,12 @@ const Page = () => {
       const filters = `filters[zipcode][$eq]=${zipcode}&filters[category][$eq]=${slug}`;
       const populate = "populate=*";
       const pagination = `pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`;
+      const searchFilter = search ? `&filters[name][$containsi]=${search}` : "";
 
       const url =
         subcategory === "All"
-          ? `${baseUrl}?${filters}&${populate}&${pagination}`
-          : `${baseUrl}?${filters}&filters[subcategory][$eq]=${subcategory}&${populate}&${pagination}`;
+          ? `${baseUrl}?${filters}${searchFilter}&${populate}&${pagination}`
+          : `${baseUrl}?${filters}${searchFilter}&filters[subcategory][$eq]=${subcategory}&${populate}&${pagination}`;
 
       try {
         const response = await fetch(url, {
@@ -60,7 +64,7 @@ const Page = () => {
         const result = await response.json();
         const dishes = result?.data || [];
         setAllDishes(dishes);
-        
+
         // Update pagination info
         setTotalItems(result.meta.pagination.total);
         setTotalPages(result.meta.pagination.pageCount);
@@ -147,6 +151,28 @@ const Page = () => {
     fetchDishes(activeSubcategory, page);
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setIsSearching(true);
+    setCurrentSearchQuery(searchQuery);
+    setCurrentPage(1);
+    fetchDishes(activeSubcategory, 1, searchQuery);
+  };
+
+  useEffect(() => {
+    if (!isSearching) {
+      fetchDishes(activeSubcategory, currentPage, currentSearchQuery);
+    }
+  }, [activeSubcategory, currentPage, fetchDishes, currentSearchQuery, isSearching]);
+
+  const handleSubcategoryChange = (subcategory) => {
+    setActiveSubcategory(subcategory);
+    setCurrentPage(1);
+    setIsSearching(false);
+    setSearchQuery("");
+    setCurrentSearchQuery("");
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -156,7 +182,7 @@ const Page = () => {
         onClick={() => setSidebarOpen(true)}
       >
         <Menu className="w-6 h-6" />
-        Menu
+        <span>Menu</span>
       </button>
 
       {sidebarOpen && (
@@ -172,7 +198,10 @@ const Page = () => {
         } md:translate-x-0 duration-300 transition-all fixed md:static top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-20 p-6 flex flex-col gap-6 pt-16 md:pt-0`}
       >
         <div className="md:hidden flex justify-end mb-4">
-          <button onClick={() => setSidebarOpen(false)}>
+          <button 
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
             <X className="w-6 h-6 text-gray-700" />
           </button>
         </div>
@@ -181,23 +210,25 @@ const Page = () => {
           <p className="font-semibold text-red-600 mb-4">Sub Categories</p>
           <ul className="space-y-2 text-sm text-gray-700">
             <li
-              className={`cursor-pointer hover:text-red-600 ${
+              className={`cursor-pointer hover:text-red-600 flex items-center justify-between ${
                 activeSubcategory === "All" ? "text-red-600 font-bold" : ""
               }`}
-              onClick={() => setActiveSubcategory("All")}
+              onClick={() => handleSubcategoryChange("All")}
             >
-              ({Object.values(dishCounts).reduce((a, b) => a + b, 0)}) All
+              <span>({Object.values(dishCounts).reduce((a, b) => a + b, 0)}) All</span>
+              {activeSubcategory === "All" && <ChevronRight className="w-4 h-4" />}
             </li>
             {subcategories.length > 0 ? (
               subcategories.map((item) => (
                 <li
                   key={item}
-                  className={`cursor-pointer hover:text-red-600 capitalize ${
+                  className={`cursor-pointer hover:text-red-600 capitalize flex items-center justify-between ${
                     activeSubcategory === item ? "text-red-600 font-bold" : ""
                   }`}
-                  onClick={() => setActiveSubcategory(item)}
+                  onClick={() => handleSubcategoryChange(item)}
                 >
-                  ({dishCounts[item] || 0}) {item}
+                  <span>({dishCounts[item] || 0}) {item}</span>
+                  {activeSubcategory === item && <ChevronRight className="w-4 h-4" />}
                 </li>
               ))
             ) : (
@@ -208,10 +239,30 @@ const Page = () => {
       </aside>
 
       <main className="flex-1 px-6 md:pt-0">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 capitalize">
+        <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <h1 className="text-2xl font-bold text-gray-800 capitalize">
             {slug?.replace("-", " ")}
           </h1>
+          <form onSubmit={handleSearch} className="flex">
+            <div className="relative flex items-center">
+              <input
+                type="search"
+                name="search"
+                id="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search dishes..."
+                className="bg-gray-100 pl-10 pr-4 py-2 rounded-l-full border-none outline-none w-full sm:w-64"
+              />
+              <Search className="w-5 h-5 text-gray-500 absolute left-3" />
+            </div>
+            <button
+              type="submit"
+              className="bg-red-600 text-white px-3 py-2 rounded-r-full border-none outline-none hover:bg-red-700 transition duration-200"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+          </form>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 2xl:grid-cols-4 place-items-center">
           {filteredDishes.length > 0 ? (

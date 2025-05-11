@@ -45,8 +45,6 @@ export default function TopChefs({ zipcode }) {
         result.data.length > 0
       ) {
         setTopVendors(result.data);
-      } else {
-        toast.info("No top-rated chefs found in your area.");
       }
     } catch (error) {
       toast.error("Failed to load top chefs. Please try again later.");

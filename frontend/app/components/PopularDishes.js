@@ -46,9 +46,7 @@ export default function PopularDishes({ zipcode }) {
         result.data.length > 0
       ) {
         setPopularDishes(result.data);
-      } else {
-        toast.info("No popular dishes found in your area.");
-      }
+      } 
     } catch (error) {
       toast.error("Unable to load dishes. Please try again later.");
     } finally {

@@ -8,7 +8,7 @@ import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
 
 const Page = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [vendorData, setVendorData] = useState(null);
   const [menu, setMenu] = useState(null);
   const [menuLoading, setMenuLoading] = useState(false);

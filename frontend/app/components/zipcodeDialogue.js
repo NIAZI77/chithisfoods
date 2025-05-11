@@ -64,7 +64,6 @@ export default function ZipcodeDialogue() {
         detail: { zipcode }
       }));
       setIsOpen(false);
-      toast.success("Location updated");
       router.push("/explore");
     } catch (error) {
       toast.error("Update failed");

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import Image from "next/image";
+import Loading from "../loading";
 
 export default function CartPage() {
   const [cart, setCart] = useState([]);
@@ -174,16 +175,7 @@ export default function CartPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <ShoppingCart className="w-12 h-12 mx-auto text-rose-500 animate-bounce mb-4" />
-          <p className="text-gray-600">Loading cart...</p>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <Loading />;
 
   return (
     <div className="mx-3">
