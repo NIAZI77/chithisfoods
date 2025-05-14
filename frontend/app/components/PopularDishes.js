@@ -18,11 +18,8 @@ export default function PopularDishes({ zipcode }) {
       setIsLoading(false);
       return;
     }
-  }, [router]);
-  useEffect(() => {
-    if (!zipcode) return;
     fetchPopularDishesByZipcode(zipcode);
-  }, [zipcode]);
+  }, [zipcode, router]);
 
   const fetchPopularDishesByZipcode = async (zipcode) => {
     setIsLoading(true);
@@ -40,15 +37,16 @@ export default function PopularDishes({ zipcode }) {
 
       const result = await response.json();
 
-      if (
-        response.ok &&
-        Array.isArray(result?.data) &&
-        result.data.length > 0
-      ) {
-        setPopularDishes(result.data);
-      } 
+      if (response.ok) {
+        setPopularDishes(result.data || []);
+      } else {
+        toast.error("Unable to load dishes. Please try again later.");
+        setPopularDishes([]);
+      }
     } catch (error) {
+      console.error("Error fetching popular dishes:", error);
       toast.error("Unable to load dishes. Please try again later.");
+      setPopularDishes([]);
     } finally {
       setIsLoading(false);
     }

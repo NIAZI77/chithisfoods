@@ -6,7 +6,8 @@ import { FaStar, FaUser } from "react-icons/fa";
 import { Timer } from "lucide-react";
 import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
 
 export default function DishPage() {
@@ -22,12 +23,8 @@ export default function DishPage() {
 
   const fetchDishDetails = async () => {
     try {
-      if (
-        !process.env.NEXT_PUBLIC_STRAPI_HOST ||
-        !process.env.NEXT_PUBLIC_STRAPI_TOKEN
-      ) {
-        toast.error("API configuration is missing");
-        throw new Error("API configuration is missing");
+      if (!process.env.NEXT_PUBLIC_STRAPI_HOST || !process.env.NEXT_PUBLIC_STRAPI_TOKEN) {
+        throw new Error("API configuration is missing. Please contact support.");
       }
 
       const response = await fetch(
@@ -44,32 +41,24 @@ export default function DishPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        toast.error(
-          responseData.error?.message || "Failed to fetch dish details"
-        );
-        throw new Error(
-          responseData.error?.message || "Failed to fetch dish details"
-        );
+        throw new Error(responseData.error?.message || "Unable to fetch dish details. Please try again later.");
       }
 
       if (!responseData.data) {
-        toast.error("Dish not found");
-        throw new Error("Dish not found");
+        throw new Error("The requested dish could not be found.");
       }
 
       const dishInfo = responseData.data;
       const enhancedDishInfo = {
         ...dishInfo,
-        extras:
-          dishInfo.extras?.map((extra) => ({
-            ...extra,
-            options: [{ label: "None", price: 0 }, ...extra.options],
-          })) || [],
-        toppings:
-          dishInfo.toppings?.map((topping) => ({
-            ...topping,
-            options: [{ label: "None", price: 0 }, ...topping.options],
-          })) || [],
+        extras: dishInfo.extras?.map((extra) => ({
+          ...extra,
+          options: [{ label: "None", price: 0 }, ...extra.options],
+        })) || [],
+        toppings: dishInfo.toppings?.map((topping) => ({
+          ...topping,
+          options: [{ label: "None", price: 0 }, ...topping.options],
+        })) || [],
         image: {
           id: dishInfo.image?.id || null,
           url: dishInfo.image?.url || "/fallback.png",
@@ -89,30 +78,22 @@ export default function DishPage() {
       setDishDetails(enhancedDishInfo);
       setSelectedSpiceLevel(enhancedDishInfo.spiciness?.[0]);
 
-      // Initialize toppings state
       const initialToppings = {};
       enhancedDishInfo.toppings?.forEach((topping) => {
-        initialToppings[topping.name] = {
-          selected: "None",
-          price: 0,
-        };
+        initialToppings[topping.name] = { selected: "None", price: 0 };
       });
       setSelectedToppings(initialToppings);
 
-      // Initialize extras state
       const initialExtras = {};
       enhancedDishInfo.extras?.forEach((extra) => {
-        initialExtras[extra.name] = {
-          selected: "None",
-          price: 0,
-        };
+        initialExtras[extra.name] = { selected: "None", price: 0 };
       });
       setSelectedExtras(initialExtras);
 
       setIsDishNotFound(false);
     } catch (error) {
-      console.error("Error fetching dish:", error.message);
-      toast.error(error.message || "Failed to load dish details");
+      console.error("Error fetching dish:", error);
+      toast.error(error.message || "An unexpected error occurred. Please try again.");
       setIsDishNotFound(true);
     } finally {
       setLoading(false);
@@ -137,9 +118,7 @@ export default function DishPage() {
       (sum, item) => sum + Number(item.price),
       0
     );
-    return (
-      (Number(dishDetails.price) + extrasTotal + toppingsTotal) * orderQuantity
-    );
+    return (Number(dishDetails.price) + extrasTotal + toppingsTotal) * orderQuantity;
   };
 
   const handleAddToCart = () => {
@@ -172,37 +151,54 @@ export default function DishPage() {
         cart = [];
       }
 
-      const existingItemIndex = cart.findIndex(
-        (item) =>
-          item.id === dishDetails.documentId &&
-          item.selectedSpiciness === selectedSpiceLevel &&
-          JSON.stringify(item.toppings) === JSON.stringify(activeToppings) &&
-          JSON.stringify(item.extras) === JSON.stringify(activeExtras)
+      const vendorGroupIndex = cart.findIndex(
+        (group) => group.vendorId === dishDetails.vendorId
       );
 
-      if (existingItemIndex > -1) {
-        cart[existingItemIndex].quantity += orderQuantity;
-        cart[existingItemIndex].total = calculateTotalPrice().toFixed(2);
+      const newDishItem = {
+        id: dishDetails.documentId,
+        name: dishDetails.name,
+        image: { id: dishDetails.image.id, url: dishDetails.image.url },
+        basePrice: dishDetails.price,
+        quantity: orderQuantity,
+        selectedSpiciness: selectedSpiceLevel,
+        toppings: activeToppings,
+        extras: activeExtras,
+        total: calculateTotalPrice().toFixed(2),
+      };
+
+      if (vendorGroupIndex > -1) {
+        const existingDishIndex = cart[vendorGroupIndex].dishes.findIndex(
+          (dish) =>
+            dish.id === dishDetails.documentId &&
+            dish.selectedSpiciness === selectedSpiceLevel &&
+            JSON.stringify(dish.toppings) === JSON.stringify(activeToppings) &&
+            JSON.stringify(dish.extras) === JSON.stringify(activeExtras)
+        );
+
+        if (existingDishIndex > -1) {
+          cart[vendorGroupIndex].dishes[existingDishIndex].quantity += orderQuantity;
+          cart[vendorGroupIndex].dishes[existingDishIndex].total = (
+            Number(cart[vendorGroupIndex].dishes[existingDishIndex].basePrice) *
+            cart[vendorGroupIndex].dishes[existingDishIndex].quantity
+          ).toFixed(2);
+        } else {
+          cart[vendorGroupIndex].dishes.push(newDishItem);
+        }
       } else {
         cart.push({
-          id: dishDetails.documentId,
-          name: dishDetails.name,
-          image: { id: dishDetails.image.id, url: dishDetails.image.url },
-          basePrice: dishDetails.price,
-          chef: dishDetails.chef,
           vendorId: dishDetails.vendorId,
-          quantity: orderQuantity,
-          selectedSpiciness: selectedSpiceLevel,
-          toppings: activeToppings,
-          extras: activeExtras,
-          total: calculateTotalPrice().toFixed(2),
+          vendorName: dishDetails.chef.name,
+          vendorUsername: dishDetails.chef.username,
+          vendorAvatar: dishDetails.chef.avatar.url,
+          dishes: [newDishItem],
         });
       }
 
       localStorage.setItem("cart", JSON.stringify(cart));
-      toast.success(`${dishDetails.name} added to cart!`);
+      toast.success(`${dishDetails.name} added to your cart!`);
     } catch (error) {
-      toast.error("Failed to add item to cart");
+      toast.error("Failed to add item to cart. Please try again.");
       console.error("Error adding to cart:", error);
     }
   };
@@ -212,22 +208,16 @@ export default function DishPage() {
       if (type === "topping") {
         setSelectedToppings((prev) => ({
           ...prev,
-          [name]: {
-            selected: option,
-            price: Number(price),
-          },
+          [name]: { selected: option, price: Number(price) },
         }));
       } else {
         setSelectedExtras((prev) => ({
           ...prev,
-          [name]: {
-            selected: option,
-            price: Number(price),
-          },
+          [name]: { selected: option, price: Number(price) },
         }));
       }
     } catch (error) {
-      toast.error("Failed to update selection");
+      toast.error("Failed to update selection. Please try again.");
       console.error("Error updating selection:", error);
     }
   };
@@ -249,8 +239,7 @@ export default function DishPage() {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <div className="text-3xl text-center text-gray-600">Dish not found</div>
         <p className="text-gray-500">
-          The dish you&apos;re looking for doesn&apos;t exist or has been
-          removed.
+          The dish you&apos;re looking for doesn&apos;t exist or has been removed.
         </p>
         <button
           onClick={() => window.history.back()}
@@ -433,7 +422,10 @@ export default function DishPage() {
                 <span className="text-md font-semibold inline-flex flex-col">
                   {dishDetails.chef?.name}
                   {dishDetails.chef?.username && (
-                    <Link href={`/vendors/@${dishDetails.chef?.username}`} className="text-gray-500 text-xs hover:text-rose-500 hover:underline">
+                    <Link
+                      href={`/vendors/@${dishDetails.chef?.username}`}
+                      className="text-gray-500 text-xs hover:text-rose-500 hover:underline"
+                    >
                       {" "}
                       @{dishDetails.chef?.username}
                     </Link>
@@ -464,7 +456,7 @@ export default function DishPage() {
               </div>
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-rose-600 text-white py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold"
+                className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold"
               >
                 Add to cart
               </button>

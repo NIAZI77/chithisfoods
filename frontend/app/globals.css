@@ -51,8 +51,22 @@ h3 {
 
 ::selection {
   color: white;
-  background: oklch(64.5% 0.246 16.439);
+  background: oklch(27.9% 0.041 260.031);
 }
+
+@supports (background: oklch(64.5% 0.246 16.439)) {
+  ::selection {
+    background: oklch(64.5% 0.246 16.439);
+  }
+}
+
+input::selection,
+textarea::selection,
+[contenteditable="true"]::selection {
+  background: oklch(44.6% 0.043 257.281);
+  color: white;
+}
+
 
 ::-webkit-scrollbar {
   width: 10px;

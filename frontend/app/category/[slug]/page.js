@@ -163,7 +163,13 @@ const Page = () => {
     if (!isSearching) {
       fetchDishes(activeSubcategory, currentPage, currentSearchQuery);
     }
-  }, [activeSubcategory, currentPage, fetchDishes, currentSearchQuery, isSearching]);
+  }, [
+    activeSubcategory,
+    currentPage,
+    fetchDishes,
+    currentSearchQuery,
+    isSearching,
+  ]);
 
   const handleSubcategoryChange = (subcategory) => {
     setActiveSubcategory(subcategory);
@@ -198,7 +204,7 @@ const Page = () => {
         } md:translate-x-0 duration-300 transition-all fixed md:static top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-20 p-6 flex flex-col gap-6 pt-16 md:pt-0`}
       >
         <div className="md:hidden flex justify-end mb-4">
-          <button 
+          <button
             onClick={() => setSidebarOpen(false)}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
@@ -215,8 +221,12 @@ const Page = () => {
               }`}
               onClick={() => handleSubcategoryChange("All")}
             >
-              <span>({Object.values(dishCounts).reduce((a, b) => a + b, 0)}) All</span>
-              {activeSubcategory === "All" && <ChevronRight className="w-4 h-4" />}
+              <span>
+                ({Object.values(dishCounts).reduce((a, b) => a + b, 0)}) All
+              </span>
+              {activeSubcategory === "All" && (
+                <ChevronRight className="w-4 h-4" />
+              )}
             </li>
             {subcategories.length > 0 ? (
               subcategories.map((item) => (
@@ -227,8 +237,12 @@ const Page = () => {
                   }`}
                   onClick={() => handleSubcategoryChange(item)}
                 >
-                  <span>({dishCounts[item] || 0}) {item}</span>
-                  {activeSubcategory === item && <ChevronRight className="w-4 h-4" />}
+                  <span>
+                    ({dishCounts[item] || 0}) {item}
+                  </span>
+                  {activeSubcategory === item && (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
                 </li>
               ))
             ) : (

@@ -18,11 +18,9 @@ export default function TopChefs({ zipcode }) {
       setIsLoading(false);
       return;
     }
-  }, [router]);
-  useEffect(() => {
-    if (!zipcode) return;
     fetchTopVendorsByZipcode(zipcode);
-  }, [zipcode]);
+  }, [zipcode, router]);
+
   const fetchTopVendorsByZipcode = async (zipcode) => {
     setIsLoading(true);
     try {
@@ -39,15 +37,16 @@ export default function TopChefs({ zipcode }) {
 
       const result = await response.json();
 
-      if (
-        response.ok &&
-        Array.isArray(result?.data) &&
-        result.data.length > 0
-      ) {
-        setTopVendors(result.data);
+      if (response.ok) {
+        setTopVendors(result.data || []);
+      } else {
+        toast.error("Failed to load top chefs. Please try again later.");
+        setTopVendors([]);
       }
     } catch (error) {
+      console.error("Error fetching top chefs:", error);
       toast.error("Failed to load top chefs. Please try again later.");
+      setTopVendors([]);
     } finally {
       setIsLoading(false);
     }

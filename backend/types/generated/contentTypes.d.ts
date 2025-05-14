@@ -413,6 +413,53 @@ export interface ApiDishDish extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
+  collectionName: 'orders';
+  info: {
+    description: '';
+    displayName: 'Order';
+    pluralName: 'orders';
+    singularName: 'order';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    address: Schema.Attribute.String & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    customerName: Schema.Attribute.String & Schema.Attribute.Required;
+    customerOrderId: Schema.Attribute.BigInteger & Schema.Attribute.Required;
+    deliveryType: Schema.Attribute.Enumeration<['delivery', 'pickup']> &
+      Schema.Attribute.DefaultTo<'delivery'>;
+    dishes: Schema.Attribute.JSON & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::order.order'> &
+      Schema.Attribute.Private;
+    note: Schema.Attribute.Text;
+    orderStatus: Schema.Attribute.Enumeration<
+      ['pending', 'processing', 'canceled', 'declined', 'fulfill']
+    >;
+    paymentStatus: Schema.Attribute.Enumeration<['paid', 'unpaid']>;
+    phone: Schema.Attribute.BigInteger & Schema.Attribute.Required;
+    promoCode: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    subtotal: Schema.Attribute.Decimal &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
+    tax: Schema.Attribute.Decimal & Schema.Attribute.Required;
+    totalAmount: Schema.Attribute.Decimal & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    vendorAvatar: Schema.Attribute.String & Schema.Attribute.Required;
+    vendorId: Schema.Attribute.String & Schema.Attribute.Required;
+    vendorName: Schema.Attribute.String & Schema.Attribute.Required;
+    vendorUsername: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
   collectionName: 'vendors';
   info: {
@@ -972,6 +1019,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::dish.dish': ApiDishDish;
+      'api::order.order': ApiOrderOrder;
       'api::vendor.vendor': ApiVendorVendor;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

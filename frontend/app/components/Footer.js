@@ -19,7 +19,7 @@ const Footer = () => {
   }
 
   return (
-    <footer className="bg-white pt-10">
+    <footer className="bg-white pt-10 pb-3">
       <div className="mx-auto w-full max-w-screen-xl px-6 md:px-8">
         <div className="flex items-start justify-around flex-wrap">
           <div className="space-y-6 md:max-w-72">
@@ -68,57 +68,35 @@ const Footer = () => {
             </h2>
             <ul className="text-gray-600 font-medium">
               <li className="mb-3">
-                <Link href="/about" className="text-sm hover:underline">
+                <Link
+                  href="/about"
+                  className="text-sm hover:underline hover:text-rose-500 transition-all"
+                >
                   About Us
                 </Link>
               </li>
               <li className="mb-3">
-                <Link href="/features" className="text-sm hover:underline">
+                <Link
+                  href="/features"
+                  className="text-sm hover:underline hover:text-rose-500 transition-all"
+                >
                   Features
                 </Link>
               </li>
               <li className="mb-3">
-                <Link href="/news" className="text-sm hover:underline">
+                <Link
+                  href="/news"
+                  className="text-sm hover:underline hover:text-rose-500 transition-all"
+                >
                   News
                 </Link>
               </li>
               <li>
-                <Link href="/menu" className="text-sm hover:underline">
+                <Link
+                  href="/menu"
+                  className="text-sm hover:underline hover:text-rose-500 transition-all"
+                >
                   Menu
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase">
-              Company
-            </h2>
-            <ul className="text-gray-600 font-medium">
-              <li className="mb-3">
-                <Link
-                  href="/why-chillis-food"
-                  className="text-sm hover:underline"
-                >
-                  Why Chithi&apos;s Food?
-                </Link>
-              </li>
-              <li className="mb-3">
-                <Link
-                  href="/partner-with-us"
-                  className="text-sm hover:underline"
-                >
-                  Partner With Us
-                </Link>
-              </li>
-              <li className="mb-3">
-                <Link href="/faq" className="text-sm hover:underline">
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-sm hover:underline">
-                  Blog
                 </Link>
               </li>
             </ul>
@@ -127,38 +105,31 @@ const Footer = () => {
           <div>
             <div className="mb-8">
               <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase">
-                Support
+                Legal
               </h2>
               <ul className="text-gray-600 font-medium">
                 <li className="mb-3">
-                  <Link href="/account" className="text-sm hover:underline">
-                    Account
+                  <Link
+                    href="/terms-and-conditions"
+                    className="text-sm hover:underline hover:text-rose-500 transition-all"
+                  >
+                    Terms & Conditions
                   </Link>
                 </li>
                 <li className="mb-3">
                   <Link
-                    href="/support-center"
-                    className="text-sm hover:underline"
+                    href="/privacy-policy"
+                    className="text-sm hover:underline hover:text-rose-500 transition-all"
                   >
-                    Support Center
+                    Privacy Policy
                   </Link>
                 </li>
                 <li className="mb-3">
-                  <Link href="/feedback" className="text-sm hover:underline">
-                    Feedback
-                  </Link>
-                </li>
-                <li className="mb-3">
-                  <Link href="/contact-us" className="text-sm hover:underline">
-                    Contact Us
-                  </Link>
-                </li>
-                <li>
                   <Link
-                    href="/accessibility"
-                    className="text-sm hover:underline"
+                    href="/vendor-privacy-policy"
+                    className="text-sm hover:underline hover:text-rose-500 transition-all"
                   >
-                    Accessibility
+                    Vendor Privacy Policy
                   </Link>
                 </li>
               </ul>

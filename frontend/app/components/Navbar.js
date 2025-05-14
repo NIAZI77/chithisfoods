@@ -8,7 +8,7 @@ import Image from "next/image";
 import { FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import { FaGear, FaShop } from "react-icons/fa6";
 import { RiFileList2Fill } from "react-icons/ri";
-import { Search, ShoppingCart, User } from "lucide-react";
+import { ShoppingCart, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -107,13 +107,6 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center md:order-2 space-x-1 md:space-x-0">
-          <Link
-            href="/search"
-            className="h-10 w-10 text-xl flex items-center justify-center rounded-full text-rose-500 hover:text-rose-600 hover:scale-125 transition-all"
-          >
-            <Search />
-          </Link>
-
           <Link
             href="/cart"
             className="h-10 w-10 text-xl flex items-center justify-center rounded-full text-rose-500 hover:text-rose-600 hover:scale-125 transition-all"
