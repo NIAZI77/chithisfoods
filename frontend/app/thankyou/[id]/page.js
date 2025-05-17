@@ -22,7 +22,7 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { PiBowlFood } from "react-icons/pi";
 
-export default function ThankYouPage() {
+export default function OrderPage() {
   const { id: orderId } = useParams();
   const [orderData, setOrderData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -308,4 +308,4 @@ export default function ThankYouPage() {
       </div>
     </>
   );
-}
+} 

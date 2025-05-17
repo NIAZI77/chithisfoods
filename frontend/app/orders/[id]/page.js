@@ -22,7 +22,7 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { PiBowlFood } from "react-icons/pi";
 
-export default function ThankYouPage() {
+export default function OrderPage() {
   const { id: orderId } = useParams();
   const [orderData, setOrderData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,16 +114,13 @@ export default function ThankYouPage() {
         style={{ backgroundImage: "url('/thankyoubg.png')" }}
       >
         <div className="absolute -bottom-6  left-[calc(50%-24px)] w-12 h-12 bg-rose-600 rounded-full mx-auto flex items-center justify-center text-white text-3xl font-extrabold">
-          ✓
+          <Package size={24} />
         </div>
       </div>
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-gray-900">
-          {" "}
-          Thank You for Your Order!
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900">Order Details</h1>
         <p className="text-gray-600 mt-2">
-          Your order has been successfully placed.
+          Here are the details of your order.
         </p>
       </div>
 

@@ -41,15 +41,30 @@ export default function CartPage() {
   useEffect(() => {
     const newSubtotal = cart.reduce((sum, vendorGroup) => {
       const vendorTotal = vendorGroup.dishes.reduce((dishSum, dish) => {
-        const toppingsTotal = dish.toppings.reduce((tSum, topping) => tSum + (topping.price || 0), 0);
-        const extrasTotal = dish.extras.reduce((eSum, extra) => eSum + (extra.price || 0), 0);
-        return dishSum + (Number(dish.basePrice) + toppingsTotal + extrasTotal) * dish.quantity;
+        const toppingsTotal = dish.toppings.reduce(
+          (tSum, topping) => tSum + (topping.price || 0),
+          0
+        );
+        const extrasTotal = dish.extras.reduce(
+          (eSum, extra) => eSum + (extra.price || 0),
+          0
+        );
+        return (
+          dishSum +
+          (Number(dish.basePrice) + toppingsTotal + extrasTotal) * dish.quantity
+        );
       }, 0);
       return sum + vendorTotal;
     }, 0);
 
-    const newTotalItems = cart.reduce((sum, vendorGroup) => 
-      sum + vendorGroup.dishes.reduce((dishSum, dish) => dishSum + dish.quantity, 0), 0
+    const newTotalItems = cart.reduce(
+      (sum, vendorGroup) =>
+        sum +
+        vendorGroup.dishes.reduce(
+          (dishSum, dish) => dishSum + dish.quantity,
+          0
+        ),
+      0
     );
 
     setSubtotal(newSubtotal);
@@ -63,7 +78,7 @@ export default function CartPage() {
   }, [cart, isLoading]);
 
   const updateQty = (vendorId, dish, delta) => {
-    setCart((prevCart) => 
+    setCart((prevCart) =>
       prevCart.map((vendorGroup) => {
         if (vendorGroup.vendorId === vendorId) {
           return {
@@ -72,14 +87,27 @@ export default function CartPage() {
               if (
                 cartDish.id === dish.id &&
                 cartDish.selectedSpiciness === dish.selectedSpiciness &&
-                JSON.stringify(cartDish.toppings) === JSON.stringify(dish.toppings) &&
+                JSON.stringify(cartDish.toppings) ===
+                  JSON.stringify(dish.toppings) &&
                 JSON.stringify(cartDish.extras) === JSON.stringify(dish.extras)
               ) {
                 const newQuantity = Math.max(1, cartDish.quantity + delta);
-                const toppingsTotal = cartDish.toppings.reduce((sum, topping) => sum + (topping.price || 0), 0);
-                const extrasTotal = cartDish.extras.reduce((sum, extra) => sum + (extra.price || 0), 0);
-                const total = (Number(cartDish.basePrice) + toppingsTotal + extrasTotal) * newQuantity;
-                return { ...cartDish, quantity: newQuantity, total: total.toFixed(2) };
+                const toppingsTotal = cartDish.toppings.reduce(
+                  (sum, topping) => sum + (topping.price || 0),
+                  0
+                );
+                const extrasTotal = cartDish.extras.reduce(
+                  (sum, extra) => sum + (extra.price || 0),
+                  0
+                );
+                const total =
+                  (Number(cartDish.basePrice) + toppingsTotal + extrasTotal) *
+                  newQuantity;
+                return {
+                  ...cartDish,
+                  quantity: newQuantity,
+                  total: total.toFixed(2),
+                };
               }
               return cartDish;
             }),
@@ -91,17 +119,24 @@ export default function CartPage() {
   };
 
   const removeItem = (vendorId, dish) => {
-    setCart((prevCart) => 
+    setCart((prevCart) =>
       prevCart
         .map((vendorGroup) => {
           if (vendorGroup.vendorId === vendorId) {
-            const updatedDishes = vendorGroup.dishes.filter((cartDish) => 
-              !(cartDish.id === dish.id &&
-                cartDish.selectedSpiciness === dish.selectedSpiciness &&
-                JSON.stringify(cartDish.toppings) === JSON.stringify(dish.toppings) &&
-                JSON.stringify(cartDish.extras) === JSON.stringify(dish.extras))
+            const updatedDishes = vendorGroup.dishes.filter(
+              (cartDish) =>
+                !(
+                  cartDish.id === dish.id &&
+                  cartDish.selectedSpiciness === dish.selectedSpiciness &&
+                  JSON.stringify(cartDish.toppings) ===
+                    JSON.stringify(dish.toppings) &&
+                  JSON.stringify(cartDish.extras) ===
+                    JSON.stringify(dish.extras)
+                )
             );
-            return updatedDishes.length === 0 ? null : { ...vendorGroup, dishes: updatedDishes };
+            return updatedDishes.length === 0
+              ? null
+              : { ...vendorGroup, dishes: updatedDishes };
           }
           return vendorGroup;
         })
@@ -150,8 +185,12 @@ export default function CartPage() {
           {cart.length === 0 ? (
             <div className="py-8 text-center">
               <ShoppingCart className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-xl font-bold text-gray-600 mb-2">Your cart is empty</h3>
-              <p className="text-gray-500 mb-4">Looks like you haven&apos;t added any items to your cart yet.</p>
+              <h3 className="text-xl font-bold text-gray-600 mb-2">
+                Your cart is empty
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Looks like you haven&apos;t added any items to your cart yet.
+              </p>
               <Link
                 href="/explore"
                 className="inline-flex items-center gap-2 text-rose-500 font-semibold hover:underline"
@@ -162,7 +201,10 @@ export default function CartPage() {
           ) : (
             <div className="space-y-8">
               {cart.map((vendorGroup) => (
-                <div key={vendorGroup.vendorId} className="border rounded-lg p-4">
+                <div
+                  key={vendorGroup.vendorId}
+                  className="border rounded-lg p-4"
+                >
                   <div className="flex items-center gap-3 mb-4 pb-4 border-b">
                     <Image
                       src={vendorGroup.vendorAvatar}
@@ -188,24 +230,37 @@ export default function CartPage() {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">
-                          {vendorGroup.dishes.length} {vendorGroup.dishes.length === 1 ? "item" : "items"}
+                          {vendorGroup.dishes.length}{" "}
+                          {vendorGroup.dishes.length === 1 ? "item" : "items"}
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="hidden md:grid grid-cols-[2fr_1.6fr_1.2fr_0.75fr_0.5fr] px-2 pb-2 border-b border-gray-200 mb-2">
-                    <div className="text-base font-bold text-rose-500">Product</div>
-                    <div className="text-sm font-bold text-rose-500 text-center">AddOns</div>
-                    <div className="text-sm font-bold text-rose-500 text-center">Quantity</div>
-                    <div className="text-sm font-bold text-rose-500 text-center">Total Price</div>
+                    <div className="text-base font-bold text-rose-500">
+                      Product
+                    </div>
+                    <div className="text-sm font-bold text-rose-500 text-center">
+                      AddOns
+                    </div>
+                    <div className="text-sm font-bold text-rose-500 text-center">
+                      Quantity
+                    </div>
+                    <div className="text-sm font-bold text-rose-500 text-center">
+                      Total Price
+                    </div>
                     <div className="text-sm font-bold text-rose-500 text-center">
                       <button
                         onClick={() => {
                           setCart((prevCart) =>
-                            prevCart.filter((group) => group.vendorId !== vendorGroup.vendorId)
+                            prevCart.filter(
+                              (group) => group.vendorId !== vendorGroup.vendorId
+                            )
                           );
-                          toast.success(`All items from ${vendorGroup.vendorName} have been removed`);
+                          toast.success(
+                            `All items from ${vendorGroup.vendorName} have been removed`
+                          );
                         }}
                         className="text-base font-bold text-red-500 hover:text-red-700"
                       >
@@ -216,7 +271,11 @@ export default function CartPage() {
 
                   <div className="divide-y divide-gray-100">
                     {vendorGroup.dishes.map((dish, index) => {
-                      const uniqueKey = `${dish.id}-${dish.selectedSpiciness || "none"}-${JSON.stringify(dish.toppings)}-${JSON.stringify(dish.extras)}-${index}`;
+                      const uniqueKey = `${dish.id}-${
+                        dish.selectedSpiciness || "none"
+                      }-${JSON.stringify(dish.toppings)}-${JSON.stringify(
+                        dish.extras
+                      )}-${index}`;
 
                       return (
                         <div
@@ -242,45 +301,74 @@ export default function CartPage() {
                             </div>
                           </div>
 
-                          <div className="text-sm text-gray-600 space-y-1">
-                            {dish.toppings.length > 0 && (
-                              <div className="flex items-center gap-1">
-                                <PiBowlFood className="w-4 h-4 text-rose-500" />
-                                <span>{dish.toppings.map((t) => t.option).join(", ")}</span>
+                          <div className="flex gap-2">
+                            {dish.toppings?.length > 0 && (
+                              <div>
+                                <div className="flex flex-wrap gap-1">
+                                  {dish.toppings.map((topping, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-sm"
+                                    >
+                                      <PiBowlFood size={14} /> {topping.name}
+                                    </span>
+                                  ))}
+                                </div>
                               </div>
                             )}
-                            {dish.extras.length > 0 && (
-                              <div className="flex items-center gap-1">
-                                <Salad className="w-4 h-4 text-rose-500" />
-                                <span>{dish.extras.map((e) => e.option).join(", ")}</span>
+                            {dish.extras?.length > 0 && (
+                              <div>
+                                <div className="flex flex-wrap gap-1">
+                                  {dish.extras.map((extra, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-sm"
+                                    >
+                                      <Salad size={14} /> {extra.name}
+                                    </span>
+                                  ))}
+                                </div>
                               </div>
                             )}
+
                             {!dish.toppings.length && !dish.extras.length && (
-                              <div className="text-gray-400 text-xs text-center">No addons selected</div>
+                              <div className="text-gray-400 text-xs text-center">
+                                No addons selected
+                              </div>
                             )}
                           </div>
 
                           <div className="flex items-center justify-center gap-2">
                             <button
-                              onClick={() => updateQty(vendorGroup.vendorId, dish, -1)}
+                              onClick={() =>
+                                updateQty(vendorGroup.vendorId, dish, -1)
+                              }
                               className="p-1 rounded-full hover:bg-gray-100"
                             >
                               <Minus className="w-4 h-4" />
                             </button>
-                            <span className="w-8 text-center">{dish.quantity}</span>
+                            <span className="w-8 text-center">
+                              {dish.quantity}
+                            </span>
                             <button
-                              onClick={() => updateQty(vendorGroup.vendorId, dish, 1)}
+                              onClick={() =>
+                                updateQty(vendorGroup.vendorId, dish, 1)
+                              }
                               className="p-1 rounded-full hover:bg-gray-100"
                             >
                               <Plus className="w-4 h-4" />
                             </button>
                           </div>
 
-                          <div className="text-center font-semibold">${dish.total}</div>
+                          <div className="text-center font-semibold">
+                            ${dish.total}
+                          </div>
 
                           <div className="flex justify-center">
                             <button
-                              onClick={() => removeItem(vendorGroup.vendorId, dish)}
+                              onClick={() =>
+                                removeItem(vendorGroup.vendorId, dish)
+                              }
                               className="text-red-500 hover:text-red-700"
                             >
                               <Trash2 className="w-5 h-5" />

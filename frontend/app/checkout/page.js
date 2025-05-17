@@ -9,10 +9,14 @@ import {
 } from "lucide-react";
 import { HiOutlineReceiptTax } from "react-icons/hi";
 import { LuSquareSigma } from "react-icons/lu";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { FaShoppingBag } from "react-icons/fa";
+import { getCookie } from "cookies-next";
+
+const TAX_PERCENTAGE = 10;
+const DELIVERY_FEE = 2.50;
 
 const initialFormData = {
   name: "",
@@ -22,11 +26,9 @@ const initialFormData = {
   address: "",
   promo: "",
   note: "",
+  user: "",
   deliveryType: "delivery",
 };
-
-const TAX_PERCENTAGE = 10;
-const DELIVERY_FEE = 0;
 
 const Page = () => {
   const router = useRouter();
@@ -35,21 +37,31 @@ const Page = () => {
   const [cartItems, setCartItems] = useState([]);
   const [tax, setTax] = useState(0);
 
-  const validateCart = useCallback(() => {
+  const validateCart = () => {
     const storedCartItems = localStorage.getItem("cart");
     if (!storedCartItems || JSON.parse(storedCartItems).length === 0) {
-      toast.error("Cart is empty");
+      toast.error("Your cart is empty. Please add items before checkout.");
       router.push("/");
       return false;
     }
-
     setCartItems(JSON.parse(storedCartItems));
     return true;
-  }, [router]);
+  };
 
   useEffect(() => {
-    validateCart();
-  }, [validateCart]);
+    const checkAuth = async () => {
+      const user = getCookie("user");
+      const jwt = getCookie("jwt");
+      if (!user || !jwt) {
+        toast.error("Please sign in to complete your order");
+        router.push("/login");
+        return;
+      }
+      setFormData((prev) => ({ ...prev, user }));
+      validateCart();
+    };
+    checkAuth();
+  }, [router]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -59,29 +71,34 @@ const Page = () => {
     }));
   };
 
-  const calculateSubtotal = useCallback(() => {
-    return cartItems.reduce((sum, vendor) => {
-      const vendorTotal = vendor.dishes.reduce((dishSum, dish) => {
-        const toppingsTotal = dish.toppings.reduce(
-          (tSum, topping) => tSum + (topping.price || 0),
-          0
-        );
-        const extrasTotal = dish.extras.reduce(
-          (eSum, extra) => eSum + (extra.price || 0),
-          0
-        );
-        return (
-          dishSum +
-          (Number(dish.basePrice) + toppingsTotal + extrasTotal) * dish.quantity
-        );
-      }, 0);
-      return sum + vendorTotal;
-    }, 0);
-  }, [cartItems]);
+  const calculateSubtotal = () => {
+    return Number(
+      cartItems
+        .reduce((sum, vendor) => {
+          const vendorTotal = vendor.dishes.reduce((dishSum, dish) => {
+            const toppingsTotal = dish.toppings.reduce(
+              (tSum, topping) => tSum + (Number(topping.price) || 0),
+              0
+            );
+            const extrasTotal = dish.extras.reduce(
+              (eSum, extra) => eSum + (Number(extra.price) || 0),
+              0
+            );
+            return (
+              dishSum +
+              (Number(dish.basePrice) + toppingsTotal + extrasTotal) *
+                Number(dish.quantity)
+            );
+          }, 0);
+          return sum + vendorTotal;
+        }, 0)
+        .toFixed(2)
+    );
+  };
 
-  const subtotal = calculateSubtotal();
-  const calculatedTax = (subtotal * TAX_PERCENTAGE) / 100;
-  const total = subtotal + calculatedTax + DELIVERY_FEE;
+  const subtotal = Number(calculateSubtotal().toFixed(2));
+  const calculatedTax = Number(((subtotal * TAX_PERCENTAGE) / 100).toFixed(2));
+  const total = Number((subtotal + calculatedTax + DELIVERY_FEE).toFixed(2));
 
   useEffect(() => {
     setTax(calculatedTax);
@@ -89,6 +106,11 @@ const Page = () => {
 
   const addOrder = async (orderData) => {
     try {
+      const user = getCookie("user");
+      if (!user) {
+        throw new Error("Authentication required");
+      }
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`,
         {
@@ -97,7 +119,7 @@ const Page = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
           },
-          body: JSON.stringify({ data: orderData }),
+          body: JSON.stringify({ data: { ...orderData, user } }),
         }
       );
 
@@ -120,12 +142,73 @@ const Page = () => {
     const customerOrderId = new Date().getTime();
 
     try {
-      const orderPromises = cartItems.map((vendor) => {
-        const subtotal = vendor.dishes
-          .reduce((sum, dish) => {
-            return sum + (parseFloat(dish.total) || 0);
-          }, 0)
-          .toFixed(2);
+      const user = getCookie("user");
+      if (!user) {
+        toast.error("Please sign in to complete your order");
+        router.push("/login");
+        return;
+      }
+
+      const orderSubtotal = cartItems.reduce((sum, vendor) => {
+        const vendorSubtotal = vendor.dishes.reduce((dishSum, dish) => {
+          const toppingsTotal = dish.toppings.reduce(
+            (tSum, topping) => tSum + (Number(topping.price) || 0),
+            0
+          );
+          const extrasTotal = dish.extras.reduce(
+            (eSum, extra) => eSum + (Number(extra.price) || 0),
+            0
+          );
+          return (
+            dishSum +
+            (Number(dish.basePrice) + toppingsTotal + extrasTotal) *
+              Number(dish.quantity)
+          );
+        }, 0);
+        return sum + vendorSubtotal;
+      }, 0);
+
+      const orderTax = Number(
+        ((orderSubtotal * TAX_PERCENTAGE) / 100).toFixed(2)
+      );
+      const orderTotal = Number(
+        (orderSubtotal + orderTax + DELIVERY_FEE).toFixed(2)
+      );
+
+      const vendorProportions = cartItems.map((vendor, index) => {
+        const vendorSubtotal = vendor.dishes.reduce((sum, dish) => {
+          const toppingsTotal = dish.toppings.reduce(
+            (tSum, topping) => tSum + (Number(topping.price) || 0),
+            0
+          );
+          const extrasTotal = dish.extras.reduce(
+            (eSum, extra) => eSum + (Number(extra.price) || 0),
+            0
+          );
+          return (
+            sum +
+            (Number(dish.basePrice) + toppingsTotal + extrasTotal) *
+              Number(dish.quantity)
+          );
+        }, 0);
+        return {
+          subtotal: vendorSubtotal,
+          proportion: vendorSubtotal / orderSubtotal,
+        };
+      });
+
+      const orderPromises = cartItems.map((vendor, index) => {
+        const { subtotal: vendorSubtotal, proportion } =
+          vendorProportions[index];
+        const vendorTax = Number(
+          ((vendorSubtotal * TAX_PERCENTAGE) / 100).toFixed(2)
+        );
+        const vendorDeliveryFee = Number(
+          (DELIVERY_FEE * proportion).toFixed(2)
+        );
+        const vendorTotal = Number(
+          (vendorSubtotal + vendorTax + vendorDeliveryFee).toFixed(2)
+        );
 
         const orderData = {
           customerName: formData.name,
@@ -136,27 +219,29 @@ const Page = () => {
               ? `${formData.address}, ${formData.zip}`
               : "Pickup",
           note: formData.note,
-          tax,
-          totalAmount: total,
+          tax: vendorTax,
+          totalTax: tax,
+          subtotal: Number(vendorSubtotal.toFixed(2)),
+          totalAmount: vendorTotal,
           paymentStatus: "paid",
           deliveryType: formData.deliveryType,
           promoCode: formData.promo,
+          orderTotal: total,
+          deliveryFee: DELIVERY_FEE,
           orderStatus: "pending",
           ...vendor,
-          subtotal,
         };
 
         return addOrder(orderData);
       });
 
       await Promise.all(orderPromises);
-
-      toast.success("Order placed!");
+      toast.success("Your order has been placed successfully!");
       localStorage.removeItem("cart");
       router.push(`/thank-you/${customerOrderId}`);
     } catch (error) {
-      console.error("Error placing orders:", error);
-      toast.error("Order failed. Try again");
+      console.error("Order placement error:", error);
+      toast.error(error.message || "Unable to place order. Please try again.");
     } finally {
       setSubmitting(false);
     }

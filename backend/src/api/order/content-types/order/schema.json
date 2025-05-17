@@ -60,7 +60,8 @@
         "processing",
         "canceled",
         "declined",
-        "fulfill"
+        "ready",
+        "delivered"
       ]
     },
     "vendorId": {
@@ -92,6 +93,21 @@
       "type": "biginteger",
       "required": true,
       "unique": false
+    },
+    "user": {
+      "type": "email",
+      "required": true
+    },
+    "orderTotal": {
+      "type": "decimal",
+      "required": true
+    },
+    "deliveryFee": {
+      "type": "decimal",
+      "default": 0
+    },
+    "totalTax": {
+      "type": "decimal"
     }
   }
 }

@@ -7,6 +7,7 @@ import { Edit, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
+import Link from "next/link";
 
 export default function ManageInventory() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,7 +34,7 @@ export default function ManageInventory() {
     setLoadingMenu(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[email][$eq]=${email}&populate=*`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[email][$eq]=${email}&sort=createdAt:desc&populate=*&pagination[limit]=999`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -166,8 +167,7 @@ export default function ManageInventory() {
         <table className="min-w-[800px] w-full text-sm text-left">
           <thead className="bg-slate-100 p-2">
             <tr className="h-12">
-              <th className="text-left pl-3 w-24">ID</th>
-              <th className="text-left pl-3 w-36">Name</th>
+              <th className="text-left px-3 w-36">Name</th>
               <th className="text-left pl-3 w-28">Image</th>
               <th className="text-left pl-3 w-24">Price</th>
               <th className="text-left pl-3 w-24">Rating</th>
@@ -193,10 +193,9 @@ export default function ManageInventory() {
             ) : (
               filteredDishes.map((dish) => (
                 <tr key={dish.id} className="border-b hover:bg-gray-50 h-12">
-                  <td className="font-medium hover:underline hover:text-orange-400 pl-3">
-                    {dish.id}
+                  <td className="pl-3 capitalize hover:text-orange-400 hover:underline transition-all">
+                    <Link href={`/dish/${dish.documentId}`}>{dish.name}</Link>
                   </td>
-                  <td>{dish.name}</td>
                   <td>
                     <Image
                       src={dish.image?.url || "/placeholder.jpg"}
@@ -208,9 +207,13 @@ export default function ManageInventory() {
                     />
                   </td>
                   <td>${dish.price?.toFixed(2) || "0.00"}</td>
-                  <td>{dish.rating ?? 0}</td>
-                  <td>{dish.category.replace("-", " ") || "-"}</td>
-                  <td>{dish.subcategory.replace("-", " ") || "-"}</td>
+                  <td className="pl-5">{dish.rating.toFixed(2) ?? 0.0}</td>
+                  <td className="capitalize">
+                    {dish.category.replace("-", " ") || "-"}
+                  </td>
+                  <td className="capitalize">
+                    {dish.subcategory.replace("-", " ") || "-"}
+                  </td>
                   <td>
                     <button
                       onClick={() =>

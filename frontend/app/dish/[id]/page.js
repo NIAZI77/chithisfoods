@@ -3,12 +3,20 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { LuPlus, LuMinus } from "react-icons/lu";
 import { FaStar, FaUser } from "react-icons/fa";
-import { Timer } from "lucide-react";
+import { Timer, AlertCircle, Eye } from "lucide-react";
 import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import Link from "next/link";
+import { getCookie } from "cookies-next";
+
+const API_ERROR_MESSAGES = {
+  CONFIG_MISSING: "API configuration is missing. Please contact support.",
+  FETCH_ERROR: "Unable to fetch dish details. Please try again later.",
+  NOT_FOUND: "The requested dish could not be found.",
+  CART_ERROR: "Failed to add item to cart. Please try again.",
+  SELECTION_ERROR: "Failed to update selection. Please try again."
+};
 
 export default function DishPage() {
   const { id } = useParams();
@@ -20,11 +28,13 @@ export default function DishPage() {
   const [selectedExtras, setSelectedExtras] = useState({});
   const [selectedToppings, setSelectedToppings] = useState({});
   const [loading, setLoading] = useState(true);
+  const [isPreview, setIsPreview] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(true);
 
   const fetchDishDetails = async () => {
     try {
       if (!process.env.NEXT_PUBLIC_STRAPI_HOST || !process.env.NEXT_PUBLIC_STRAPI_TOKEN) {
-        throw new Error("API configuration is missing. Please contact support.");
+        throw new Error(API_ERROR_MESSAGES.CONFIG_MISSING);
       }
 
       const response = await fetch(
@@ -41,11 +51,11 @@ export default function DishPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.error?.message || "Unable to fetch dish details. Please try again later.");
+        throw new Error(responseData.error?.message || API_ERROR_MESSAGES.FETCH_ERROR);
       }
 
       if (!responseData.data) {
-        throw new Error("The requested dish could not be found.");
+        throw new Error(API_ERROR_MESSAGES.NOT_FOUND);
       }
 
       const dishInfo = responseData.data;
@@ -75,6 +85,9 @@ export default function DishPage() {
         spiciness: dishInfo.spiciness || [],
       };
 
+      const user = getCookie("user");
+      setIsPreview(dishInfo.email === user);
+      setIsAvailable(dishInfo.available);
       setDishDetails(enhancedDishInfo);
       setSelectedSpiceLevel(enhancedDishInfo.spiciness?.[0]);
 
@@ -93,7 +106,7 @@ export default function DishPage() {
       setIsDishNotFound(false);
     } catch (error) {
       console.error("Error fetching dish:", error);
-      toast.error(error.message || "An unexpected error occurred. Please try again.");
+      toast.error(error.message || API_ERROR_MESSAGES.FETCH_ERROR);
       setIsDishNotFound(true);
     } finally {
       setLoading(false);
@@ -196,9 +209,9 @@ export default function DishPage() {
       }
 
       localStorage.setItem("cart", JSON.stringify(cart));
-      toast.success(`${dishDetails.name} added to your cart!`);
+      toast.success(`Successfully added ${orderQuantity} ${dishDetails.name} to your cart!`);
     } catch (error) {
-      toast.error("Failed to add item to cart. Please try again.");
+      toast.error(API_ERROR_MESSAGES.CART_ERROR);
       console.error("Error adding to cart:", error);
     }
   };
@@ -217,7 +230,7 @@ export default function DishPage() {
         }));
       }
     } catch (error) {
-      toast.error("Failed to update selection. Please try again.");
+      toast.error(API_ERROR_MESSAGES.SELECTION_ERROR);
       console.error("Error updating selection:", error);
     }
   };
@@ -254,6 +267,20 @@ export default function DishPage() {
   return (
     <>
       <div className="min-h-screen bg-white text-gray-800 mx-auto p-4">
+        <div className="space-y-2 mb-4">
+          {!isAvailable && (
+            <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              This dish is currently unavailable
+            </div>
+          )}
+          {isPreview && (
+            <div className="bg-yellow-300 text-yellow-800 px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+              <Eye className="w-5 h-5" />
+              You are viewing this dish in preview mode
+            </div>
+          )}
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-5">
           <div>
             <Image
@@ -456,7 +483,8 @@ export default function DishPage() {
               </div>
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold"
+                className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isPreview || !isAvailable}
               >
                 Add to cart
               </button>
@@ -512,7 +540,7 @@ export default function DishPage() {
               <p>{dishDetails.description}</p>
               <div className="flex items-center justify-start gap-x-4 mt-4">
                 <h2 className="font-bold text-lg flex items-center gap-x-1">
-                  <Timer /> Preparation Time
+                  <Timer className="w-5 h-5" /> Preparation Time
                 </h2>
                 <p>{dishDetails.preparation_time} minutes</p>
               </div>

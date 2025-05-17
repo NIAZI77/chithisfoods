@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GoSidebarCollapse } from "react-icons/go";
-import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Boxes, LayoutDashboard, Settings, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 
@@ -24,80 +23,92 @@ export default function Sidebar() {
   return (
     <aside
       className={`h-screen ${
-        collapsed ? "w-fit" : "w-64"
-      } transition-all duration-300 flex flex-col shadow-lg bg-white text-black fixed top-0 left-0`}
+        collapsed ? "w-16" : "w-64"
+      } transition-all duration-300 flex flex-col shadow-lg bg-white text-black fixed top-0 left-0 z-50`}
     >
       <div
-        className={`flex items-center ${
-          collapsed ? "justify-center" : "justify-between"
-        } py-2 px-3`}
+        className={`${
+          collapsed
+            ? "flex flex-col items-center gap-4"
+            : "flex items-center justify-between"
+        } py-4 px-3 border-b border-gray-100`}
       >
-        {!collapsed && (
-          <Image
-            src="/logo.png"
-            alt="Logo"
-            width={50}
-            height={50}
-            className="w-20 h-auto"
-          />
-        )}
-        <button onClick={() => setCollapsed((prev) => !prev)}>
-          <span className="text-2xl text-gray-700">
-            {collapsed ? (
-              <GoSidebarCollapse />
-            ) : (
-              <TbLayoutSidebarLeftCollapse />
-            )}
-          </span>
+        <Image
+          src="/logo.png"
+          alt="Logo"
+          width={50}
+          height={50}
+          className={`h-auto transition-all duration-300 ${
+            collapsed ? "w-8" : "w-20"
+          }`}
+        />
+        <button
+          onClick={() => setCollapsed((prev) => !prev)}
+          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          {collapsed ? (
+            <ChevronRight className="w-5 h-5 text-gray-600" />
+          ) : (
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          )}
         </button>
       </div>
 
-      <nav className="flex flex-col gap-1 p-1 mt-3">
+      <nav className="flex flex-col gap-1 p-2 mt-3">
         <Link
           href="/vendor/dashboard"
-          className={`flex items-center gap-3 px-3 py-2 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-3 border-transparent ${
+          className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-[3px] border-transparent ${
             isActive("/vendor/dashboard") &&
-            "text-orange-500 !border-orange-500"
+            "text-orange-500 !border-orange-500 !border-l-4 bg-orange-50"
           }`}
         >
-          <LayoutDashboard />
-          {!collapsed && <span className="whitespace-nowrap">Dashboard</span>}
+          <LayoutDashboard className="w-5 h-5" />
+          {!collapsed && (
+            <span className="whitespace-nowrap font-medium">Dashboard</span>
+          )}
         </Link>
 
         <Link
           href="/vendor/manage-inventory"
-          className={`flex items-center gap-3 px-3 py-2 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-3 border-transparent ${
+          className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-[3px] border-transparent ${
             isActive("/vendor/manage-inventory") &&
-            "text-orange-500 !border-orange-500"
+            "text-orange-500 !border-orange-500 !border-l-4 bg-orange-50"
           }`}
         >
-          <Boxes />
+          <Boxes className="w-5 h-5" />
           {!collapsed && (
-            <span className="whitespace-nowrap">Manage Inventory</span>
+            <span className="whitespace-nowrap font-medium">
+              Manage Inventory
+            </span>
           )}
         </Link>
 
         <Link
           href="/vendor/order-management"
-          className={`flex items-center gap-3 px-3 py-2 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-3 border-transparent  ${
+          className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-[3px] border-transparent ${
             isActive("/vendor/order-management") &&
-            "text-orange-500 !border-orange-500"
+            "text-orange-500 !border-orange-500 !border-l-4 bg-orange-50"
           }`}
         >
-          <ShoppingBag />
+          <ShoppingBag className="w-5 h-5" />
           {!collapsed && (
-            <span className="whitespace-nowrap">Order Management</span>
+            <span className="whitespace-nowrap font-medium">
+              Order Management
+            </span>
           )}
         </Link>
 
         <Link
           href="/vendor/settings"
-          className={`flex items-center gap-3 px-3 py-2 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-3 border-transparent ${
-            isActive("/vendor/settings") && "text-orange-500 !border-orange-500"
+          className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-[3px] border-transparent ${
+            isActive("/vendor/settings") &&
+            "text-orange-500 !border-orange-500 !border-l-4 bg-orange-50"
           }`}
         >
-          <Settings />
-          {!collapsed && <span className="whitespace-nowrap">Settings</span>}
+          <Settings className="w-5 h-5" />
+          {!collapsed && (
+            <span className="whitespace-nowrap font-medium">Settings</span>
+          )}
         </Link>
       </nav>
     </aside>

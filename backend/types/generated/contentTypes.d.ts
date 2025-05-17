@@ -431,6 +431,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     customerName: Schema.Attribute.String & Schema.Attribute.Required;
     customerOrderId: Schema.Attribute.BigInteger & Schema.Attribute.Required;
+    deliveryFee: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
     deliveryType: Schema.Attribute.Enumeration<['delivery', 'pickup']> &
       Schema.Attribute.DefaultTo<'delivery'>;
     dishes: Schema.Attribute.JSON & Schema.Attribute.Required;
@@ -441,6 +442,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     orderStatus: Schema.Attribute.Enumeration<
       ['pending', 'processing', 'canceled', 'declined', 'fulfill']
     >;
+    orderTotal: Schema.Attribute.Decimal & Schema.Attribute.Required;
     paymentStatus: Schema.Attribute.Enumeration<['paid', 'unpaid']>;
     phone: Schema.Attribute.BigInteger & Schema.Attribute.Required;
     promoCode: Schema.Attribute.String;
@@ -450,9 +452,11 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       Schema.Attribute.DefaultTo<0>;
     tax: Schema.Attribute.Decimal & Schema.Attribute.Required;
     totalAmount: Schema.Attribute.Decimal & Schema.Attribute.Required;
+    totalTax: Schema.Attribute.Decimal;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    user: Schema.Attribute.Email & Schema.Attribute.Required;
     vendorAvatar: Schema.Attribute.String & Schema.Attribute.Required;
     vendorId: Schema.Attribute.String & Schema.Attribute.Required;
     vendorName: Schema.Attribute.String & Schema.Attribute.Required;
