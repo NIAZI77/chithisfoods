@@ -57,12 +57,12 @@
       "type": "enumeration",
       "enum": [
         "pending",
-        "processing",
-        "canceled",
-        "declined",
+        "in-process",
         "ready",
-        "delivered"
-      ]
+        "delivered",
+        "cancelled"
+      ],
+      "default": "pending"
     },
     "vendorId": {
       "type": "string",

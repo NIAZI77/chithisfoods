@@ -5,28 +5,17 @@ import { Star, Plus } from "lucide-react";
 import { FaUser } from "react-icons/fa";
 import Link from "next/link";
 
-const defaultDish = {
-  documentId: "biuucr56545y",
-  name: "Spicy Chicken Biryani",
-  image: { url: "/baryani.jpeg" },
-  price: 99.99,
-  rating: 4.5,
-  servings: 2,
-  category: "Main Course",
-  subcategory: "Rice Dishes",
-  chef: {
-    name: "Ali Raza",
-    avatar: { url: "/person.jpeg" },
-    rating: 4.9,
-  },
-};
-
-export default function ProductCard({ dish = defaultDish }) {
+export default function ProductCard({ dish }) {
   return (
     <Link
       href={`/dish/${dish.documentId}`}
-      className="bg-white rounded-2xl shadow-md p-4 w-72 block"
+      className={`bg-white rounded-2xl shadow-md p-4 w-72 block relative`}
     >
+      {!dish.available && (
+        <div className="absolute top-16 right-6 bg-red-500 text-white text-xs font-semibold px-3 py-0.5 rounded-full flex items-center gap-1 shadow z-50">
+          Unavailable
+        </div>
+      )}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Image
@@ -57,16 +46,16 @@ export default function ProductCard({ dish = defaultDish }) {
 
       {/* Title and Serving */}
       <div className="flex items-center justify-between mb-1">
-        <h3 className="text-lg font-semibold">{dish.name}</h3>
+        <h3 className="text-lg font-semibold capitalize">{dish.name}</h3>
         <div className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-sm flex items-center gap-1 justify-center">
           Servings <FaUser /> {dish.servings}
         </div>
       </div>
 
       {/* Category and Subcategory */}
-      <p className="text-sm text-gray-500">
-        {dish.category} ·{" "}
-        <span className="text-green-500 font-medium">{dish.subcategory}</span>
+      <p className="text-sm text-gray-500 capitalize">
+        {dish.category.replace("-", " ")} ·{" "}
+        <span className="text-green-500 font-medium capitalize">{dish.subcategory}</span>
       </p>
 
       {/* Add to Cart Section */}

@@ -7,7 +7,6 @@ import Link from "next/link";
 
 const VendorCard = ({ chef }) => {
   const isTopRated = chef.rating >= 1.5;
-  const verified = chef?.verified || true;
   return (
     <Link
       href={`/vendors/@${chef?.username}`}
@@ -62,12 +61,6 @@ const VendorCard = ({ chef }) => {
         </div>
       </div>
       <div className="flex items-center justify-end gap-2 p-2">
-        {verified && (
-          <span className="flex items-center gap-1 bg-green-100 text-green-700 px-1 py-0.5 rounded-full font-medium text-xs">
-            <FaCheckCircle className="text-green-500" />
-            Verified
-          </span>
-        )}
         <span className="flex  items-center gap-1 bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium text-xs">
           <MapPin size={14} />
           {chef?.city.replace(/\b\w/g, (c) => c.toUpperCase()) ||

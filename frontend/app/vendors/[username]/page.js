@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { FaMapMarkerAlt, FaStar } from "react-icons/fa";
 import { Separator } from "@/components/ui/separator";
-import ProductCard from "../../components/DishCard";
 import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
+import ProductCard from "@/app/components/ProductCard";
 
 const Page = () => {
   const [loading, setLoading] = useState(true);

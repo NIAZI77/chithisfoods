@@ -265,7 +265,7 @@ export default function OrderPage() {
                                 key={idx}
                                 className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-sm"
                               >
-                                <PiBowlFood size={14} /> {topping.name}
+                                <PiBowlFood size={14} /> {topping.name} (${topping.price})
                               </span>
                             ))}
                           </div>
@@ -279,7 +279,7 @@ export default function OrderPage() {
                                 key={idx}
                                 className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-sm"
                               >
-                                <Salad size={14} /> {extra.name}
+                                <Salad size={14} /> {extra.name} (${extra.price})
                               </span>
                             ))}
                           </div>

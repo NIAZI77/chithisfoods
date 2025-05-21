@@ -7,7 +7,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Clock, Package, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import {
+  Clock,
+  Package,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -21,11 +27,11 @@ export default function OrderHistoryPage() {
   const router = useRouter();
   const [orderData, setOrderData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
 
@@ -54,11 +60,14 @@ export default function OrderHistoryPage() {
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         timeFilterQuery = `&filters[createdAt][$gte]=${weekAgo.toISOString()}`;
       } else if (timeFilter === "month") {
-        const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        const monthAgo = new Date(
+          now.getFullYear(),
+          now.getMonth() - 1,
+          now.getDate()
+        );
         timeFilterQuery = `&filters[createdAt][$gte]=${monthAgo.toISOString()}`;
       }
 
-      console.log("Fetching orders for user:", user);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}${statusFilterQuery}${timeFilterQuery}&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}`,
         {
@@ -79,7 +88,6 @@ export default function OrderHistoryPage() {
       }
 
       const data = await response.json();
-      console.log("Orders data received:", data);
 
       if (!data.data) {
         console.error("No data field in response:", data);
@@ -147,6 +155,7 @@ export default function OrderHistoryPage() {
             name: dish.name,
             price: parseFloat(dish.total),
             qty: dish.quantity,
+            image: dish.image,
           })),
           orderTotal: firstOrder.orderTotal,
         };
@@ -220,7 +229,9 @@ export default function OrderHistoryPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs md:text-sm text-gray-500">Pending</p>
-              <p className="text-xl md:text-2xl font-bold">{countByStatus("pending")}</p>
+              <p className="text-xl md:text-2xl font-bold">
+                {countByStatus("pending")}
+              </p>
             </div>
             <Clock className="w-6 h-6 md:w-8 md:h-8 text-yellow-500" />
           </div>
@@ -229,7 +240,9 @@ export default function OrderHistoryPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs md:text-sm text-gray-500">In Process</p>
-              <p className="text-xl md:text-2xl font-bold">{countByStatus("in-process")}</p>
+              <p className="text-xl md:text-2xl font-bold">
+                {countByStatus("in-process")}
+              </p>
             </div>
             <Package className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
           </div>
@@ -238,7 +251,9 @@ export default function OrderHistoryPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs md:text-sm text-gray-500">Ready</p>
-              <p className="text-xl md:text-2xl font-bold">{countByStatus("ready")}</p>
+              <p className="text-xl md:text-2xl font-bold">
+                {countByStatus("ready")}
+              </p>
             </div>
             <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-green-500" />
           </div>
@@ -247,7 +262,9 @@ export default function OrderHistoryPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs md:text-sm text-gray-500">Delivered</p>
-              <p className="text-xl md:text-2xl font-bold">{countByStatus("delivered")}</p>
+              <p className="text-xl md:text-2xl font-bold">
+                {countByStatus("delivered")}
+              </p>
             </div>
             <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8 text-green-500" />
           </div>
@@ -256,7 +273,9 @@ export default function OrderHistoryPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs md:text-sm text-gray-500">Cancelled</p>
-              <p className="text-xl md:text-2xl font-bold">{countByStatus("cancelled")}</p>
+              <p className="text-xl md:text-2xl font-bold">
+                {countByStatus("cancelled")}
+              </p>
             </div>
             <XCircle className="w-6 h-6 md:w-8 md:h-8 text-red-500" />
           </div>
@@ -293,19 +312,6 @@ export default function OrderHistoryPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="w-full sm:w-48">
-            <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(Number(value))}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Items per page" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="4">4 per page</SelectItem>
-                <SelectItem value="8">8 per page</SelectItem>
-                <SelectItem value="12">12 per page</SelectItem>
-                <SelectItem value="16">16 per page</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 place-items-center">
@@ -313,65 +319,69 @@ export default function OrderHistoryPage() {
           <div className="col-span-full text-center py-12">
             <p className="text-gray-500 text-lg font-medium">No orders found</p>
             <p className="text-gray-400 text-sm mt-2">
-              {statusFilter !== "all" || timeFilter !== "all" 
-                ? "Try adjusting your filters" 
+              {statusFilter !== "all" || timeFilter !== "all"
+                ? "Try adjusting your filters"
                 : "You haven't placed any orders yet"}
             </p>
           </div>
         ) : (
-          orderData.map((order, idx) => {
-            return (
-              <div
-                key={idx}
-                className="bg-white p-4 rounded shadow space-y-2 w-full h-full relative"
-              >
-                <div className="flex justify-between items-center">
-                  <h3 className="font-semibold">Order #{order.id}</h3>
-                  <StatusBadge status={order.status} />
-                </div>
-                <p className="text-sm text-gray-500">{order.date}</p>
-                <div className="space-y-2 pb-12">
-                  {order.items.slice(0, 2).map((item, i) => (
-                    <div key={i} className="flex gap-4 items-center">
+          orderData.map((order, idx) => (
+            <div
+              key={idx}
+              className="bg-white p-4 rounded-lg shadow w-full h-72 flex flex-col"
+            >
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold text-gray-800 text-xs">
+                  Order #{order.id}
+                </h3>
+                <StatusBadge status={order.status} />
+              </div>
+              <p className="text-sm text-gray-500 mb-2">{order.date}</p>
+              <div className="space-y-3 flex-1">
+                {order.items.slice(0, 2).map((item, i) => (
+                  <div key={i} className="flex gap-4 items-center">
+                    <div className="w-20 md:w-24 relative rounded overflow-hidden flex-shrink-0 aspect-video">
                       <Image
+                        src={item.image?.url || "/fallback.png"}
                         height={64}
                         width={64}
-                        src="/food.png"
-                        alt="food"
-                        className="w-12 h-full object-cover rounded aspect-video"
+                        alt={item.name}
+                        className="object-cover w-full h-full"
                       />
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{item.name}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-red-600 font-bold text-sm">
-                          ${item.price.toFixed(2)}
-                        </p>
-                        <p className="text-xs text-gray-600">Qty: {item.qty}</p>
-                      </div>
                     </div>
-                  ))}
-                </div>
-                <div className="absolute bottom-0 pb-2">
-                  <Link
-                    href={`/orders/${order.id}`}
-                    className="text-xs text-blue-500 underline cursor-pointer"
-                  >
-                    See all
-                  </Link>
-                  <div className="text-sm font-semibold">
-                    x{order.items.length} Items{" "}
-                    <span className="text-red-600">
-                      ${order.orderTotal.toFixed(2)}
-                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-xs text-gray-800 truncate capitalize">
+                        {item.name}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-orange-600 font-bold text-xs">
+                        ${item.price.toFixed(2)}
+                      </p>
+                      <p className="text-xs text-gray-600">Qty: {item.qty}</p>
+                    </div>
                   </div>
+                ))}
+              </div>
+              <div className="pt-2 border-t border-gray-100 mt-auto">
+                <button
+                  onClick={() => router.push(`/orders/${order.id}`)}
+                  className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                >
+                  View Details
+                </button>
+                <div className="text-sm font-semibold mt-1 flex items-center justify-between">
+                  <span>x{order.items.length} Items </span>
+                  <span className="text-orange-600">
+                    ${order.orderTotal.toFixed(2)}
+                  </span>
                 </div>
               </div>
-            );
-          })
+            </div>
+          ))
         )}
       </div>
-      
+
       {/* Pagination */}
       {totalPages > 1 && orderData.length >= pageSize && (
         <Pagination

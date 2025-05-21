@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
-import ProductCard from "./DishCard";
 import Loading from "../loading";
 import { useRouter } from "next/navigation";
+import ProductCard from "./ProductCard";
 
 export default function PopularDishes({ zipcode }) {
   const router = useRouter();
@@ -25,7 +24,7 @@ export default function PopularDishes({ zipcode }) {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[zipcode][$eq]=${zipcode}&populate=*&sort=rating:desc&pagination[pageSize]=6`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[zipcode][$eq]=${zipcode}&filters[available][$eq]=true&populate=*&sort=rating:desc&pagination[pageSize]=6`,
         {
           method: "GET",
           headers: {

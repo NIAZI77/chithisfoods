@@ -71,6 +71,10 @@
     "bio": {
       "type": "text",
       "maxLength": 200
+    },
+    "vendorDeliveryFee": {
+      "type": "decimal",
+      "default": 0
     }
   }
 }

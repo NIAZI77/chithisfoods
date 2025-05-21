@@ -440,8 +440,9 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     note: Schema.Attribute.Text;
     orderStatus: Schema.Attribute.Enumeration<
-      ['pending', 'processing', 'canceled', 'declined', 'fulfill']
-    >;
+      ['pending', 'in-process', 'ready', 'delivered', 'cancelled']
+    > &
+      Schema.Attribute.DefaultTo<'pending'>;
     orderTotal: Schema.Attribute.Decimal & Schema.Attribute.Required;
     paymentStatus: Schema.Attribute.Enumeration<['paid', 'unpaid']>;
     phone: Schema.Attribute.BigInteger & Schema.Attribute.Required;
@@ -509,6 +510,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     username: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
+    vendorDeliveryFee: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
     zipcode: Schema.Attribute.BigInteger & Schema.Attribute.Required;
   };
 }

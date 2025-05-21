@@ -1,17 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { getCookie } from "cookies-next";
-import {
-  Package,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-} from "lucide-react";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
-import Image from "next/image";
-import Link from "next/link";
 import {
   Select,
   SelectTrigger,
@@ -20,6 +11,10 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import Pagination from "@/app/components/pagination";
+import StatusSummary from "./components/StatusSummary";
+import OrderCard from "./components/OrderCard";
+import OrderDetailsDialog from "./components/OrderDetailsDialog";
+import { useRouter } from "next/navigation";
 
 const ORDER_STATUS = {
   PENDING: "pending",
@@ -29,40 +24,13 @@ const ORDER_STATUS = {
   CANCELLED: "cancelled",
 };
 
-const STATUS_COLORS = {
-  [ORDER_STATUS.PENDING]: "bg-yellow-100 text-yellow-800",
-  [ORDER_STATUS.IN_PROCESS]: "bg-blue-100 text-blue-800",
-  [ORDER_STATUS.READY]: "bg-green-100 text-green-800",
-  [ORDER_STATUS.DELIVERED]: "bg-gray-100 text-gray-800",
-  [ORDER_STATUS.CANCELLED]: "bg-red-100 text-red-800",
-};
-
-// StatusBadge component for consistent status styling
-const StatusBadge = ({ status }) => {
-  const statusMap = {
-    pending: "bg-amber-200 text-amber-900 font-bold w-24 text-center",
-    "in-process": "bg-sky-200 text-sky-900 font-bold w-24 text-center",
-    ready: "bg-emerald-200 text-emerald-900 font-bold w-24 text-center",
-    delivered: "bg-gray-200 text-gray-900 font-bold w-24 text-center",
-    cancelled: "bg-rose-200 text-rose-900 font-bold w-24 text-center",
-  };
-  const labelMap = {
-    pending: "PENDING",
-    "in-process": "IN-PROCESS",
-    ready: "READY",
-    delivered: "DELIVERED",
-    cancelled: "CANCELLED",
-  };
-  return (
-    <span
-      className={
-        "text-xs font-medium px-2 py-1 rounded-full " +
-        (statusMap[status] || "")
-      }
-    >
-      {labelMap[status] || status}
-    </span>
-  );
+const TOAST_MESSAGES = {
+  AUTH_REQUIRED: "Authentication required. Please log in as a vendor.",
+  VENDOR_INFO_ERROR: "Unable to fetch vendor information.",
+  VENDOR_NOT_FOUND: "Vendor profile not found. Please contact support.",
+  UNEXPECTED_ERROR: "An unexpected error occurred.",
+  FETCH_ORDERS_ERROR: "Unable to fetch orders.",
+  NO_ORDERS: "No orders found for your store.",
 };
 
 export default function VendorOrderManagement() {
@@ -74,6 +42,8 @@ export default function VendorOrderManagement() {
   const [pageSize] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
   const [vendorId, setVendorId] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [totalStatusCounts, setTotalStatusCounts] = useState({
     pending: 0,
     "in-process": 0,
@@ -81,32 +51,20 @@ export default function VendorOrderManagement() {
     delivered: 0,
     cancelled: 0,
   });
+  const router = useRouter();
 
-  // Calculate status counts for filtered orders
-  const statusCounts = {
-    pending: 0,
-    "in-process": 0,
-    ready: 0,
-    delivered: 0,
-    cancelled: 0,
-  };
-  orders.forEach((order) => {
-    if (statusCounts.hasOwnProperty(order.orderStatus)) {
-      statusCounts[order.orderStatus]++;
-    }
-  });
-
-  // Fetch vendor ID only once when component mounts
   useEffect(() => {
-    const fetchVendorId = async () => {
+    const checkAuthAndVendorStatus = async () => {
+      const user = getCookie("user");
+      const jwt = getCookie("jwt");
+
+      if (!user || !jwt) {
+        toast.error(TOAST_MESSAGES.AUTH_REQUIRED);
+        router.push("/login");
+        return;
+      }
+
       try {
-        const user = getCookie("user");
-        if (!user) {
-          toast.error(
-            "Authentication required. Please log in as a vendor to view your orders."
-          );
-          return;
-        }
         const vendorRes = await fetch(
           `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${user}`,
           {
@@ -117,33 +75,35 @@ export default function VendorOrderManagement() {
             },
           }
         );
+
         if (!vendorRes.ok) {
-          toast.error(
-            "Unable to fetch vendor information. Please try again later."
-          );
+          toast.error(TOAST_MESSAGES.VENDOR_INFO_ERROR);
+          router.push("/become-a-vendor");
           return;
         }
+
         const vendorData = await vendorRes.json();
         if (!vendorData.data || !vendorData.data[0]?.documentId) {
-          toast.error("Vendor profile not found. Please contact support.");
+          toast.error(TOAST_MESSAGES.VENDOR_NOT_FOUND);
+          router.push("/become-a-vendor");
           return;
         }
+
         setVendorId(vendorData.data[0].documentId);
       } catch (error) {
-        toast.error(
-          "An unexpected error occurred while loading vendor information."
-        );
+        toast.error(TOAST_MESSAGES.UNEXPECTED_ERROR);
+        router.push("/become-a-vendor");
       }
     };
-    fetchVendorId();
-  }, []);
+
+    checkAuthAndVendorStatus();
+  }, [router]);
 
   const fetchOrders = async () => {
     if (!vendorId) return;
 
     setLoading(true);
     try {
-      // Build filter queries
       let statusFilterQuery = "";
       if (statusFilter !== "all") {
         statusFilterQuery = `&filters[orderStatus][$eq]=${statusFilter}`;
@@ -163,7 +123,6 @@ export default function VendorOrderManagement() {
         timeFilterQuery = `&filters[createdAt][$gte]=${monthAgo.toISOString()}`;
       }
 
-      // Fetch total counts first
       const totalCountsRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&pagination[pageSize]=1000`,
         {
@@ -191,8 +150,6 @@ export default function VendorOrderManagement() {
         });
         setTotalStatusCounts(counts);
       }
-
-      // Fetch filtered orders
       const ordersRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}${statusFilterQuery}${timeFilterQuery}&sort[0]=createdAt:desc&pagination[page]=${page}&pagination[pageSize]=${pageSize}&populate=*`,
         {
@@ -204,14 +161,14 @@ export default function VendorOrderManagement() {
         }
       );
       if (!ordersRes.ok) {
-        toast.error("Unable to fetch orders. Please try again later.");
+        toast.error(TOAST_MESSAGES.FETCH_ORDERS_ERROR);
         setOrders([]);
         setTotalPages(1);
         return;
       }
       const ordersData = await ordersRes.json();
       if (!ordersData.data) {
-        toast.info("No orders found for your store.");
+        toast.info(TOAST_MESSAGES.NO_ORDERS);
         setOrders([]);
         setTotalPages(1);
         return;
@@ -228,9 +185,7 @@ export default function VendorOrderManagement() {
       );
       setTotalPages(ordersData.meta?.pagination?.pageCount || 1);
     } catch (error) {
-      toast.error(
-        "An unexpected error occurred while loading orders. Please refresh the page or try again later."
-      );
+      toast.error(TOAST_MESSAGES.UNEXPECTED_ERROR);
       setOrders([]);
       setTotalPages(1);
     } finally {
@@ -250,66 +205,8 @@ export default function VendorOrderManagement() {
         <h1 className="text-xl md:text-2xl font-semibold">Order Management</h1>
       </div>
 
-      {/* Status summary boxes */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm text-gray-500">Pending</p>
-              <p className="text-xl md:text-2xl font-bold">
-                {totalStatusCounts.pending}
-              </p>
-            </div>
-            <Clock className="w-6 h-6 md:w-8 md:h-8 text-yellow-500" />
-          </div>
-        </div>
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm text-gray-500">In Process</p>
-              <p className="text-xl md:text-2xl font-bold">
-                {totalStatusCounts["in-process"]}
-              </p>
-            </div>
-            <Package className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
-          </div>
-        </div>
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm text-gray-500">Ready</p>
-              <p className="text-xl md:text-2xl font-bold">
-                {totalStatusCounts.ready}
-              </p>
-            </div>
-            <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-green-500" />
-          </div>
-        </div>
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm text-gray-500">Delivered</p>
-              <p className="text-xl md:text-2xl font-bold">
-                {totalStatusCounts.delivered}
-              </p>
-            </div>
-            <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8 text-gray-500" />
-          </div>
-        </div>
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm text-gray-500">Cancelled</p>
-              <p className="text-xl md:text-2xl font-bold">
-                {totalStatusCounts.cancelled}
-              </p>
-            </div>
-            <XCircle className="w-6 h-6 md:w-8 md:h-8 text-red-500" />
-          </div>
-        </div>
-      </div>
+      <StatusSummary totalStatusCounts={totalStatusCounts} />
 
-      {/* Order history and filter */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 className="text-lg md:text-xl font-semibold">Order History</h2>
         <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto">
@@ -342,6 +239,7 @@ export default function VendorOrderManagement() {
           </div>
         </div>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 place-items-center">
         {orders.length === 0 ? (
           <div className="col-span-full text-center text-gray-500 py-12 text-lg font-semibold">
@@ -349,66 +247,18 @@ export default function VendorOrderManagement() {
           </div>
         ) : (
           orders.map((order) => (
-            <div
+            <OrderCard
               key={order.id}
-              className="bg-white p-4 rounded shadow space-y-2 w-full h-full relative"
-            >
-              <div className="flex justify-between items-center">
-                <h3 className="font-semibold">
-                  Order #{order.customerOrderId}
-                </h3>
-                <StatusBadge status={order.orderStatus} />
-              </div>
-              <p className="text-sm text-gray-500">
-                {new Date(order.createdAt).toLocaleString([], {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
-              </p>
-              <div className="space-y-2 pb-12">
-                {order.dishes.slice(0, 2).map((item, i) => (
-                  <div key={i} className="flex gap-4 items-center">
-                    <Image
-                      height={64}
-                      width={64}
-                      src={item.image?.url || "/food.png"}
-                      alt={item.name}
-                      className="w-12 h-full object-cover rounded aspect-video"
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium text-sm capitalize">
-                        {item.name}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-red-600 font-bold text-sm">
-                        ${parseFloat(item.total).toFixed(2)}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        Qty: {item.quantity}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="absolute bottom-0 pb-2">
-                <Link
-                  href={`/vendor/order-management/${order.id}`}
-                  className="text-xs text-blue-500 underline cursor-pointer"
-                >
-                  See all
-                </Link>
-                <div className="text-sm font-semibold">
-                  x{order.dishes.length} Items{" "}
-                  <span className="text-red-600">
-                    ${order.subtotal.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </div>
+              order={order}
+              onViewDetails={(order) => {
+                setSelectedOrder(order);
+                setIsDialogOpen(true);
+              }}
+            />
           ))
         )}
       </div>
+
       {totalPages > 1 && orders.length >= pageSize && (
         <Pagination
           currentPage={page}
@@ -416,6 +266,15 @@ export default function VendorOrderManagement() {
           onPageChange={setPage}
         />
       )}
+
+      <OrderDetailsDialog
+        order={selectedOrder}
+        isOpen={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+          setSelectedOrder(null);
+        }}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,8 +11,20 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { ShoppingCart, Users, Package, ChevronDown } from "lucide-react";
-import * as Select from "@radix-ui/react-select";
+import { ShoppingCart, Users, Package } from "lucide-react";
+import Link from "next/link";
+import { toast } from "react-toastify";
+import { getCookie } from "cookies-next";
+import Loading from "@/app/loading";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 ChartJS.register(
   CategoryScale,
@@ -23,107 +35,242 @@ ChartJS.register(
   Legend
 );
 
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false,
-    },
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      grid: {
-        display: true,
-        color: "#f3f4f6",
-      },
-    },
-    x: {
-      grid: {
-        display: false,
-      },
-    },
-  },
+const STATUS_STYLES = {
+  pending: "bg-amber-200 text-amber-900 font-bold text-center",
+  "in-process": "bg-sky-200 text-sky-900 font-bold text-center",
+  ready: "bg-emerald-200 text-emerald-900 font-bold text-center",
+  delivered: "bg-gray-200 text-gray-900 font-bold text-center",
+  cancelled: "bg-rose-200 text-rose-900 font-bold text-center",
 };
 
-const salesData = {
-  labels: ["Sept 10", "Sept 11", "Sept 12", "Sept 13", "Sept 14", "Sept 15", "Sept 16"],
-  datasets: [
-    {
-      data: [45, 62, 65, 30, 22, 40, 50],
-      backgroundColor: "#ff4f00",
-      borderRadius: 8,
-    },
-  ],
+const STATUS_LABELS = {
+  pending: "PENDING",
+  "in-process": "IN-PROCESS",
+  ready: "READY",
+  delivered: "DELIVERED",
+  cancelled: "CANCELLED",
 };
 
-const recentOrders = [
-  {
-    id: 1,
-    foodName: "Food Name",
-    price: 5.00,
-    date: "12 Sept 2022",
-    status: "Pending",
-    image: "/food.png",
-  },
-  {
-    id: 2,
-    foodName: "Food Name",
-    price: 5.00,
-    date: "12 Sept 2022",
-    status: "Completed",
-    image: "/food.png",
-  },
-  {
-    id: 3,
-    foodName: "Food Name",
-    price: 5.00,
-    date: "12 Sept 2022",
-    status: "Pending",
-    image: "/food.png",
-  },
-  {
-    id: 4,
-    foodName: "Food Name",
-    price: 5.00,
-    date: "12 Sept 2022",
-    status: "Completed",
-    image: "/food.png",
-  },
-];
+const StatusBadge = ({ status }) => (
+  <span
+    className={`text-xs font-medium px-2 py-1 rounded-full inline-block w-24 ${
+      STATUS_STYLES[status] || ""
+    }`}
+  >
+    {STATUS_LABELS[status] || status}
+  </span>
+);
 
-const TimePeriodSelect = ({ value, onValueChange }) => {
-  return (
-    <Select.Root value={value} onValueChange={onValueChange}>
-      <Select.Trigger className="inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm bg-white border shadow-sm hover:bg-gray-50">
-        <Select.Value />
-        <Select.Icon>
-          <ChevronDown className="h-4 w-4 text-gray-500" />
-        </Select.Icon>
-      </Select.Trigger>
-
-      <Select.Portal>
-        <Select.Content className="overflow-hidden bg-white rounded-md shadow-lg border">
-          <Select.Viewport>
-            <Select.Item value="week" className="text-sm px-3 py-2 hover:bg-orange-50 hover:text-orange-600 cursor-pointer outline-none">
-              <Select.ItemText>This Week</Select.ItemText>
-            </Select.Item>
-            <Select.Item value="month" className="text-sm px-3 py-2 hover:bg-orange-50 hover:text-orange-600 cursor-pointer outline-none">
-              <Select.ItemText>This Month</Select.ItemText>
-            </Select.Item>
-            <Select.Item value="all" className="text-sm px-3 py-2 hover:bg-orange-50 hover:text-orange-600 cursor-pointer outline-none">
-              <Select.ItemText>All Time</Select.ItemText>
-            </Select.Item>
-          </Select.Viewport>
-        </Select.Content>
-      </Select.Portal>
-    </Select.Root>
-  );
-};
+const TimePeriodSelect = ({ value, onValueChange }) => (
+  <Select value={value} onValueChange={onValueChange}>
+    <SelectTrigger className="w-[180px]">
+      <SelectValue placeholder="Select time period" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="week">This Week</SelectItem>
+      <SelectItem value="month">This Month</SelectItem>
+      <SelectItem value="all">All Time</SelectItem>
+    </SelectContent>
+  </Select>
+);
 
 const Page = () => {
   const [timePeriod, setTimePeriod] = useState("week");
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const [dashboardData, setDashboardData] = useState({
+    orders: [],
+    totalOrders: 0,
+    statusCounts: {
+      pending: 0,
+      "in-process": 0,
+      ready: 0,
+      delivered: 0,
+      cancelled: 0,
+    },
+    customers: 0,
+    salesData: {
+      labels: [],
+      datasets: [{ data: [], backgroundColor: "#ff4f00", borderRadius: 8 }],
+    },
+  });
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const sales = context.raw;
+            const date = context.label;
+            const ordersForDate = dashboardData.orders.filter(
+              (order) =>
+                new Date(order.createdAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                }) === date
+            ).length;
+            return [`$${sales.toFixed(2)}`, `${ordersForDate}orders`];
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: { display: true, color: "#f3f4f6" },
+        ticks: { callback: (value) => "$" + parseInt(value) },
+      },
+      x: { grid: { display: false } },
+    },
+  };
+
+  const getTimeFilter = () => {
+    const now = new Date();
+    let startDate;
+
+    if (timePeriod === "week") {
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 7);
+    } else if (timePeriod === "month") {
+      startDate = new Date(now);
+      startDate.setMonth(now.getMonth() - 1);
+    } else {
+      return "";
+    }
+
+    const formattedStartDate = startDate.toISOString();
+    const formattedEndDate = now.toISOString();
+
+    return `&filters[createdAt][$gte]=${formattedStartDate}&filters[createdAt][$lte]=${formattedEndDate}`;
+  };
+
+  const processOrdersData = (orders) => {
+    const statusCounts = {
+      pending: 0,
+      "in-process": 0,
+      ready: 0,
+      delivered: 0,
+      cancelled: 0,
+    };
+    const salesByDate = {};
+    const uniqueCustomers = new Set();
+
+    orders.forEach((order) => {
+      statusCounts[order.orderStatus]++;
+      uniqueCustomers.add(order.user);
+
+      const date = new Date(order.createdAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+      salesByDate[date] =
+        (salesByDate[date] || 0) + parseFloat(order.subtotal || 0);
+    });
+
+    const sortedDates = Object.keys(salesByDate).sort(
+      (a, b) => new Date(a) - new Date(b)
+    );
+
+    return {
+      orders: orders.slice(0, 5),
+      totalOrders: orders.length,
+      statusCounts,
+      customers: uniqueCustomers.size,
+      salesData: {
+        labels: sortedDates,
+        datasets: [
+          {
+            data: sortedDates.map((date) => salesByDate[date]),
+            backgroundColor: "#ff4f00",
+            borderRadius: 8,
+          },
+        ],
+      },
+    };
+  };
+
+  useEffect(() => {
+    const checkAuthAndVendorStatus = async () => {
+      const user = getCookie("user");
+      const jwt = getCookie("jwt");
+
+      if (!user || !jwt) {
+        toast.error("Please sign in to access your vendor dashboard");
+        router.push("/login");
+        return;
+      }
+
+      try {
+        const vendorRes = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${user}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+          }
+        );
+
+        if (!vendorRes.ok) {
+          toast.error("Unable to retrieve vendor information");
+          router.push("/become-a-vendor");
+          return;
+        }
+
+        const vendorData = await vendorRes.json();
+        if (!vendorData.data?.[0]?.documentId) {
+          toast.error("Please complete your vendor registration");
+          router.push("/become-a-vendor");
+          return;
+        }
+
+        // Continue with fetching dashboard data
+        fetchDashboardData(vendorData.data[0].documentId);
+      } catch (error) {
+        toast.error("An unexpected error occurred");
+        router.push("/become-a-vendor");
+      }
+    };
+
+    checkAuthAndVendorStatus();
+  }, [router, timePeriod]);
+
+  const fetchDashboardData = async (vendorId) => {
+    setLoading(true);
+    try {
+      const timeFilter = getTimeFilter();
+      const ordersRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}${timeFilter}&sort[0]=createdAt:desc&populate=*`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (!ordersRes.ok) {
+        throw new Error("Unable to fetch order data");
+      }
+
+      const ordersData = await ordersRes.json();
+      const orders = ordersData.data || [];
+      orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      setDashboardData(processOrdersData(orders));
+    } catch (error) {
+      toast.error(error.message || "An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <Loading />;
 
   return (
     <div className="p-4 pl-16 md:p-6 md:pl-24 lg:p-8 lg:pl-24 mx-auto">
@@ -131,17 +278,16 @@ const Page = () => {
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <TimePeriodSelect value={timePeriod} onValueChange={setTimePeriod} />
       </div>
-      
-      {/* Summary Cards */}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
-        {/* Abandoned Cart Card */}
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-gray-600">Abandoned Cart</p>
+              <p className="text-gray-600">Pending Orders</p>
               <div className="flex items-center gap-2">
-                <h3 className="text-2xl font-semibold">20%</h3>
-                <span className="text-green-500 text-sm">+0.00%</span>
+                <h3 className="text-2xl font-semibold">
+                  {dashboardData.statusCounts.pending}
+                </h3>
               </div>
             </div>
             <div className="p-3 bg-orange-100 rounded-full">
@@ -150,18 +296,23 @@ const Page = () => {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600 capitalize">
-              {timePeriod === 'week' ? 'This Week' : timePeriod === 'month' ? 'This Month' : 'All Time'}
+              {timePeriod === "week"
+                ? "This Week"
+                : timePeriod === "month"
+                ? "This Month"
+                : "All Time"}
             </span>
           </div>
         </div>
 
-        {/* Customers Card */}
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-gray-600">Customers</p>
               <div className="flex items-center gap-2">
-                <h3 className="text-2xl font-semibold">30</h3>
+                <h3 className="text-2xl font-semibold">
+                  {dashboardData.customers}
+                </h3>
               </div>
             </div>
             <div className="p-3 bg-orange-100 rounded-full">
@@ -170,21 +321,17 @@ const Page = () => {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600">Active</span>
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-medium">1,180</span>
-              <span className="text-red-500 text-sm">-4.90%</span>
-            </div>
           </div>
         </div>
 
-        {/* All Orders Card */}
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-gray-600">All Orders</p>
               <div className="flex items-center gap-2">
-                <h3 className="text-2xl font-semibold">345</h3>
-                <span className="text-green-500 text-sm">+0.00%</span>
+                <h3 className="text-2xl font-semibold">
+                  {dashboardData.totalOrders}
+                </h3>
               </div>
             </div>
             <div className="p-3 bg-orange-100 rounded-full">
@@ -194,21 +341,21 @@ const Page = () => {
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <span>Pending</span>
-              <span className="font-medium">112</span>
-              <span className="text-green-500">+0.00%</span>
+              <span className="font-medium">
+                {dashboardData.statusCounts.pending}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <span>Completed</span>
-              <span className="font-medium">876</span>
-              <span className="text-orange-500">+0.00%</span>
+              <span className="font-medium">
+                {dashboardData.statusCounts.delivered}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sales Chart and Recent Orders */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* Sales Chart */}
         <div className="lg:col-span-2 bg-white p-4 md:p-6 rounded-lg shadow-sm">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
             <div>
@@ -216,47 +363,55 @@ const Page = () => {
               <div className="flex items-center gap-2">
                 <span className="text-orange-600 font-medium">Sales</span>
                 <span className="text-sm text-gray-500 capitalize">
-                  {timePeriod === 'week' ? 'Last 7 Days' : timePeriod === 'month' ? 'Last 30 Days' : 'All Time'}
+                  {timePeriod === "week"
+                    ? "Last 7 Days"
+                    : timePeriod === "month"
+                    ? "Last 30 Days"
+                    : "All Time"}
                 </span>
               </div>
             </div>
           </div>
           <div className="h-[300px] w-full">
-            <Bar options={chartOptions} data={salesData} />
+            <Bar options={chartOptions} data={dashboardData.salesData} />
           </div>
         </div>
 
-        {/* Recent Orders */}
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-semibold">Recent Orders</h3>
-            <button className="text-sm text-gray-500">All</button>
+            <Link
+              href="/vendor/order-management"
+              className="text-sm text-gray-500 hover:text-orange-600 transition-colors duration-200"
+            >
+              All
+            </Link>
           </div>
-          <div className="space-y-4">
-            {recentOrders.map((order) => (
-              <div key={order.id} className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                  <img
-                    src={order.image}
-                    alt={order.foodName}
-                    className="w-full h-full object-cover"
+          <div className="space-y-5">
+            {dashboardData.orders.map((order) => (
+              <div key={order.id} className="flex items-center gap-2">
+                <div className="w-16 h-fit rounded overflow-hidden">
+                  <Image
+                    src={order.dishes?.[0]?.image?.url || "/food.png"}
+                    height={100}
+                    width={100}
+                    alt={order.dishes?.[0]?.name || "Food"}
+                    className="w-full h-fit object-cover aspect-video"
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium truncate">{order.foodName}</h4>
-                  <p className="text-gray-600">${order.price.toFixed(2)}</p>
+                  <h4 className="font-semibold text-sm truncate">
+                    Order #{order.customerOrderId}
+                  </h4>
+                  <p className="text-gray-600">
+                    ${parseFloat(order.subtotal).toFixed(2)}
+                  </p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p className="text-sm text-gray-500">{order.date}</p>
-                  <span
-                    className={`text-sm px-2 py-0.5 rounded-full ${
-                      order.status === "Pending"
-                        ? "text-yellow-600 bg-yellow-200" 
-                        : "text-green-600 bg-green-200"
-                    }`}
-                  >
-                    {order.status}
-                  </span>
+                  <p className="text-sm text-gray-500">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </p>
+                  <StatusBadge status={order.orderStatus} />
                 </div>
               </div>
             ))}
