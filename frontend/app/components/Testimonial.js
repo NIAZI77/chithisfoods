@@ -6,19 +6,19 @@ import { FaStar } from "react-icons/fa";
 const testimonials = [
   {
     name: "Emily Johnson",
-    image: "/person.jpeg",
+    image: "/person-1.jpg",
     text: "Chithi's Foods is a game changer! I ordered from three different spots in one go, and everything was fresh and on time. No more switching between apps—love it! 🍔🍕",
     rating: 5,
   },
   {
     name: "David Miller",
-    image: "/person.jpeg",
+    image: "/person-2.jpeg",
     text: "Super easy to use, and the food choices are endless! I got some amazing BBQ from a local vendor I never knew about. Definitely ordering again. 🔥🍗",
     rating: 5,
   },
   {
-    name: "Jessica Brown",
-    image: "/person.jpeg",
+    name: "Michael John",
+    image: "/person-3.jpg",
     text: "Really cool concept! The food was great, and I love supporting small vendors. Just wish there were more delivery tracking updates. Still, super happy! 🚀",
     rating: 4,
   },

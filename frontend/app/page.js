@@ -62,14 +62,14 @@ const Page = () => {
             Delivery Partner
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 w-[95%] mx-auto">
-            <div className="flex flex-col items-center text-center space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10 w-[90%] mx-auto place-items-center">
+            <div className="flex flex-col items-center text-center space-y-4 w-96">
               <Image
                 height={100}
                 width={100}
-                src="/pizza maker.svg"
+                src="/FF-1.png"
                 alt="Savor Freshly Made Homemade Meals"
-                className="w-[60%] h-auto rounded-full mb-4"
+                className="w-1/2 h-full object-contain mb-4 px-2"
                 priority={true}
               />
               <h3 className="text-xl text-rose-600 font-semibold">
@@ -80,13 +80,13 @@ const Page = () => {
               </p>
             </div>
 
-            <div className="flex flex-col items-center text-center space-y-4">
+            <div className="flex flex-col items-center text-center space-y-4 max-w-96">
               <Image
                 height={100}
                 width={100}
-                src="/pizza maker.svg"
+                src="/FF-2.png"
                 alt="Shef: A Sharose Personal Chef"
-                className="w-[60%] h-auto rounded-full mb-4"
+                className="w-1/2 h-full object-contain mb-4 px-2"
                 priority={true}
               />
               <h3 className="text-xl text-rose-600 font-semibold">
@@ -97,13 +97,13 @@ const Page = () => {
               </p>
             </div>
 
-            <div className="flex flex-col items-center text-center space-y-4">
+            <div className="flex flex-col items-center text-center space-y-4 w-96">
               <Image
                 height={100}
                 width={100}
-                src="/pizza maker.svg"
+                src="/FF-3.png"
                 alt="Choose From Flexible Delivery Options"
-                className="w-[60%] h-auto rounded-full mb-4"
+                className="w-1/2 h-full object-contain mb-4 px-2"
                 priority={true}
               />
               <h3 className="text-xl text-rose-600 font-semibold">

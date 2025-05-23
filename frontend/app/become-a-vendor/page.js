@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { FaArrowLeft, FaCamera } from "react-icons/fa";
-import Hero from "../components/Hero";
+import Hero from "../components/Side-Hero";
 import Image from "next/image";
 import { getCookie } from "cookies-next";
 import Loading from "../loading";
+import Spinner from "../components/Spinner";
 
 export default function BecomeVendor() {
   const router = useRouter();
@@ -353,7 +354,7 @@ export default function BecomeVendor() {
                 <FaArrowLeft />
               </button>
             )}
-            <button
+            <button 
               type="submit"
               className={`${
                 step > 1 ? "w-[calc(100%-55px)]" : "w-full"
@@ -361,7 +362,7 @@ export default function BecomeVendor() {
               disabled={submitting}
             >
               {submitting
-                ? "Submitting..."
+                ? <Spinner/>
                 : step === totalSteps
                 ? "Submit"
                 : "Next"}

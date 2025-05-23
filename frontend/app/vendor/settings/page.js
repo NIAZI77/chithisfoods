@@ -16,6 +16,7 @@ import {
   MapPin,
   Save,
 } from "lucide-react";
+import Spinner from "@/app/components/Spinner";
 
 const INITIAL_FORM_STATE = {
   storeName: "",
@@ -526,7 +527,7 @@ const Page = () => {
             className="md:w-auto w-full px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:bg-orange-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Save className="h-5 w-5" />
-            {submitting ? "Saving..." : "Save Changes"}
+            {submitting ? <Spinner/> : "Save Changes"}
           </button>
         </div>
       </form>

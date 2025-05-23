@@ -23,6 +23,7 @@ import {
   AlertDialogContent,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import Spinner from "@/app/components/Spinner";
 
 const ORDER_STATUS = {
   PENDING: "pending",
@@ -250,7 +251,8 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <PiBowlFood size={14} /> {topping.name} (${topping.price})
+                                  <PiBowlFood size={14} /> {topping.name} ($
+                                  {topping.price})
                                 </span>
                               ))}
                             </div>
@@ -264,7 +266,8 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <Salad size={14} /> {extra.name} (${extra.price})
+                                  <Salad size={14} /> {extra.name} ($
+                                  {extra.price})
                                 </span>
                               ))}
                             </div>
@@ -339,9 +342,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
               className="px-6 py-1.5 text-sm bg-indigo-600 text-white rounded-md transition-colors hover:bg-indigo-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               type="button"
             >
-              {loadingStates.processing
-                ? "Processing..."
-                : "Mark as Processing"}
+              {loadingStates.processing ? <Spinner /> : "Mark as Processing"}
             </button>
           )}
           {order.orderStatus === "in-process" && (
@@ -355,7 +356,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
               className="px-6 py-1.5 text-sm bg-green-500 text-white rounded-md transition-colors hover:bg-green-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               type="button"
             >
-              {loadingStates.ready ? "Marking as Ready..." : "Mark as Ready"}
+              {loadingStates.ready ? <Spinner /> : "Mark as Ready"}
             </button>
           )}
           {order.orderStatus !== "cancelled" &&
@@ -371,7 +372,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                 className="px-6 py-1.5 text-sm bg-red-500 text-white rounded-md transition-colors hover:bg-red-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 type="button"
               >
-                {loadingStates.cancel ? "Cancelling Order..." : "Cancel Order"}
+                {loadingStates.cancel ? <Spinner /> : "Cancel Order"}
               </button>
             )}
         </div>
@@ -380,4 +381,4 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
   );
 }
 
-export default OrderDetailsDialog; 
+export default OrderDetailsDialog;

@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { FaShoppingBag } from "react-icons/fa";
 import { getCookie } from "cookies-next";
+import Spinner from "../components/Spinner";
 
 const TAX_PERCENTAGE = 10;
 const DELIVERY_FEE = 2.50;
@@ -450,8 +451,9 @@ const Page = () => {
             disabled={submitting}
             className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
           >
-            <Lock className="w-5 h-5" />
-            {submitting ? "Processing Order..." : "PLACE ORDER"}
+            
+            {!submitting ? <Lock className="w-5 h-5" /> : ""}
+            {submitting ? <Spinner/> : "PLACE ORDER"}
           </button>
           <div className="text-xs text-center text-gray-500 mt-4">
             By placing your order you agree to the{" "}

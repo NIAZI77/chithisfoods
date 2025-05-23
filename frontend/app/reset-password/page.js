@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
-import Hero from "../components/Hero";
+import Hero from "../components/Side-Hero";
+import Spinner from "../components/Spinner";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -132,7 +133,7 @@ export default function ResetPasswordPage() {
                 className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all"
                 disabled={loading}
               >
-                {loading ? "Resetting..." : "Save"}
+                {loading ? <Spinner/> : "Save"}
               </button>
             </form>
           </div>

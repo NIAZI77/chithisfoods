@@ -19,7 +19,7 @@ const Hero = () => {
           </h2>
           <p className="text-gray-600">Order your favorite dishes with ease</p>
           <Image
-            src="/chef.jpg"
+            src="/chef-ill.png"
             alt="Chef Illustration"
             width={300}
             height={300}

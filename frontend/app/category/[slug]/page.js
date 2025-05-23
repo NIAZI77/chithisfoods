@@ -1,12 +1,12 @@
 "use client";
 
-import ProductCard from "@/app/components/DishCard";
 import { useParams } from "next/navigation";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Menu, Search, X, ChevronRight } from "lucide-react";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Pagination from "@/app/components/pagination";
+import ProductCard from "@/app/components/ProductCard";
 
 const Page = () => {
   const { slug } = useParams();
@@ -68,10 +68,6 @@ const Page = () => {
         // Update pagination info
         setTotalItems(result.meta.pagination.total);
         setTotalPages(result.meta.pagination.pageCount);
-
-        if (!dishes.length) {
-          toast.info("No dishes available in your area for this category");
-        }
       } catch (error) {
         console.error("Error fetching dishes:", error);
         toast.error("Unable to load dishes. Please try again later");

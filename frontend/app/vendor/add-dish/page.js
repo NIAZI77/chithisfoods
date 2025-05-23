@@ -18,6 +18,7 @@ import Image from "next/image";
 import { getCookie } from "cookies-next";
 import Loading from "@/app/loading";
 import { useRouter } from "next/navigation";
+import Spinner from "@/app/components/Spinner";
 
 export default function AddDishPage() {
   const router = useRouter();
@@ -672,7 +673,7 @@ export default function AddDishPage() {
           className="bg-orange-600 text-white py-3 rounded-full shadow-orange-300 shadow-md hover:bg-orange-700 transition-all w-full mt-8 disabled:bg-orange-400 disabled:cursor-not-allowed"
           disabled={submitting}
         >
-          {submitting ? "Saving..." : "Save Dish"}
+          {submitting ? <Spinner/> : "Save Dish"}
         </button>
       </form>
     </div>

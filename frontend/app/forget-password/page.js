@@ -6,7 +6,8 @@ import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { FaEnvelope } from "react-icons/fa";
-import Hero from "../components/Hero";
+import Hero from "../components/Side-Hero";
+import Spinner from "../components/Spinner";
 
 export default function ForgetPassword() {
   const [email, setEmail] = useState("");
@@ -89,7 +90,7 @@ export default function ForgetPassword() {
                 className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all"
                 disabled={loading}
               >
-                {loading ? "Sending..." : "Reset Password"}
+                {loading ? <Spinner /> : "Reset Password"}
               </button>
             </form>
 

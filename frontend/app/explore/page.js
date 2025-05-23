@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Loading from "../loading";
 import ZipcodeDialogue from "../components/zipcodeDialogue";
+import Spinner from "../components/Spinner";
 
 export default function Explore() {
   const [loading, setLoading] = useState(true);
@@ -39,9 +40,9 @@ export default function Explore() {
 
   return (
     <div className="space-y-10">
-      <section className="h-screen lg:max-h-[700px] max-h-[800px] flex items-center px-4 -mt-20 object-cover bg-cover bg-no-repeat bg-bottom"
-      style={{ backgroundImage: "url('/landing-page-bg.png')" }}
-
+      <section
+        className="h-screen lg:max-h-[700px] max-h-[800px] flex items-center px-4 -mt-20 object-cover bg-cover bg-no-repeat bg-bottom"
+        style={{ backgroundImage: "url('/landing-page-bg.png')" }}
       >
         <div className="w-full md:w-[90%] mx-auto grid lg:grid-cols-2 grid-cols-1 items-center">
           <div className="lg:space-y-5 order-2 text-center lg:text-left lg:order-1">

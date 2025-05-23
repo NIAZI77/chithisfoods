@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { setCookie, getCookie } from "cookies-next";
 import Loading from "@/app/loading";
+import Spinner from "@/app/components/Spinner";
 
 export default function AccountSettings() {
   const router = useRouter();
@@ -277,7 +278,7 @@ export default function AccountSettings() {
               disabled={savingPassword}
               className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:opacity-50"
             >
-              {savingPassword ? "Saving..." : "Save"}
+              {savingPassword ? <Spinner/> : "Save"}
             </button>
           </form>
         </section>

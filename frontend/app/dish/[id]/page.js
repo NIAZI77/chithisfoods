@@ -15,7 +15,7 @@ const API_ERROR_MESSAGES = {
   FETCH_ERROR: "Unable to fetch dish details. Please try again later.",
   NOT_FOUND: "The requested dish could not be found.",
   CART_ERROR: "Failed to add item to cart. Please try again.",
-  SELECTION_ERROR: "Failed to update selection. Please try again."
+  SELECTION_ERROR: "Failed to update selection. Please try again.",
 };
 
 export default function DishPage() {
@@ -30,10 +30,14 @@ export default function DishPage() {
   const [loading, setLoading] = useState(true);
   const [isPreview, setIsPreview] = useState(false);
   const [isAvailable, setIsAvailable] = useState(true);
+  const [userZipcode, setUserZipcode] = useState(null);
 
   const fetchDishDetails = async () => {
     try {
-      if (!process.env.NEXT_PUBLIC_STRAPI_HOST || !process.env.NEXT_PUBLIC_STRAPI_TOKEN) {
+      if (
+        !process.env.NEXT_PUBLIC_STRAPI_HOST ||
+        !process.env.NEXT_PUBLIC_STRAPI_TOKEN
+      ) {
         throw new Error(API_ERROR_MESSAGES.CONFIG_MISSING);
       }
 
@@ -51,7 +55,9 @@ export default function DishPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.error?.message || API_ERROR_MESSAGES.FETCH_ERROR);
+        throw new Error(
+          responseData.error?.message || API_ERROR_MESSAGES.FETCH_ERROR
+        );
       }
 
       if (!responseData.data) {
@@ -61,14 +67,16 @@ export default function DishPage() {
       const dishInfo = responseData.data;
       const enhancedDishInfo = {
         ...dishInfo,
-        extras: dishInfo.extras?.map((extra) => ({
-          ...extra,
-          options: [{ label: "None", price: 0 }, ...extra.options],
-        })) || [],
-        toppings: dishInfo.toppings?.map((topping) => ({
-          ...topping,
-          options: [{ label: "None", price: 0 }, ...topping.options],
-        })) || [],
+        extras:
+          dishInfo.extras?.map((extra) => ({
+            ...extra,
+            options: [{ label: "None", price: 0 }, ...extra.options],
+          })) || [],
+        toppings:
+          dishInfo.toppings?.map((topping) => ({
+            ...topping,
+            options: [{ label: "None", price: 0 }, ...topping.options],
+          })) || [],
         image: {
           id: dishInfo.image?.id || null,
           url: dishInfo.image?.url || "/fallback.png",
@@ -116,6 +124,8 @@ export default function DishPage() {
   useEffect(() => {
     if (id) {
       fetchDishDetails();
+      const zipcode = localStorage.getItem("zipcode");
+      setUserZipcode(zipcode);
     } else {
       setIsDishNotFound(true);
       setLoading(false);
@@ -131,7 +141,9 @@ export default function DishPage() {
       (sum, item) => sum + Number(item.price),
       0
     );
-    return (Number(dishDetails.price) + extrasTotal + toppingsTotal) * orderQuantity;
+    return (
+      (Number(dishDetails.price) + extrasTotal + toppingsTotal) * orderQuantity
+    );
   };
 
   const handleAddToCart = () => {
@@ -190,7 +202,8 @@ export default function DishPage() {
         );
 
         if (existingDishIndex > -1) {
-          cart[vendorGroupIndex].dishes[existingDishIndex].quantity += orderQuantity;
+          cart[vendorGroupIndex].dishes[existingDishIndex].quantity +=
+            orderQuantity;
           cart[vendorGroupIndex].dishes[existingDishIndex].total = (
             Number(cart[vendorGroupIndex].dishes[existingDishIndex].basePrice) *
             cart[vendorGroupIndex].dishes[existingDishIndex].quantity
@@ -209,7 +222,9 @@ export default function DishPage() {
       }
 
       localStorage.setItem("cart", JSON.stringify(cart));
-      toast.success(`Successfully added ${orderQuantity} ${dishDetails.name} to your cart!`);
+      toast.success(
+        `Successfully added ${orderQuantity} ${dishDetails.name} to your cart!`
+      );
     } catch (error) {
       toast.error(API_ERROR_MESSAGES.CART_ERROR);
       console.error("Error adding to cart:", error);
@@ -252,7 +267,8 @@ export default function DishPage() {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <div className="text-3xl text-center text-gray-600">Dish not found</div>
         <p className="text-gray-500">
-          The dish you&apos;re looking for doesn&apos;t exist or has been removed.
+          The dish you&apos;re looking for doesn&apos;t exist or has been
+          removed.
         </p>
         <button
           onClick={() => window.history.back()}
@@ -272,6 +288,12 @@ export default function DishPage() {
             <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
               <AlertCircle className="w-5 h-5" />
               This dish is currently unavailable
+            </div>
+          )}
+          {!(userZipcode == dishDetails.zipcode) && (
+            <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              This dish is unavailable in your city
             </div>
           )}
           {isPreview && (
@@ -484,7 +506,11 @@ export default function DishPage() {
               <button
                 onClick={handleAddToCart}
                 className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isPreview || !isAvailable}
+                disabled={
+                  isPreview ||
+                  !isAvailable ||
+                  !(userZipcode == dishDetails.zipcode)
+                }
               >
                 Add to cart
               </button>

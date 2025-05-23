@@ -38,12 +38,8 @@ const VendorCard = ({ chef }) => {
           </div>
         </div>
         <div className="col-span-2 space-y-1">
-          <h3 className="font-semibold text-gray-800 text-md">
-            {chef?.storeName.length > 18
-              ? chef?.storeName
-                  .replace(/\b\w/g, (c) => c.toUpperCase())
-                  .slice(0, 15) + "..."
-              : chef?.storeName.replace(/\b\w/g, (c) => c.toUpperCase())}
+          <h3 className="font-semibold text-gray-800 text-md truncate capitalize">
+            {chef?.storeName}
           </h3>
 
           <div className="flex items-center gap-1">

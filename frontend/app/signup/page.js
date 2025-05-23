@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import {
-  FaApple,
   FaFacebook,
   FaGoogle,
   FaLock,
@@ -15,8 +14,9 @@ import {
   FaUser,
   FaEnvelope,
 } from "react-icons/fa";
-import Hero from "../components/Hero";
+import Hero from "../components/Side-Hero";
 import { getCookie } from "cookies-next";
+import Spinner from "../components/Spinner";
 
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 const usernameRegex = /^[a-z0-9_]{3,15}$/;
@@ -101,10 +101,6 @@ export default function SignupPage() {
     }
   };
 
-  const handleGoogleSignup = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/connect/google`;
-  };
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
       <Hero />
@@ -178,7 +174,7 @@ export default function SignupPage() {
               className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all"
               disabled={loading}
             >
-              {loading ? "Signing Up..." : "Sign Up"}
+              {loading ? <Spinner /> : "Sign Up"}
             </button>
           </form>
 
@@ -198,15 +194,26 @@ export default function SignupPage() {
           </div>
           <div className="mt-6 space-y-3">
             <button
-              onClick={handleGoogleSignup}
               className="w-full flex items-center justify-start border p-3 px-10 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all"
+              onClick={() =>
+                router.push(
+                  `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/connect/google/`
+                )
+              }
             >
               <FaGoogle />
-              <span>Sign up with Google</span>
+              <span>Sign in with Google</span>
             </button>
-            <button className="w-full flex items-center justify-start border p-3 px-10 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all">
+            <button
+              className="w-full flex items-center justify-start border p-3 px-10 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all"
+              onClick={() =>
+                router.push(
+                  `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/connect/facebook/`
+                )
+              }
+            >
               <FaFacebook />
-              <span>Sign up with Facebook</span>
+              <span>Sign in with Facebook</span>
             </button>
           </div>
         </div>

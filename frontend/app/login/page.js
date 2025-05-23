@@ -6,7 +6,6 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import {
-  FaApple,
   FaFacebook,
   FaGoogle,
   FaLock,
@@ -15,7 +14,8 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { setCookie, getCookie } from "cookies-next";
-import Hero from "../components/Hero";
+import Hero from "../components/Side-Hero";
+import Spinner from "../components/Spinner";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,8 +23,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-
 
   useEffect(() => {
     const jwt = getCookie("jwt");
@@ -128,7 +126,13 @@ export default function LoginPage() {
               className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold"
               disabled={loading}
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? (
+                <div>
+                  <Spinner />
+                </div>
+              ) : (
+                "Login"
+              )}
             </button>
           </form>
 
@@ -158,7 +162,14 @@ export default function LoginPage() {
               <FaGoogle />
               <span>Sign in with Google</span>
             </button>
-            <button className="w-full flex items-center justify-start border p-3 px-10 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all">
+            <button
+              className="w-full flex items-center justify-start border p-3 px-10 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all"
+              onClick={() =>
+                router.push(
+                  `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/connect/facebook/`
+                )
+              }
+            >
               <FaFacebook />
               <span>Sign in with Facebook</span>
             </button>

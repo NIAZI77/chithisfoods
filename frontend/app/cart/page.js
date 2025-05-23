@@ -159,7 +159,6 @@ export default function CartPage() {
       toast.error("Please add items to your cart before checkout");
       return;
     }
-    toast.success("Redirecting to checkout...");
     router.push("/checkout");
   };
 
