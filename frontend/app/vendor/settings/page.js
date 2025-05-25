@@ -30,6 +30,7 @@ const INITIAL_FORM_STATE = {
   username: "",
   avatar: { id: 0, url: "" },
   coverImage: { id: 0, url: "" },
+  vendorDeliveryFee: "",
 };
 
 const REQUIRED_FIELDS = [
@@ -40,6 +41,16 @@ const REQUIRED_FIELDS = [
   "zipcode",
 ];
 
+function formatToTwoDecimals(val) {
+  let value = val.replace(/[^0-9.]/g, "");
+  value = value.replace(/(\..*)\./g, "$1");
+  if (value.includes(".")) {
+    const [intPart, decPart] = value.split(".");
+    return intPart + "." + decPart.slice(0, 2);
+  }
+  return value;
+}
+
 const Page = () => {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
@@ -49,13 +60,11 @@ const Page = () => {
   useEffect(() => {
     const jwt = getCookie("jwt");
     const user = getCookie("user");
-
     if (!jwt || !user) {
-      toast.error("Please login to access this page");
+      toast.error("You must be logged in to access your account settings. Please log in.");
       router.push("/login");
       return;
     }
-
     fetchVendorData(user);
   }, [router]);
 
@@ -72,28 +81,28 @@ const Page = () => {
           },
         }
       );
-
       const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error?.message || "Failed to fetch vendor data");
+        throw new Error(data.error?.message || "Unable to retrieve vendor information. Please try again later.");
       }
-
       const vendorData = data.data[0];
       if (!vendorData) {
-        toast.info("Please complete your vendor registration");
+        toast.info("Please complete your vendor registration to access settings.");
         router.push("/become-vendor");
         return;
       }
-
       setFormData({
         ...vendorData,
         bio: vendorData.bio || "",
         avatar: vendorData.avatar || { id: 0, url: "" },
         coverImage: vendorData.coverImage || { id: 0, url: "" },
+        vendorDeliveryFee:
+          vendorData.vendorDeliveryFee !== null && vendorData.vendorDeliveryFee !== undefined
+            ? Number(vendorData.vendorDeliveryFee).toFixed(2)
+            : "",
       });
     } catch (error) {
-      toast.error(error.message || "Unable to load vendor information");
+      toast.error(error.message || "Failed to load your vendor information. Please refresh the page or try again later.");
     } finally {
       setLoading(false);
     }
@@ -101,16 +110,20 @@ const Page = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "vendorDeliveryFee") {
+      setFormData((prev) => ({ ...prev, [name]: formatToTwoDecimals(value) }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
+
   const uploadImage = async (file, name) => {
-    const formData = new FormData();
-    formData.append("files", file);
+    const formDataUpload = new FormData();
+    formDataUpload.append("files", file);
     if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file.");
+      toast.error("Only image files are allowed. Please select a valid image.");
       return;
     }
-
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`,
@@ -119,35 +132,29 @@ const Page = () => {
           headers: {
             Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
           },
-          body: formData,
+          body: formDataUpload,
         }
       );
-
       if (!response.ok) {
-        toast.error("Error uploading image.");
+        toast.error("Image upload failed. Please try again.");
         return;
       }
-
       const data = await response.json();
       if (!data || !data[0]) {
-        toast.error("Invalid response from server");
+        toast.error("Unexpected server response during image upload. Please try again.");
         return;
       }
-
       const { id, url } = data[0];
       const fullUrl = url.startsWith("http")
         ? url
         : `${process.env.NEXT_PUBLIC_STRAPI_HOST}${url}`;
-
       setFormData((prevData) => ({
         ...prevData,
         [name]: { id, url: fullUrl },
       }));
-
-      toast.success("Image uploaded successfully!");
+      toast.success("Image uploaded successfully.");
     } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Error uploading image.");
+      toast.error("An error occurred while uploading the image. Please try again.");
     }
   };
 
@@ -159,14 +166,11 @@ const Page = () => {
 
   const validateForm = () => {
     const missingFields = REQUIRED_FIELDS.filter((field) => !formData[field]);
-
     if (missingFields.length > 0) {
-      const fieldNames = missingFields.map((field) =>
-        field.replace(/([A-Z])/g, " $1").toLowerCase()
-      );
-      toast.error(
-        `Please fill in the following required fields: ${fieldNames.join(", ")}`
-      );
+      const fieldNames = missingFields
+        .map((field) => field.replace(/([A-Z])/g, " $1").toLowerCase())
+        .join(", ");
+      toast.error(`Please complete all required fields: ${fieldNames}`);
       return false;
     }
     return true;
@@ -174,23 +178,33 @@ const Page = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     const jwt = getCookie("jwt");
     if (formData.zipcode.length !== 5) {
-      toast.error("ZIP Code must be 5 digits.");
+      toast.error("ZIP Code must be exactly 5 digits.");
       return;
     }
     if (!jwt) {
-      toast.error("Your session has expired. Please login again");
+      toast.error("Your session has expired. Please log in again to continue.");
       router.push("/login");
       return;
     }
-
+    let deliveryFee = formData.vendorDeliveryFee;
+    if (deliveryFee === "" || deliveryFee === null || deliveryFee === undefined) {
+      deliveryFee = null;
+    } else {
+      let num = parseFloat(deliveryFee);
+      if (isNaN(num) || num < 0) {
+        toast.error("Delivery fee must be a non-negative number with up to two decimal places.");
+        return;
+      } else if (num === 0) {
+        deliveryFee = "0.00";
+      } else {
+        deliveryFee = num.toFixed(2);
+      }
+    }
     setSubmitting(true);
     try {
-      // First update the vendor's information
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${formData.documentId}`,
         {
@@ -214,18 +228,15 @@ const Page = () => {
               ...(formData.coverImage?.id && {
                 coverImage: formData.coverImage.id,
               }),
+              vendorDeliveryFee: deliveryFee,
             },
           }),
         }
       );
-
       const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error?.message || "Failed to update settings");
+        throw new Error(data.error?.message || "Failed to update your settings. Please try again later.");
       }
-
-      // Then update all dishes' zipcodes
       const dishesResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[vendorId][$eq]=${formData.documentId}`,
         {
@@ -236,12 +247,9 @@ const Page = () => {
           },
         }
       );
-
       const dishesData = await dishesResponse.json();
-      
       if (dishesResponse.ok && dishesData.data) {
-        // Update each dish's zipcode
-        const updatePromises = dishesData.data.map(dish => 
+        const updatePromises = dishesData.data.map((dish) =>
           fetch(
             `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dish.documentId}`,
             {
@@ -252,22 +260,18 @@ const Page = () => {
               },
               body: JSON.stringify({
                 data: {
-                  zipcode: formData.zipcode
-                }
+                  zipcode: formData.zipcode,
+                },
               }),
             }
           )
         );
-
         await Promise.all(updatePromises);
       }
-
-      toast.success("Settings updated successfully");
+      toast.success("Your settings have been updated successfully.");
       setTimeout(() => router.push("/vendor/dashboard"), 1000);
     } catch (error) {
-      toast.error(
-        error.message || "Failed to update settings. Please try again"
-      );
+      toast.error(error.message || "An error occurred while updating your settings. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -281,10 +285,7 @@ const Page = () => {
       <form onSubmit={handleSubmit} className="space-y-8">
         <section className="bg-white rounded-xl shadow p-6 space-y-4">
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <div className="relative">
@@ -294,22 +295,33 @@ const Page = () => {
                 type="email"
                 value={formData.email}
                 readOnly
-                className="w-full p-2 pl-10 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full p-2 pl-10 border border-gray-300 rounded-md bg-gray-100 outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+              Username
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                name="username"
+                type="username"
+                value={formData.username}
+                readOnly
+                className="w-full p-2 pl-10 border border-gray-300 rounded-md bg-gray-100 outline-none"
               />
             </div>
           </div>
         </section>
-
         <section className="bg-white rounded-xl shadow p-6 space-y-4">
           <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
             <Store className="h-5 w-5" />
             Store Information
           </h2>
           <div>
-            <label
-              htmlFor="storeName"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="storeName" className="block text-sm font-medium text-gray-700 mb-1">
               Store Name
             </label>
             <input
@@ -322,26 +334,22 @@ const Page = () => {
             />
           </div>
           <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Username
+            <label htmlFor="vendorDeliveryFee" className="block text-sm font-medium text-gray-700 mb-1">
+              Delivery Fee
             </label>
             <input
-              name="username"
-              value={formData.username}
+              name="vendorDeliveryFee"
+              type="text"
+              value={formData.vendorDeliveryFee}
               onChange={handleChange}
-              placeholder="Enter your username"
-              required
+              placeholder="Delivery Fee"
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              inputMode="decimal"
+              pattern="^\d*(\.\d{0,2})?$"
             />
           </div>
           <div>
-            <label
-              htmlFor="bio"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
               Bio
             </label>
             <textarea
@@ -354,7 +362,6 @@ const Page = () => {
             />
           </div>
         </section>
-
         <section className="bg-white rounded-xl shadow p-6 space-y-4">
           <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
             <ImageIcon className="h-5 w-5" />
@@ -384,7 +391,6 @@ const Page = () => {
                 <FaCamera />
               </label>
             </div>
-
             <div className="absolute bottom-[-50px] left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white">
               <Image
                 height={100}
@@ -395,7 +401,6 @@ const Page = () => {
                 unoptimized
               />
             </div>
-
             <input
               type="file"
               id="avatar"
@@ -412,7 +417,6 @@ const Page = () => {
             </label>
           </div>
         </section>
-
         <section className="bg-white rounded-xl shadow p-6 space-y-4">
           <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
             <User className="h-5 w-5" />
@@ -420,10 +424,7 @@ const Page = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label
-                htmlFor="fullName"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
                 Full Name
               </label>
               <div className="relative">
@@ -439,10 +440,7 @@ const Page = () => {
               </div>
             </div>
             <div>
-              <label
-                htmlFor="phoneNumber"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
                 Phone Number
               </label>
               <div className="relative">
@@ -459,17 +457,13 @@ const Page = () => {
             </div>
           </div>
         </section>
-
         <section className="bg-white rounded-xl shadow p-6 space-y-4">
           <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
             <MapPin className="h-5 w-5" />
             Location
           </h2>
           <div>
-            <label
-              htmlFor="businessAddress"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="businessAddress" className="block text-sm font-medium text-gray-700 mb-1">
               Business Address
             </label>
             <div className="relative">
@@ -486,10 +480,7 @@ const Page = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label
-                htmlFor="city"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
                 City
               </label>
               <input
@@ -502,10 +493,7 @@ const Page = () => {
               />
             </div>
             <div>
-              <label
-                htmlFor="zipcode"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="zipcode" className="block text-sm font-medium text-gray-700 mb-1">
                 Zipcode
               </label>
               <input
@@ -519,7 +507,6 @@ const Page = () => {
             </div>
           </div>
         </section>
-
         <div className="flex flex-col md:flex-row gap-4 justify-end">
           <button
             type="submit"
@@ -527,7 +514,7 @@ const Page = () => {
             className="md:w-auto w-full px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:bg-orange-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Save className="h-5 w-5" />
-            {submitting ? <Spinner/> : "Save Changes"}
+            {submitting ? <Spinner /> : "Save Changes"}
           </button>
         </div>
       </form>

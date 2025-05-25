@@ -5,7 +5,7 @@ import { FaMapMarkerAlt, FaStar } from "react-icons/fa";
 import { Separator } from "@/components/ui/separator";
 import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
-import ProductCard from "@/app/components/ProductCard";
+import ProductCard from "@/app/components/DishCard";
 
 const Page = () => {
   const [loading, setLoading] = useState(true);

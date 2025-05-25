@@ -6,7 +6,7 @@ import { Menu, Search, X, ChevronRight } from "lucide-react";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Pagination from "@/app/components/pagination";
-import ProductCard from "@/app/components/ProductCard";
+import DishCard from "@/app/components/DishCard";
 
 const Page = () => {
   const { slug } = useParams();
@@ -277,7 +277,7 @@ const Page = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 2xl:grid-cols-4 place-items-center">
           {filteredDishes.length > 0 ? (
             filteredDishes.map((dish) => (
-              <ProductCard key={dish.id} dish={dish} />
+              <DishCard key={dish.id} dish={dish} />
             ))
           ) : (
             <p className="text-gray-500 text-center w-full">

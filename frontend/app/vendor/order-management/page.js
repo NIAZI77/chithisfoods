@@ -16,14 +16,6 @@ import OrderCard from "./components/OrderCard";
 import OrderDetailsDialog from "./components/OrderDetailsDialog";
 import { useRouter } from "next/navigation";
 
-const ORDER_STATUS = {
-  PENDING: "pending",
-  IN_PROCESS: "in-process",
-  READY: "ready",
-  DELIVERED: "delivered",
-  CANCELLED: "cancelled",
-};
-
 const TOAST_MESSAGES = {
   AUTH_REQUIRED: "Authentication required. Please log in as a vendor.",
   VENDOR_INFO_ERROR: "Unable to fetch vendor information.",

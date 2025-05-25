@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Loading from "../loading";
 import { useRouter } from "next/navigation";
-import ProductCard from "./ProductCard";
-
+import DishCard from "./DishCard";
 export default function PopularDishes({ zipcode }) {
   const router = useRouter();
   const [popularDishes, setPopularDishes] = useState([]);
@@ -60,7 +59,7 @@ export default function PopularDishes({ zipcode }) {
           <h2 className="md:text-2xl text-xl font-bold mb-4">Popular Dishes</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
             {popularDishes.map((dish) => (
-              <ProductCard key={dish.id} dish={dish} />
+              <DishCard key={dish.id} dish={dish} />
             ))}
           </div>
         </div>
