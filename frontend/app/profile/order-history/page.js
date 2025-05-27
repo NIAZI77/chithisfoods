@@ -69,7 +69,7 @@ export default function OrderHistoryPage() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}${statusFilterQuery}${timeFilterQuery}&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}${statusFilterQuery}${timeFilterQuery}&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}&sort=createdAt:desc`,
         {
           method: "GET",
           headers: {

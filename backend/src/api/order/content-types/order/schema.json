@@ -50,9 +50,6 @@
       ],
       "default": "delivery"
     },
-    "promoCode": {
-      "type": "string"
-    },
     "orderStatus": {
       "type": "enumeration",
       "enum": [
@@ -108,6 +105,10 @@
     },
     "totalTax": {
       "type": "decimal"
+    },
+    "vendorDeliveryFee": {
+      "type": "decimal",
+      "default": 0
     }
   }
 }

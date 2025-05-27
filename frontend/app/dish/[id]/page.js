@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { LuPlus, LuMinus } from "react-icons/lu";
 import { FaStar, FaUser } from "react-icons/fa";
 import { Timer, AlertCircle, Eye } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 import { toast } from "react-toastify";
 import Link from "next/link";
@@ -31,6 +31,7 @@ export default function DishPage() {
   const [isPreview, setIsPreview] = useState(false);
   const [isAvailable, setIsAvailable] = useState(true);
   const [userZipcode, setUserZipcode] = useState(null);
+  const router = useRouter()
 
   const fetchDishDetails = async () => {
     try {
@@ -125,6 +126,11 @@ export default function DishPage() {
     if (id) {
       fetchDishDetails();
       const zipcode = localStorage.getItem("zipcode");
+      if (!zipcode) {
+        toast.error("Please set your zipcode");
+        router.push("/");
+        return;
+      }
       setUserZipcode(zipcode);
     } else {
       setIsDishNotFound(true);

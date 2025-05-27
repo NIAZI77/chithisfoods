@@ -12,6 +12,7 @@ import {
   FileText,
   Truck,
   Salad,
+  BadgePercent,
 } from "lucide-react";
 import { FaShoppingBag, FaStore } from "react-icons/fa";
 import { HiOutlineReceiptTax } from "react-icons/hi";
@@ -103,6 +104,10 @@ export default function ThankYouPage() {
 
   const orderSubtotal = orderData.reduce(
     (sum, order) => sum + order.subtotal,
+    0
+  );
+  const totalDeliveryFee = orderData.reduce(
+    (sum, order) => sum + (Number(order.vendorDeliveryFee) || 0),
     0
   );
   const currentOrder = orderData[0];
@@ -198,13 +203,32 @@ export default function ThankYouPage() {
               ${currentOrder.totalTax.toFixed(2)}
             </span>
           </div>
+          {/* Per-vendor delivery fees */}
+          {orderData.some(order => order.vendorDeliveryFee && order.storeName) && (
+            <div className="mb-2">
+              {orderData.map((order, idx) => (
+                order.vendorDeliveryFee && order.storeName ? (
+                  <div
+                    key={order.vendorId || idx}
+                    className="flex justify-between text-sm text-gray-700"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Truck className="w-4 h-4" />
+                      {order.storeName}
+                    </span>
+                    <span>${Number(order.vendorDeliveryFee).toFixed(2)}</span>
+                  </div>
+                ) : null
+              ))}
+            </div>
+          )}
           <div className="flex justify-between py-2">
             <div className="flex items-center gap-2">
               <Truck className="text-gray-500" size={20} />
               <span>Delivery</span>
             </div>
             <span className="font-semibold">
-              ${currentOrder.deliveryFee.toFixed(2)}
+              ${totalDeliveryFee.toFixed(2)}
             </span>
           </div>
           <div className="flex justify-between border-t mt-2 pt-3 text-lg font-bold">
@@ -268,7 +292,7 @@ export default function ThankYouPage() {
                                 key={idx}
                                 className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-sm"
                               >
-                                <PiBowlFood size={14} /> {topping.name} (${topping.price})
+                                <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3" /> {topping.name} (${topping.price})
                               </span>
                             ))}
                           </div>
@@ -282,7 +306,7 @@ export default function ThankYouPage() {
                                 key={idx}
                                 className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-sm"
                               >
-                                <Salad size={14} /> {extra.name} (${extra.price})
+                                <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3" /> {extra.name} (${extra.price})
                               </span>
                             ))}
                           </div>

@@ -59,7 +59,7 @@ const OrderCard = ({ order, onViewDetails }) => {
         <div className="text-sm font-semibold mt-1 flex items-center justify-between">
           <span>x{order.dishes.length} Items </span>
           <span className="text-orange-600">
-            ${order.subtotal.toFixed(2)}
+            ${(order.subtotal + order.vendorDeliveryFee).toFixed(2)}
           </span>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -30,8 +30,8 @@ export default function EditDishPage() {
     chef: {},
     image: { id: 0, url: "" },
     servings: "",
-    category: "fruits",
-    subcategory: "apple",
+    category: "cooked-foods",
+    subcategory: "",
     preparation_time: "",
     vendorId: "",
     ingredients: "",
@@ -42,6 +42,110 @@ export default function EditDishPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // Category and subcategory mapping
+  const categorySubcategories = {
+    "cooked-foods": [
+      { value: "vegetable-kurma", label: "Vegetable Kurma" },
+      { value: "paneer-butter-masala", label: "Paneer Butter Masala" },
+      { value: "sambar-rasam", label: "Sambar / Rasam" },
+      { value: "chicken-curry", label: "Chicken Curry" },
+      { value: "mutton-pepper-fry", label: "Mutton Pepper Fry" },
+      { value: "fish-molee", label: "Fish Molee" },
+      { value: "vegetable-biryani", label: "Vegetable Biryani" },
+      { value: "chicken-biryani", label: "Chicken Biryani" },
+      { value: "curd-lemon-rice", label: "Curd Rice / Lemon Rice" },
+      { value: "idli", label: "Idli" },
+      { value: "dosa", label: "Dosa" },
+      { value: "uthappam", label: "Uthappam" },
+      { value: "pongal", label: "Pongal" },
+      { value: "vada", label: "Vada" },
+      { value: "chapathi-kurma", label: "Chapathi with Kurma" },
+      { value: "south-indian-veg-meal", label: "South Indian Veg Meal Box" },
+      { value: "chicken-curry-rice", label: "Chicken Curry + Rice" },
+      { value: "parotta-salna", label: "Parotta + Salna" },
+    ],
+    groceries: [
+      { value: "sona-masoori", label: "Sona Masoori" },
+      { value: "idli-rice", label: "Idli Rice" },
+      { value: "wheat", label: "Wheat" },
+      { value: "ragi", label: "Ragi" },
+      { value: "toor-dal", label: "Toor Dal" },
+      { value: "moong-dal", label: "Moong Dal" },
+      { value: "urad-dal", label: "Urad Dal" },
+      { value: "coconut-oil", label: "Coconut Oil" },
+      { value: "sunflower-oil", label: "Sunflower Oil" },
+      { value: "gingelly-oil", label: "Gingelly Oil" },
+      { value: "atta", label: "Atta" },
+      { value: "ragi-flour", label: "Ragi Flour" },
+      { value: "maida", label: "Maida" },
+      { value: "jaggery", label: "Jaggery" },
+      { value: "sugar", label: "Sugar" },
+      { value: "salt", label: "Salt" },
+      { value: "pickles", label: "Pickles" },
+      { value: "ready-mixes", label: "Ready Mixes" },
+    ],
+    spices: [
+      { value: "mustard", label: "Mustard" },
+      { value: "cumin", label: "Cumin" },
+      { value: "cloves", label: "Cloves" },
+      { value: "chili-powder", label: "Chili Powder" },
+      { value: "turmeric", label: "Turmeric" },
+      { value: "coriander", label: "Coriander" },
+      { value: "sambar-powder", label: "Sambar Powder" },
+      { value: "biryani-masala", label: "Biryani Masala" },
+      { value: "garam-masala", label: "Garam Masala" },
+      { value: "asafoetida", label: "Asafoetida" },
+      { value: "chaat-masala", label: "Chaat Masala" },
+    ],
+    batter: [
+      { value: "idli-batter", label: "Idli / Dosa Batter" },
+      { value: "uthappam-batter", label: "Uthappam Batter" },
+      { value: "adai-batter", label: "Adai / Multigrain Batter" },
+      { value: "vada-batter", label: "Vada Batter" },
+    ],
+    fish: [
+      { value: "rohu", label: "Rohu" },
+      { value: "catla", label: "Catla" },
+      { value: "tilapia", label: "Tilapia" },
+      { value: "pomfret", label: "Pomfret" },
+      { value: "seer", label: "Seer" },
+      { value: "sardine", label: "Sardine" },
+      { value: "prawns", label: "Prawns" },
+      { value: "crabs", label: "Crabs" },
+      { value: "fillets-slices", label: "Fillets / Slices" },
+      { value: "marinated-fish", label: "Marinated Fish" },
+      { value: "frozen-fish", label: "Frozen Fish" },
+    ],
+    meat: [
+      { value: "whole-chicken", label: "Whole Chicken" },
+      { value: "curry-cut", label: "Curry Cut Chicken" },
+      { value: "boneless-chicken", label: "Boneless Chicken" },
+      { value: "goat", label: "Goat Meat" },
+      { value: "minced-mutton", label: "Minced Mutton" },
+      { value: "pork", label: "Pork" },
+      { value: "beef", label: "Beef" },
+      { value: "liver", label: "Liver" },
+      { value: "kidney", label: "Kidney" },
+      { value: "marinated-meat", label: "Marinated Meat" },
+      { value: "frozen-meat", label: "Frozen Meat" },
+    ],
+    snacks: [
+      { value: "murukku", label: "Murukku" },
+      { value: "thattai", label: "Thattai" },
+      { value: "banana-chips", label: "Banana Chips" },
+      { value: "mixture", label: "Mixture" },
+      { value: "ladoo", label: "Ladoo" },
+      { value: "halwa", label: "Halwa" },
+      { value: "mysore-pak", label: "Mysore Pak" },
+      { value: "samosa", label: "Samosa" },
+      { value: "cutlet", label: "Cutlet" },
+      { value: "spring-rolls", label: "Spring Rolls" },
+      { value: "roasted-chana", label: "Roasted Chana" },
+      { value: "millet-snacks", label: "Millet Snacks" },
+    ],
+  };
+
   useEffect(() => {
     const jwt = getCookie("jwt");
     const user = getCookie("user");
@@ -128,18 +232,35 @@ export default function EditDishPage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newValue = value;
-    if (name === "price") {
-      newValue = value.replace(/[^0-9.]/g, "");
-      if (newValue.includes(".")) {
-        const parts = newValue.split(".");
-        parts[0] = parts[0].slice(0, 10);
-        parts[1] = parts[1].slice(0, 2);
-        newValue = parts.join(".");
-      }
+
+    switch (name) {
+      case "price":
+        newValue = value.replace(/[^0-9.]/g, "");
+        if (newValue.includes(".")) {
+          const parts = newValue.split(".");
+          parts[0] = parts[0].slice(0, 10);
+          parts[1] = parts[1].slice(0, 2);
+          newValue = parts.join(".");
+        }
+        break;
+      case "servings":
+      case "preparation_time":
+        newValue = value.replace(/\D/g, "");
+        break;
+      case "ingredients":
+        // Remove extra spaces and commas
+        newValue = value.replace(/\s*,\s*/g, ", ").trim();
+        break;
+      case "category":
+        // Reset subcategory when category changes
+        setDishData((prev) => ({
+          ...prev,
+          [name]: value,
+          subcategory: "", // Reset subcategory
+        }));
+        return; // Early return as we're using setDishData directly
     }
-    if (name === "servings" || name === "preparation_time") {
-      newValue = value.replace(/\D/g, "");
-    }
+
     setDishData((prev) => ({ ...prev, [name]: newValue }));
   };
 
@@ -228,8 +349,10 @@ export default function EditDishPage() {
       let ingredientsArray;
       if (Array.isArray(dishData.ingredients)) {
         ingredientsArray = dishData.ingredients;
-      } else if (typeof dishData.ingredients === 'string') {
-        ingredientsArray = dishData.ingredients.split(",").map((item) => item.trim());
+      } else if (typeof dishData.ingredients === "string") {
+        ingredientsArray = dishData.ingredients
+          .split(",")
+          .map((item) => item.trim());
       } else {
         ingredientsArray = [];
       }
@@ -248,7 +371,7 @@ export default function EditDishPage() {
           extras: dishData.extras || [],
           spiciness: dishData.spiciness || [],
           image: dishData.image.id,
-        }
+        },
       };
 
       const response = await fetch(
@@ -278,6 +401,29 @@ export default function EditDishPage() {
     }
   };
 
+  const deleteOption = (type, groupIndex, optionIndex) => {
+    const updated = [...dishData[type]];
+    updated[groupIndex].options = updated[groupIndex].options.filter(
+      (_, i) => i !== optionIndex
+    );
+    setDishData((prev) => ({ ...prev, [type]: updated }));
+  };
+
+  const handleCategoryChange = (value) => {
+    setDishData((prev) => ({
+      ...prev,
+      category: value,
+      subcategory: categorySubcategories[value]?.[0]?.value || "",
+    }));
+  };
+
+  const handleSubcategoryChange = (value) => {
+    setDishData((prev) => ({
+      ...prev,
+      subcategory: value,
+    }));
+  };
+
   if (loading) return <Loading />;
   return (
     <div className="p-4 sm:p-6 md:p-10 min-h-screen pl-20">
@@ -285,7 +431,7 @@ export default function EditDishPage() {
         onSubmit={handleSubmit}
         className="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-6 space-y-6"
       >
-        <h1 className="text-3xl font-bold text-orange-600">Add Dish</h1>
+        <h1 className="text-3xl font-bold text-orange-600">Edit Dish</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col my-2">
@@ -348,21 +494,20 @@ export default function EditDishPage() {
             </Label>
             <Select
               value={dishData.category}
-              onValueChange={(value) =>
-                setDishData((prev) => ({ ...prev, category: value }))
-              }
+              onValueChange={handleCategoryChange}
             >
               <SelectTrigger className="w-full bg-slate-100 rounded-md">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="fruits">Fruits</SelectItem>
-                  <SelectItem value="vegetables">Vegetables</SelectItem>
-                  <SelectItem value="cooked-food">Cooked Food</SelectItem>
+                  <SelectItem value="cooked-foods">Cooked Foods</SelectItem>
+                  <SelectItem value="groceries">Groceries</SelectItem>
+                  <SelectItem value="spices">Spices</SelectItem>
+                  <SelectItem value="batter">Batter</SelectItem>
                   <SelectItem value="fish">Fish</SelectItem>
-                  <SelectItem value="butter">Butter</SelectItem>
-                  <SelectItem value="spice">Spice</SelectItem>
+                  <SelectItem value="meat">Meat</SelectItem>
+                  <SelectItem value="snacks">Snacks</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -374,47 +519,18 @@ export default function EditDishPage() {
             </Label>
             <Select
               value={dishData.subcategory}
-              onValueChange={(value) =>
-                setDishData((prev) => ({ ...prev, subcategory: value }))
-              }
+              onValueChange={handleSubcategoryChange}
             >
               <SelectTrigger className="w-full bg-slate-100 rounded-md">
                 <SelectValue placeholder="Select a subcategory" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Fruits</SelectLabel>
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem>
-
-                  <SelectLabel>Vegetables</SelectLabel>
-                  <SelectItem value="carrot">Carrot</SelectItem>
-                  <SelectItem value="broccoli">Broccoli</SelectItem>
-                  <SelectItem value="spinach">Spinach</SelectItem>
-                  <SelectItem value="potato">Potato</SelectItem>
-
-                  <SelectLabel>Cooked Food</SelectLabel>
-                  <SelectItem value="pizza">Pizza</SelectItem>
-                  <SelectItem value="pasta">Pasta</SelectItem>
-                  <SelectItem value="burger">Burger</SelectItem>
-                  <SelectItem value="sushi">Sushi</SelectItem>
-
-                  <SelectLabel>Fish</SelectLabel>
-                  <SelectItem value="salmon">Salmon</SelectItem>
-                  <SelectItem value="tuna">Tuna</SelectItem>
-                  <SelectItem value="cod">Cod</SelectItem>
-
-                  <SelectLabel>Butter</SelectLabel>
-                  <SelectItem value="butter_cream">Butter Cream</SelectItem>
-                  <SelectItem value="butter_sauce">Butter Sauce</SelectItem>
-
-                  <SelectLabel>Spice</SelectLabel>
-                  <SelectItem value="turmeric">Turmeric</SelectItem>
-                  <SelectItem value="cumin">Cumin</SelectItem>
-                  <SelectItem value="paprika">Paprika</SelectItem>
+                  {categorySubcategories[dishData.category]?.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -482,16 +598,16 @@ export default function EditDishPage() {
             placeholder="i.e Juicy grilled chicken breast seasoned with herbs and spices"
             value={dishData.description}
             onChange={handleChange}
-            className="w-full h-32 resize-none px-4 py-2 border rounded-md my-2 outline-orange-400 bg-slate-100"
+            className="w-full h-32 resize-none px-4 py-2 border rounded-md outline-orange-400 bg-slate-100"
           />
         </div>
 
-        <div className="flex items-center justify-between mt-2 flex-wrap space-y-2">
+        <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
           {["Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map((level) => (
             <div
               key={level}
               onClick={() => handleSpicinessChange(level)}
-              className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md mx-2 text-xs font-semibold transition-all ${
+              className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md text-xs font-semibold transition-all ${
                 dishData.spiciness.includes(level)
                   ? "bg-orange-500 text-white border-orange-500"
                   : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
@@ -502,23 +618,24 @@ export default function EditDishPage() {
           ))}
         </div>
 
-        <section>
-          <h2 className="text-xl font-semibold text-orange-500 mb-2">
-            Toppings
-          </h2>
-          <button
-            type="button"
-            onClick={() => addOptionGroup("toppings")}
-            className="mb-4 flex items-center gap-2"
-          >
-            <PlusCircle size={20} /> Add Topping
-          </button>
+        <section className="space-y-6 mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-orange-500">Toppings</h2>
+            <button
+              type="button"
+              onClick={() => addOptionGroup("toppings")}
+              className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+            >
+              <PlusCircle size={20} /> Add Topping
+            </button>
+          </div>
+
           {dishData.toppings.map((group, groupIndex) => (
             <div
               key={groupIndex}
-              className="p-4 rounded-lg mb-4 shadow-sm space-y-2"
+              className="p-6 rounded-lg mb-6 bg-white shadow-sm space-y-4 border border-gray-100"
             >
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center gap-4">
                 <input
                   type="text"
                   placeholder="Topping Group Name"
@@ -531,50 +648,65 @@ export default function EditDishPage() {
                       e.target.value
                     )
                   }
-                  className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
+                  className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
                 />
                 <button
                   type="button"
                   onClick={() => deleteOptionGroup("toppings", groupIndex)}
-                  className="text-red-500"
+                  className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
                 >
-                  <Trash2 />
+                  <Trash2 size={18} />
                 </button>
               </div>
-              {group.options.map((option, optionIndex) => (
-                <div key={optionIndex} className="flex gap-2 items-center">
-                  <input
-                    type="text"
-                    placeholder="Label"
-                    value={option.label}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        "toppings",
-                        groupIndex,
-                        "label",
-                        e.target.value,
-                        optionIndex
-                      )
-                    }
-                    className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Price"
-                    value={option.price}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        "toppings",
-                        groupIndex,
-                        "price",
-                        e.target.value,
-                        optionIndex
-                      )
-                    }
-                    className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
-                  />
-                </div>
-              ))}
+
+              <div className="space-y-3">
+                {group.options.map((option, optionIndex) => (
+                  <div key={optionIndex} className="flex gap-4 items-center">
+                    <input
+                      type="text"
+                      placeholder="Label"
+                      value={option.label}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "toppings",
+                          groupIndex,
+                          "label",
+                          e.target.value,
+                          optionIndex
+                        )
+                      }
+                      className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Price"
+                      value={option.price}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "toppings",
+                          groupIndex,
+                          "price",
+                          e.target.value,
+                          optionIndex
+                        )
+                      }
+                      className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                    />
+                    {group.options.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          deleteOption("toppings", groupIndex, optionIndex)
+                        }
+                        className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
+                      >
+                        <X size={18} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
               <button
                 type="button"
                 onClick={() => {
@@ -582,28 +714,32 @@ export default function EditDishPage() {
                   updated[groupIndex].options.push({ label: "", price: "" });
                   setDishData((prev) => ({ ...prev, toppings: updated }));
                 }}
-                className="text-sm text-orange-500 mt-2"
+                className="text-sm text-orange-500 hover:text-orange-600 transition-colors"
               >
                 + Add Option
               </button>
             </div>
           ))}
         </section>
-        <section>
-          <h2 className="text-xl font-semibold text-orange-500 mb-2">Extras</h2>
-          <button
-            type="button"
-            onClick={() => addOptionGroup("extras")}
-            className="mb-4 flex items-center gap-2"
-          >
-            <PlusCircle size={20} /> Add Extra
-          </button>
+
+        <section className="space-y-6 mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-orange-500">Extras</h2>
+            <button
+              type="button"
+              onClick={() => addOptionGroup("extras")}
+              className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+            >
+              <PlusCircle size={20} /> Add Extra
+            </button>
+          </div>
+
           {dishData.extras.map((group, groupIndex) => (
             <div
               key={groupIndex}
-              className="p-4 rounded-lg mb-4 shadow-sm space-y-2"
+              className="p-6 rounded-lg mb-6 bg-white shadow-sm space-y-4 border border-gray-100"
             >
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center gap-4">
                 <input
                   type="text"
                   placeholder="Extra Group Name"
@@ -616,50 +752,65 @@ export default function EditDishPage() {
                       e.target.value
                     )
                   }
-                  className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
+                  className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
                 />
                 <button
                   type="button"
                   onClick={() => deleteOptionGroup("extras", groupIndex)}
-                  className="text-red-500"
+                  className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
                 >
-                  <Trash2 />
+                  <Trash2 size={18} />
                 </button>
               </div>
-              {group.options.map((option, optionIndex) => (
-                <div key={optionIndex} className="flex gap-2 items-center">
-                  <input
-                    type="text"
-                    placeholder="Label"
-                    value={option.label}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        "extras",
-                        groupIndex,
-                        "label",
-                        e.target.value,
-                        optionIndex
-                      )
-                    }
-                    className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Price"
-                    value={option.price}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        "extras",
-                        groupIndex,
-                        "price",
-                        e.target.value,
-                        optionIndex
-                      )
-                    }
-                    className="w-full md:px-4 md:py-2 px-2 py-1 border rounded-full my-2 outline-orange-400"
-                  />
-                </div>
-              ))}
+
+              <div className="space-y-3">
+                {group.options.map((option, optionIndex) => (
+                  <div key={optionIndex} className="flex gap-4 items-center">
+                    <input
+                      type="text"
+                      placeholder="Label"
+                      value={option.label}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "extras",
+                          groupIndex,
+                          "label",
+                          e.target.value,
+                          optionIndex
+                        )
+                      }
+                      className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Price"
+                      value={option.price}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "extras",
+                          groupIndex,
+                          "price",
+                          e.target.value,
+                          optionIndex
+                        )
+                      }
+                      className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                    />
+                    {group.options.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          deleteOption("extras", groupIndex, optionIndex)
+                        }
+                        className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
+                      >
+                        <X size={18} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
               <button
                 type="button"
                 onClick={() => {
@@ -667,19 +818,25 @@ export default function EditDishPage() {
                   updated[groupIndex].options.push({ label: "", price: "" });
                   setDishData((prev) => ({ ...prev, extras: updated }));
                 }}
-                className="text-sm text-orange-500 mt-2"
+                className="text-sm text-orange-500 hover:text-orange-600 transition-colors"
               >
                 + Add Option
               </button>
             </div>
           ))}
         </section>
-
         <button
-          className="bg-orange-600 text-white py-3 rounded-full shadow-orange-300 shadow-md hover:bg-orange-700 transition-all w-full mt-8 disabled:bg-orange-400 disabled:cursor-not-allowed"
-          disabled={submitting}
+          type="submit"
+          className="bg-orange-600 text-white py-3 rounded-full shadow-orange-300 shadow-md hover:bg-orange-700 transition-all w-full mt-8 disabled:bg-orange-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          disabled={submitting || !isValid()}
         >
-          {submitting ? <Spinner/> : "Save Dish"}
+          {submitting ? (
+            <>
+              <Spinner size={20} />
+            </>
+          ) : (
+            "Save Dish"
+          )}
         </button>
       </form>
     </div>

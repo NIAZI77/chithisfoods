@@ -3,11 +3,21 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
-import { Edit, Plus, Trash2 } from "lucide-react";
+import { Edit, Plus, Trash2, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ManageInventory() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,6 +26,8 @@ export default function ManageInventory() {
   const [loading, setLoading] = useState(true);
   const [changingAvailability, setchangingAvailability] = useState(false);
   const [loadingMenu, setLoadingMenu] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [dishToDelete, setDishToDelete] = useState(null);
   const router = useRouter();
 
   const filteredDishes = dishes.filter((dish) => {
@@ -80,9 +92,14 @@ export default function ManageInventory() {
   };
 
   const handleDelete = async (id) => {
+    setDishToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${id}`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dishToDelete}`,
         {
           method: "DELETE",
           headers: {
@@ -96,11 +113,13 @@ export default function ManageInventory() {
       toast.success("Dish deleted.");
     } catch {
       toast.error("Delete failed. Please try again.");
+    } finally {
+      setDeleteDialogOpen(false);
+      setDishToDelete(null);
     }
   };
 
   const handleEdit = (id) => {
-    toast.info("Opening dish editor...");
     router.push(`/vendor/edit-dish/${id}`);
   };
 
@@ -123,6 +142,34 @@ export default function ManageInventory() {
   if (loading) return <Loading />;
   return (
     <div className="p-2 py-6 md:p-8 !pl-16 md:!pl-24">
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="mx-auto sm:mx-0 mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <AlertTriangle className="h-6 w-6 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-xl font-semibold text-gray-900">
+              Delete Dish
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-gray-600 mt-2">
+              This will permanently remove the dish from your menu. This action cannot be reversed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <AlertDialogCancel className="mt-0 border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-800">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-500 hover:bg-red-600 text-white shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Dish
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="flex justify-between items-center mb-6">
         <h1 className="md:text-2xl text-lg font-semibold text-orange-600">
           Manage Inventory

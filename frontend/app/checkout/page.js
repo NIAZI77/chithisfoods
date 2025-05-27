@@ -15,17 +15,15 @@ import { useRouter } from "next/navigation";
 import { FaShoppingBag } from "react-icons/fa";
 import { getCookie } from "cookies-next";
 import Spinner from "../components/Spinner";
+import Loading from "../loading";
 
 const TAX_PERCENTAGE = 10;
-const DELIVERY_FEE = 2.50;
-
 const initialFormData = {
   name: "",
   phone: "",
   email: "",
   zip: "",
   address: "",
-  promo: "",
   note: "",
   user: "",
   deliveryType: "delivery",
@@ -36,7 +34,9 @@ const Page = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [submitting, setSubmitting] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const [deliveryFees, setDeliveryFees] = useState([]);
   const [tax, setTax] = useState(0);
+  const [deliveryFeeLoading, setDeliveryFeeLoading] = useState(false);
 
   const validateCart = () => {
     const storedCartItems = localStorage.getItem("cart");
@@ -48,7 +48,42 @@ const Page = () => {
     setCartItems(JSON.parse(storedCartItems));
     return true;
   };
-
+  const getAllVendorsDeliveryFees = async (cartItems) => {
+    setDeliveryFeeLoading(true);
+    const vendorIds = [
+      ...new Set(cartItems.map((vendorGroup) => vendorGroup.vendorId)),
+    ];
+    const vendorDeliveryFees = await Promise.all(
+      vendorIds.map(async (vendorId) => {
+        try {
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}?fields[0]=vendorDeliveryFee&fields[1]=storeName`,
+            {
+              headers: {
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (!res.ok) throw new Error("Failed to fetch vendor info");
+          const data = await res.json();
+          return {
+            vendorId,
+            storeName: data.data?.storeName || "Unknown Vendor",
+            vendorDeliveryFee: Number(data.data?.vendorDeliveryFee) || 0,
+          };
+        } catch {
+          return {
+            vendorId,
+            storeName: "Unknown Vendor",
+            vendorDeliveryFee: 0,
+          };
+        }
+      })
+    );
+    setDeliveryFees(vendorDeliveryFees);
+    setDeliveryFeeLoading(false);
+  };
   useEffect(() => {
     const checkAuth = async () => {
       const user = getCookie("user");
@@ -63,6 +98,14 @@ const Page = () => {
     };
     checkAuth();
   }, [router]);
+
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      getAllVendorsDeliveryFees(cartItems);
+    } else {
+      setDeliveryFees([]);
+    }
+  }, [cartItems]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -99,8 +142,13 @@ const Page = () => {
 
   const subtotal = Number(calculateSubtotal().toFixed(2));
   const calculatedTax = Number(((subtotal * TAX_PERCENTAGE) / 100).toFixed(2));
-  const total = Number((subtotal + calculatedTax + DELIVERY_FEE).toFixed(2));
-
+  const totalDeliveryFee = deliveryFees.reduce(
+    (a, b) => a + (b.vendorDeliveryFee || 0),
+    0
+  );
+  const total = Number(
+    (subtotal + calculatedTax + totalDeliveryFee).toFixed(2)
+  );
   useEffect(() => {
     setTax(calculatedTax);
   }, [calculatedTax]);
@@ -173,7 +221,7 @@ const Page = () => {
         ((orderSubtotal * TAX_PERCENTAGE) / 100).toFixed(2)
       );
       const orderTotal = Number(
-        (orderSubtotal + orderTax + DELIVERY_FEE).toFixed(2)
+        (orderSubtotal + orderTax + totalDeliveryFee).toFixed(2)
       );
 
       const vendorProportions = cartItems.map((vendor, index) => {
@@ -199,14 +247,16 @@ const Page = () => {
       });
 
       const orderPromises = cartItems.map((vendor, index) => {
-        const { subtotal: vendorSubtotal, proportion } =
-          vendorProportions[index];
+        const { subtotal: vendorSubtotal } = vendorProportions[index];
         const vendorTax = Number(
           ((vendorSubtotal * TAX_PERCENTAGE) / 100).toFixed(2)
         );
-        const vendorDeliveryFee = Number(
-          (DELIVERY_FEE * proportion).toFixed(2)
+        const vendorFeeObj = deliveryFees.find(
+          (fee) => fee.vendorId === vendor.vendorId
         );
+        const vendorDeliveryFee = vendorFeeObj
+          ? vendorFeeObj.vendorDeliveryFee
+          : 0;
         const vendorTotal = Number(
           (vendorSubtotal + vendorTax + vendorDeliveryFee).toFixed(2)
         );
@@ -226,9 +276,9 @@ const Page = () => {
           totalAmount: vendorTotal,
           paymentStatus: "paid",
           deliveryType: formData.deliveryType,
-          promoCode: formData.promo,
           orderTotal: total,
-          deliveryFee: DELIVERY_FEE,
+          deliveryFee: totalDeliveryFee,
+          vendorDeliveryFee: vendorDeliveryFee,
           orderStatus: "pending",
           ...vendor,
         };
@@ -247,10 +297,11 @@ const Page = () => {
       setSubmitting(false);
     }
   };
+  if (deliveryFeeLoading) return <Loading />;
 
   return (
     <form onSubmit={handleSubmit} className="mx-3">
-      <div className="w-full mx-auto py-10 px-2 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="w-full mx-auto pb-10 px-2 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] col-span-2 mb-6 md:mb-0">
           <h2 className="text-2xl font-black tracking-tight mb-8 text-rose-600 flex items-center gap-2">
             <ShoppingCart className="inline" />
@@ -408,42 +459,35 @@ const Page = () => {
               </span>
               <span>${tax.toFixed(2)}</span>
             </div>
+            <div className="mb-2">
+              {deliveryFees.map((fee) => (
+                <div
+                  key={fee.vendorId}
+                  className="flex justify-between text-sm text-gray-700"
+                >
+                  <span className="flex items-center gap-2">
+                    <Truck className="w-4 h-4" />
+                    {fee.storeName}
+                  </span>
+                  <span>${fee.vendorDeliveryFee.toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
             <div className="flex justify-between text-base font-bold mb-2">
               <span className="flex items-center gap-2">
                 <Truck className="w-4 h-4" />
                 Delivery
               </span>
-              <span>${DELIVERY_FEE.toFixed(2)}</span>
+              <span>${totalDeliveryFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-lg font-black mt-2">
               <span className="flex items-center gap-2">
                 <LuSquareSigma className="w-5 h-5" />
                 Total
               </span>
-              <span className="text-rose-600">${total.toFixed(2)}</span>
-            </div>
-          </div>
-          <div className="mb-8">
-            <label className="font-semibold text-sm text-slate-500 pl-3 flex items-center gap-2">
-              <BadgePercent className="w-4 h-4" />
-              Promo Code
-            </label>
-            <div className="relative flex items-center justify-center">
-              <input
-                type="text"
-                name="promo"
-                value={formData.promo}
-                onChange={handleChange}
-                placeholder="Promo Code"
-                className="bg-gray-100 pl-10 pr-4 py-2 rounded-l-full border-none outline-none w-full sm:w-64"
-              />
-              <BadgePercent className="w-5 h-5 text-gray-500 absolute left-3" />
-              <button
-                type="submit"
-                className="bg-red-600 text-white px-5 py-2 rounded-r-full border-none outline-none hover:bg-red-700 transition duration-200"
-              >
-                Apply
-              </button>
+              <span className="text-rose-600">
+                ${(subtotal + tax + totalDeliveryFee).toFixed(2)}
+              </span>
             </div>
           </div>
           <button
@@ -451,9 +495,8 @@ const Page = () => {
             disabled={submitting}
             className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
           >
-            
             {!submitting ? <Lock className="w-5 h-5" /> : ""}
-            {submitting ? <Spinner/> : "PLACE ORDER"}
+            {submitting ? <Spinner /> : "PLACE ORDER"}
           </button>
           <div className="text-xs text-center text-gray-500 mt-4">
             By placing your order you agree to the{" "}

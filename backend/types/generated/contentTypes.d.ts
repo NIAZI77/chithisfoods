@@ -446,7 +446,6 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     orderTotal: Schema.Attribute.Decimal & Schema.Attribute.Required;
     paymentStatus: Schema.Attribute.Enumeration<['paid', 'unpaid']>;
     phone: Schema.Attribute.BigInteger & Schema.Attribute.Required;
-    promoCode: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     subtotal: Schema.Attribute.Decimal &
       Schema.Attribute.Required &
@@ -459,6 +458,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     user: Schema.Attribute.Email & Schema.Attribute.Required;
     vendorAvatar: Schema.Attribute.String & Schema.Attribute.Required;
+    vendorDeliveryFee: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
     vendorId: Schema.Attribute.String & Schema.Attribute.Required;
     vendorName: Schema.Attribute.String & Schema.Attribute.Required;
     vendorUsername: Schema.Attribute.String & Schema.Attribute.Required;

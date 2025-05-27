@@ -290,7 +290,7 @@ export default function CartPage() {
                               className="rounded-lg object-cover"
                             />
                             <div>
-                              <h3 className="font-semibold">{dish.name}</h3>
+                              <h3 className="font-semibold capitalize truncate">{dish.name}</h3>
                               {dish.selectedSpiciness && (
                                 <div className="flex items-center gap-1 text-sm text-orange-400 font-bold">
                                   <Flame className="w-4 h-4" />
@@ -309,7 +309,10 @@ export default function CartPage() {
                                       key={idx}
                                       className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-sm"
                                     >
-                                      <PiBowlFood size={14} /> {topping.name}
+                                      {/* <PiBowlFood size={14} /> */}
+                                      <Image src={"/toppings.png"} alt="Extra" width={14} height={14} className="w-3 h-3" />
+
+                                       {topping.name}
                                     </span>
                                   ))}
                                 </div>
@@ -323,7 +326,9 @@ export default function CartPage() {
                                       key={idx}
                                       className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-sm"
                                     >
-                                      <Salad size={14} /> {extra.name}
+                                      {/* <Salad size={14} /> */}
+                                      <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3" />
+                                       {extra.name}
                                     </span>
                                   ))}
                                 </div>

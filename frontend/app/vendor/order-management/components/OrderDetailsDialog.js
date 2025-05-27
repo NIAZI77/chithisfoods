@@ -24,6 +24,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import Spinner from "@/app/components/Spinner";
+import { HiOutlineReceiptTax } from "react-icons/hi";
+import { BadgePercent } from "lucide-react";
 
 const ORDER_STATUS = {
   PENDING: "pending",
@@ -61,8 +63,8 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
       newStatus === ORDER_STATUS.IN_PROCESS
         ? "processing"
         : newStatus === ORDER_STATUS.READY
-        ? "ready"
-        : "cancel";
+          ? "ready"
+          : "cancel";
 
     setLoadingStates((prev) => ({ ...prev, [loadingKey]: true }));
 
@@ -251,8 +253,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <PiBowlFood size={14} /> {topping.name} ($
-                                  {topping.price})
+                                  <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3" /> {topping.name} (${topping.price})
                                 </span>
                               ))}
                             </div>
@@ -266,8 +267,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <Salad size={14} /> {extra.name} ($
-                                  {extra.price})
+                                  <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3" /> {extra.name} (${extra.price})
                                 </span>
                               ))}
                             </div>
@@ -312,7 +312,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                   Delivery Fee
                 </span>
                 <span className="text-xs font-semibold text-orange-600">
-                  ${order.deliveryFee.toFixed(2)}
+                  ${order.vendorDeliveryFee.toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -321,7 +321,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                   Total
                 </span>
                 <span className="text-xs font-semibold text-orange-600">
-                  ${(order.deliveryFee + order.subtotal).toFixed(2)}
+                  ${(order.subtotal + order.vendorDeliveryFee).toFixed(2)}
                 </span>
               </div>
             </div>

@@ -25,6 +25,23 @@ const TOAST_MESSAGES = {
   NO_ORDERS: "No orders found for your store.",
 };
 
+// Returns an object with counts for each order status
+function getAllStatusCounts(orders) {
+  const counts = {
+    pending: 0,
+    "in-process": 0,
+    ready: 0,
+    delivered: 0,
+    cancelled: 0,
+  };
+  for (const order of orders) {
+    if (order.orderStatus && counts.hasOwnProperty(order.orderStatus)) {
+      counts[order.orderStatus]++;
+    }
+  }
+  return counts;
+}
+
 export default function VendorOrderManagement() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,6 +54,27 @@ export default function VendorOrderManagement() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [totalStatusCounts, setTotalStatusCounts] = useState({
+    pending: 0,
+    "in-process": 0,
+    ready: 0,
+    delivered: 0,
+    cancelled: 0,
+  });
+  const [statusCountsAll, setStatusCountsAll] = useState({
+    pending: 0,
+    "in-process": 0,
+    ready: 0,
+    delivered: 0,
+    cancelled: 0,
+  });
+  const [statusCountsWeek, setStatusCountsWeek] = useState({
+    pending: 0,
+    "in-process": 0,
+    ready: 0,
+    delivered: 0,
+    cancelled: 0,
+  });
+  const [statusCountsMonth, setStatusCountsMonth] = useState({
     pending: 0,
     "in-process": 0,
     ready: 0,
@@ -189,6 +227,24 @@ export default function VendorOrderManagement() {
     fetchOrders();
   }, [page, statusFilter, timeFilter, vendorId]);
 
+  const getStatusCounts = (orders) => {
+    const counts = {
+      pending: 0,
+      "in-process": 0,
+      ready: 0,
+      delivered: 0,
+      cancelled: 0,
+    };
+    orders.forEach((order) => {
+      if (counts.hasOwnProperty(order.orderStatus)) {
+        counts[order.orderStatus]++;
+      }
+    });
+    return counts;
+  };
+
+  const filteredStatusCounts = getStatusCounts(orders);
+
   if (loading) return <Loading />;
 
   return (
@@ -197,7 +253,7 @@ export default function VendorOrderManagement() {
         <h1 className="text-xl md:text-2xl font-semibold">Order Management</h1>
       </div>
 
-      <StatusSummary totalStatusCounts={totalStatusCounts} />
+      <StatusSummary totalStatusCounts={filteredStatusCounts} />
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 className="text-lg md:text-xl font-semibold">Order History</h2>
@@ -251,7 +307,7 @@ export default function VendorOrderManagement() {
         )}
       </div>
 
-      {totalPages > 1 && orders.length >= pageSize && (
+      {totalPages > 1 && (
         <Pagination
           currentPage={page}
           totalPages={totalPages}
