@@ -88,7 +88,7 @@ const Page = () => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[zipcode][$eq]=${zipcode}&filters[category][$eq]=${slug}&fields[0]=subcategory&pagination[limit]=1000`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[zipcode][$eq]=${zipcode}&filters[category][$eq]=${slug}&fields[0]=subcategory&pagination[limit]=9999999999`,
         {
           headers: {
             "Content-Type": "application/json",

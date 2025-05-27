@@ -46,7 +46,7 @@ export default function ManageInventory() {
     setLoadingMenu(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[email][$eq]=${email}&sort=createdAt:desc&populate=*&pagination[limit]=999`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[email][$eq]=${email}&sort=createdAt:desc&populate=*&pagination[limit]=9999999999`,
         {
           headers: {
             "Content-Type": "application/json",

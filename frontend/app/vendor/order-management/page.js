@@ -129,6 +129,86 @@ export default function VendorOrderManagement() {
     checkAuthAndVendorStatus();
   }, [router]);
 
+  const fetchStatusCounts = async () => {
+    if (!vendorId) return;
+
+    try {
+      const now = new Date();
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+      // Fetch all time counts
+      const allTimeRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      // Fetch week counts
+      const weekRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      // Fetch month counts
+      const monthRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${monthAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (allTimeRes.ok && weekRes.ok && monthRes.ok) {
+        const allTimeData = await allTimeRes.json();
+        const weekData = await weekRes.json();
+        const monthData = await monthRes.json();
+
+        const processCounts = (data) => {
+          const counts = {
+            pending: 0,
+            "in-process": 0,
+            ready: 0,
+            delivered: 0,
+            cancelled: 0,
+          };
+          data.data.forEach((order) => {
+            if (counts.hasOwnProperty(order.orderStatus)) {
+              counts[order.orderStatus]++;
+            }
+          });
+          return counts;
+        };
+
+        setStatusCountsAll(processCounts(allTimeData));
+        setStatusCountsWeek(processCounts(weekData));
+        setStatusCountsMonth(processCounts(monthData));
+      }
+    } catch (error) {
+      toast.error(TOAST_MESSAGES.UNEXPECTED_ERROR);
+    }
+  };
+
+  useEffect(() => {
+    if (vendorId) {
+      fetchStatusCounts();
+    }
+  }, [vendorId]);
+
   const fetchOrders = async () => {
     if (!vendorId) return;
 
@@ -145,16 +225,12 @@ export default function VendorOrderManagement() {
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         timeFilterQuery = `&filters[createdAt][$gte]=${weekAgo.toISOString()}`;
       } else if (timeFilter === "month") {
-        const monthAgo = new Date(
-          now.getFullYear(),
-          now.getMonth() - 1,
-          now.getDate()
-        );
+        const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
         timeFilterQuery = `&filters[createdAt][$gte]=${monthAgo.toISOString()}`;
       }
 
       const totalCountsRes = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&pagination[pageSize]=1000`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&pagination[pageSize]=9999999999`,
         {
           method: "GET",
           headers: {
@@ -253,7 +329,15 @@ export default function VendorOrderManagement() {
         <h1 className="text-xl md:text-2xl font-semibold">Order Management</h1>
       </div>
 
-      <StatusSummary totalStatusCounts={filteredStatusCounts} />
+      <StatusSummary 
+        totalStatusCounts={
+          timeFilter === "week" 
+            ? statusCountsWeek 
+            : timeFilter === "month" 
+              ? statusCountsMonth 
+              : statusCountsAll
+        } 
+      />
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 className="text-lg md:text-xl font-semibold">Order History</h2>

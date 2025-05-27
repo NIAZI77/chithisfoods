@@ -5,34 +5,39 @@ import Image from "next/image";
 export default function TopCategories() {
   const topCategories = [
     {
-      name: "Cooked Food",
-      imageUrl: "/a.png",
-      linkUrl: "/category/cooked-food",
+      name: "Cooked Foods",
+      imageUrl: "/cooked-foods.png",
+      linkUrl: "/category/cooked-foods",
     },
     {
-      name: "Fruit",
-      imageUrl: "/a.png",
-      linkUrl: "/category/fruit",
+      name: "Groceries",
+      imageUrl: "/Groceries.png",
+      linkUrl: "/category/groceries",
     },
     {
-      name: "Vegetable",
-      imageUrl: "/a.png",
-      linkUrl: "/category/vegetable",
+      name: "Spices",
+      imageUrl: "/Spices.png",
+      linkUrl: "/category/spices",
+    },
+    {
+      name: "Batter",
+      imageUrl: "/Batter.png",
+      linkUrl: "/category/batter",
     },
     {
       name: "Fish",
-      imageUrl: "/a.png",
+      imageUrl: "/Fish.png",
       linkUrl: "/category/fish",
     },
     {
-      name: "Spice",
-      imageUrl: "/a.png",
-      linkUrl: "/category/spice",
+      name: "Meat",
+      imageUrl: "/Meat.png",
+      linkUrl: "/category/meat",
     },
     {
-      name: "Butter",
-      imageUrl: "/a.png",
-      linkUrl: "/category/butter",
+      name: "Snacks",
+      imageUrl: "/Snacks.png",
+      linkUrl: "/category/snacks",
     },
   ];
 
@@ -45,16 +50,16 @@ export default function TopCategories() {
             href={category.linkUrl}
             key={index}
             className="flex flex-col items-center justify-center text-center
-            w-32 h-32 bg-gray-50 rounded-lg p-5 shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out"
+            w-28 h-28 bg-gray-50 rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out"
           >
             <Image
               src={category.imageUrl}
               alt={category.name}
-              width={64}
-              height={64}
-              className=" mx-auto object-cover"
+              width={56}
+              height={56}
+              className="mx-auto object-cover"
             />
-            <p className="mt-2 text-xs">{category.name}</p>
+            <p className="mt-1.5 text-[11px]">{category.name}</p>
           </Link>
         ))}
       </div>

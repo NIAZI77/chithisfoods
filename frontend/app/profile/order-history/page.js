@@ -34,10 +34,116 @@ export default function OrderHistoryPage() {
   const [pageSize] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
+  const [statusCountsAll, setStatusCountsAll] = useState({
+    pending: 0,
+    "in-process": 0,
+    ready: 0,
+    delivered: 0,
+    cancelled: 0,
+  });
+  const [statusCountsWeek, setStatusCountsWeek] = useState({
+    pending: 0,
+    "in-process": 0,
+    ready: 0,
+    delivered: 0,
+    cancelled: 0,
+  });
+  const [statusCountsMonth, setStatusCountsMonth] = useState({
+    pending: 0,
+    "in-process": 0,
+    ready: 0,
+    delivered: 0,
+    cancelled: 0,
+  });
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const fetchStatusCounts = async () => {
+    try {
+      const user = getCookie("user");
+      if (!user) {
+        toast.error("Please sign in to view orders");
+        return;
+      }
+
+      const now = new Date();
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+      // Fetch all time counts
+      const allTimeRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      // Fetch week counts
+      const weekRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      // Fetch month counts
+      const monthRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}&filters[createdAt][$gte]=${monthAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (allTimeRes.ok && weekRes.ok && monthRes.ok) {
+        const allTimeData = await allTimeRes.json();
+        const weekData = await weekRes.json();
+        const monthData = await monthRes.json();
+
+        const processCounts = (data) => {
+          const counts = {
+            pending: 0,
+            "in-process": 0,
+            ready: 0,
+            delivered: 0,
+            cancelled: 0,
+          };
+          data.data.forEach((order) => {
+            if (counts.hasOwnProperty(order.orderStatus)) {
+              counts[order.orderStatus]++;
+            }
+          });
+          return counts;
+        };
+
+        setStatusCountsAll(processCounts(allTimeData));
+        setStatusCountsWeek(processCounts(weekData));
+        setStatusCountsMonth(processCounts(monthData));
+      }
+    } catch (error) {
+      console.error("Error fetching status counts:", error);
+      toast.error("Failed to load order status counts");
+    }
+  };
+
+  useEffect(() => {
+    if (mounted) {
+      fetchStatusCounts();
+    }
+  }, [mounted]);
 
   const getAllOrders = async () => {
     setLoading(true);
@@ -230,7 +336,11 @@ export default function OrderHistoryPage() {
             <div>
               <p className="text-xs md:text-sm text-gray-500">Pending</p>
               <p className="text-xl md:text-2xl font-bold">
-                {countByStatus("pending")}
+                {timeFilter === "week" 
+                  ? statusCountsWeek.pending 
+                  : timeFilter === "month" 
+                    ? statusCountsMonth.pending 
+                    : statusCountsAll.pending}
               </p>
             </div>
             <Clock className="w-6 h-6 md:w-8 md:h-8 text-yellow-500" />
@@ -241,7 +351,11 @@ export default function OrderHistoryPage() {
             <div>
               <p className="text-xs md:text-sm text-gray-500">In Process</p>
               <p className="text-xl md:text-2xl font-bold">
-                {countByStatus("in-process")}
+                {timeFilter === "week" 
+                  ? statusCountsWeek["in-process"] 
+                  : timeFilter === "month" 
+                    ? statusCountsMonth["in-process"] 
+                    : statusCountsAll["in-process"]}
               </p>
             </div>
             <Package className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
@@ -252,18 +366,11 @@ export default function OrderHistoryPage() {
             <div>
               <p className="text-xs md:text-sm text-gray-500">Ready</p>
               <p className="text-xl md:text-2xl font-bold">
-                {countByStatus("ready")}
-              </p>
-            </div>
-            <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-green-500" />
-          </div>
-        </div>
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm text-gray-500">Delivered</p>
-              <p className="text-xl md:text-2xl font-bold">
-                {countByStatus("delivered")}
+                {timeFilter === "week" 
+                  ? statusCountsWeek.ready 
+                  : timeFilter === "month" 
+                    ? statusCountsMonth.ready 
+                    : statusCountsAll.ready}
               </p>
             </div>
             <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8 text-green-500" />
@@ -272,12 +379,31 @@ export default function OrderHistoryPage() {
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs md:text-sm text-gray-500">Cancelled</p>
+              <p className="text-xs md:text-sm text-gray-500">Delivered</p>
               <p className="text-xl md:text-2xl font-bold">
-                {countByStatus("cancelled")}
+                {timeFilter === "week" 
+                  ? statusCountsWeek.delivered 
+                  : timeFilter === "month" 
+                    ? statusCountsMonth.delivered 
+                    : statusCountsAll.delivered}
               </p>
             </div>
-            <XCircle className="w-6 h-6 md:w-8 md:h-8 text-red-500" />
+            <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-emerald-500" />
+          </div>
+        </div>
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs md:text-sm text-gray-500">Cancelled</p>
+              <p className="text-xl md:text-2xl font-bold">
+                {timeFilter === "week" 
+                  ? statusCountsWeek.cancelled 
+                  : timeFilter === "month" 
+                    ? statusCountsMonth.cancelled 
+                    : statusCountsAll.cancelled}
+              </p>
+            </div>
+            <XCircle className="w-6 h-6 md:w-8 md:h-8 text-rose-500" />
           </div>
         </div>
       </div>

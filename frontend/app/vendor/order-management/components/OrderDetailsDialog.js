@@ -102,7 +102,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent className="max-w-full w-[95vw] md:max-w-[900px] md:w-full p-0 bg-white rounded-2xl shadow-2xl border border-gray-100 max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-4 md:px-8 pt-6 md:pt-8 pb-3 md:pb-4 border-b border-gray-100">
+        <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <AlertDialogTitle className="text-lg md:text-2xl font-semibold">
             Order Details
           </AlertDialogTitle>
@@ -115,7 +115,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
             ×
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto flex flex-col md:flex-row gap-6 md:gap-8 px-4 md:px-8 py-6 md:py-8">
+        <div className="flex-1 overflow-y-auto flex flex-col md:flex-row p-4 gap-2">
           <div className="flex-1 min-w-0 max-w-full md:min-w-[300px] md:max-w-[400px]">
             <h3 className="text-sm md:text-base font-semibold mb-4 md:mb-6 text-gray-700 flex items-center gap-2">
               <ShoppingBag className="w-4 h-4" />
@@ -235,16 +235,9 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                     <div className="text-xs text-gray-500 mt-0.5">
                       Quantity: {dish.quantity}
                     </div>
-                    {dish.selectedSpiciness && (
-                      <div className="mt-1.5 flex items-center gap-1.5">
-                        <Flame className="w-3 h-3 text-orange-500" />
-                        <span className="text-xs text-gray-700">
-                          {dish.selectedSpiciness}
-                        </span>
-                      </div>
-                    )}
+                   
                     {(dish.toppings?.length > 0 || dish.extras?.length > 0) && (
-                      <div className="space-x-2 space-y-1 pt-2 border-t border-gray-100 flex">
+                      <div className="space-x-2 space-y-1 pt-2 border-t border-gray-100 flex items-start flex-col">
                         {dish.toppings?.length > 0 && (
                           <div>
                             <div className="flex flex-wrap gap-1">
@@ -253,7 +246,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3" /> {topping.name} (${topping.price})
+                                  <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3 scale-175" /> {topping.name} (${topping.price})
                                 </span>
                               ))}
                             </div>
@@ -267,7 +260,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3" /> {extra.name} (${extra.price})
+                                  <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3 scale-125" /> {extra.name} (${extra.price})
                                 </span>
                               ))}
                             </div>
@@ -280,8 +273,14 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                     <div className="text-xs font-semibold text-orange-600">
                       ${parseFloat(dish.total).toFixed(2)}
                     </div>
-                    <div className="text-xs text-gray-500 mt-0.5">
-                      {new Date(order.createdAt).toLocaleDateString()}
+                    <div className="text-xs text-gray-500 mt-0.5"> {dish.selectedSpiciness && (
+                      <div className="mt-1.5 flex items-center gap-1.5">
+                        <Flame className="w-3 h-3 text-orange-500" />
+                        <span className="text-xs text-gray-700">
+                          {dish.selectedSpiciness}
+                        </span>
+                      </div>
+                    )}
                     </div>
                   </div>
                 </div>
@@ -327,7 +326,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
             </div>
           </div>
         </div>
-        <div className="flex flex-col md:flex-row justify-end gap-3 md:gap-4 px-4 md:px-8 pb-6 md:pb-8 pt-3 md:pt-4 border-t border-gray-100">
+        <div className="flex flex-col md:flex-row justify-end p-3 gap-4 border-t border-gray-100">
           <AlertDialogCancel className="px-6 py-1.5 text-sm border-orange-500 text-orange-500 hover:text-orange-600 rounded-md transition-colors hover:border-orange-600 font-semibold">
             Close
           </AlertDialogCancel>

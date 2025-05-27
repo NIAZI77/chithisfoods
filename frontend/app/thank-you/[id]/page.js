@@ -292,7 +292,7 @@ export default function ThankYouPage() {
                                 key={idx}
                                 className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-sm"
                               >
-                                <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3" /> {topping.name} (${topping.price})
+                                <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3 scale-175" /> {topping.name} (${topping.price})
                               </span>
                             ))}
                           </div>
@@ -306,7 +306,7 @@ export default function ThankYouPage() {
                                 key={idx}
                                 className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-sm"
                               >
-                                <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3" /> {extra.name} (${extra.price})
+                                <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3 scale-125" /> {extra.name} (${extra.price})
                               </span>
                             ))}
                           </div>
