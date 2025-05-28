@@ -290,7 +290,11 @@ export default function CartPage() {
                               className="rounded-lg object-cover w-auto h-12 aspect-video"
                             />
                             <div>
-                              <h3 className="font-semibold capitalize truncate text-sm md:text-base">{dish.name}</h3>
+                              <h3 className="font-semibold capitalize truncate text-sm">{
+                              dish.name.length > 12
+                                ? dish.name.slice(0, 12) + "..."
+                                : dish.name
+                                }</h3>
                               {dish.selectedSpiciness && (
                                 <div className="flex items-center gap-1 text-xs md:text-sm text-orange-400 font-bold">
                                   <Flame className="w-3 h-3 md:w-4 md:h-4" />

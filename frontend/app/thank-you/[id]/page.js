@@ -23,6 +23,110 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { PiBowlFood } from "react-icons/pi";
 
+const OrderStatusBadge = ({ status }) => {
+  return (
+    <p
+      className={`w-24 rounded-full py-1 flex items-center justify-center capitalize
+        ${status === "delivered" && "bg-gray-100 text-gray-700"}
+        ${status === "ready" && "bg-green-100 text-green-700"}
+        ${status === "pending" && "bg-yellow-100 text-yellow-700"}
+        ${status === "in-process" && "bg-indigo-100 text-indigo-700"}
+        ${status === "cancelled" && "bg-red-100 text-red-700"}
+        text-center text-sm font-semibold`}
+    >
+      {status}
+    </p>
+  );
+};
+
+const VendorOrderGroup = ({ order }) => {
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <FaStore className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
+            @{order.vendorUsername}
+          </h3>
+        </div>
+        <OrderStatusBadge status={order.orderStatus} />
+      </div>
+      
+      <div className="space-y-3 sm:space-y-4">
+        {order.dishes.map((dish, index) => (
+          <div
+            key={index}
+            className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-gray-50 rounded-lg"
+          >
+            <div className="relative h-10 w-16 aspect-auto flex-shrink-0">
+              <Image
+                fill
+                src={dish.image?.url}
+                alt={dish.name}
+                className="object-cover rounded-md h-20 w-fit aspect-auto"
+              />
+            </div>
+            <div className="flex-grow space-y-2">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1">
+                <h4 className="font-medium text-gray-800 capitalize text-base sm:text-lg">
+                  {dish.name}
+                </h4>
+                <p className="text-rose-600 font-semibold text-base sm:text-lg">
+                  ${dish.total}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                <span className="bg-gray-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <FaShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" /> Qty: {dish.quantity}
+                </span>
+                {dish.selectedSpiciness && (
+                  <span className="bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Flame className="w-3 h-3 sm:w-4 sm:h-4" /> {dish.selectedSpiciness}
+                  </span>
+                )}
+              </div>
+              {(dish.toppings?.length > 0 || dish.extras?.length > 0) && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {dish.toppings?.map((topping, idx) => (
+                    <span
+                      key={idx}
+                      className="bg-pink-100 px-2 py-0.5 rounded-full text-pink-700 text-xs sm:text-sm flex items-center gap-1"
+                    >
+                      <Image
+                        src={"/toppings.png"}
+                        alt="Topping"
+                        width={12}
+                        height={12}
+                        className="w-3 h-3 sm:w-4 sm:h-4"
+                      />
+                      {topping.name} (${topping.price})
+                    </span>
+                  ))}
+                  {dish.extras?.map((extra, idx) => (
+                    <span
+                      key={idx}
+                      className="bg-emerald-100 px-2 py-0.5 rounded-full text-emerald-700 text-xs sm:text-sm flex items-center gap-1"
+                    >
+                      <Image
+                        src={"/extras.png"}
+                        alt="Extra"
+                        width={12}
+                        height={12}
+                        className="w-3 h-3 sm:w-4 sm:h-4"
+                      />
+                      {extra.name} (${extra.price})
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default function ThankYouPage() {
   const { id: orderId } = useParams();
   const [orderData, setOrderData] = useState(null);
@@ -118,122 +222,120 @@ export default function ThankYouPage() {
         className="h-64 md:h-72 relative mb-10 border-b-5 border-rose-500 -mt-28 bg-cover bg-no-repeat bg-bottom"
         style={{ backgroundImage: "url('/thankyoubg.png')" }}
       >
-        <div className="absolute -bottom-6  left-[calc(50%-24px)] w-12 h-12 bg-rose-600 rounded-full mx-auto flex items-center justify-center text-white text-3xl font-extrabold">
-          ✓
+        <div className="absolute -bottom-6 left-[calc(50%-24px)] w-12 h-12 bg-rose-600 rounded-full mx-auto flex items-center justify-center text-white text-3xl font-extrabold">
+          <PiBowlFood size={24} />
         </div>
       </div>
-      <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-gray-900">
-          {" "}
+      <div className="text-center mb-8 sm:mb-10">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
           Thank You for Your Order!
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="text-gray-600 mt-2 text-sm sm:text-base">
           Your order has been successfully placed.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 md:px-12 px-4">
-        <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mt-8 sm:mt-10 px-4 sm:px-6 md:px-12">
+        <div className="space-y-3 bg-white p-4 sm:p-6 rounded-xl shadow-sm">
           <div className="flex items-center gap-2">
-            <Receipt className="text-gray-500" size={20} />
+            <Receipt className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
             <div>
-              <span className="text-gray-500">Order Number</span>
-              <p className="text-black font-medium">
+              <span className="text-gray-500 text-sm sm:text-base">Order Number</span>
+              <p className="text-black font-medium text-sm sm:text-base">
                 {currentOrder.customerOrderId}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Calendar className="text-gray-500" size={20} />
+            <Calendar className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
             <div>
-              <span className="text-gray-500">Date of Order</span>
-              <p className="text-black font-medium">
+              <span className="text-gray-500 text-sm sm:text-base">Date of Order</span>
+              <p className="text-black font-medium text-sm sm:text-base">
                 {new Date(currentOrder.createdAt).toLocaleDateString()}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <User className="text-gray-500" size={20} />
+            <User className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
             <div>
-              <span className="text-gray-500">Recipient&apos;s Name</span>
-              <p className="text-black font-medium">
+              <span className="text-gray-500 text-sm sm:text-base">Recipient&apos;s Name</span>
+              <p className="text-black font-medium text-sm sm:text-base">
                 {currentOrder.customerName}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <MapPin className="text-gray-500" size={20} />
+            <MapPin className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
             <div>
-              <span className="text-gray-500">Delivery Address</span>
-              <p className="text-black font-medium">{currentOrder.address}</p>
+              <span className="text-gray-500 text-sm sm:text-base">Delivery Address</span>
+              <p className="text-black font-medium text-sm sm:text-base">{currentOrder.address}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Phone className="text-gray-500" size={20} />
+            <Phone className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
             <div>
-              <span className="text-gray-500">Phone Number</span>
-              <p className="text-black font-medium">{currentOrder.phone}</p>
+              <span className="text-gray-500 text-sm sm:text-base">Phone Number</span>
+              <p className="text-black font-medium text-sm sm:text-base">{currentOrder.phone}</p>
             </div>
           </div>
           {currentOrder.note.length > 0 && (
             <div className="flex items-center gap-2">
-              <FileText className="text-gray-500" size={20} />
+              <FileText className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
               <div>
-                <span className="text-gray-500">Note</span>
-                <p className="text-black font-medium">{currentOrder.note}</p>
+                <span className="text-gray-500 text-sm sm:text-base">Note</span>
+                <p className="text-black font-medium text-sm sm:text-base">{currentOrder.note}</p>
               </div>
             </div>
           )}
         </div>
 
-        <div className="bg-gray-100 p-6 rounded-lg shadow h-fit">
+        <div className="bg-gray-100 p-4 sm:p-6 rounded-xl shadow-sm h-fit">
           <div className="flex justify-between py-2">
             <div className="flex items-center gap-2">
-              <FaShoppingBag className="text-gray-500" size={20} />
-              <span>Sub Total</span>
+              <FaShoppingBag className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+              <span className="text-sm sm:text-base">Sub Total</span>
             </div>
-            <span className="font-semibold">${orderSubtotal.toFixed(2)}</span>
+            <span className="font-semibold text-sm sm:text-base">${orderSubtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between py-2">
             <div className="flex items-center gap-2">
-              <HiOutlineReceiptTax className="text-gray-500" size={20} />
-              <span>Tax</span>
+              <HiOutlineReceiptTax className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+              <span className="text-sm sm:text-base">Tax</span>
             </div>
-            <span className="font-semibold">
+            <span className="font-semibold text-sm sm:text-base">
               ${currentOrder.totalTax.toFixed(2)}
             </span>
           </div>
-          {/* Per-vendor delivery fees */}
-          {orderData.some(order => order.vendorDeliveryFee && order.storeName) && (
+          {orderData.some(order => order.vendorDeliveryFee && order.vendorUsername) && (
             <div className="mb-2">
-              {orderData.map((order, idx) => (
-                order.vendorDeliveryFee && order.storeName ? (
+              {orderData.map((order, idx) =>
+                order.vendorDeliveryFee && order.vendorUsername ? (
                   <div
                     key={order.vendorId || idx}
-                    className="flex justify-between text-sm text-gray-700"
+                    className="flex justify-between text-sm text-gray-700 py-1"
                   >
                     <span className="flex items-center gap-2">
                       <Truck className="w-4 h-4" />
-                      {order.storeName}
+                      @{order.vendorUsername}
                     </span>
                     <span>${Number(order.vendorDeliveryFee).toFixed(2)}</span>
                   </div>
                 ) : null
-              ))}
+              )}
             </div>
           )}
           <div className="flex justify-between py-2">
             <div className="flex items-center gap-2">
-              <Truck className="text-gray-500" size={20} />
-              <span>Delivery</span>
+              <Truck className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+              <span className="text-sm sm:text-base">Delivery</span>
             </div>
-            <span className="font-semibold">
+            <span className="font-semibold text-sm sm:text-base">
               ${totalDeliveryFee.toFixed(2)}
             </span>
           </div>
-          <div className="flex justify-between border-t mt-2 pt-3 text-lg font-bold">
+          <div className="flex justify-between border-t mt-2 pt-3 text-base sm:text-lg font-bold">
             <div className="flex items-center gap-2">
-              <LuSquareSigma className="text-gray-500" size={20} />
+              <LuSquareSigma className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
               <span>Total</span>
             </div>
             <span>${currentOrder.orderTotal.toFixed(2)}</span>
@@ -241,93 +343,15 @@ export default function ThankYouPage() {
         </div>
       </div>
 
-      <div className="mt-10 md:px-12 px-4">
+      <div className="mt-8 sm:mt-10 px-4 sm:px-6 md:px-12">
         <h2 className="text-gray-600 mb-4 text-lg font-bold flex items-center gap-2">
-          <FaShoppingBag size={20} />
-          Ordered Items
+          <FaShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" />
+          Order Details by Vendor
         </h2>
-        <div className="grid md:grid-cols-3 grid-cols-1 gap-6">
-          {orderData.map((order) =>
-            order.dishes.map((dish, index) => (
-              <div
-                key={`${order.id}-${index}`}
-                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100"
-              >
-                <div className="relative h-48 w-full">
-                  <Image
-                    fill
-                    src={dish.image?.url || "/food.png"}
-                    alt={dish.name}
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-4 space-y-3">
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-semibold text-gray-800 capitalize text-lg">
-                      {dish.name}
-                    </h3>
-                    <p className="text-rose-600 font-bold text-lg">
-                      ${dish.total}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <span className="bg-gray-100 px-2 py-1 rounded-full flex items-center gap-1">
-                      <FaShoppingBag size={14} /> Qty: {dish.quantity}
-                    </span>
-                    {dish.selectedSpiciness && (
-                      <span className="bg-orange-50 text-orange-600 px-2 py-1 rounded-full flex items-center gap-1">
-                        <Flame size={14} /> {dish.selectedSpiciness}
-                      </span>
-                    )}
-                  </div>
-
-                  {(dish.toppings?.length > 0 || dish.extras?.length > 0) && (
-                    <div className="space-x-2 space-y-1 pt-2 border-t border-gray-100 flex">
-                      {dish.toppings?.length > 0 && (
-                        <div>
-                          <div className="flex flex-wrap gap-1">
-                            {dish.toppings.map((topping, idx) => (
-                              <span
-                                key={idx}
-                                className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-sm"
-                              >
-                                <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3 scale-175" /> {topping.name} (${topping.price})
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {dish.extras?.length > 0 && (
-                        <div>
-                          <div className="flex flex-wrap gap-1">
-                            {dish.extras.map((extra, idx) => (
-                              <span
-                                key={idx}
-                                className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-sm"
-                              >
-                                <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3 scale-125" /> {extra.name} (${extra.price})
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  <Link
-                    href={`/vendors/@${order.vendorUsername}`}
-                    className="text-sm text-gray-500 transition-colors flex items-center gap-1"
-                  >
-                    <FaStore size={14} /> From:{" "}
-                    <span className="font-bold hover:underline hover:text-rose-600 ">
-                      @{order.vendorUsername}
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            ))
-          )}
+        <div className="space-y-4 sm:space-y-6">
+          {orderData.map((order) => (
+            <VendorOrderGroup key={order.id} order={order} />
+          ))}
         </div>
       </div>
     </>

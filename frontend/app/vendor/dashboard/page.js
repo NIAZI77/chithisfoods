@@ -53,9 +53,8 @@ const STATUS_LABELS = {
 
 const StatusBadge = ({ status }) => (
   <span
-    className={`text-xs font-medium px-2 py-1 rounded-full inline-block w-24 ${
-      STATUS_STYLES[status] || ""
-    }`}
+    className={`text-xs font-medium px-2 py-1 rounded-full inline-block w-24 ${STATUS_STYLES[status] || ""
+      }`}
   >
     {STATUS_LABELS[status] || status}
   </span>
@@ -81,18 +80,32 @@ const Page = () => {
   const [dashboardData, setDashboardData] = useState({
     orders: [],
     totalOrders: 0,
-    statusCounts: {
-      pending: 0,
-      "in-process": 0,
-      ready: 0,
-      delivered: 0,
-      cancelled: 0,
-    },
     customers: 0,
     salesData: {
       labels: [],
       datasets: [{ data: [], backgroundColor: "#ff4f00", borderRadius: 8 }],
     },
+  });
+  const [statusCountsAll, setStatusCountsAll] = useState({
+    pending: 0,
+    "in-process": 0,
+    ready: 0,
+    delivered: 0,
+    cancelled: 0,
+  });
+  const [statusCountsWeek, setStatusCountsWeek] = useState({
+    pending: 0,
+    "in-process": 0,
+    ready: 0,
+    delivered: 0,
+    cancelled: 0,
+  });
+  const [statusCountsMonth, setStatusCountsMonth] = useState({
+    pending: 0,
+    "in-process": 0,
+    ready: 0,
+    delivered: 0,
+    cancelled: 0,
   });
 
   const chartOptions = {
@@ -192,6 +205,109 @@ const Page = () => {
     };
   };
 
+  const fetchStatusCounts = async (vendorId) => {
+    try {
+      const now = new Date();
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+      // Fetch all time counts
+      const allTimeRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      // Fetch week counts
+      const weekRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      // Fetch month counts
+      const monthRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${monthAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (allTimeRes.ok && weekRes.ok && monthRes.ok) {
+        const allTimeData = await allTimeRes.json();
+        const weekData = await weekRes.json();
+        const monthData = await monthRes.json();
+
+        const processCounts = (data) => {
+          const counts = {
+            pending: 0,
+            "in-process": 0,
+            ready: 0,
+            delivered: 0,
+            cancelled: 0,
+          };
+          data.data.forEach((order) => {
+            if (counts.hasOwnProperty(order.orderStatus)) {
+              counts[order.orderStatus]++;
+            }
+          });
+          return counts;
+        };
+
+        setStatusCountsAll(processCounts(allTimeData));
+        setStatusCountsWeek(processCounts(weekData));
+        setStatusCountsMonth(processCounts(monthData));
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    }
+  };
+
+  const fetchDashboardData = async (vendorId) => {
+    setLoading(true);
+    try {
+      const timeFilter = getTimeFilter();
+      const ordersRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}${timeFilter}&sort[0]=createdAt:desc&populate=*`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (!ordersRes.ok) {
+        throw new Error("Unable to fetch order data");
+      }
+
+      const ordersData = await ordersRes.json();
+      const orders = ordersData.data || [];
+      orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      setDashboardData(processOrdersData(orders));
+    } catch (error) {
+      toast.error(error.message || "An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const checkAuthAndVendorStatus = async () => {
       const user = getCookie("user");
@@ -228,8 +344,12 @@ const Page = () => {
           return;
         }
 
-        // Continue with fetching dashboard data
-        fetchDashboardData(vendorData.data[0].documentId);
+        // Fetch status counts and dashboard data
+        const vendorId = vendorData.data[0].documentId;
+        await Promise.all([
+          fetchStatusCounts(vendorId),
+          fetchDashboardData(vendorId)
+        ]);
       } catch (error) {
         toast.error("An unexpected error occurred");
         router.push("/become-a-vendor");
@@ -238,37 +358,6 @@ const Page = () => {
 
     checkAuthAndVendorStatus();
   }, [router, timePeriod]);
-
-  const fetchDashboardData = async (vendorId) => {
-    setLoading(true);
-    try {
-      const timeFilter = getTimeFilter();
-      const ordersRes = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}${timeFilter}&sort[0]=createdAt:desc&populate=*`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-        }
-      );
-
-      if (!ordersRes.ok) {
-        throw new Error("Unable to fetch order data");
-      }
-
-      const ordersData = await ordersRes.json();
-      const orders = ordersData.data || [];
-      orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      setDashboardData(processOrdersData(orders));
-    } catch (error) {
-      toast.error(error.message || "An unexpected error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) return <Loading />;
 
@@ -286,7 +375,11 @@ const Page = () => {
               <p className="text-gray-600">Pending Orders</p>
               <div className="flex items-center gap-2">
                 <h3 className="text-2xl font-semibold">
-                  {dashboardData.statusCounts.pending}
+                  {timePeriod === "week"
+                    ? statusCountsWeek.pending
+                    : timePeriod === "month"
+                      ? statusCountsMonth.pending
+                      : statusCountsAll.pending}
                 </h3>
               </div>
             </div>
@@ -299,8 +392,8 @@ const Page = () => {
               {timePeriod === "week"
                 ? "This Week"
                 : timePeriod === "month"
-                ? "This Month"
-                : "All Time"}
+                  ? "This Month"
+                  : "All Time"}
             </span>
           </div>
         </div>
@@ -342,13 +435,21 @@ const Page = () => {
             <div className="flex items-center gap-2">
               <span>Pending</span>
               <span className="font-medium">
-                {dashboardData.statusCounts.pending}
+                {timePeriod === "week"
+                  ? statusCountsWeek.pending
+                  : timePeriod === "month"
+                    ? statusCountsMonth.pending
+                    : statusCountsAll.pending}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span>Completed</span>
               <span className="font-medium">
-                {dashboardData.statusCounts.delivered}
+                {timePeriod === "week"
+                  ? statusCountsWeek.delivered
+                  : timePeriod === "month"
+                    ? statusCountsMonth.delivered
+                    : statusCountsAll.delivered}
               </span>
             </div>
           </div>
@@ -366,8 +467,8 @@ const Page = () => {
                   {timePeriod === "week"
                     ? "Last 7 Days"
                     : timePeriod === "month"
-                    ? "Last 30 Days"
-                    : "All Time"}
+                      ? "Last 30 Days"
+                      : "All Time"}
                 </span>
               </div>
             </div>

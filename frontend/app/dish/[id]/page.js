@@ -31,7 +31,7 @@ export default function DishPage() {
   const [isPreview, setIsPreview] = useState(false);
   const [isAvailable, setIsAvailable] = useState(true);
   const [userZipcode, setUserZipcode] = useState(null);
-  const router = useRouter()
+  const router = useRouter();
 
   const fetchDishDetails = async () => {
     try {
@@ -336,10 +336,8 @@ export default function DishPage() {
                   .replace("-", " ")
                   .replace(/\b\w/g, (c) => c.toUpperCase())}{" "}
                 ·{" "}
-                <span className="text-green-500 font-bold">
-                  {dishDetails.subcategory.replace(/\b\w/g, (c) =>
-                    c.toUpperCase()
-                  )}
+                <span className="text-green-500 font-bold truncate capitalize">
+                  {dishDetails.subcategory.replace("-", " ")} 
                 </span>
               </div>
               <div className="flex items-center text-yellow-400">
@@ -390,7 +388,9 @@ export default function DishPage() {
                     key={index}
                     className="flex justify-between items-center"
                   >
-                    <span className="text-gray-800">{topping.name}</span>
+                    <span className="text-gray-800 capitalize truncate">
+                      {topping.name}
+                    </span>
                     <div className="flex gap-2">
                       {topping.options.map((option, i) => (
                         <button
@@ -403,7 +403,7 @@ export default function DishPage() {
                               option.price
                             )
                           }
-                          className={`px-4 py-1 rounded-full border text-xs font-medium transition-all
+                          className={`px-4 py-1 rounded-full border text-xs font-medium transition-all capitalize truncate
                             ${
                               selectedToppings[topping.name]?.selected ===
                               option.label
@@ -432,7 +432,9 @@ export default function DishPage() {
                     key={index}
                     className="flex justify-between items-center flex-wrap"
                   >
-                    <span className="text-gray-800">{extra.name}</span>
+                    <span className="text-gray-800 capitalize truncate">
+                      {extra.name}
+                    </span>
                     <div className="flex gap-y-4 gap-x-2 flex-wrap">
                       {extra.options.map((option, i) => (
                         <button
@@ -445,7 +447,7 @@ export default function DishPage() {
                               option.price
                             )
                           }
-                          className={`px-4 py-1 rounded-full border text-xs font-medium transition-all
+                          className={`px-4 py-1 rounded-full border text-xs font-medium transition-all capitalize truncate
                             ${
                               selectedExtras[extra.name]?.selected ===
                               option.label

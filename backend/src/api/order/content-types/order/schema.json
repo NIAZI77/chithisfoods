@@ -109,6 +109,14 @@
     "vendorDeliveryFee": {
       "type": "decimal",
       "default": 0
+    },
+    "vendor_payment": {
+      "type": "enumeration",
+      "enum": [
+        "paid",
+        "unpaid"
+      ],
+      "default": "unpaid"
     }
   }
 }

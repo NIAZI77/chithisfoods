@@ -75,6 +75,9 @@
     "vendorDeliveryFee": {
       "type": "decimal",
       "default": 0
+    },
+    "paypalEmail": {
+      "type": "email"
     }
   }
 }

@@ -46,7 +46,7 @@ export default function DishCard({ dish }) {
 
       {/* Title and Serving */}
       <div className="flex items-center justify-between mb-1">
-        <h3 className="text-lg font-semibold capitalize truncate">{dish.name}</h3>
+        <h3 className="text-lg font-semibold capitalize truncate">{dish.name.replace("-"," ")}</h3>
         <div className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-sm flex items-center gap-1 justify-center">
           Servings <FaUser /> {dish.servings}
         </div>
@@ -55,7 +55,7 @@ export default function DishCard({ dish }) {
       {/* Category and Subcategory */}
       <p className="text-sm text-gray-500 capitalize">
         {dish.category.replace("-", " ")} ·{" "}
-        <span className="text-green-500 font-medium capitalize">{dish.subcategory}</span>
+        <span className="text-green-500 font-medium capitalize">{dish.subcategory.replace("-", " ")}</span>
       </p>
 
       {/* Add to Cart Section */}

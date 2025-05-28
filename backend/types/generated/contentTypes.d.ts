@@ -457,6 +457,8 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     user: Schema.Attribute.Email & Schema.Attribute.Required;
+    vendor_payment: Schema.Attribute.Enumeration<['paid', 'unpaid']> &
+      Schema.Attribute.DefaultTo<'unpaid'>;
     vendorAvatar: Schema.Attribute.String & Schema.Attribute.Required;
     vendorDeliveryFee: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
     vendorId: Schema.Attribute.String & Schema.Attribute.Required;
@@ -498,6 +500,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
       'api::vendor.vendor'
     > &
       Schema.Attribute.Private;
+    paypalEmail: Schema.Attribute.Email;
     phoneNumber: Schema.Attribute.BigInteger &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
