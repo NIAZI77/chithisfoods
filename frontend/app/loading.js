@@ -1,4 +1,4 @@
-// import Image from "next/image";
+import Image from "next/image";
 import React from "react";
 
 const Loading = () => {
@@ -6,14 +6,14 @@ const Loading = () => {
     <div
      className="flex items-center justify-center h-screen bg-white fixed inset-0 w-screen z-40"
     >
-      <img
-        // height={48}
-        // width={48}
+      <Image
         src="/logo.png"
         alt="Logo"
-        className="object-contain w-72 zoom-animation"
-        // priority={true}
-        // quality={100}
+        width={288}
+        height={288}
+        className="object-contain zoom-animation"
+        priority={true}
+        quality={100}
       />
     </div>
   );

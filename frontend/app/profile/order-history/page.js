@@ -245,6 +245,17 @@ export default function OrderHistoryPage() {
         const firstOrder = orders[0];
         const allDishes = orders.flatMap((order) => order.dishes || []);
 
+        // Determine the status based on priority
+        let finalStatus = firstOrder.orderStatus;
+        const hasPending = orders.some(order => order.orderStatus === 'pending');
+        const hasInProcess = orders.some(order => order.orderStatus === 'in-process');
+
+        if (hasPending) {
+          finalStatus = 'pending';
+        } else if (hasInProcess) {
+          finalStatus = 'in-process';
+        }
+
         return {
           id: firstOrder.customerOrderId,
           date: new Date(firstOrder.createdAt).toLocaleString("en-US", {
@@ -256,7 +267,7 @@ export default function OrderHistoryPage() {
             minute: "numeric",
             hour12: true,
           }),
-          status: firstOrder.orderStatus,
+          status: finalStatus,
           items: allDishes.map((dish) => ({
             name: dish.name,
             price: parseFloat(dish.total),

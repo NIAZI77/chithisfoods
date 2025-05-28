@@ -171,6 +171,23 @@ const Page = () => {
     const salesByDate = {};
     const uniqueCustomers = new Set();
 
+    // Generate dates for the last 7 or 30 days based on timePeriod
+    const now = new Date();
+    const daysToShow = timePeriod === "week" ? 7 : timePeriod === "month" ? 30 : 30;
+    const dates = Array.from({ length: daysToShow }, (_, i) => {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+    }).reverse();
+
+    // Initialize all dates with 0 sales
+    dates.forEach(date => {
+      salesByDate[date] = 0;
+    });
+
     orders.forEach((order) => {
       statusCounts[order.orderStatus]++;
       uniqueCustomers.add(order.user);
@@ -179,13 +196,11 @@ const Page = () => {
         month: "short",
         day: "numeric",
       });
-      salesByDate[date] =
-        (salesByDate[date] || 0) + parseFloat(order.subtotal || 0);
+      // Only add sales if the date is within our range
+      if (dates.includes(date)) {
+        salesByDate[date] += parseFloat(order.subtotal || 0);
+      }
     });
-
-    const sortedDates = Object.keys(salesByDate).sort(
-      (a, b) => new Date(a) - new Date(b)
-    );
 
     return {
       orders: orders.slice(0, 5),
@@ -193,10 +208,10 @@ const Page = () => {
       statusCounts,
       customers: uniqueCustomers.size,
       salesData: {
-        labels: sortedDates,
+        labels: dates,
         datasets: [
           {
-            data: sortedDates.map((date) => salesByDate[date]),
+            data: dates.map((date) => salesByDate[date]),
             backgroundColor: "#ff4f00",
             borderRadius: 8,
           },

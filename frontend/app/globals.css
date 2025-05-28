@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Lobster&family=Special+Gothic+Condensed+One&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -8,6 +7,10 @@
   font-family: "AirbnbCereal";
   src: url("/Fonts/AirbnbCereal.otf") format("opentype");
 }
+@font-face {
+  font-family: "Lobster";
+  src: url("/Fonts/Lobster-Regular.ttf") format("truetype");
+}
 
 body {
   font-family: "AirbnbCereal", sans-serif;
@@ -15,7 +18,7 @@ body {
 }
 
 .cursive {
-  font-family: "Lobster", "Special Gothic Condensed One", cursive;
+  font-family: "Lobster", cursive;
 }
 h1,
 h2,

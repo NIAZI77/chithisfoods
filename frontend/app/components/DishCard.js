@@ -53,9 +53,9 @@ export default function DishCard({ dish }) {
       </div>
 
       {/* Category and Subcategory */}
-      <p className="text-sm text-gray-500 capitalize">
+      <p className="text-xs text-gray-500 capitalize">
         {dish.category.replace("-", " ")} ·{" "}
-        <span className="text-green-500 font-medium capitalize">{dish.subcategory.replace("-", " ")}</span>
+        <span className="text-green-500 font-medium text-sm capitalize truncate">{dish.subcategory.replace("-", " ")}</span>
       </p>
 
       {/* Add to Cart Section */}

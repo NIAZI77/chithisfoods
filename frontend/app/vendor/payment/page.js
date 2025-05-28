@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   CheckCircle2,
   Clock,
@@ -104,7 +104,7 @@ const TransactionStats = ({ stats }) => (
   </div>
 );
 
-const TransactionListByDate = ({ transactions }) => {
+const TransactionListByDate = ({ transactions, isLoading }) => {
   const calculateTotal = (subtotal, deliveryFee) => subtotal + deliveryFee;
 
   // Group transactions by date
@@ -127,6 +127,15 @@ const TransactionListByDate = ({ transactions }) => {
   const sortedDates = Object.keys(groupedTransactions).sort((a, b) => {
     return new Date(b) - new Date(a);
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 space-y-4">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <p className="text-gray-500">Loading transactions...</p>
+      </div>
+    );
+  }
 
   if (transactions?.length === 0) {
     return (
@@ -194,8 +203,8 @@ const TransactionListByDate = ({ transactions }) => {
   );
 };
 
-const TransactionList = ({ transactions }) => {
-  return <TransactionListByDate transactions={transactions} />;
+const TransactionList = ({ transactions, isLoading }) => {
+  return <TransactionListByDate transactions={transactions} isLoading={isLoading} />;
 };
 
 const PayPalConnection = ({
@@ -427,6 +436,7 @@ function PaymentPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [vendorId, setVendorId] = useState(null);
+  const [timeFilter, setTimeFilter] = useState("week");
   const [stats, setStats] = useState({
     paidOrders: 0,
     unpaidOrders: 0,
@@ -436,17 +446,22 @@ function PaymentPage() {
     totalPayment: 0,
   });
 
-  const validatePaypalEmail = useCallback((email) => {
-    if (!email) return "Email is required";
-    if (!EMAIL_REGEX.test(email)) return "Please enter a valid email address";
-    return "";
-  }, []);
-
   const fetchVendorOrders = async (vendorId) => {
     try {
       setIsLoading(true);
+      
+      let timeFilterQuery = "";
+      const now = new Date();
+      if (timeFilter === "week") {
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        timeFilterQuery = `&filters[createdAt][$gte]=${weekAgo.toISOString()}`;
+      } else if (timeFilter === "month") {
+        const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        timeFilterQuery = `&filters[createdAt][$gte]=${monthAgo.toISOString()}`;
+      }
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[orderStatus][$eq]=delivered&fields[0]=createdAt&fields[1]=vendorDeliveryFee&fields[2]=subtotal&fields[3]=vendor_payment&fields[4]=customerOrderId&sort[0]=createdAt:desc`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[orderStatus][$eq]=delivered${timeFilterQuery}&fields[0]=createdAt&fields[1]=vendorDeliveryFee&fields[2]=subtotal&fields[3]=vendor_payment&fields[4]=customerOrderId&sort[0]=createdAt:desc&pagination[limit]=9999999999`,
         {
           method: "GET",
           headers: {
@@ -460,7 +475,6 @@ function PaymentPage() {
         throw new Error(data.error?.message || "Failed to fetch orders");
       }
 
-      // Transform the data to match our transaction format
       const transformedOrders = data.data.map(order => ({
         orderId: order.customerOrderId,
         createdAt: order.createdAt,
@@ -533,6 +547,12 @@ function PaymentPage() {
   };
 
   useEffect(() => {
+    if (vendorId) {
+      fetchVendorOrders(vendorId);
+    }
+  }, [vendorId, timeFilter]);
+
+  useEffect(() => {
     const paidOrders = transactions.filter(
       (t) => t.vendorPaymentStatus === "PAID"
     ).length;
@@ -561,20 +581,23 @@ function PaymentPage() {
     });
   }, [transactions]);
 
-  const handleEmailChange = useCallback(
-    (e) => {
-      const newEmail = e.target.value.trim();
-      if (isEditingEmail) {
-        setTempEmail(newEmail);
-      } else {
-        setPaypalEmail(newEmail);
-      }
-      setEmailError(validatePaypalEmail(newEmail));
-    },
-    [isEditingEmail, validatePaypalEmail]
-  );
+  const validatePaypalEmail = (email) => {
+    if (!email) return "Email is required";
+    if (!EMAIL_REGEX.test(email)) return "Please enter a valid email address";
+    return "";
+  };
 
-  const handleConnectPaypal = useCallback(async () => {
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value.trim();
+    if (isEditingEmail) {
+      setTempEmail(newEmail);
+    } else {
+      setPaypalEmail(newEmail);
+    }
+    setEmailError(validatePaypalEmail(newEmail));
+  };
+
+  const handleConnectPaypal = async () => {
     const error = validatePaypalEmail(paypalEmail);
     if (!error) {
       try {
@@ -615,9 +638,9 @@ function PaymentPage() {
     } else {
       setEmailError(error);
     }
-  }, [paypalEmail, validatePaypalEmail, vendorId]);
+  };
 
-  const handleUpdateEmail = useCallback(async () => {
+  const handleUpdateEmail = async () => {
     const error = validatePaypalEmail(tempEmail);
     if (!error) {
       try {
@@ -659,9 +682,9 @@ function PaymentPage() {
     } else {
       setEmailError(error);
     }
-  }, [tempEmail, validatePaypalEmail, vendorId]);
+  };
 
-  const handleDisconnectPaypal = useCallback(async () => {
+  const handleDisconnectPaypal = async () => {
     try {
       setIsSaving(true);
       const response = await fetch(
@@ -696,19 +719,19 @@ function PaymentPage() {
     } finally {
       setIsSaving(false);
     }
-  }, [vendorId]);
+  };
 
-  const startEditingEmail = useCallback(() => {
+  const startEditingEmail = () => {
     setTempEmail(paypalEmail);
     setIsEditingEmail(true);
     setEmailError("");
-  }, [paypalEmail]);
+  };
 
-  const cancelEditing = useCallback(() => {
+  const cancelEditing = () => {
     setIsEditingEmail(false);
     setEmailError("");
     setTempEmail("");
-  }, []);
+  };
 
   return (
     <div className="mx-auto p-4 pl-20 md:w-[80%]">
@@ -739,8 +762,45 @@ function PaymentPage() {
         {activeTab === "transactions" && (
           <div>
             <TransactionStats stats={stats} />
-            <h3 className="text-xl font-semibold mb-4">PAYMENT TRANSACTIONS</h3>
-            <TransactionList transactions={transactions} />
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">PAYMENT TRANSACTIONS</h3>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setTimeFilter("week")}
+                  disabled={isLoading}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    timeFilter === "week"
+                      ? "bg-red-100 text-red-600"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  This Week
+                </button>
+                <button
+                  onClick={() => setTimeFilter("month")}
+                  disabled={isLoading}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    timeFilter === "month"
+                      ? "bg-red-100 text-red-600"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  This Month
+                </button>
+                <button
+                  onClick={() => setTimeFilter("all")}
+                  disabled={isLoading}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    timeFilter === "all"
+                      ? "bg-red-100 text-red-600"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  All Time
+                </button>
+              </div>
+            </div>
+            <TransactionList transactions={transactions} isLoading={isLoading} />
           </div>
         )}
 
