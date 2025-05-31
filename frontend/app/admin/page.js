@@ -7,7 +7,7 @@ const Page = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.push("/vendor/dashboard");
+    router.push("/admin/dashboard");
   }, [router]);
 
   return <Loading />;

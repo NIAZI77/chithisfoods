@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
 import ProductCard from "@/app/components/DishCard";
+import { BadgeCheck } from "lucide-react";
 
 const Page = () => {
   const [loading, setLoading] = useState(true);
@@ -97,8 +98,17 @@ const Page = () => {
           />
         )}
         <div className="lg:mb-0 lg:absolute lg:bottom-0 lg:right-0 lg:w-[75%] xl:w-[80%] pl-4 -mt-6 lg:mt-0">
-          <h2 className="text-lg font-semibold text-gray-800">
+          <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2 flex-wrap">
             {vendorData?.storeName?.replace(/\b\w/g, (c) => c.toUpperCase())}
+            {vendorData.isVerified ? (
+              <span className="flex items-center gap-1 bg-green-100 text-green-600 py-0.5 px-2 rounded-full text-xs">
+                <BadgeCheck size={14} /> Verified
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 bg-gray-200 text-gray-600 py-0.5 px-2 rounded-full text-xs">
+                <BadgeCheck size={14} /> New Chef
+              </span>
+            )}
           </h2>
           <span className="block text-sm hover:underline text-gray-500">
             @{username}

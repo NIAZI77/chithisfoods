@@ -10,11 +10,11 @@ import { RiInstagramFill } from "react-icons/ri";
 const Footer = () => {
   const pathname = usePathname();
   useEffect(() => {
-    if (pathname.includes("/vendor/")) {
+    if (pathname.includes("/vendor/") || pathname.includes("/admin/")) {
       return;
     }
   }, [pathname]);
-  if (pathname.includes("/vendor/")) {
+  if (pathname.includes("/vendor/") || pathname.includes("/admin/")) {
     return;
   }
 

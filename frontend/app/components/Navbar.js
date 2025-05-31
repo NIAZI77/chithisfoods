@@ -73,7 +73,7 @@ export default function Navbar() {
     if (jwt && user) {
       setIsLoggedIn(true);
     }
-    if (pathname.includes("/vendor/")) {
+    if (pathname.includes("/vendor/") || pathname.includes("/admin/")) {
       return;
     }
   }, [pathname]);
@@ -89,7 +89,7 @@ export default function Navbar() {
 
   if (loading) return <Loading />;
 
-  if (pathname.includes("/vendor/")) {
+  if (pathname.includes("/vendor/") || pathname.includes("/admin/")) {
     return;
   }
   return (

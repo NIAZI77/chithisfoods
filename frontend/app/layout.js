@@ -3,7 +3,8 @@ import Navbar from "./components/Navbar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
-import Sidebar from "./components/vendorSidebar";
+import AdminSidebar from "./components/adminSidebar";
+import VendorSidebar from "./components/vendorSidebar";
 
 export const metadata = {
   title: "ChithisFoods – Love Every Bite",
@@ -16,7 +17,8 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body cz-shortcut-listen="true">
         <Navbar />
-        <Sidebar />
+        <VendorSidebar />
+        <AdminSidebar />
         <div className="min-h-screen">{children}</div>
         <Footer />
         <ToastContainer

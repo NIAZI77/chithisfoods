@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { LuPlus, LuMinus } from "react-icons/lu";
 import { FaStar, FaUser } from "react-icons/fa";
-import { Timer, AlertCircle, Eye } from "lucide-react";
+import { Timer, AlertCircle, Eye, BadgeCheck } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 import { toast } from "react-toastify";
@@ -337,7 +337,7 @@ export default function DishPage() {
                   .replace(/\b\w/g, (c) => c.toUpperCase())}{" "}
                 ·{" "}
                 <span className="text-green-500 font-bold truncate capitalize">
-                  {dishDetails.subcategory.replace("-", " ")} 
+                  {dishDetails.subcategory.replace("-", " ")}
                 </span>
               </div>
               <div className="flex items-center text-yellow-400">
@@ -476,7 +476,7 @@ export default function DishPage() {
                   height={48}
                   className="rounded-full w-12 h-12 object-cover"
                 />
-                <span className="text-md font-semibold inline-flex flex-col">
+                <span className="text-md font-semibold inline-flex flex-col gap-1">
                   {dishDetails.chef?.name}
                   {dishDetails.chef?.username && (
                     <Link
@@ -486,6 +486,16 @@ export default function DishPage() {
                       {" "}
                       @{dishDetails.chef?.username}
                     </Link>
+                  )}
+                  {dishDetails.chef.isVerified && (
+                    <span className="flex items-center gap-1 bg-green-100 text-green-700 py-0.5 px-2 rounded-full w-fit text-sm">
+                      <BadgeCheck size={20} /> Verified
+                    </span>
+                  )}
+                  {!dishDetails.chef.isVerified && (
+                    <span className="flex items-center gap-1 bg-yellow-100 text-yellow-700 py-0.5 px-2 rounded-full w-fit text-sm">
+                      <BadgeCheck size={20} /> Not Verified
+                    </span>
                   )}
                 </span>
                 <div className="text-sm text-yellow-400 flex items-center gap-1">

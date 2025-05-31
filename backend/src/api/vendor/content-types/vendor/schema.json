@@ -78,6 +78,10 @@
     },
     "paypalEmail": {
       "type": "email"
+    },
+    "isVerified": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

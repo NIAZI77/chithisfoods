@@ -8,7 +8,7 @@ import { Boxes, LayoutDashboard, Settings, ShoppingBag } from "lucide-react";
 import { MdOutlinePayments } from "react-icons/md";
 import Image from "next/image";
 
-export default function Sidebar() {
+export default function VendorSidebar() {
   const [collapsed, setCollapsed] = useState(true);
   const pathname = usePathname();
 

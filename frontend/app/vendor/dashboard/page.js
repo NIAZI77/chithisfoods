@@ -1,16 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Bar } from "react-chartjs-2";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
-  Legend,
-} from "chart.js";
+  ResponsiveContainer
+} from "recharts";
 import { ShoppingCart, Users, Package } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-toastify";
@@ -25,15 +24,6 @@ import {
 } from "@/components/ui/select";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 const STATUS_STYLES = {
   pending: "bg-amber-200 text-amber-900 font-bold text-center",
@@ -81,10 +71,7 @@ const Page = () => {
     orders: [],
     totalOrders: 0,
     customers: 0,
-    salesData: {
-      labels: [],
-      datasets: [{ data: [], backgroundColor: "#ff4f00", borderRadius: 8 }],
-    },
+    salesData: [],
   });
   const [statusCountsAll, setStatusCountsAll] = useState({
     pending: 0,
@@ -107,38 +94,6 @@ const Page = () => {
     delivered: 0,
     cancelled: 0,
   });
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const sales = context.raw;
-            const date = context.label;
-            const ordersForDate = dashboardData.orders.filter(
-              (order) =>
-                new Date(order.createdAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                }) === date
-            ).length;
-            return [`$${sales.toFixed(2)}`, `${ordersForDate}orders`];
-          },
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: { display: true, color: "#f3f4f6" },
-        ticks: { callback: (value) => "$" + parseInt(value) },
-      },
-      x: { grid: { display: false } },
-    },
-  };
 
   const getTimeFilter = () => {
     const now = new Date();
@@ -171,7 +126,6 @@ const Page = () => {
     const salesByDate = {};
     const uniqueCustomers = new Set();
 
-    // Generate dates for the last 7 or 30 days based on timePeriod
     const now = new Date();
     const daysToShow = timePeriod === "week" ? 7 : timePeriod === "month" ? 30 : 30;
     const dates = Array.from({ length: daysToShow }, (_, i) => {
@@ -183,9 +137,12 @@ const Page = () => {
       });
     }).reverse();
 
-    // Initialize all dates with 0 sales
     dates.forEach(date => {
-      salesByDate[date] = 0;
+      salesByDate[date] = {
+        date,
+        sales: 0,
+        orders: 0
+      };
     });
 
     orders.forEach((order) => {
@@ -196,9 +153,9 @@ const Page = () => {
         month: "short",
         day: "numeric",
       });
-      // Only add sales if the date is within our range
       if (dates.includes(date)) {
-        salesByDate[date] += parseFloat(order.subtotal || 0);
+        salesByDate[date].sales += parseFloat(order.subtotal || 0);
+        salesByDate[date].orders += 1;
       }
     });
 
@@ -207,16 +164,7 @@ const Page = () => {
       totalOrders: orders.length,
       statusCounts,
       customers: uniqueCustomers.size,
-      salesData: {
-        labels: dates,
-        datasets: [
-          {
-            data: dates.map((date) => salesByDate[date]),
-            backgroundColor: "#ff4f00",
-            borderRadius: 8,
-          },
-        ],
-      },
+      salesData: Object.values(salesByDate),
     };
   };
 
@@ -226,7 +174,6 @@ const Page = () => {
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
 
-      // Fetch all time counts
       const allTimeRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {
@@ -238,7 +185,6 @@ const Page = () => {
         }
       );
 
-      // Fetch week counts
       const weekRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {
@@ -250,7 +196,6 @@ const Page = () => {
         }
       );
 
-      // Fetch month counts
       const monthRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${monthAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {
@@ -359,7 +304,6 @@ const Page = () => {
           return;
         }
 
-        // Fetch status counts and dashboard data
         const vendorId = vendorData.data[0].documentId;
         await Promise.all([
           fetchStatusCounts(vendorId),
@@ -375,6 +319,20 @@ const Page = () => {
   }, [router, timePeriod]);
 
   if (loading) return <Loading />;
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white p-3 shadow-md rounded-lg border">
+          <p className="font-medium">{label}</p>
+          <p className="text-orange-600">${data.sales.toFixed(2)}</p>
+          <p className="text-gray-600">{data.orders} orders</p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="p-4 pl-16 md:p-6 md:pl-24 lg:p-8 lg:pl-24 mx-auto">
@@ -489,7 +447,15 @@ const Page = () => {
             </div>
           </div>
           <div className="h-[300px] w-full">
-            <Bar options={chartOptions} data={dashboardData.salesData} />
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={dashboardData.salesData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="sales" fill="oklch(75% 0.183 55.934)" />
+            </BarChart>
+          </ResponsiveContainer>
           </div>
         </div>
 

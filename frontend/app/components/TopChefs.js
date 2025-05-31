@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import Image from "next/image";
 
 import VendorCard from "./VendorCard";
 import Loading from "../loading";
@@ -56,20 +57,27 @@ export default function TopChefs({ zipcode }) {
     return <Loading />;
   }
 
+  if (topVendors.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <Image
+          src="/coming-soon.png"
+          alt="Coming Soon"
+          width={500}
+          height={500}
+        />
+      </div>
+    );
+  }
+
   return (
-    <>
-      {topVendors.length > 0 && (
-        <div className="md:w-[80%] w-full mx-auto p-2">
-          <h2 className="md:text-2xl text-xl font-bold mb-4">
-            Top Rated Chefs
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
-            {topVendors.map((vendor) => (
-              <VendorCard key={vendor.id} chef={vendor} className="mx-auto" />
-            ))}
-          </div>
-        </div>
-      )}
-    </>
+    <div className="md:w-[80%] w-full mx-auto p-2">
+      <h2 className="md:text-2xl text-xl font-bold mb-4">Top Rated Chefs</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
+        {topVendors.map((vendor) => (
+          <VendorCard key={vendor.id} chef={vendor} className="mx-auto" />
+        ))}
+      </div>
+    </div>
   );
 }
