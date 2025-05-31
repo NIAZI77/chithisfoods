@@ -6,6 +6,7 @@ import {
   FaShoppingCart,
   FaCheckCircle,
   FaTimesCircle,
+  FaSearch,
 } from "react-icons/fa";
 import {
   Select,
@@ -15,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Loading from "@/app/loading";
+import Pagination from "@/app/admin/users-and-vendors/components/Pagination";
 
 const STATUS_STYLES = {
   paid: "bg-green-100 text-green-700",
@@ -35,47 +37,60 @@ const TIME_FILTERS = {
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
+  const [fullOrders, setFullOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [filterStatus, setFilterStatus] = useState("all");
-  const [paymentStatus, setPaymentStatus] = useState("all");
-  const [timeFilter, setTimeFilter] = useState("all-time");
+  const [vendorPaymentStatus, setVendorPaymentStatus] = useState("all");
+  const [timeFilter, setTimeFilter] = useState("this-week");
+  const [totalPages, setTotalPages] = useState(1);
 
   const orderMetrics = useMemo(() => ({
-    total: orders.length,
-    delivered: orders.filter(order => order.orderStatus === "delivered").length,
-    refunded: orders.filter(order => 
+    total: fullOrders.length,
+    delivered: fullOrders.filter(order => order.orderStatus === "delivered").length,
+    refunded: fullOrders.filter(order => 
       order.orderStatus === "refunded" || order.orderStatus === "cancelled"
     ).length,
-  }), [orders]);
+  }), [fullOrders]);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (page = 1, orderStatus = "all", vendorPayment = "all", timeFilter = "all-week") => {
     try {
       setLoading(true);
+      setError(null);
 
-      // Build the API URL with filters
-      let apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?sort[0]=createdAt:desc&pagination[page]=${currentPage}&pagination[pageSize]=20`;
-
-      // Add time filter
+      const pageSize = 20;
+      const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`;
+      const pagination = `pagination[page]=${page}&pagination[pageSize]=${pageSize}`;
+      const sort = "sort[0]=createdAt:desc";
+      
+      // Build filters array
+      let filters = [];
+      
+      // Time filter
       const now = new Date();
       const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
+      
       if (timeFilter === "this-week") {
-        apiUrl += `&filters[createdAt][$gte]=${startOfWeek.toISOString()}`;
+        filters.push(`filters[createdAt][$gte]=${startOfWeek.toISOString()}`);
       } else if (timeFilter === "this-month") {
-        apiUrl += `&filters[createdAt][$gte]=${startOfMonth.toISOString()}`;
+        filters.push(`filters[createdAt][$gte]=${startOfMonth.toISOString()}`);
       }
 
-      // Add status filters
-      if (filterStatus !== "all") {
-        apiUrl += `&filters[orderStatus][$eq]=${filterStatus}`;
+      // Order status filter
+      if (orderStatus !== "all") {
+        filters.push(`filters[orderStatus][$eq]=${orderStatus}`);
       }
 
-      if (paymentStatus !== "all") {
-        apiUrl += `&filters[paymentStatus][$eq]=${paymentStatus}`;
+      // Vendor payment status filter
+      if (vendorPayment !== "all") {
+        filters.push(`filters[vendor_payment][$eq]=${vendorPayment}`);
       }
+
+      // Combine all URL parts
+      const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
+      const apiUrl = `${baseUrl}?${sort}&${pagination}${filtersString}`;
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -89,18 +104,102 @@ const OrdersPage = () => {
       }
 
       const data = await response.json();
+
+      if (!data.data || !Array.isArray(data.data)) {
+        throw new Error('Invalid data format received from API');
+      }
+
       setOrders(data.data);
+      setTotalPages(data.meta.pagination.pageCount);
+
     } catch (err) {
       setError(err.message);
       console.error("Error fetching orders:", err);
+      setOrders([]);
+      setTotalPages(1);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchFullOrders = async (timeFilter = "this-week") => {
+    try {
+      setLoading(true);
+      const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`;
+      const sort = "sort[0]=createdAt:desc";
+      
+      // Build filters array for time
+      let filters = [];
+      const now = new Date();
+      const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      if (timeFilter === "this-week") {
+        filters.push(`filters[createdAt][$gte]=${startOfWeek.toISOString()}`);
+      } else if (timeFilter === "this-month") {
+        filters.push(`filters[createdAt][$gte]=${startOfMonth.toISOString()}`);
+      }
+
+      const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
+      const apiUrl = `${baseUrl}?fields[0]=orderStatus&${sort}${filtersString}&pagination[limit]=9999999999`;
+
+      const response = await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch orders");
+      }
+
+      const data = await response.json();
+
+      if (!data.data || !Array.isArray(data.data)) {
+        throw new Error('Invalid data format received from API');
+      }
+
+      setFullOrders(data.data);
+
+    } catch (err) {
+      setError(err.message);
+      console.error("Error fetching orders:", err);
+      setFullOrders([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle filter changes
+  const handleFilterStatusChange = (newStatus) => {
+    setFilterStatus(newStatus);
+    setCurrentPage(1); // Reset to first page
+    fetchOrders(1, newStatus, vendorPaymentStatus, timeFilter);
+  };
+
+  const handleVendorPaymentChange = (newStatus) => {
+    setVendorPaymentStatus(newStatus);
+    setCurrentPage(1); // Reset to first page
+    fetchOrders(1, filterStatus, newStatus, timeFilter);
+  };
+
+  const handleTimeFilterChange = (newFilter) => {
+    setTimeFilter(newFilter);
+    setCurrentPage(1); // Reset to first page
+    fetchOrders(1, filterStatus, vendorPaymentStatus, newFilter);
+    fetchFullOrders(newFilter); // Update metrics when time filter changes
+  };
+
+  // Handle page changes
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    fetchOrders(page, filterStatus, vendorPaymentStatus, timeFilter);
+  };
+
   useEffect(() => {
-    fetchOrders();
-  }, [currentPage, timeFilter, filterStatus, paymentStatus]);
+    fetchOrders(currentPage, filterStatus, vendorPaymentStatus, timeFilter);
+    fetchFullOrders(timeFilter); // Pass the current time filter
+  }, [currentPage, timeFilter]); // Add timeFilter to dependencies
 
   const getStatusClasses = (status) => {
     return STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.default;
@@ -165,20 +264,20 @@ const OrdersPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-          <Select value={timeFilter} onValueChange={setTimeFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Select time period" />
+          <Select value={timeFilter} onValueChange={handleTimeFilterChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Time Period" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all-time">All Time</SelectItem>
               <SelectItem value="this-week">This Week</SelectItem>
               <SelectItem value="this-month">This Month</SelectItem>
-              <SelectItem value="all-time">All Time</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-full sm:w-[180px]">
+          <Select value={filterStatus} onValueChange={handleFilterStatusChange}>
+            <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Order Status" />
             </SelectTrigger>
             <SelectContent>
@@ -190,134 +289,131 @@ const OrdersPage = () => {
               <SelectItem value="cancelled">Cancelled</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={paymentStatus} onValueChange={setPaymentStatus}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Payment Status" />
+          <Select value={vendorPaymentStatus} onValueChange={handleVendorPaymentChange}>
+            <SelectTrigger className="w-[210px]">
+              <SelectValue placeholder="Vendor Payment" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Payment Status</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="unpaid">Unpaid</SelectItem>
+              <SelectItem value="all">All Vendor Payments</SelectItem>
+              <SelectItem value="paid">Paid to Vendor</SelectItem>
+              <SelectItem value="unpaid">Unpaid to Vendor</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
+      {/* Orders Table */}
       <div className="overflow-x-auto rounded-md -mx-4 sm:mx-0">
         <div className="min-w-[800px] sm:min-w-full">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th
-                  scope="col"
-                  className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider"
-                >
-                  Date
-                </th>
-                <th
-                  scope="col"
-                  className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider"
-                >
-                  Customer
-                </th>
-                <th
-                  scope="col"
-                  className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider"
-                >
-                  Vendor
-                </th>
-                <th
-                  scope="col"
-                  className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider"
-                >
-                  Payment
-                </th>
-                <th
-                  scope="col"
-                  className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider"
-                >
-                  Status
-                </th>
-                <th
-                  scope="col"
-                  className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider"
-                >
-                  Tax
-                </th>
-                <th
-                  scope="col"
-                  className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider"
-                >
-                  Total
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {orders.map((order, index) => (
-                <tr
-                  key={`${order.documentId}-${index}`}
-                  className="bg-white hover:bg-gray-50 border-b border-gray-100"
-                >
-                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                    {order.customerName}
-                  </td>
-                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                    @{order.vendorUsername}
-                  </td>
-                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm">
-                    <span
-                      className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium w-16 sm:w-20 flex items-center justify-center rounded-full capitalize ${getStatusClasses(
-                        order.paymentStatus
-                      )}`}
-                    >
-                      {order.paymentStatus}
-                    </span>
-                  </td>
-                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm">
-                    <span
-                      className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full w-16 sm:w-20 flex items-center justify-center capitalize ${getStatusClasses(
-                        order.orderStatus
-                      )}`}
-                    >
-                      {order.orderStatus}
-                    </span>
-                  </td>
-                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                    ${order.tax.toFixed(2)}
-                  </td>
-                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                    ${order.totalAmount.toFixed(2)}
-                  </td>
+          {orders.length === 0 ? (
+            <div className="text-center py-8 bg-white rounded-lg">
+              <div className="text-gray-500 text-lg font-medium">No orders found</div>
+              <div className="text-gray-400 text-sm mt-1">Try adjusting your filters</div>
+            </div>
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase"
+                  >
+                    Date
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase"
+                  >
+                    Customer
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase"
+                  >
+                    Vendor
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase"
+                  >
+                    Vendor Payment
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase"
+                  >
+                    Status
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase"
+                  >
+                    Tax
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase"
+                  >
+                    Total
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {orders.map((order, index) => (
+                  <tr
+                    key={`${order.documentId}-${index}`}
+                    className="bg-white hover:bg-gray-50 border-b border-gray-100"
+                  >
+                    <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-left">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-left">
+                      {order.customerName}
+                    </td>
+                    <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-left">
+                      @{order.vendorUsername}
+                    </td>
+                    <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm">
+                      <span
+                        className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium w-16 sm:w-20 flex items-center justify-center rounded-full capitalize mx-auto ${getStatusClasses(
+                          order.vendor_payment
+                        )}`}
+                      >
+                        {order.vendor_payment}
+                      </span>
+                    </td>
+                    <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm">
+                      <span
+                        className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full w-16 sm:w-20 flex items-center justify-center capitalize mx-auto ${getStatusClasses(
+                          order.orderStatus
+                        )}`}
+                      >
+                        {order.orderStatus}
+                      </span>
+                    </td>
+                    <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-left">
+                      ${order.tax.toFixed(2)}
+                    </td>
+                    <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-left">
+                      ${order.totalAmount.toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-center mt-4 text-xs sm:text-sm px-2 sm:px-4 gap-2 sm:gap-0">
-        <div className="text-gray-600">{orders.length} Results</div>
-        <div className="flex items-center space-x-1">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-            className="px-2 sm:px-3 py-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-pink-200"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <button className="px-2 sm:px-3 py-1 rounded-md bg-pink-100 text-pink-600 text-xs sm:text-sm">
-            {currentPage}
-          </button>
-          <button
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            className="px-2 sm:px-3 py-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-pink-200"
-          >
-            <ChevronRight size={16} />
-          </button>
+      {totalPages > 1 && (
+        <div className="mt-4 flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
-      </div>
+      )}
     </div>
   );
 };

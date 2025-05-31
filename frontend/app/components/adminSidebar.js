@@ -5,12 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
-  Boxes,
   LayoutDashboard,
   Settings,
   ShoppingBag,
   Users,
-  BarChart2,
   User,
 } from "lucide-react";
 import { MdOutlinePayments } from "react-icons/md";
@@ -105,23 +103,9 @@ export default function AdminSidebar() {
         </Link>
 
         <Link
-          href="/admin/reports"
+          href="/admin/payments"
           className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 hover:bg-pink-700 hover:text-white border-l-[3px] border-transparent ${
-            isActive("/admin/reports") &&
-            "text-pink-600 !border-pink-600 !border-l-4 bg-pink-50"
-          }
-            }`}
-        >
-          <BarChart2 className="w-5 h-5" />
-          {!collapsed && (
-            <span className="whitespace-nowrap font-medium">Reports</span>
-          )}
-        </Link>
-
-        <Link
-          href="/admin/payment"
-          className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 hover:bg-pink-700 hover:text-white border-l-[3px] border-transparent ${
-            isActive("/admin/payment") &&
+            isActive("/admin/payments") &&
             "text-pink-600 !border-pink-600 !border-l-4 bg-pink-50"
           }
             }`}

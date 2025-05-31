@@ -487,14 +487,13 @@ export default function DishPage() {
                       @{dishDetails.chef?.username}
                     </Link>
                   )}
-                  {dishDetails.chef.isVerified && (
-                    <span className="flex items-center gap-1 bg-green-100 text-green-700 py-0.5 px-2 rounded-full w-fit text-sm">
-                      <BadgeCheck size={20} /> Verified
+                  {dishDetails.chef.isVerified ? (
+                    <span className="flex items-center gap-1 bg-green-100 text-green-600 py-0.5 px-2 rounded-full text-xs">
+                      <BadgeCheck size={14} /> Verified
                     </span>
-                  )}
-                  {!dishDetails.chef.isVerified && (
-                    <span className="flex items-center gap-1 bg-yellow-100 text-yellow-700 py-0.5 px-2 rounded-full w-fit text-sm">
-                      <BadgeCheck size={20} /> Not Verified
+                  ) : (
+                    <span className="flex items-center gap-1 bg-gray-200 text-gray-600 py-0.5 px-2 rounded-full text-xs">
+                      <BadgeCheck size={14} /> New Chef
                     </span>
                   )}
                 </span>

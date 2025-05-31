@@ -14,7 +14,14 @@ const UsersAndVendorsPage = () => {
     const [usersForChart, setUsersForChart] = useState([]);
     const [vendorsList, setVendorsList] = useState([]);
     const [vendorsForChart, setVendorsForChart] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+
+    // Separate loading states for different operations
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [isUsersLoading, setIsUsersLoading] = useState(false);
+    const [isVendorsLoading, setIsVendorsLoading] = useState(false);
+    const [isUsersChartLoading, setIsUsersChartLoading] = useState(false);
+    const [isVendorsChartLoading, setIsVendorsChartLoading] = useState(false);
+    const [isStatusUpdating, setIsStatusUpdating] = useState(false);
 
     // Pagination state
     const [currentUsersPage, setCurrentUsersPage] = useState(1);
@@ -31,14 +38,18 @@ const UsersAndVendorsPage = () => {
 
     // Fetch functions using Strapi APIs
     const fetchUsers = async (page = 1, search = "", filter = "all") => {
+        setIsUsersLoading(true);
         try {
             const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users`;
             const pagination = `pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`;
-            const searchFilter = search ? `&filters[$or][0][username][$containsi]=${search}&filters[$or][1][email][$containsi]=${search}` : "";
-            const statusFilter = filter !== "all" ? `&filters[blocked]=${filter === "blocked"}` : "";
             const sort = "sort=createdAt:desc";
             
-            const apiUrl = `${baseUrl}?${pagination}${searchFilter}${statusFilter}&${sort}`;
+            // Simple search filter
+            const searchFilter = search ? `&filters[$or][0][username][$containsi]=${search}&filters[$or][1][email][$containsi]=${search}` : "";
+            const statusFilter = filter !== "all" ? `&filters[blocked]=${filter === "blocked"}` : "";
+            
+            const apiUrl = `${baseUrl}?${pagination}&${sort}${searchFilter}${statusFilter}`;
+            
             const headers = {
                 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
                 'Content-Type': 'application/json',
@@ -52,29 +63,36 @@ const UsersAndVendorsPage = () => {
 
             const data = await response.json();
             
-            // Handle different possible response formats
-            let usersData;
-            if (Array.isArray(data)) {
-                usersData = data;
-            } else if (data.data) {
-                usersData = Array.isArray(data.data) ? data.data : [data.data];
-                // Update pagination info
+            // Handle both Strapi v4 and direct array responses
+            if (data.data && data.meta) {
+                // Strapi v4 response format
+                setUsersList(data.data);
                 setTotalUsersPages(data.meta.pagination.pageCount);
-            }
-
-            if (!usersData || !Array.isArray(usersData)) {
+            } else if (Array.isArray(data)) {
+                // Direct array response - calculate pagination manually
+                const totalItems = data.length;
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedData = data.slice(startIndex, endIndex);
+                
+                setUsersList(paginatedData);
+                setTotalUsersPages(totalPages);
+            } else {
                 throw new Error('Invalid data format received from API');
             }
-
-            setUsersList(usersData);
         } catch (error) {
             console.error('Error fetching users:', error);
-            toast.error('Failed to fetch users');
+            toast.error(error.message || 'Failed to fetch users');
             setUsersList([]);
+            setTotalUsersPages(1);
+        } finally {
+            setIsUsersLoading(false);
         }
     };
 
     const fetchUsersForChart = async () => {
+        setIsUsersChartLoading(true);
         try {
             const apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users?fields[0]=blocked&pagination[limit]=99999999999&sort=createdAt:desc`;
             const headers = {
@@ -83,7 +101,7 @@ const UsersAndVendorsPage = () => {
             };
 
             const response = await fetch(apiUrl, { headers });
-            
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => null);
                 console.error('API Error Response:', {
@@ -95,10 +113,10 @@ const UsersAndVendorsPage = () => {
             }
 
             const data = await response.json();
-            
+
             // Handle both direct array response and Strapi-style response
             const usersData = Array.isArray(data) ? data : (data.data || []);
-            
+
             if (!Array.isArray(usersData)) {
                 console.error('Invalid data format received:', data);
                 throw new Error('Invalid data format received from API');
@@ -118,18 +136,31 @@ const UsersAndVendorsPage = () => {
             });
             toast.error(error.message || 'Failed to fetch users chart data');
             setUsersForChart([]);
+        } finally {
+            setIsUsersChartLoading(false);
         }
     };
 
     const fetchVendors = async (page = 1, search = "", filter = "all") => {
+        setIsVendorsLoading(true);
         try {
             const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors`;
             const pagination = `pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`;
-            const searchFilter = search ? `&filters[$or][0][storeName][$containsi]=${search}&filters[$or][1][email][$containsi]=${search}` : "";
-            const statusFilter = filter !== "all" ? `&filters[isVerified]=${filter === "verified"}` : "";
             const sort = "sort=createdAt:desc";
             
-            const apiUrl = `${baseUrl}?${pagination}${searchFilter}${statusFilter}&${sort}`;
+            // Simple search filter
+            const searchFilter = search ? `&filters[$or][0][storeName][$containsi]=${search}&filters[$or][1][email][$containsi]=${search}` : "";
+            
+            // Updated status filter for vendors
+            let statusFilter = "";
+            if (filter === "verified") {
+                statusFilter = "&filters[isVerified][$eq]=true";
+            } else if (filter === "new") {
+                statusFilter = "&filters[$or][0][isVerified][$eq]=false&filters[$or][1][isVerified][$null]=true";
+            }
+            
+            const apiUrl = `${baseUrl}?${pagination}&${sort}${searchFilter}${statusFilter}`;
+            
             const headers = {
                 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
                 'Content-Type': 'application/json',
@@ -143,20 +174,36 @@ const UsersAndVendorsPage = () => {
 
             const data = await response.json();
             
-            if (!data.data || !Array.isArray(data.data)) {
+            // Handle both Strapi v4 and direct array responses
+            if (data.data && data.meta) {
+                // Strapi v4 response format
+                setVendorsList(data.data);
+                setTotalVendorsPages(data.meta.pagination.pageCount);
+            } else if (Array.isArray(data)) {
+                // Direct array response - calculate pagination manually
+                const totalItems = data.length;
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedData = data.slice(startIndex, endIndex);
+                
+                setVendorsList(paginatedData);
+                setTotalVendorsPages(totalPages);
+            } else {
                 throw new Error('Invalid data format received from API');
             }
-
-            setVendorsList(data.data);
-            setTotalVendorsPages(data.meta.pagination.pageCount);
         } catch (error) {
             console.error('Error fetching vendors:', error);
-            toast.error('Failed to fetch vendors');
+            toast.error(error.message || 'Failed to fetch vendors');
             setVendorsList([]);
+            setTotalVendorsPages(1);
+        } finally {
+            setIsVendorsLoading(false);
         }
     };
 
     const fetchVendorsForChart = async () => {
+        setIsVendorsChartLoading(true);
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?fields[0]=isVerified&pagination[limit]=9999999999&sort=createdAt:desc`, {
                 headers: {
@@ -171,14 +218,17 @@ const UsersAndVendorsPage = () => {
             setVendorsForChart(vendorsData);
         } catch (error) {
             console.error('Error fetching vendors chart data:', error);
-            toast.error('Failed to fetch vendors chart data');
+            toast.error(error.message || 'Failed to fetch vendors chart data');
+            setVendorsForChart([]);
+        } finally {
+            setIsVendorsChartLoading(false);
         }
     };
 
     // Initial data fetch
     useEffect(() => {
         const fetchAllData = async () => {
-            setIsLoading(true);
+            setIsInitialLoading(true);
             try {
                 if (!process.env.NEXT_PUBLIC_STRAPI_HOST || !process.env.NEXT_PUBLIC_STRAPI_TOKEN) {
                     throw new Error('Missing required environment variables');
@@ -194,30 +244,12 @@ const UsersAndVendorsPage = () => {
                 console.error('Error in fetchAllData:', error);
                 toast.error(error.message || 'Failed to fetch data');
             } finally {
-                setIsLoading(false);
+                setIsInitialLoading(false);
             }
         };
 
         fetchAllData();
     }, []);
-
-    // Handle search and filter changes
-    useEffect(() => {
-        fetchUsers(currentUsersPage, usersSearchQuery, usersFilter);
-    }, [currentUsersPage, usersSearchQuery, usersFilter]);
-
-    useEffect(() => {
-        fetchVendors(currentVendorsPage, vendorsSearchQuery, vendorsFilter);
-    }, [currentVendorsPage, vendorsSearchQuery, vendorsFilter]);
-
-    // Handle page changes
-    const handleUsersPageChange = (page) => {
-        setCurrentUsersPage(page);
-    };
-
-    const handleVendorsPageChange = (page) => {
-        setCurrentVendorsPage(page);
-    };
 
     // Handle search submissions
     const handleUsersSearch = (e) => {
@@ -230,6 +262,39 @@ const UsersAndVendorsPage = () => {
         e.preventDefault();
         setCurrentVendorsPage(1);
         fetchVendors(1, vendorsSearchQuery, vendorsFilter);
+    };
+
+    // Remove the useEffect for search changes
+    useEffect(() => {
+        fetchUsers(currentUsersPage, "", usersFilter);
+    }, [currentUsersPage, usersFilter]);
+
+    useEffect(() => {
+        fetchVendors(currentVendorsPage, "", vendorsFilter);
+    }, [currentVendorsPage, vendorsFilter]);
+
+    // Handle page changes
+    const handleUsersPageChange = (page) => {
+        setCurrentUsersPage(page);
+    };
+
+    const handleVendorsPageChange = (page) => {
+        setCurrentVendorsPage(page);
+    };
+
+    // Handle filter changes
+    const handleUsersFilterChange = (newFilter) => {
+        setUsersFilter(newFilter);
+        setUsersSearchQuery(""); // Clear search when filter changes
+        setCurrentUsersPage(1); // Reset to first page
+        fetchUsers(1, "", newFilter); // Fetch with empty search
+    };
+
+    const handleVendorsFilterChange = (newFilter) => {
+        setVendorsFilter(newFilter);
+        setVendorsSearchQuery(""); // Clear search when filter changes
+        setCurrentVendorsPage(1); // Reset to first page
+        fetchVendors(1, "", newFilter); // Fetch with empty search
     };
 
     // Update metrics calculation to use fetched data
@@ -256,6 +321,7 @@ const UsersAndVendorsPage = () => {
 
     // Update handleVerifyVendor to use Strapi API
     const handleVerifyVendor = async (vendorId) => {
+        setIsStatusUpdating(true);
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}`, {
                 method: 'PUT',
@@ -269,24 +335,24 @@ const UsersAndVendorsPage = () => {
                     }
                 }),
             });
-            
+
             if (!response.ok) {
                 throw new Error('Failed to verify vendor');
             }
 
             // Update local state after successful API call
-            setVendorsList(prevVendors => 
-                prevVendors.map(vendor => 
-                    vendor.id === vendorId 
+            setVendorsList(prevVendors =>
+                prevVendors.map(vendor =>
+                    vendor.id === vendorId
                         ? { ...vendor, isVerified: true }
                         : vendor
                 )
             );
-            
+
             // Update chart data
-            setVendorsForChart(prevVendors => 
-                prevVendors.map(vendor => 
-                    vendor.id === vendorId 
+            setVendorsForChart(prevVendors =>
+                prevVendors.map(vendor =>
+                    vendor.id === vendorId
                         ? { ...vendor, isVerified: true }
                         : vendor
                 )
@@ -295,12 +361,15 @@ const UsersAndVendorsPage = () => {
             toast.success('Vendor verified successfully');
         } catch (error) {
             console.error('Error verifying vendor:', error);
-            toast.error('Failed to verify vendor');
+            toast.error(error.message || 'Failed to verify vendor');
+        } finally {
+            setIsStatusUpdating(false);
         }
     };
 
     // Update handleBlockUser to use Strapi API
     const handleBlockUser = async (userId, currentBlockedStatus) => {
+        setIsStatusUpdating(true);
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userId}`, {
                 method: 'PUT',
@@ -318,18 +387,18 @@ const UsersAndVendorsPage = () => {
             }
 
             // Update local state after successful API call
-            setUsersList(prevUsers => 
-                prevUsers.map(user => 
-                    user.id === userId 
+            setUsersList(prevUsers =>
+                prevUsers.map(user =>
+                    user.id === userId
                         ? { ...user, blocked: !currentBlockedStatus }
                         : user
                 )
             );
 
             // Update chart data
-            setUsersForChart(prevUsers => 
-                prevUsers.map(user => 
-                    user.id === userId 
+            setUsersForChart(prevUsers =>
+                prevUsers.map(user =>
+                    user.id === userId
                         ? { ...user, blocked: !currentBlockedStatus }
                         : user
                 )
@@ -338,7 +407,9 @@ const UsersAndVendorsPage = () => {
             toast.success(`User ${currentBlockedStatus ? 'unblocked' : 'blocked'} successfully`);
         } catch (error) {
             console.error('Error updating user status:', error);
-            toast.error('Failed to update user status');
+            toast.error(error.message || 'Failed to update user status');
+        } finally {
+            setIsStatusUpdating(false);
         }
     };
 
@@ -348,7 +419,7 @@ const UsersAndVendorsPage = () => {
         return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
     };
 
-    if (isLoading) return <Loading />;
+    if (isInitialLoading) return <Loading />;
 
     return (
         <div className="p-4 pl-16 md:p-6 md:pl-24 lg:p-8 lg:pl-24 mx-auto max-w-7xl">
@@ -356,14 +427,21 @@ const UsersAndVendorsPage = () => {
                 <h1 className="text-2xl font-semibold">Users & Vendors Management</h1>
             </div>
 
-            <MetricsCards metrics={metrics} />
-            <Charts userChartData={userChartData} vendorChartData={vendorChartData} />
+            <MetricsCards
+                metrics={metrics}
+                isLoading={isUsersChartLoading || isVendorsChartLoading}
+            />
+            <Charts
+                userChartData={userChartData}
+                vendorChartData={vendorChartData}
+                isLoading={isUsersChartLoading || isVendorsChartLoading}
+            />
 
             <UsersTable
                 users={usersList}
                 onBlockUser={handleBlockUser}
                 formatDate={formatDate}
-                isLoading={isLoading}
+                isLoading={isUsersLoading || isStatusUpdating}
                 currentPage={currentUsersPage}
                 totalPages={totalUsersPages}
                 onPageChange={handleUsersPageChange}
@@ -371,14 +449,14 @@ const UsersAndVendorsPage = () => {
                 onSearchChange={setUsersSearchQuery}
                 onSearchSubmit={handleUsersSearch}
                 filter={usersFilter}
-                onFilterChange={setUsersFilter}
+                onFilterChange={handleUsersFilterChange}
             />
 
             <VendorsTable
                 vendors={vendorsList}
                 onVerifyVendor={handleVerifyVendor}
                 formatDate={formatDate}
-                isLoading={isLoading}
+                isLoading={isVendorsLoading || isStatusUpdating}
                 currentPage={currentVendorsPage}
                 totalPages={totalVendorsPages}
                 onPageChange={handleVendorsPageChange}
@@ -386,7 +464,7 @@ const UsersAndVendorsPage = () => {
                 onSearchChange={setVendorsSearchQuery}
                 onSearchSubmit={handleVendorsSearch}
                 filter={vendorsFilter}
-                onFilterChange={setVendorsFilter}
+                onFilterChange={handleVendorsFilterChange}
             />
         </div>
     );
