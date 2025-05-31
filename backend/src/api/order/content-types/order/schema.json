@@ -31,7 +31,8 @@
       "type": "enumeration",
       "enum": [
         "paid",
-        "unpaid"
+        "unpaid",
+        "refunded"
       ]
     },
     "totalAmount": {
@@ -114,7 +115,8 @@
       "type": "enumeration",
       "enum": [
         "paid",
-        "unpaid"
+        "unpaid",
+        "refunded"
       ],
       "default": "unpaid"
     }

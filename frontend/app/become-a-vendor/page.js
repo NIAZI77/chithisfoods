@@ -166,7 +166,7 @@ export default function BecomeVendor() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Congratulations! You’re now registered as a vendor.");
+        toast.success("Congratulations! You're now registered as a vendor.");
         setTimeout(() => {
           router.push("/vendor/dashboard");
         }, 1000);
@@ -197,6 +197,10 @@ export default function BecomeVendor() {
       toast.error(
         "Username can contain lowercase letters, numbers, and underscores (3-15 chars)."
       );
+      return;
+    }
+    if (formData.avatar.url.length === 0 || formData.coverImage.url.length === 0) {
+      toast.error("Please upload both profile and cover images");
       return;
     }
     await createVendor();

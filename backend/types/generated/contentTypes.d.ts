@@ -444,7 +444,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.DefaultTo<'pending'>;
     orderTotal: Schema.Attribute.Decimal & Schema.Attribute.Required;
-    paymentStatus: Schema.Attribute.Enumeration<['paid', 'unpaid']>;
+    paymentStatus: Schema.Attribute.Enumeration<['paid', 'unpaid', 'refunded']>;
     phone: Schema.Attribute.BigInteger & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     subtotal: Schema.Attribute.Decimal &
@@ -457,7 +457,9 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     user: Schema.Attribute.Email & Schema.Attribute.Required;
-    vendor_payment: Schema.Attribute.Enumeration<['paid', 'unpaid']> &
+    vendor_payment: Schema.Attribute.Enumeration<
+      ['paid', 'unpaid', 'refunded']
+    > &
       Schema.Attribute.DefaultTo<'unpaid'>;
     vendorAvatar: Schema.Attribute.String & Schema.Attribute.Required;
     vendorDeliveryFee: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
