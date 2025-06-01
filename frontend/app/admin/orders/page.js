@@ -49,7 +49,7 @@ const OrdersPage = () => {
   const orderMetrics = useMemo(() => ({
     total: fullOrders.length,
     delivered: fullOrders.filter(order => order.orderStatus === "delivered").length,
-    refunded: fullOrders.filter(order => 
+    refunded: fullOrders.filter(order =>
       order.orderStatus === "refunded" || order.orderStatus === "cancelled"
     ).length,
   }), [fullOrders]);
@@ -63,15 +63,22 @@ const OrdersPage = () => {
       const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`;
       const pagination = `pagination[page]=${page}&pagination[pageSize]=${pageSize}`;
       const sort = "sort[0]=createdAt:desc";
-      
+
       // Build filters array
       let filters = [];
-      
+
       // Time filter
       const now = new Date();
-      const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfWeek = new Date(now);
+      // Get to the start of the week (Monday)
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+      startOfWeek.setDate(diff);
+      startOfWeek.setHours(0, 0, 0, 0);
       
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
       if (timeFilter === "this-week") {
         filters.push(`filters[createdAt][$gte]=${startOfWeek.toISOString()}`);
       } else if (timeFilter === "this-month") {
@@ -126,13 +133,20 @@ const OrdersPage = () => {
       setLoading(true);
       const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`;
       const sort = "sort[0]=createdAt:desc";
-      
+
       // Build filters array for time
       let filters = [];
       const now = new Date();
-      const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfWeek = new Date(now);
+      // Get to the start of the week (Monday)
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+      startOfWeek.setDate(diff);
+      startOfWeek.setHours(0, 0, 0, 0);
       
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
       if (timeFilter === "this-week") {
         filters.push(`filters[createdAt][$gte]=${startOfWeek.toISOString()}`);
       } else if (timeFilter === "this-month") {
@@ -141,7 +155,7 @@ const OrdersPage = () => {
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
       const apiUrl = `${baseUrl}?fields[0]=orderStatus&${sort}${filtersString}&pagination[limit]=9999999999`;
-
+      console.log(apiUrl)
       const response = await fetch(apiUrl, {
         headers: {
           Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,

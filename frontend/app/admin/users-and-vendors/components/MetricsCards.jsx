@@ -1,9 +1,9 @@
 import React from 'react';
-import { FaUsers, FaStore, FaUserTimes, FaCheckCircle } from 'react-icons/fa';
+import { FaUsers, FaUserTimes, FaStore } from 'react-icons/fa';
 
 const MetricsCards = ({ metrics }) => {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-6">
             {/* Total Users */}
             <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
                 <div className="flex items-center justify-between">
@@ -15,21 +15,6 @@ const MetricsCards = ({ metrics }) => {
                     </div>
                     <div className="p-3 bg-blue-100 rounded-full">
                         <FaUsers className="w-6 h-6 text-blue-600" />
-                    </div>
-                </div>
-            </div>
-
-            {/* Total Vendors */}
-            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-gray-600">Total Vendors</p>
-                        <div className="flex items-center gap-2">
-                            <h3 className="text-2xl font-semibold">{metrics.vendors.total}</h3>
-                        </div>
-                    </div>
-                    <div className="p-3 bg-purple-100 rounded-full">
-                        <FaStore className="w-6 h-6 text-purple-600" />
                     </div>
                 </div>
             </div>
@@ -49,17 +34,17 @@ const MetricsCards = ({ metrics }) => {
                 </div>
             </div>
 
-            {/* Verified Vendors */}
+            {/* Total Vendors */}
             <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-gray-600">Verified Vendors</p>
+                        <p className="text-gray-600">Total Vendors</p>
                         <div className="flex items-center gap-2">
-                            <h3 className="text-2xl font-semibold">{metrics.vendors.verified}</h3>
+                            <h3 className="text-2xl font-semibold">{metrics.vendors.total}</h3>
                         </div>
                     </div>
-                    <div className="p-3 bg-green-100 rounded-full">
-                        <FaCheckCircle className="w-6 h-6 text-green-600" />
+                    <div className="p-3 bg-purple-100 rounded-full">
+                        <FaStore className="w-6 h-6 text-purple-600" />
                     </div>
                 </div>
             </div>

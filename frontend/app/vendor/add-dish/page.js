@@ -179,7 +179,7 @@ export default function AddDishPage() {
           chef: {
             username: data.data[0].username,
             name: data.data[0].storeName,
-            isVerified: data.data[0].isVerified,
+            verificationStatus: data.data[0].verificationStatus,
             avatar: { id: data.data[0].id, url: data.data[0].avatar.url },
             rating: data.data[0].rating,
           },

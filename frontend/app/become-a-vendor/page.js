@@ -69,7 +69,7 @@ export default function BecomeVendor() {
       return typeof value === "object" ? value.url : value.trim() !== "";
     });
 
-    if (!allFilled) {
+    if (!allFilled && step !== totalSteps) {
       toast.error("Please complete all required fields before continuing.");
       return;
     }

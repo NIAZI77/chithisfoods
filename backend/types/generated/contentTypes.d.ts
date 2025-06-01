@@ -496,7 +496,6 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
     fullName: Schema.Attribute.String & Schema.Attribute.Required;
-    isVerified: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -504,7 +503,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     paypalEmail: Schema.Attribute.Email;
-    phoneNumber: Schema.Attribute.BigInteger &
+    phoneNumber: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
@@ -517,6 +516,11 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
     vendorDeliveryFee: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
+    verificationDocument: Schema.Attribute.Media<'images' | 'files'>;
+    verificationStatus: Schema.Attribute.Enumeration<
+      ['new-chef', 'verified', 'unverified']
+    > &
+      Schema.Attribute.DefaultTo<'new-chef'>;
     zipcode: Schema.Attribute.BigInteger & Schema.Attribute.Required;
   };
 }

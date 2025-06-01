@@ -154,12 +154,14 @@ const UsersAndVendorsPage = () => {
             // Updated status filter for vendors
             let statusFilter = "";
             if (filter === "verified") {
-                statusFilter = "&filters[isVerified][$eq]=true";
+                statusFilter = "&filters[verificationStatus][$eq]=verified";
             } else if (filter === "new") {
-                statusFilter = "&filters[$or][0][isVerified][$eq]=false&filters[$or][1][isVerified][$null]=true";
+                statusFilter = "&filters[verificationStatus][$eq]=new-chef";
+            } else if (filter === "unverified") {
+                statusFilter = "&filters[verificationStatus][$eq]=unverified";
             }
             
-            const apiUrl = `${baseUrl}?${pagination}&${sort}${searchFilter}${statusFilter}`;
+            const apiUrl = `${baseUrl}?${pagination}&${sort}${searchFilter}${statusFilter}&populate=*`;
             
             const headers = {
                 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
@@ -205,19 +207,46 @@ const UsersAndVendorsPage = () => {
     const fetchVendorsForChart = async () => {
         setIsVendorsChartLoading(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?fields[0]=isVerified&pagination[limit]=9999999999&sort=createdAt:desc`, {
-                headers: {
-                    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-                },
-            });
+            const apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?fields[0]=verificationStatus&pagination[limit]=9999999999&sort=createdAt:desc`;
+            const headers = {
+                'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+                'Content-Type': 'application/json',
+            };
+
+            const response = await fetch(apiUrl, { headers });
+            
             if (!response.ok) {
-                throw new Error('Failed to fetch vendors chart data');
+                const errorData = await response.json().catch(() => null);
+                console.error('API Error Response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    errorData
+                });
+                throw new Error(`Failed to fetch vendors chart data: ${response.status} ${response.statusText}`);
             }
+
             const data = await response.json();
+            
+            // Handle both direct array response and Strapi-style response
             const vendorsData = Array.isArray(data) ? data : (data.data || []);
-            setVendorsForChart(vendorsData);
+
+            if (!Array.isArray(vendorsData)) {
+                console.error('Invalid data format received:', data);
+                throw new Error('Invalid data format received from API');
+            }
+
+            // Transform the data to ensure we have the correct structure
+            const transformedData = vendorsData.map(vendor => ({
+                id: vendor.id,
+                verificationStatus: vendor.attributes?.verificationStatus || vendor.verificationStatus || 'unverified'
+            }));
+
+            setVendorsForChart(transformedData);
         } catch (error) {
-            console.error('Error fetching vendors chart data:', error);
+            console.error('Error fetching vendors chart data:', {
+                message: error.message,
+                stack: error.stack
+            });
             toast.error(error.message || 'Failed to fetch vendors chart data');
             setVendorsForChart([]);
         } finally {
@@ -305,7 +334,9 @@ const UsersAndVendorsPage = () => {
         },
         vendors: {
             total: vendorsForChart?.length || 0,
-            verified: vendorsForChart?.filter(vendor => vendor.isVerified === true).length || 0,
+            verified: vendorsForChart?.filter(vendor => vendor.verificationStatus === 'verified').length || 0,
+            newChefs: vendorsForChart?.filter(vendor => vendor.verificationStatus === 'new-chef').length || 0,
+            unverified: vendorsForChart?.filter(vendor => vendor.verificationStatus === 'unverified').length || 0,
         },
     };
 
@@ -315,11 +346,13 @@ const UsersAndVendorsPage = () => {
     ];
 
     const vendorChartData = [
-        { name: 'Total Vendors', value: metrics.vendors.total },
-        { name: 'Verified Vendors', value: metrics.vendors.verified },
+        { name: 'Total', value: metrics.vendors.total },
+        { name: 'Verified', value: metrics.vendors.verified },
+        { name: 'New', value: metrics.vendors.newChefs },
+        { name: 'Unverified', value: metrics.vendors.unverified },
     ];
 
-    // Update handleVerifyVendor to use Strapi API
+    // Update handleVerifyVendor to use new status values
     const handleVerifyVendor = async (vendorId) => {
         setIsStatusUpdating(true);
         try {
@@ -331,7 +364,7 @@ const UsersAndVendorsPage = () => {
                 },
                 body: JSON.stringify({
                     data: {
-                        isVerified: true
+                        verificationStatus: "verified"
                     }
                 }),
             });
@@ -344,7 +377,7 @@ const UsersAndVendorsPage = () => {
             setVendorsList(prevVendors =>
                 prevVendors.map(vendor =>
                     vendor.id === vendorId
-                        ? { ...vendor, isVerified: true }
+                        ? { ...vendor, verificationStatus: "verified" }
                         : vendor
                 )
             );
@@ -353,7 +386,7 @@ const UsersAndVendorsPage = () => {
             setVendorsForChart(prevVendors =>
                 prevVendors.map(vendor =>
                     vendor.id === vendorId
-                        ? { ...vendor, isVerified: true }
+                        ? { ...vendor, verificationStatus: "verified" }
                         : vendor
                 )
             );

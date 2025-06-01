@@ -22,7 +22,7 @@ import Loading from "../loading";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [vendorStatus, setVendorStatus] = useState(false);
+  const [vendorStatus, setVendorStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -44,9 +44,9 @@ export default function Navbar() {
       const data = await res.json();
 
       if (res.ok && data?.data?.length > 0) {
-        setVendorStatus(true);
+        setVendorStatus(data.data[0].verificationStatus);
       } else {
-        setVendorStatus(false);
+        setVendorStatus(null);
       }
     } catch (err) {
       toast.error(
