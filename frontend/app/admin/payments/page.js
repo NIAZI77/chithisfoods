@@ -95,10 +95,17 @@ const PaymentsPage = () => {
       // Build filters array
       let filters = [];
 
-      // Time filter
+      // Time filter with proper week calculation (Monday start)
       const now = new Date();
-      const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+      const startOfWeek = new Date(now);
+      // Get to the start of the week (Monday)
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+      startOfWeek.setDate(diff);
+      startOfWeek.setHours(0, 0, 0, 0);
+      
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      startOfMonth.setHours(0, 0, 0, 0);
 
       if (timeFilter === "this-week") {
         filters.push(`filters[createdAt][$gte]=${startOfWeek.toISOString()}`);
@@ -106,13 +113,14 @@ const PaymentsPage = () => {
         filters.push(`filters[createdAt][$gte]=${startOfMonth.toISOString()}`);
       }
 
-      // Show orders that need payment processing (delivered), refund processing (cancelled), or are refunded
+      // Use $or operator for order statuses to show orders that need payment processing
       filters.push(`filters[$or][0][orderStatus][$eq]=delivered`);
       filters.push(`filters[$or][1][orderStatus][$eq]=cancelled`);
-      filters.push(`filters[$or][2][paymentStatus][$eq]=refunded`);
+      filters.push(`populate=*`);
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
       const apiUrl = `${baseUrl}?${sort}&${pagination}${filtersString}`;
+      console.log('Fetching orders with URL:', apiUrl);
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -122,7 +130,8 @@ const PaymentsPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch orders");
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Failed to fetch orders");
       }
 
       const data = await response.json();
@@ -143,9 +152,18 @@ const PaymentsPage = () => {
       const sort = "sort[0]=createdAt:desc";
 
       let filters = [];
+
+      // Time filter with proper week calculation (Monday start)
       const now = new Date();
-      const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+      const startOfWeek = new Date(now);
+      // Get to the start of the week (Monday)
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+      startOfWeek.setDate(diff);
+      startOfWeek.setHours(0, 0, 0, 0);
+      
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      startOfMonth.setHours(0, 0, 0, 0);
 
       if (timeFilter === "this-week") {
         filters.push(`filters[createdAt][$gte]=${startOfWeek.toISOString()}`);
@@ -153,13 +171,13 @@ const PaymentsPage = () => {
         filters.push(`filters[createdAt][$gte]=${startOfMonth.toISOString()}`);
       }
 
-      // Include refunded orders in full orders fetch as well
+      // Use $or operator to show orders that are either delivered or cancelled
       filters.push(`filters[$or][0][orderStatus][$eq]=delivered`);
       filters.push(`filters[$or][1][orderStatus][$eq]=cancelled`);
-      filters.push(`filters[$or][2][paymentStatus][$eq]=refunded`);
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
       const apiUrl = `${baseUrl}?${sort}${filtersString}&pagination[limit]=9999999999`;
+      console.log('Fetching full orders with URL:', apiUrl);
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -169,7 +187,8 @@ const PaymentsPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch orders");
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Failed to fetch orders");
       }
 
       const data = await response.json();
