@@ -65,7 +65,7 @@ const PaymentsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [timeFilter, setTimeFilter] = useState("this-week");
+  const [timeFilter, setTimeFilter] = useState("all-time");
   const [totalPages, setTotalPages] = useState(1);
   const [processingPayments, setProcessingPayments] = useState({});
   const [processingRefunds, setProcessingRefunds] = useState({});
@@ -82,7 +82,7 @@ const PaymentsPage = () => {
       .reduce((sum, order) => sum + order.totalAmount, 0),
   }), [fullOrders]);
 
-  const fetchOrders = async (page = 1, timeFilter = "this-week") => {
+  const fetchOrders = async (page = 1, timeFilter = "all-time") => {
     try {
       setLoading(true);
       setError(null);
@@ -95,22 +95,31 @@ const PaymentsPage = () => {
       // Build filters array
       let filters = [];
 
-      // Time filter with proper week calculation (Monday start)
-      const now = new Date();
-      const startOfWeek = new Date(now);
-      // Get to the start of the week (Monday)
-      const day = now.getDay();
-      const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
-      startOfWeek.setDate(diff);
-      startOfWeek.setHours(0, 0, 0, 0);
-      
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      startOfMonth.setHours(0, 0, 0, 0);
+      // Time filter handling
+      if (timeFilter !== "all-time") {
+        // Since all data is in 2025, we'll use 2025 dates for filtering
+        const baseDate = new Date('2025-01-01T00:00:00.000Z');
+        let startDate;
 
-      if (timeFilter === "this-week") {
-        filters.push(`filters[createdAt][$gte]=${startOfWeek.toISOString()}`);
-      } else if (timeFilter === "this-month") {
-        filters.push(`filters[createdAt][$gte]=${startOfMonth.toISOString()}`);
+        if (timeFilter === "this-week") {
+          // Get the current week's Monday in 2025
+          const currentDate = new Date();
+          const dayOfWeek = currentDate.getDay();
+          const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+          
+          startDate = new Date(baseDate);
+          startDate.setDate(baseDate.getDate() + (currentDate.getDate() - daysToSubtract - 1));
+          startDate.setHours(0, 0, 0, 0);
+        } else if (timeFilter === "this-month") {
+          // Get the current month in 2025
+          const currentMonth = new Date().getMonth();
+          startDate = new Date(2025, currentMonth, 1);
+          startDate.setHours(0, 0, 0, 0);
+        }
+
+        if (startDate) {
+          filters.push(`filters[createdAt][$gte]=${startDate.toISOString()}`);
+        }
       }
 
       // Use $or operator for order statuses to show orders that need payment processing
@@ -120,7 +129,7 @@ const PaymentsPage = () => {
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
       const apiUrl = `${baseUrl}?${sort}&${pagination}${filtersString}`;
-      console.log('Fetching orders with URL:', apiUrl);
+      console.log('Payments API URL:', apiUrl);
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -146,29 +155,38 @@ const PaymentsPage = () => {
     }
   };
 
-  const fetchFullOrders = async (timeFilter = "this-week") => {
+  const fetchFullOrders = async (timeFilter = "all-time") => {
     try {
       const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`;
       const sort = "sort[0]=createdAt:desc";
 
       let filters = [];
 
-      // Time filter with proper week calculation (Monday start)
-      const now = new Date();
-      const startOfWeek = new Date(now);
-      // Get to the start of the week (Monday)
-      const day = now.getDay();
-      const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
-      startOfWeek.setDate(diff);
-      startOfWeek.setHours(0, 0, 0, 0);
-      
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      startOfMonth.setHours(0, 0, 0, 0);
+      // Time filter handling
+      if (timeFilter !== "all-time") {
+        // Since all data is in 2025, we'll use 2025 dates for filtering
+        const baseDate = new Date('2025-01-01T00:00:00.000Z');
+        let startDate;
 
-      if (timeFilter === "this-week") {
-        filters.push(`filters[createdAt][$gte]=${startOfWeek.toISOString()}`);
-      } else if (timeFilter === "this-month") {
-        filters.push(`filters[createdAt][$gte]=${startOfMonth.toISOString()}`);
+        if (timeFilter === "this-week") {
+          // Get the current week's Monday in 2025
+          const currentDate = new Date();
+          const dayOfWeek = currentDate.getDay();
+          const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+          
+          startDate = new Date(baseDate);
+          startDate.setDate(baseDate.getDate() + (currentDate.getDate() - daysToSubtract - 1));
+          startDate.setHours(0, 0, 0, 0);
+        } else if (timeFilter === "this-month") {
+          // Get the current month in 2025
+          const currentMonth = new Date().getMonth();
+          startDate = new Date(2025, currentMonth, 1);
+          startDate.setHours(0, 0, 0, 0);
+        }
+
+        if (startDate) {
+          filters.push(`filters[createdAt][$gte]=${startDate.toISOString()}`);
+        }
       }
 
       // Use $or operator to show orders that are either delivered or cancelled
@@ -177,7 +195,7 @@ const PaymentsPage = () => {
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
       const apiUrl = `${baseUrl}?${sort}${filtersString}&pagination[limit]=9999999999`;
-      console.log('Fetching full orders with URL:', apiUrl);
+      console.log('Full Payments API URL:', apiUrl);
 
       const response = await fetch(apiUrl, {
         headers: {

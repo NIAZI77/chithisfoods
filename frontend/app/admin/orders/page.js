@@ -54,7 +54,7 @@ const OrdersPage = () => {
     ).length,
   }), [fullOrders]);
 
-  const fetchOrders = async (page = 1, orderStatus = "all", vendorPayment = "all", timeFilter = "all-week") => {
+  const fetchOrders = async (page = 1, orderStatus = "all", vendorPayment = "all", timeFilter = "all-time") => {
     try {
       setLoading(true);
       setError(null);
@@ -67,22 +67,31 @@ const OrdersPage = () => {
       // Build filters array
       let filters = [];
 
-      // Time filter
-      const now = new Date();
-      const startOfWeek = new Date(now);
-      // Get to the start of the week (Monday)
-      const day = now.getDay();
-      const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
-      startOfWeek.setDate(diff);
-      startOfWeek.setHours(0, 0, 0, 0);
-      
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      startOfMonth.setHours(0, 0, 0, 0);
+      // Time filter handling
+      if (timeFilter !== "all-time") {
+        // Since all data is in 2025, we'll use 2025 dates for filtering
+        const baseDate = new Date('2025-01-01T00:00:00.000Z');
+        let startDate;
 
-      if (timeFilter === "this-week") {
-        filters.push(`filters[createdAt][$gte]=${startOfWeek.toISOString()}`);
-      } else if (timeFilter === "this-month") {
-        filters.push(`filters[createdAt][$gte]=${startOfMonth.toISOString()}`);
+        if (timeFilter === "this-week") {
+          // Get the current week's Monday in 2025
+          const currentDate = new Date();
+          const dayOfWeek = currentDate.getDay();
+          const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+          
+          startDate = new Date(baseDate);
+          startDate.setDate(baseDate.getDate() + (currentDate.getDate() - daysToSubtract - 1));
+          startDate.setHours(0, 0, 0, 0);
+        } else if (timeFilter === "this-month") {
+          // Get the current month in 2025
+          const currentMonth = new Date().getMonth();
+          startDate = new Date(2025, currentMonth, 1);
+          startDate.setHours(0, 0, 0, 0);
+        }
+
+        if (startDate) {
+          filters.push(`filters[createdAt][$gte]=${startDate.toISOString()}`);
+        }
       }
 
       // Order status filter
@@ -98,6 +107,7 @@ const OrdersPage = () => {
       // Combine all URL parts
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
       const apiUrl = `${baseUrl}?${sort}&${pagination}${filtersString}`;
+      console.log('Orders API URL:', apiUrl);
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -128,7 +138,8 @@ const OrdersPage = () => {
       setLoading(false);
     }
   };
-  const fetchFullOrders = async (timeFilter = "this-week") => {
+
+  const fetchFullOrders = async (timeFilter = "all-time") => {
     try {
       setLoading(true);
       const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`;
@@ -136,26 +147,38 @@ const OrdersPage = () => {
 
       // Build filters array for time
       let filters = [];
-      const now = new Date();
-      const startOfWeek = new Date(now);
-      // Get to the start of the week (Monday)
-      const day = now.getDay();
-      const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
-      startOfWeek.setDate(diff);
-      startOfWeek.setHours(0, 0, 0, 0);
       
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      startOfMonth.setHours(0, 0, 0, 0);
+      // Time filter handling
+      if (timeFilter !== "all-time") {
+        // Since all data is in 2025, we'll use 2025 dates for filtering
+        const baseDate = new Date('2025-01-01T00:00:00.000Z');
+        let startDate;
 
-      if (timeFilter === "this-week") {
-        filters.push(`filters[createdAt][$gte]=${startOfWeek.toISOString()}`);
-      } else if (timeFilter === "this-month") {
-        filters.push(`filters[createdAt][$gte]=${startOfMonth.toISOString()}`);
+        if (timeFilter === "this-week") {
+          // Get the current week's Monday in 2025
+          const currentDate = new Date();
+          const dayOfWeek = currentDate.getDay();
+          const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+          
+          startDate = new Date(baseDate);
+          startDate.setDate(baseDate.getDate() + (currentDate.getDate() - daysToSubtract - 1));
+          startDate.setHours(0, 0, 0, 0);
+        } else if (timeFilter === "this-month") {
+          // Get the current month in 2025
+          const currentMonth = new Date().getMonth();
+          startDate = new Date(2025, currentMonth, 1);
+          startDate.setHours(0, 0, 0, 0);
+        }
+
+        if (startDate) {
+          filters.push(`filters[createdAt][$gte]=${startDate.toISOString()}`);
+        }
       }
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
       const apiUrl = `${baseUrl}?fields[0]=orderStatus&${sort}${filtersString}&pagination[limit]=9999999999`;
-      console.log(apiUrl)
+      console.log('Full Orders API URL:', apiUrl);
+
       const response = await fetch(apiUrl, {
         headers: {
           Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
