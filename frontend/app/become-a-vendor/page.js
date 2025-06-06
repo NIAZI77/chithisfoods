@@ -41,7 +41,7 @@ export default function BecomeVendor() {
       checkIfVendor(storedUser);
       setFormData((prev) => ({ ...prev, email: storedUser }));
     }
-  }, []);
+  }, [checkIfVendor, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

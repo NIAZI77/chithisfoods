@@ -398,6 +398,7 @@ export interface ApiAdminAdmin extends Struct.CollectionTypeSchema {
 export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
   collectionName: 'categories';
   info: {
+    description: '';
     displayName: 'Category';
     pluralName: 'categories';
     singularName: 'category';
@@ -416,7 +417,9 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
       'api::category.category'
     > &
       Schema.Attribute.Private;
-    name: Schema.Attribute.String & Schema.Attribute.Required;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
     subcategories: Schema.Attribute.JSON & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
@@ -460,7 +463,7 @@ export interface ApiDishDish extends Struct.CollectionTypeSchema {
     servings: Schema.Attribute.Integer & Schema.Attribute.Required;
     spiciness: Schema.Attribute.JSON & Schema.Attribute.Required;
     subcategory: Schema.Attribute.String & Schema.Attribute.Required;
-    subSubCategory: Schema.Attribute.JSON;
+    subSubCategory: Schema.Attribute.String;
     toppings: Schema.Attribute.JSON;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

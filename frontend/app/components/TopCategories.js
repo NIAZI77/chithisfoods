@@ -4,6 +4,11 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Loading from "../loading";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import styles from './TopCategories.module.css';
 
 export default function TopCategories() {
   const [categories, setCategories] = useState([]);
@@ -23,19 +28,18 @@ export default function TopCategories() {
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch categories');
+          throw new Error("Failed to fetch categories");
         }
 
         const data = await response.json();
         setCategories(data.data || []);
       } catch (error) {
-        console.error('Error fetching categories:', error);
-        toast.error('Failed to load categories');
+        console.error("Error fetching categories:", error);
+        toast.error("Failed to load categories");
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchCategories();
   }, []);
 
@@ -44,24 +48,45 @@ export default function TopCategories() {
   return (
     <div className="md:w-[80%] w-full mx-auto p-2">
       <h2 className="md:text-2xl text-xl font-bold mb-4">Top Categories</h2>
-      <div className="flex justify-evenly items-center flex-wrap gap-5">
-        {categories.map((category) => (
-          <Link
-            href={`/category/${category.name}`}
-            key={category.id}
-            className="flex flex-col items-center justify-center text-center
-            w-28 h-28 bg-pink-50 rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out"
-          >
-            <Image
-              src={category.image?.url || '/fallback.png'}
-              alt={category.name}
-              width={56}
-              height={56}
-              className="mx-auto object-cover"
-            />
-            <p className="mt-1.5 text-[11px] capitalize">{category.name.replace(/-/g, ' ')}</p>
-          </Link>
-        ))}
+      <div className={styles.sliderWrapper}>
+        <Swiper
+          modules={[Navigation]}
+          spaceBetween={12}
+          slidesPerView={2}
+          navigation
+          breakpoints={{
+            640: {
+              slidesPerView: 3,
+            },
+            768: {
+              slidesPerView: 4,
+            },
+            1024: {
+              slidesPerView: 5,
+            },
+          }}
+          className={styles.swiper}
+        >
+          {categories.map((category) => (
+            <SwiperSlide key={category.id} className={styles["swiper-slide"]}>
+              <Link
+                href={`/category/${category.name}`}
+                className={styles.categoryCard}
+              >
+                <Image
+                  src={category.image?.url || "/fallback.png"}
+                  alt={category.name}
+                  width={64}
+                  height={64}
+                  className={styles.categoryImage}
+                />
+                <p className={styles.categoryName}>
+                  {category.name.replace(/-/g, " ")}
+                </p>
+              </Link>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </div>
   );

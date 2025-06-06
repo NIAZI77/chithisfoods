@@ -1,0 +1,89 @@
+.sliderWrapper {
+  padding: 0 32px;
+  margin-bottom: 24px;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  position: relative;
+}
+
+.swiper {
+  padding: 0 32px;
+}
+
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.categoryCard {
+  width: 112px;
+  height: 112px;
+  background: #ffe6f0;
+  border-radius: 16px;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: none;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.categoryCard:hover {
+  transform: none;
+  box-shadow: none;
+  border: 2px solid #ff4da6;
+}
+
+.categoryImage {
+  margin-bottom: 8px;
+}
+
+.categoryName {
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #222;
+  letter-spacing: 0.01em;
+  text-transform: capitalize;
+}
+
+/* Swiper navigation arrows */
+.swiper-button-next, .swiper-button-prev {
+  color: #ff4da6;
+  background: #fff;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  box-shadow: none;
+  top: 44%;
+  transition: none;
+  z-index: 10;
+}
+.swiper-button-prev {
+  left: 0;
+  margin-left: -28px;
+}
+.swiper-button-next {
+  right: 0;
+  margin-right: -28px;
+}
+
+/* Swiper pagination dots */
+.swiper-pagination {
+  bottom: 0 !important;
+}
+.swiper-pagination-bullet {
+  background: #ffb3d9;
+  opacity: 1;
+  width: 8px;
+  height: 8px;
+  margin: 0 3px !important;
+  transition: none;
+}
+.swiper-pagination-bullet-active {
+  background: #ff4da6;
+} 

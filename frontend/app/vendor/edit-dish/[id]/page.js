@@ -30,8 +30,9 @@ export default function EditDishPage() {
     chef: {},
     image: { id: 0, url: "" },
     servings: "",
-    category: "cooked-foods",
+    category: "",
     subcategory: "",
+    subSubCategory: "other",
     preparation_time: "",
     vendorId: "",
     ingredients: "",
@@ -42,109 +43,7 @@ export default function EditDishPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  // Category and subcategory mapping
-  const categorySubcategories = {
-    "cooked-foods": [
-      { value: "vegetable-kurma", label: "Vegetable Kurma" },
-      { value: "paneer-butter-masala", label: "Paneer Butter Masala" },
-      { value: "sambar-rasam", label: "Sambar / Rasam" },
-      { value: "chicken-curry", label: "Chicken Curry" },
-      { value: "mutton-pepper-fry", label: "Mutton Pepper Fry" },
-      { value: "fish-molee", label: "Fish Molee" },
-      { value: "vegetable-biryani", label: "Vegetable Biryani" },
-      { value: "chicken-biryani", label: "Chicken Biryani" },
-      { value: "curd-lemon-rice", label: "Curd Rice / Lemon Rice" },
-      { value: "idli", label: "Idli" },
-      { value: "dosa", label: "Dosa" },
-      { value: "uthappam", label: "Uthappam" },
-      { value: "pongal", label: "Pongal" },
-      { value: "vada", label: "Vada" },
-      { value: "chapathi-kurma", label: "Chapathi with Kurma" },
-      { value: "south-indian-veg-meal", label: "South Indian Veg Meal Box" },
-      { value: "chicken-curry-rice", label: "Chicken Curry + Rice" },
-      { value: "parotta-salna", label: "Parotta + Salna" },
-    ],
-    groceries: [
-      { value: "sona-masoori", label: "Sona Masoori" },
-      { value: "idli-rice", label: "Idli Rice" },
-      { value: "wheat", label: "Wheat" },
-      { value: "ragi", label: "Ragi" },
-      { value: "toor-dal", label: "Toor Dal" },
-      { value: "moong-dal", label: "Moong Dal" },
-      { value: "urad-dal", label: "Urad Dal" },
-      { value: "coconut-oil", label: "Coconut Oil" },
-      { value: "sunflower-oil", label: "Sunflower Oil" },
-      { value: "gingelly-oil", label: "Gingelly Oil" },
-      { value: "atta", label: "Atta" },
-      { value: "ragi-flour", label: "Ragi Flour" },
-      { value: "maida", label: "Maida" },
-      { value: "jaggery", label: "Jaggery" },
-      { value: "sugar", label: "Sugar" },
-      { value: "salt", label: "Salt" },
-      { value: "pickles", label: "Pickles" },
-      { value: "ready-mixes", label: "Ready Mixes" },
-    ],
-    spices: [
-      { value: "mustard", label: "Mustard" },
-      { value: "cumin", label: "Cumin" },
-      { value: "cloves", label: "Cloves" },
-      { value: "chili-powder", label: "Chili Powder" },
-      { value: "turmeric", label: "Turmeric" },
-      { value: "coriander", label: "Coriander" },
-      { value: "sambar-powder", label: "Sambar Powder" },
-      { value: "biryani-masala", label: "Biryani Masala" },
-      { value: "garam-masala", label: "Garam Masala" },
-      { value: "asafoetida", label: "Asafoetida" },
-      { value: "chaat-masala", label: "Chaat Masala" },
-    ],
-    batter: [
-      { value: "idli-batter", label: "Idli / Dosa Batter" },
-      { value: "uthappam-batter", label: "Uthappam Batter" },
-      { value: "adai-batter", label: "Adai / Multigrain Batter" },
-      { value: "vada-batter", label: "Vada Batter" },
-    ],
-    fish: [
-      { value: "rohu", label: "Rohu" },
-      { value: "catla", label: "Catla" },
-      { value: "tilapia", label: "Tilapia" },
-      { value: "pomfret", label: "Pomfret" },
-      { value: "seer", label: "Seer" },
-      { value: "sardine", label: "Sardine" },
-      { value: "prawns", label: "Prawns" },
-      { value: "crabs", label: "Crabs" },
-      { value: "fillets-slices", label: "Fillets / Slices" },
-      { value: "marinated-fish", label: "Marinated Fish" },
-      { value: "frozen-fish", label: "Frozen Fish" },
-    ],
-    meat: [
-      { value: "whole-chicken", label: "Whole Chicken" },
-      { value: "curry-cut", label: "Curry Cut Chicken" },
-      { value: "boneless-chicken", label: "Boneless Chicken" },
-      { value: "goat", label: "Goat Meat" },
-      { value: "minced-mutton", label: "Minced Mutton" },
-      { value: "pork", label: "Pork" },
-      { value: "beef", label: "Beef" },
-      { value: "liver", label: "Liver" },
-      { value: "kidney", label: "Kidney" },
-      { value: "marinated-meat", label: "Marinated Meat" },
-      { value: "frozen-meat", label: "Frozen Meat" },
-    ],
-    snacks: [
-      { value: "murukku", label: "Murukku" },
-      { value: "thattai", label: "Thattai" },
-      { value: "banana-chips", label: "Banana Chips" },
-      { value: "mixture", label: "Mixture" },
-      { value: "ladoo", label: "Ladoo" },
-      { value: "halwa", label: "Halwa" },
-      { value: "mysore-pak", label: "Mysore Pak" },
-      { value: "samosa", label: "Samosa" },
-      { value: "cutlet", label: "Cutlet" },
-      { value: "spring-rolls", label: "Spring Rolls" },
-      { value: "roasted-chana", label: "Roasted Chana" },
-      { value: "millet-snacks", label: "Millet Snacks" },
-    ],
-  };
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const jwt = getCookie("jwt");
@@ -152,11 +51,38 @@ export default function EditDishPage() {
 
     if (jwt && user) {
       getDishData(id);
+      fetchCategories();
     } else {
       toast.error("Please login to continue.");
       router.push("/login");
     }
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/categories?populate=*`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch categories");
+      }
+
+      const data = await response.json();
+      setCategories(data.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast.error("Failed to load categories");
+    }
+  };
+
   const getDishData = async (id) => {
     try {
       const response = await fetch(
@@ -410,17 +336,30 @@ export default function EditDishPage() {
   };
 
   const handleCategoryChange = (value) => {
-    setDishData((prev) => ({
-      ...prev,
+    const selectedCategory = categories.find(cat => cat.name === value);
+    setDishData((prev) => ({ 
+      ...prev, 
       category: value,
-      subcategory: categorySubcategories[value]?.[0]?.value || "",
+      subcategory: selectedCategory?.subcategories[0]?.name || "",
+      subSubCategory: "other" // Set default to "other"
     }));
   };
 
   const handleSubcategoryChange = (value) => {
+    const selectedCategory = categories.find(cat => cat.name === dishData.category);
+    const selectedSubcategory = selectedCategory?.subcategories.find(sub => sub.name === value);
+    
     setDishData((prev) => ({
       ...prev,
       subcategory: value,
+      subSubCategory: "other" // Reset to "other" when subcategory changes
+    }));
+  };
+
+  const handleSubSubCategoryChange = (value) => {
+    setDishData((prev) => ({
+      ...prev,
+      subSubCategory: value
     }));
   };
 
@@ -501,13 +440,11 @@ export default function EditDishPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="cooked-foods">Cooked Foods</SelectItem>
-                  <SelectItem value="groceries">Groceries</SelectItem>
-                  <SelectItem value="spices">Spices</SelectItem>
-                  <SelectItem value="batter">Batter</SelectItem>
-                  <SelectItem value="fish">Fish</SelectItem>
-                  <SelectItem value="meat">Meat</SelectItem>
-                  <SelectItem value="snacks">Snacks</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.name}>
+                      {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
+                    </SelectItem>
+                  ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -526,15 +463,57 @@ export default function EditDishPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  {categorySubcategories[dishData.category]?.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
+                  {categories
+                    .find(cat => cat.name === dishData.category)
+                    ?.subcategories.map((subcat) => (
+                      <SelectItem key={subcat.name} value={subcat.name}>
+                        {subcat.name.split('-').map(word => 
+                          word.charAt(0).toUpperCase() + word.slice(1)
+                        ).join(' ')}
+                      </SelectItem>
+                    ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
           </div>
+
+          {(() => {
+            const selectedCategory = categories.find(cat => cat.name === dishData.category);
+            const selectedSubcategory = selectedCategory?.subcategories.find(
+              sub => sub.name === dishData.subcategory
+            );
+            
+            if (selectedSubcategory) {
+              return (
+                <div className="flex flex-col my-2 md:col-span-2">
+                  <Label className="mb-2 block text-sm text-slate-400 ml-2">
+                    Sub Subcategory
+                  </Label>
+                  <Select
+                    value={dishData.subSubCategory}
+                    onValueChange={handleSubSubCategoryChange}
+                  >
+                    <SelectTrigger className="w-full bg-slate-100 rounded-md">
+                      <SelectValue placeholder="Select a sub subcategory" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="other">Other</SelectItem>
+                        {selectedSubcategory.subSubcategories.map((subSubcat) => (
+                          <SelectItem key={subSubcat} value={subSubcat}>
+                            {subSubcat.split('-').map(word => 
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                            ).join(' ')}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+              );
+            }
+            return null;
+          })()}
 
           <div className="flex flex-col my-2">
             <label

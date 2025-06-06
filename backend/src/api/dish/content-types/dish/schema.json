@@ -88,8 +88,7 @@
       "required": true
     },
     "subSubCategory": {
-      "type": "json",
-      "required": false
+      "type": "string"
     }
   }
 }

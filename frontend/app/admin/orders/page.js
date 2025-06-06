@@ -236,7 +236,7 @@ const OrdersPage = () => {
   useEffect(() => {
     fetchOrders(currentPage, filterStatus, vendorPaymentStatus, timeFilter);
     fetchFullOrders(timeFilter); // Pass the current time filter
-  }, [currentPage, timeFilter]); // Add timeFilter to dependencies
+  }, [currentPage, timeFilter, filterStatus, vendorPaymentStatus]); // Added missing dependencies
 
   const getStatusClasses = (status) => {
     return STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.default;
