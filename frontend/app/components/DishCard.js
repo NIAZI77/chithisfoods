@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Star, Plus } from "lucide-react";
 import { FaUser } from "react-icons/fa";
 import Link from "next/link";
+import VerificationBadge from "./VerificationBadge";
 
 export default function DishCard({ dish }) {
   return (
@@ -25,7 +26,9 @@ export default function DishCard({ dish }) {
             height={32}
             className="rounded-full w-8 h-8 object-cover object-center"
           />
-          <p className="font-semibold text-sm">{dish.chef.name}</p>
+          <div>
+            <p className="font-semibold text-sm">{dish.chef.name}</p>
+          </div>
         </div>
         <div className="flex items-center gap-1 text-yellow-500 text-sm font-semibold">
           <Star className="w-4 h-4 fill-yellow-500" />

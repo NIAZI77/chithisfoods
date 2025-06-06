@@ -1,116 +1,459 @@
-import React from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import {
+  BadgeCheck,
+  XCircle,
+  FileText,
+  Mail,
+  MapPin,
+  Phone,
+  Building2,
+  Calendar,
+  Eye,
+  User,
+  OctagonAlert,
+} from "lucide-react";
+import Spinner from "@/app/components/Spinner";
+import VerificationBadge from "@/app/components/VerificationBadge";
 
-const VendorVerificationModal = ({ vendor, onClose, onVerify, onReject, isLoading }) => {
-    if (!vendor) return null;
+const VendorVerificationModal = ({
+  vendor,
+  onClose,
+  onVerify,
+  isLoading,
+}) => {
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [isBanning, setIsBanning] = useState(false);
+  const [isUnbanning, setIsUnbanning] = useState(false);
+  const [activeTab, setActiveTab] = useState("store");
+
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  if (!vendor) return null;
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const handleVerify = async () => {
+    if (!vendor.documentId) {
+      console.error("Missing vendor documentId");
+      return;
+    }
+    setIsVerifying(true);
+    try {
+      await onVerify(vendor.documentId, "verified");
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!vendor.documentId) {
+      console.error("Missing vendor documentId");
+      return;
+    }
+    setIsRejecting(true);
+    try {
+      await onVerify(vendor.documentId, "rejected");
+    } finally {
+      setIsRejecting(false);
+    }
+  };
+
+  const handleBan = async () => {
+    if (!vendor.documentId) {
+      console.error("Missing vendor documentId");
+      return;
+    }
+    setIsBanning(true);
+    try {
+      await onVerify(vendor.documentId, "banned");
+    } finally {
+      setIsBanning(false);
+    }
+  };
+
+  const handleUnban = async () => {
+    if (!vendor.documentId) {
+      console.error("Missing vendor documentId");
+      return;
+    }
+    setIsUnbanning(true);
+    try {
+      await onVerify(vendor.documentId, "unverified");
+    } finally {
+      setIsUnbanning(false);
+    }
+  };
+
+  const getStatusBadge = () => {
+    const statusConfig = {
+      verified: {
+        bg: "bg-emerald-50",
+        text: "text-emerald-700",
+        border: "border-emerald-200",
+        icon: <BadgeCheck className="w-4 h-4 inline mr-1" />,
+        label: "Verified",
+      },
+      "new-chef": {
+        bg: "bg-slate-50",
+        text: "text-slate-700",
+        border: "border-slate-200",
+        icon: null,
+        label: "New Chef",
+      },
+      banned: {
+        bg: "bg-rose-50",
+        text: "text-rose-700",
+        border: "border-rose-200",
+        icon: null,
+        label: "Banned",
+      },
+      unverified: {
+        bg: "bg-amber-50",
+        text: "text-amber-700",
+        border: "border-amber-200",
+        icon: null,
+        label: "Unverified",
+      },
+      rejected: {
+        bg: "bg-orange-50",
+        text: "text-orange-700",
+        border: "border-orange-200",
+        icon: <XCircle className="w-4 h-4 inline mr-1" />,
+        label: "Rejected",
+      },
+    };
+
+    const status = vendor.verificationStatus || "unverified";
+    const config = statusConfig[status];
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                <div className="p-6">
-                    <div className="flex justify-between items-start mb-6">
-                        <h2 className="text-2xl font-semibold text-gray-800">Vendor Verification</h2>
-                        <button
-                            onClick={onClose}
-                            className="text-gray-500 hover:text-gray-700 transition-colors"
-                        >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                            <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                                <Image
-                                    src={vendor.avatar?.url || '/placeholder-avatar.jpg'}
-                                    alt={vendor.storeName}
-                                    fill
-                                    className="object-cover"
-                                />
-                            </div>
-                            <div className="relative w-full h-32 rounded-lg overflow-hidden">
-                                <Image
-                                    src={vendor.coverImage?.url || '/placeholder-cover.jpg'}
-                                    alt="Cover"
-                                    fill
-                                    className="object-cover"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <h3 className="font-semibold text-lg mb-2">Store Information</h3>
-                                <div className="space-y-2">
-                                    <p><span className="font-medium">Store Name:</span> {vendor.storeName}</p>
-                                    <p><span className="font-medium">Business Address:</span> {vendor.businessAddress}</p>
-                                    <p><span className="font-medium">City:</span> {vendor.city}</p>
-                                    <p><span className="font-medium">Zipcode:</span> {vendor.zipcode}</p>
-                                </div>
-                            </div>
-
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <h3 className="font-semibold text-lg mb-2">Contact Information</h3>
-                                <div className="space-y-2">
-                                    <p><span className="font-medium">Full Name:</span> {vendor.fullName}</p>
-                                    <p><span className="font-medium">Email:</span> {vendor.email}</p>
-                                    <p><span className="font-medium">Phone:</span> {vendor.phoneNumber}</p>
-                                    <p><span className="font-medium">PayPal Email:</span> {vendor.paypalEmail}</p>
-                                </div>
-                            </div>
-
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <h3 className="font-semibold text-lg mb-2">Additional Information</h3>
-                                <div className="space-y-2">
-                                    <p><span className="font-medium">Bio:</span> {vendor.bio}</p>
-                                    <p><span className="font-medium">Delivery Fee:</span> ${vendor.vendorDeliveryFee}</p>
-                                    <p><span className="font-medium">Rating:</span> {vendor.rating || 'No ratings yet'}</p>
-                                </div>
-                            </div>
-
-                            {vendor.verificationDocument && (
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <h3 className="font-semibold text-lg mb-2">Verification Document</h3>
-                                    <div className="flex items-center gap-2">
-                                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                        </svg>
-                                        <a
-                                            href={vendor.verificationDocument.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-600 hover:text-blue-800 flex items-center gap-2"
-                                        >
-                                            {vendor.verificationDocument.name || 'View Document'}
-                                        </a>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="mt-6 flex justify-end gap-4">
-                        <button
-                            onClick={onReject}
-                            disabled={isLoading}
-                            className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={onVerify}
-                            disabled={isLoading}
-                            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isLoading ? 'Verifying...' : 'Verify Vendor'}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <span
+        className={`px-4 py-2 rounded-lg text-sm font-medium ${config.bg} ${config.text} border ${config.border}`}
+      >
+        {config.icon}
+        {config.label}
+      </span>
     );
+  };
+
+  return (
+    <div 
+      className="fixed inset-0 bg-gray-100/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn"
+      onClick={handleBackdropClick}
+    >
+      <div className="bg-white rounded-2xl w-full sm:max-w-2xl max-h-[90vh] border border-pink-100 shadow-xl flex flex-col relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors p-2 rounded-full"
+          aria-label="Close modal"
+        >
+          <XCircle className="w-6 h-6" />
+        </button>
+
+        <div className="bg-pink-400 p-6 text-white">
+          <div className="flex flex-wrap justify-between items-start gap-4 sm:gap-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:mx-0 mx-auto">
+              <div className="relative h-20 w-20 rounded-xl overflow-hidden border-2 border-white/30 shadow-lg flex-shrink-0">
+                <Image
+                  src={vendor.avatar?.url || "/placeholder-avatar.jpg"}
+                  alt={vendor.storeName}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="text-center sm:text-left">
+                <h2 className="text-lg md:text-2xl font-bold mb-1">{vendor.storeName}</h2>
+                <div className="flex items-center gap-2 text-white/80 flex-col sm:flex-row">
+                  <p className="text-sm">@{vendor.username}</p>
+                  <span className="w-1 h-1 rounded-full bg-white/50 hidden sm:block"></span>
+                  <p className="text-sm flex items-center gap-1">
+                    <Mail className="w-3 h-3" />
+                    {vendor.email}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center sm:justify-start gap-3">
+            <VerificationBadge status={vendor.verificationStatus} size="large" />
+            {vendor.createdAt && (
+              <span className="text-sm text-white/80 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                Joined on {formatDate(vendor.createdAt)}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex border-b border-gray-200 justify-center">
+          <button
+            onClick={() => setActiveTab("store")}
+            className={`flex-shrink-0 flex items-center gap-2 px-4 sm:px-6 py-3 font-medium text-sm transition-colors border-b-2 ${
+              activeTab === "store"
+                ? "text-pink-600 border-pink-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <Building2
+              className={`w-4 h-4 ${
+                activeTab === "store" ? "text-pink-600" : "text-gray-400"
+              }`}
+            />
+            Store Info
+          </button>
+          <button
+            onClick={() => setActiveTab("contact")}
+            className={`flex-shrink-0 flex items-center gap-2 px-4 sm:px-6 py-3 font-medium text-sm transition-colors border-b-2 ${
+              activeTab === "contact"
+                ? "text-pink-600 border-pink-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <User
+              className={`w-4 h-4 ${
+                activeTab === "contact" ? "text-pink-600" : "text-gray-400"
+              }`}
+            />
+            Contact
+          </button>
+          <button
+            onClick={() => setActiveTab("document")}
+            className={`flex-shrink-0 flex items-center gap-2 px-4 sm:px-6 py-3 font-medium text-sm transition-colors border-b-2 ${
+              activeTab === "document"
+                ? "text-pink-600 border-pink-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <FileText
+              className={`w-4 h-4 ${
+                activeTab === "document" ? "text-pink-600" : "text-gray-400"
+              }`}
+            />
+            Verification
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex-1 p-6">
+          {!vendor.verificationDocument && (
+            <div className="bg-yellow-50 p-3 rounded-lg flex items-center justify-center gap-2 my-2">
+              <OctagonAlert className="w-5 h-5 text-yellow-600" /> Document Not Uploaded
+            </div>
+          )}
+          <div className="">
+            {activeTab === "store" && (
+              <div className="space-y-6 animate-fadeIn flex justify-center">
+                <div className="p-4 sm:p-6 w-full">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-gray-500 flex items-center gap-1">
+                        <MapPin className="w-4 h-4 text-pink-500" />
+                        Business Address
+                      </p>
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">
+                        {vendor.businessAddress}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-gray-500">City</p>
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">{vendor.city}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-gray-500">Zipcode</p>
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">
+                        {vendor.zipcode}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-gray-500">Delivery Fee</p>
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">
+                        ${vendor.vendorDeliveryFee}
+                      </p>
+                    </div>
+                    <div className="col-span-1 sm:col-span-2 space-y-1">
+                      <p className="text-sm font-medium text-gray-500">Bio</p>
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">{vendor.bio}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "contact" && (
+              <div className="space-y-6 animate-fadeIn flex justify-center">
+                <div className="p-4 sm:p-6 w-full">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-gray-500">Full Name</p>
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">
+                        {vendor.fullName}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-gray-500 flex items-center gap-1">
+                        <Phone className="w-4 h-4 text-pink-500" />
+                        Phone
+                      </p>
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">
+                        {vendor.phoneNumber}
+                      </p>
+                    </div>
+                    <div className="col-span-1 sm:col-span-2 space-y-1">
+                      <p className="text-sm font-medium text-gray-500 flex items-center gap-1">
+                        <Mail className="w-4 h-4 text-pink-500" />
+                        PayPal Email
+                      </p>
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">
+                        {vendor.paypalEmail || "Not provided"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "document" && (
+              <div className="space-y-6 animate-fadeIn flex justify-center">
+                {vendor.verificationDocument ? (
+                  <div className="bg-white rounded-xl border border-gray-200 overflow-hidden w-full max-w-lg">
+                    <div className="p-4 sm:p-5 border-b border-gray-100 shadow-lg">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 shadow-lg rounded-lg flex-shrink-0">
+                            <FileText className="w-5 h-5 text-pink-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900 text-sm sm:text-base">
+                              Verification Document
+                            </h4>
+                            <p className="text-xs text-gray-500 flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              Uploaded on{" "}
+                              {formatDate(vendor.verificationDocument.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                        <a
+                          href={vendor.verificationDocument.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow flex-shrink-0"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View Document
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 text-center w-full max-w-lg">
+                    <div className="p-3 bg-pink-50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                      <FileText className="w-8 h-8 text-pink-500" />
+                    </div>
+                    <h4 className="text-lg font-medium text-gray-900 mb-2">
+                      No Document Uploaded
+                    </h4>
+                    <p className="text-gray-500 max-w-md mx-auto mb-6 text-sm sm:text-base">
+                      This vendor needs to upload their verification document
+                      before proceeding with verification.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="border-t border-gray-200 p-4 bg-pink-50">
+          <div className="flex flex-wrap justify-center sm:justify-end gap-3">
+            {vendor.verificationStatus === "banned" ? (
+              <button
+                onClick={handleUnban}
+                disabled={isLoading || isUnbanning}
+                className="px-5 py-2.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-sm hover:shadow text-sm"
+              >
+                {isUnbanning ? (
+                  <Spinner size={20} color="white" />
+                ) : (
+                  "Unban Vendor"
+                )}
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleBan}
+                  disabled={isLoading || isBanning}
+                  className="px-5 py-2.5 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-sm hover:shadow text-sm"
+                >
+                  {isBanning ? (
+                    <Spinner size={20} color="white" />
+                  ) : (
+                    "Ban Vendor"
+                  )}
+                </button>
+                {vendor.verificationDocument && (
+                  <>
+                    <button
+                      onClick={handleReject}
+                      disabled={
+                        isLoading ||
+                        isRejecting ||
+                        vendor.verificationStatus === "rejected"
+                      }
+                      className="px-5 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-sm hover:shadow text-sm"
+                    >
+                      {isRejecting ? (
+                        <Spinner size={20} color="white" />
+                      ) : (
+                        "Reject"
+                      )}
+                    </button>
+                    <button
+                      onClick={handleVerify}
+                      disabled={
+                        isLoading ||
+                        isVerifying ||
+                        vendor.verificationStatus === "verified"
+                      }
+                      className="px-5 py-2.5 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-sm hover:shadow text-sm"
+                    >
+                      {isVerifying ? (
+                        <Spinner size={20} color="white" />
+                      ) : (
+                        "Verify"
+                      )}
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default VendorVerificationModal; 
+export default VendorVerificationModal;

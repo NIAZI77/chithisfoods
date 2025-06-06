@@ -117,23 +117,6 @@ export default function AdminSidebar() {
             </span>
           )}
         </Link>
-
-        <Link
-          href="/admin/personal-settings"
-          className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 hover:bg-pink-700 hover:text-white border-l-[3px] border-transparent ${
-            isActive("/admin/personal-settings") &&
-            "text-pink-600 !border-pink-600 !border-l-4 bg-pink-50"
-          }
-            }`}
-        >
-          <User className="w-5 h-5" />
-          {!collapsed && (
-            <span className="whitespace-nowrap font-medium">
-              Personal Settings
-            </span>
-          )}
-        </Link>
-
         <Link
           href="/admin/global-settings"
           className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 hover:bg-pink-700 hover:text-white border-l-[3px] border-transparent ${

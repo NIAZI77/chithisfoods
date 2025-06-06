@@ -86,6 +86,10 @@
     "zipcode": {
       "type": "biginteger",
       "required": true
+    },
+    "subSubCategory": {
+      "type": "json",
+      "required": false
     }
   }
 }

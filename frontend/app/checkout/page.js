@@ -6,16 +6,21 @@ import {
   Truck,
   Lock,
   User,
+  Calendar,
+  Clock,
 } from "lucide-react";
 import { HiOutlineReceiptTax } from "react-icons/hi";
 import { LuSquareSigma } from "react-icons/lu";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { FaShoppingBag } from "react-icons/fa";
 import { getCookie } from "cookies-next";
 import Spinner from "../components/Spinner";
 import Loading from "../loading";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker"; // Ensure this import is correct
 
 const TAX_PERCENTAGE = 10;
 const initialFormData = {
@@ -27,6 +32,11 @@ const initialFormData = {
   note: "",
   user: "",
   deliveryType: "delivery",
+  deliveryDate: new Date(),
+  deliveryTime:
+    new Date().getHours().toString().padStart(2, "0") +
+    ":" +
+    (Math.floor(new Date().getMinutes() / 30) * 30).toString().padStart(2, "0"),
 };
 
 const Page = () => {
@@ -38,7 +48,8 @@ const Page = () => {
   const [tax, setTax] = useState(0);
   const [deliveryFeeLoading, setDeliveryFeeLoading] = useState(false);
 
-  const validateCart = () => {
+  // Memoized function to validate cart
+  const validateCart = useCallback(() => {
     const storedCartItems = localStorage.getItem("cart");
     if (!storedCartItems || JSON.parse(storedCartItems).length === 0) {
       toast.error("Your cart is empty. Please add items before checkout.");
@@ -47,43 +58,58 @@ const Page = () => {
     }
     setCartItems(JSON.parse(storedCartItems));
     return true;
-  };
-  const getAllVendorsDeliveryFees = async (cartItems) => {
+  }, [router]);
+
+  // Optimized function to get vendor delivery fees
+  const getAllVendorsDeliveryFees = useCallback(async (cartItems) => {
+    if (!cartItems.length) return;
+    
     setDeliveryFeeLoading(true);
-    const vendorIds = [
-      ...new Set(cartItems.map((vendorGroup) => vendorGroup.vendorId)),
-    ];
-    const vendorDeliveryFees = await Promise.all(
-      vendorIds.map(async (vendorId) => {
-        try {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}?fields[0]=vendorDeliveryFee&fields[1]=storeName`,
-            {
-              headers: {
-                Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (!res.ok) throw new Error("Failed to fetch vendor info");
-          const data = await res.json();
-          return {
-            vendorId,
-            storeName: data.data?.storeName || "Unknown Vendor",
-            vendorDeliveryFee: Number(data.data?.vendorDeliveryFee) || 0,
-          };
-        } catch {
-          return {
-            vendorId,
-            storeName: "Unknown Vendor",
-            vendorDeliveryFee: 0,
-          };
-        }
-      })
-    );
-    setDeliveryFees(vendorDeliveryFees);
-    setDeliveryFeeLoading(false);
-  };
+    try {
+      const vendorIds = [
+        ...new Set(cartItems.map((vendorGroup) => vendorGroup.vendorId)),
+      ];
+      
+      const vendorDeliveryFees = await Promise.all(
+        vendorIds.map(async (vendorId) => {
+          try {
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}?fields[0]=vendorDeliveryFee&fields[1]=storeName`,
+              {
+                headers: {
+                  Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+            if (!res.ok) throw new Error("Failed to fetch vendor info");
+            const data = await res.json();
+            return {
+              vendorId,
+              storeName: data.data?.storeName || "Unknown Vendor",
+              vendorDeliveryFee: Number(data.data?.vendorDeliveryFee) || 0,
+            };
+          } catch (error) {
+            console.error(`Error fetching vendor ${vendorId}:`, error);
+            return {
+              vendorId,
+              storeName: "Unknown Vendor",
+              vendorDeliveryFee: 0,
+            };
+          }
+        })
+      );
+      
+      setDeliveryFees(vendorDeliveryFees);
+    } catch (error) {
+      console.error("Error fetching delivery fees:", error);
+      toast.error("Failed to load delivery fees. Please try again.");
+    } finally {
+      setDeliveryFeeLoading(false);
+    }
+  }, []);
+
+  // Authentication check on component mount
   useEffect(() => {
     const checkAuth = async () => {
       const user = getCookie("user");
@@ -97,63 +123,80 @@ const Page = () => {
       validateCart();
     };
     checkAuth();
-  }, [router]);
+  }, [router, validateCart]);
 
+  // Fetch delivery fees when cart items change
   useEffect(() => {
     if (cartItems.length > 0) {
       getAllVendorsDeliveryFees(cartItems);
     } else {
       setDeliveryFees([]);
     }
-  }, [cartItems]);
+  }, [cartItems, getAllVendorsDeliveryFees]);
 
-  const handleChange = (e) => {
+  // Handle form input changes
+  const handleChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-  };
+  }, []);
 
-  const calculateSubtotal = () => {
-    return Number(
-      cartItems
-        .reduce((sum, vendor) => {
-          const vendorTotal = vendor.dishes.reduce((dishSum, dish) => {
-            const toppingsTotal = dish.toppings.reduce(
-              (tSum, topping) => tSum + (Number(topping.price) || 0),
-              0
-            );
-            const extrasTotal = dish.extras.reduce(
-              (eSum, extra) => eSum + (Number(extra.price) || 0),
-              0
-            );
-            return (
-              dishSum +
-              (Number(dish.basePrice) + toppingsTotal + extrasTotal) *
-                Number(dish.quantity)
-            );
-          }, 0);
-          return sum + vendorTotal;
-        }, 0)
-        .toFixed(2)
+  // Calculate subtotal with memoization to avoid recalculation
+  const calculateSubtotal = useCallback(() => {
+    if (!cartItems.length) return 0;
+    
+    return cartItems.reduce((sum, vendor) => {
+      const vendorTotal = vendor.dishes.reduce((dishSum, dish) => {
+        const toppingsTotal = dish.toppings.reduce(
+          (tSum, topping) => tSum + (Number(topping.price) || 0),
+          0
+        );
+        const extrasTotal = dish.extras.reduce(
+          (eSum, extra) => eSum + (Number(extra.price) || 0),
+          0
+        );
+        return (
+          dishSum +
+          (Number(dish.basePrice) + toppingsTotal + extrasTotal) *
+            Number(dish.quantity)
+        );
+      }, 0);
+      return sum + vendorTotal;
+    }, 0);
+  }, [cartItems]);
+
+  // Memoized values to prevent unnecessary recalculations
+  const subtotal = useMemo(() => {
+    const calculatedSubtotal = calculateSubtotal();
+    return Number(calculatedSubtotal.toFixed(2));
+  }, [calculateSubtotal]);
+  
+  const calculatedTax = useMemo(() => {
+    return Number(((subtotal * TAX_PERCENTAGE) / 100).toFixed(2));
+  }, [subtotal]);
+  
+  const totalDeliveryFee = useMemo(() => {
+    return deliveryFees.reduce(
+      (a, b) => a + (b.vendorDeliveryFee || 0),
+      0
     );
-  };
+  }, [deliveryFees]);
+  
+  const total = useMemo(() => {
+    return Number(
+      (subtotal + calculatedTax + totalDeliveryFee).toFixed(2)
+    );
+  }, [subtotal, calculatedTax, totalDeliveryFee]);
 
-  const subtotal = Number(calculateSubtotal().toFixed(2));
-  const calculatedTax = Number(((subtotal * TAX_PERCENTAGE) / 100).toFixed(2));
-  const totalDeliveryFee = deliveryFees.reduce(
-    (a, b) => a + (b.vendorDeliveryFee || 0),
-    0
-  );
-  const total = Number(
-    (subtotal + calculatedTax + totalDeliveryFee).toFixed(2)
-  );
+  // Update tax when calculated tax changes
   useEffect(() => {
     setTax(calculatedTax);
   }, [calculatedTax]);
 
-  const addOrder = async (orderData) => {
+  // Optimized function to add an order
+  const addOrder = useCallback(async (orderData) => {
     try {
       const user = getCookie("user");
       if (!user) {
@@ -183,8 +226,9 @@ const Page = () => {
         error.message || "Failed to place order. Please try again."
       );
     }
-  };
+  }, []);
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -198,33 +242,15 @@ const Page = () => {
         return;
       }
 
-      const orderSubtotal = cartItems.reduce((sum, vendor) => {
-        const vendorSubtotal = vendor.dishes.reduce((dishSum, dish) => {
-          const toppingsTotal = dish.toppings.reduce(
-            (tSum, topping) => tSum + (Number(topping.price) || 0),
-            0
-          );
-          const extrasTotal = dish.extras.reduce(
-            (eSum, extra) => eSum + (Number(extra.price) || 0),
-            0
-          );
-          return (
-            dishSum +
-            (Number(dish.basePrice) + toppingsTotal + extrasTotal) *
-              Number(dish.quantity)
-          );
-        }, 0);
-        return sum + vendorSubtotal;
-      }, 0);
+      // Calculate order subtotal once to avoid redundant calculations
+      const orderSubtotal = calculateSubtotal();
 
       const orderTax = Number(
         ((orderSubtotal * TAX_PERCENTAGE) / 100).toFixed(2)
       );
-      const orderTotal = Number(
-        (orderSubtotal + orderTax + totalDeliveryFee).toFixed(2)
-      );
-
-      const vendorProportions = cartItems.map((vendor, index) => {
+      
+      // Create vendor proportions map for tax distribution
+      const vendorProportions = cartItems.map((vendor) => {
         const vendorSubtotal = vendor.dishes.reduce((sum, dish) => {
           const toppingsTotal = dish.toppings.reduce(
             (tSum, topping) => tSum + (Number(topping.price) || 0),
@@ -242,10 +268,11 @@ const Page = () => {
         }, 0);
         return {
           subtotal: vendorSubtotal,
-          proportion: vendorSubtotal / orderSubtotal,
+          proportion: orderSubtotal > 0 ? vendorSubtotal / orderSubtotal : 0,
         };
       });
 
+      // Create order promises with proper error handling
       const orderPromises = cartItems.map((vendor, index) => {
         const { subtotal: vendorSubtotal } = vendorProportions[index];
         const vendorTax = Number(
@@ -260,7 +287,8 @@ const Page = () => {
         const vendorTotal = Number(
           (vendorSubtotal + vendorTax + vendorDeliveryFee).toFixed(2)
         );
-
+        
+        // Prepare order data
         const orderData = {
           customerName: formData.name,
           customerOrderId,
@@ -276,6 +304,12 @@ const Page = () => {
           totalAmount: vendorTotal,
           paymentStatus: "paid",
           deliveryType: formData.deliveryType,
+          deliveryDate: formData.deliveryDate
+            ? format(formData.deliveryDate, "yyyy-MM-dd")
+            : "",
+          deliveryTime: formData.deliveryTime?.match(/^\d{2}:\d{2}$/)
+            ? `${formData.deliveryTime}:00.000`
+            : formData.deliveryTime || "",
           orderTotal: total,
           deliveryFee: totalDeliveryFee,
           vendorDeliveryFee: vendorDeliveryFee,
@@ -286,6 +320,7 @@ const Page = () => {
         return addOrder(orderData);
       });
 
+      // Process all orders in parallel
       await Promise.all(orderPromises);
       toast.success("Your order has been placed successfully!");
       localStorage.removeItem("cart");
@@ -297,6 +332,7 @@ const Page = () => {
       setSubmitting(false);
     }
   };
+  
   if (deliveryFeeLoading) return <Loading />;
 
   return (
@@ -436,6 +472,46 @@ const Page = () => {
                   </div>
                 </div>
               </div>
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                  <label className="block font-semibold text-sm text-slate-500 pl-3">
+                    Delivery Date
+                  </label>
+                  <DatePicker
+                    value={formData.deliveryDate}
+                    onChange={(date) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        deliveryDate: date,
+                      }));
+                    }}
+                    minDate={new Date()}
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-sm text-slate-500 pl-3">
+                    Delivery Time
+                  </label>
+                  <TimePicker
+                    value={formData.deliveryTime}
+                    onChange={(time) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        deliveryTime: time,
+                      }));
+                    }}
+                    minTime={
+                      format(formData.deliveryDate, "yyyy-MM-dd") ===
+                      format(new Date(), "yyyy-MM-dd")
+                        ? format(new Date(), "HH:mm")
+                        : undefined
+                    }
+                    deliveryDate={formData.deliveryDate} // Pass deliveryDate for time validation
+                    className="w-full"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -486,7 +562,7 @@ const Page = () => {
                 Total
               </span>
               <span className="text-rose-600">
-                ${(subtotal + tax + totalDeliveryFee).toFixed(2)}
+                ${total.toFixed(2)}
               </span>
             </div>
           </div>

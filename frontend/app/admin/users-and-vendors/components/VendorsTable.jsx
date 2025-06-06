@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import { BadgeCheck } from 'lucide-react';
+import { BadgeCheck, XCircle } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import Pagination from "@/app/admin/users-and-vendors/components/Pagination";
 import Spinner from '@/app/components/Spinner';
+import VerificationBadge from '@/app/components/VerificationBadge';
 import VendorVerificationModal from './VendorVerificationModal';
 
 const VendorsTable = ({
@@ -24,7 +25,9 @@ const VendorsTable = ({
     onSearchChange,
     onSearchSubmit,
     filter,
-    onFilterChange
+    onFilterChange,
+    docFilter,
+    onDocFilterChange
 }) => {
     const [selectedVendor, setSelectedVendor] = useState(null);
 
@@ -36,6 +39,10 @@ const VendorsTable = ({
     };
 
     const handleVerifyClick = (vendor) => {
+        if (!vendor.documentId) {
+            console.error('Missing vendor documentId');
+            return;
+        }
         setSelectedVendor(vendor);
     };
 
@@ -43,10 +50,16 @@ const VendorsTable = ({
         setSelectedVendor(null);
     };
 
-    const handleVerify = async () => {
-        if (selectedVendor) {
-            await onVerifyVendor(selectedVendor.documentId);
+    const handleVerify = async (documentId, newStatus) => {
+        if (!documentId || !newStatus) {
+            console.error('Missing required parameters for verification');
+            return;
+        }
+        try {
+            await onVerifyVendor(documentId, newStatus);
             handleCloseModal();
+        } catch (error) {
+            console.error('Error verifying vendor:', error);
         }
     };
 
@@ -75,13 +88,24 @@ const VendorsTable = ({
                         </form>
                         <Select value={filter} onValueChange={onFilterChange}>
                             <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Filter vendors" />
+                                <SelectValue placeholder="Filter by status" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Vendors</SelectItem>
-                                <SelectItem value="verified">Verified Vendors</SelectItem>
-                                <SelectItem value="new">New Chefs</SelectItem>
-                                <SelectItem value="unverified">Unverified Vendors</SelectItem>
+                                <SelectItem value="verified">Verified</SelectItem>
+                                <SelectItem value="new">New</SelectItem>
+                                <SelectItem value="unverified">Unverified</SelectItem>
+                                <SelectItem value="banned">Banned</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Select value={docFilter} onValueChange={onDocFilterChange}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Filter by documents" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="with_docs">With Documents</SelectItem>
+                                <SelectItem value="without_docs">Without Documents</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -91,16 +115,13 @@ const VendorsTable = ({
                         <thead>
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                    Vendor Name
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                    Email
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                    Registration Date
+                                    Store Name
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                     Status
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                    Joined
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                     Actions
@@ -110,67 +131,47 @@ const VendorsTable = ({
                         <tbody className="divide-y divide-gray-200">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-8">
+                                    <td colSpan="4" className="px-6 py-8">
                                         <Spinner />
                                     </td>
                                 </tr>
                             ) : vendors.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                                    <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
                                         No vendors found
                                     </td>
                                 </tr>
                             ) : (
                                 vendors.map((vendor) => (
-                                    <tr key={vendor.documentId}>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {vendor.storeName}
+                                    <tr key={vendor.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                <div className="flex-shrink-0 h-10 w-10">
+                                                    <img
+                                                        className="h-10 w-10 rounded-full object-cover"
+                                                        src={vendor.avatar?.url || '/placeholder-avatar.jpg'}
+                                                        alt={vendor.storeName}
+                                                    />
+                                                </div>
+                                                <div className="ml-4">
+                                                    <div className="text-sm font-medium text-gray-900">{vendor.storeName}</div>
+                                                    <div className="text-sm text-gray-500">{vendor.email}</div>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {vendor.email}
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <VerificationBadge status={vendor.verificationStatus} size="default" />
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {formatDate(vendor.createdAt)}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {(() => {
-                                                switch (vendor.verificationStatus) {
-                                                    case 'verified':
-                                                        return (
-                                                            <span className="flex items-center justify-center gap-1 bg-green-100 text-green-600 py-0.5 px-2 rounded-full text-xs w-24">
-                                                                <BadgeCheck size={14} /> Verified
-                                                            </span>
-                                                        );
-                                                    case 'new-chef':
-                                                        return (
-                                                            <span className="flex items-center justify-center gap-1 bg-gray-200 text-gray-600 py-0.5 px-2 rounded-full text-xs w-24">
-                                                                <BadgeCheck size={14} /> New Chef
-                                                            </span>
-                                                        );
-                                                    case 'unverified':
-                                                        return (
-                                                            <span className="flex items-center justify-center gap-1 bg-yellow-100 text-yellow-600 py-0.5 px-2 rounded-full text-xs w-24">
-                                                                <BadgeCheck size={14} /> Unverified
-                                                            </span>
-                                                        );
-                                                    default:
-                                                        return (
-                                                            <span className="flex items-center justify-center gap-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs w-24">
-                                                                <BadgeCheck size={14} /> Unknown
-                                                            </span>
-                                                        );
-                                                }
-                                            })()}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {vendor.verificationStatus !== 'verified' && (
-                                                <button
-                                                    onClick={() => handleVerifyClick(vendor)}
-                                                    className="text-green-600 hover:text-green-900 font-medium mr-3"
-                                                >
-                                                    Verify
-                                                </button>
-                                            )}
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button
+                                                onClick={() => handleVerifyClick(vendor)}
+                                                className='px-5 py-2.5 text-pink-100 bg-pink-500 rounded-full'
+                                            >
+                                                See Details
+                                            </button>
                                         </td>
                                     </tr>
                                 ))

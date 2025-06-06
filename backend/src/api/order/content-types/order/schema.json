@@ -119,6 +119,14 @@
         "refunded"
       ],
       "default": "unpaid"
+    },
+    "deliveryDate": {
+      "type": "date",
+      "required": false
+    },
+    "deliveryTime": {
+      "type": "time",
+      "required": true
     }
   }
 }

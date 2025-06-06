@@ -369,6 +369,62 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiAdminAdmin extends Struct.CollectionTypeSchema {
+  collectionName: 'admins';
+  info: {
+    description: '';
+    displayName: 'Admin';
+    pluralName: 'admins';
+    singularName: 'admin';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::admin.admin'> &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    taxPercentage: Schema.Attribute.Integer;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
+  collectionName: 'categories';
+  info: {
+    displayName: 'Category';
+    pluralName: 'categories';
+    singularName: 'category';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::category.category'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    subcategories: Schema.Attribute.JSON & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiDishDish extends Struct.CollectionTypeSchema {
   collectionName: 'dishes';
   info: {
@@ -404,6 +460,7 @@ export interface ApiDishDish extends Struct.CollectionTypeSchema {
     servings: Schema.Attribute.Integer & Schema.Attribute.Required;
     spiciness: Schema.Attribute.JSON & Schema.Attribute.Required;
     subcategory: Schema.Attribute.String & Schema.Attribute.Required;
+    subSubCategory: Schema.Attribute.JSON;
     toppings: Schema.Attribute.JSON;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -431,7 +488,9 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     customerName: Schema.Attribute.String & Schema.Attribute.Required;
     customerOrderId: Schema.Attribute.BigInteger & Schema.Attribute.Required;
+    deliveryDate: Schema.Attribute.Date;
     deliveryFee: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
+    deliveryTime: Schema.Attribute.Time & Schema.Attribute.Required;
     deliveryType: Schema.Attribute.Enumeration<['delivery', 'pickup']> &
       Schema.Attribute.DefaultTo<'delivery'>;
     dishes: Schema.Attribute.JSON & Schema.Attribute.Required;
@@ -518,7 +577,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
     vendorDeliveryFee: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
     verificationDocument: Schema.Attribute.Media<'images' | 'files'>;
     verificationStatus: Schema.Attribute.Enumeration<
-      ['new-chef', 'verified', 'unverified']
+      ['new-chef', 'verified', 'unverified', 'banned', 'rejected']
     > &
       Schema.Attribute.DefaultTo<'new-chef'>;
     zipcode: Schema.Attribute.BigInteger & Schema.Attribute.Required;
@@ -1034,6 +1093,8 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::admin.admin': ApiAdminAdmin;
+      'api::category.category': ApiCategoryCategory;
       'api::dish.dish': ApiDishDish;
       'api::order.order': ApiOrderOrder;
       'api::vendor.vendor': ApiVendorVendor;

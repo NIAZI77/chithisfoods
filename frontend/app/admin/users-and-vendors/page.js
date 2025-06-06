@@ -35,6 +35,7 @@ const UsersAndVendorsPage = () => {
     const [vendorsSearchQuery, setVendorsSearchQuery] = useState("");
     const [usersFilter, setUsersFilter] = useState("all"); // all, active, blocked
     const [vendorsFilter, setVendorsFilter] = useState("all"); // all, verified, new
+    const [vendorsDocFilter, setVendorsDocFilter] = useState("all"); // all, with_docs, without_docs
 
     // Fetch functions using Strapi APIs
     const fetchUsers = async (page = 1, search = "", filter = "all") => {
@@ -43,26 +44,26 @@ const UsersAndVendorsPage = () => {
             const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users`;
             const pagination = `pagination[page]=${page}&pagination[pageSize]=${itemsPerPage}`;
             const sort = "sort=createdAt:desc";
-            
+
             // Simple search filter
             const searchFilter = search ? `&filters[$or][0][username][$containsi]=${search}&filters[$or][1][email][$containsi]=${search}` : "";
             const statusFilter = filter !== "all" ? `&filters[blocked]=${filter === "blocked"}` : "";
-            
+
             const apiUrl = `${baseUrl}?${pagination}&${sort}${searchFilter}${statusFilter}`;
-            
+
             const headers = {
                 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
                 'Content-Type': 'application/json',
             };
 
             const response = await fetch(apiUrl, { headers });
-            
+
             if (!response.ok) {
                 throw new Error('Failed to fetch users');
             }
 
             const data = await response.json();
-            
+
             // Handle both Strapi v4 and direct array responses
             if (data.data && data.meta) {
                 // Strapi v4 response format
@@ -75,7 +76,7 @@ const UsersAndVendorsPage = () => {
                 const startIndex = (page - 1) * itemsPerPage;
                 const endIndex = startIndex + itemsPerPage;
                 const paginatedData = data.slice(startIndex, endIndex);
-                
+
                 setUsersList(paginatedData);
                 setTotalUsersPages(totalPages);
             } else {
@@ -141,7 +142,7 @@ const UsersAndVendorsPage = () => {
         }
     };
 
-    const fetchVendors = async (page = 1, search = "", filter = "all") => {
+    const fetchVendors = async (page = 1, search = "", filter = "all", docFilter = "all") => {
         setIsVendorsLoading(true);
         try {
             const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors`;
@@ -151,17 +152,29 @@ const UsersAndVendorsPage = () => {
             // Simple search filter
             const searchFilter = search ? `&filters[$or][0][storeName][$containsi]=${search}&filters[$or][1][email][$containsi]=${search}` : "";
             
-            // Updated status filter for vendors
+            // Status filter
             let statusFilter = "";
             if (filter === "verified") {
                 statusFilter = "&filters[verificationStatus][$eq]=verified";
             } else if (filter === "new") {
-                statusFilter = "&filters[verificationStatus][$eq]=new-chef";
+                statusFilter = "&filters[$or][0][verificationStatus][$eq]=new-chef&filters[$or][1][verificationStatus][$null]=true";
             } else if (filter === "unverified") {
                 statusFilter = "&filters[verificationStatus][$eq]=unverified";
+            } else if (filter === "banned") {
+                statusFilter = "&filters[verificationStatus][$eq]=banned";
+            } else if (filter === "rejected") {
+                statusFilter = "&filters[verificationStatus][$eq]=rejected";
+            }
+
+            // Document filter
+            let documentFilter = "";
+            if (docFilter === "with_docs") {
+                documentFilter = "&filters[verificationDocument][$notNull]=true";
+            } else if (docFilter === "without_docs") {
+                documentFilter = "&filters[verificationDocument][$null]=true";
             }
             
-            const apiUrl = `${baseUrl}?${pagination}&${sort}${searchFilter}${statusFilter}&populate=*`;
+            const apiUrl = `${baseUrl}?${pagination}&${sort}${searchFilter}${statusFilter}${documentFilter}&populate=*`;
             
             const headers = {
                 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
@@ -176,21 +189,14 @@ const UsersAndVendorsPage = () => {
 
             const data = await response.json();
             
-            // Handle both Strapi v4 and direct array responses
+            // Handle Strapi v5.12 response format and normalize verificationStatus
             if (data.data && data.meta) {
-                // Strapi v4 response format
-                setVendorsList(data.data);
+                const normalizedVendors = data.data.map(vendor => ({
+                    ...vendor,
+                    verificationStatus: vendor.verificationStatus || 'new-chef' // Set default status
+                }));
+                setVendorsList(normalizedVendors);
                 setTotalVendorsPages(data.meta.pagination.pageCount);
-            } else if (Array.isArray(data)) {
-                // Direct array response - calculate pagination manually
-                const totalItems = data.length;
-                const totalPages = Math.ceil(totalItems / itemsPerPage);
-                const startIndex = (page - 1) * itemsPerPage;
-                const endIndex = startIndex + itemsPerPage;
-                const paginatedData = data.slice(startIndex, endIndex);
-                
-                setVendorsList(paginatedData);
-                setTotalVendorsPages(totalPages);
             } else {
                 throw new Error('Invalid data format received from API');
             }
@@ -227,21 +233,13 @@ const UsersAndVendorsPage = () => {
 
             const data = await response.json();
             
-            // Handle both direct array response and Strapi-style response
-            const vendorsData = Array.isArray(data) ? data : (data.data || []);
-
-            if (!Array.isArray(vendorsData)) {
-                console.error('Invalid data format received:', data);
+            // Handle Strapi v5.12 response format
+            if (data.data) {
+                // No need to transform data since it already has documentId
+                setVendorsForChart(data.data);
+            } else {
                 throw new Error('Invalid data format received from API');
             }
-
-            // Transform the data to ensure we have the correct structure
-            const transformedData = vendorsData.map(vendor => ({
-                id: vendor.id,
-                verificationStatus: vendor.attributes?.verificationStatus || vendor.verificationStatus || 'unverified'
-            }));
-
-            setVendorsForChart(transformedData);
         } catch (error) {
             console.error('Error fetching vendors chart data:', {
                 message: error.message,
@@ -266,7 +264,7 @@ const UsersAndVendorsPage = () => {
                 await Promise.all([
                     fetchUsers(1, "", "all"),
                     fetchUsersForChart(),
-                    fetchVendors(1, "", "all"),
+                    fetchVendors(1, "", "all", "all"),
                     fetchVendorsForChart()
                 ]);
             } catch (error) {
@@ -290,7 +288,7 @@ const UsersAndVendorsPage = () => {
     const handleVendorsSearch = (e) => {
         e.preventDefault();
         setCurrentVendorsPage(1);
-        fetchVendors(1, vendorsSearchQuery, vendorsFilter);
+        fetchVendors(1, vendorsSearchQuery, vendorsFilter, vendorsDocFilter);
     };
 
     // Remove the useEffect for search changes
@@ -299,8 +297,8 @@ const UsersAndVendorsPage = () => {
     }, [currentUsersPage, usersFilter]);
 
     useEffect(() => {
-        fetchVendors(currentVendorsPage, "", vendorsFilter);
-    }, [currentVendorsPage, vendorsFilter]);
+        fetchVendors(currentVendorsPage, "", vendorsFilter, vendorsDocFilter);
+    }, [currentVendorsPage, vendorsFilter, vendorsDocFilter]);
 
     // Handle page changes
     const handleUsersPageChange = (page) => {
@@ -323,10 +321,17 @@ const UsersAndVendorsPage = () => {
         setVendorsFilter(newFilter);
         setVendorsSearchQuery(""); // Clear search when filter changes
         setCurrentVendorsPage(1); // Reset to first page
-        fetchVendors(1, "", newFilter); // Fetch with empty search
+        fetchVendors(1, "", newFilter, vendorsDocFilter); // Fetch with empty search
     };
 
-    // Update metrics calculation to use fetched data
+    const handleVendorsDocFilterChange = (newDocFilter) => {
+        setVendorsDocFilter(newDocFilter);
+        setVendorsSearchQuery(""); // Clear search when filter changes
+        setCurrentVendorsPage(1); // Reset to first page
+        fetchVendors(1, "", vendorsFilter, newDocFilter); // Fetch with empty search
+    };
+
+    // Update metrics calculation to use documentId
     const metrics = {
         users: {
             total: usersForChart?.length || 0,
@@ -335,8 +340,10 @@ const UsersAndVendorsPage = () => {
         vendors: {
             total: vendorsForChart?.length || 0,
             verified: vendorsForChart?.filter(vendor => vendor.verificationStatus === 'verified').length || 0,
-            newChefs: vendorsForChart?.filter(vendor => vendor.verificationStatus === 'new-chef').length || 0,
+            newChefs: vendorsForChart?.filter(vendor => vendor.verificationStatus === 'new-chef' || vendor.verificationStatus === null).length || 0,
             unverified: vendorsForChart?.filter(vendor => vendor.verificationStatus === 'unverified').length || 0,
+            banned: vendorsForChart?.filter(vendor => vendor.verificationStatus === 'banned').length || 0,
+            rejected: vendorsForChart?.filter(vendor => vendor.verificationStatus === 'rejected').length || 0,
         },
     };
 
@@ -350,34 +357,122 @@ const UsersAndVendorsPage = () => {
         { name: 'Verified', value: metrics.vendors.verified },
         { name: 'New', value: metrics.vendors.newChefs },
         { name: 'Unverified', value: metrics.vendors.unverified },
+        { name: 'Banned', value: metrics.vendors.banned },
+        { name: 'Rejected', value: metrics.vendors.rejected },
     ];
 
-    // Update handleVerifyVendor to use new status values
-    const handleVerifyVendor = async (vendorId) => {
+    // Update handleVerifyVendor with better error handling and API response handling
+    const handleVerifyVendor = async (documentId, newStatus) => {
+        console.log('handleVerifyVendor called with:', { documentId, newStatus });
+        
+        const validStatuses = ['verified', 'unverified', 'new-chef', 'banned', 'rejected'];
+        const statusTransitions = {
+            'new-chef': ['verified', 'unverified', 'banned', 'rejected'],
+            'unverified': ['verified', 'banned', 'rejected'],
+            'verified': ['banned', 'unverified', 'rejected'],
+            'banned': ['verified', 'unverified', 'rejected'],
+            'rejected': ['verified', 'unverified', 'banned']
+        };
+        
+        if (!documentId) {
+            console.error('Missing documentId');
+            toast.error('Invalid vendor ID');
+            return;
+        }
+
+        if (!newStatus) {
+            console.error('Missing verification status');
+            toast.error('Please select a verification status');
+            return;
+        }
+
+        if (!validStatuses.includes(newStatus)) {
+            console.error('Invalid verification status:', newStatus, 'Valid statuses are:', validStatuses);
+            toast.error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+            return;
+        }
+
+        // Find current vendor status
+        const currentVendor = vendorsList.find(v => v.documentId === documentId);
+        if (!currentVendor) {
+            console.error('Vendor not found');
+            toast.error('Vendor not found');
+            return;
+        }
+
+        const currentStatus = currentVendor.verificationStatus || 'new-chef';
+        
+        // Validate status transition
+        if (!statusTransitions[currentStatus]?.includes(newStatus)) {
+            console.error('Invalid status transition:', { from: currentStatus, to: newStatus });
+            toast.error(`Cannot change status from ${currentStatus} to ${newStatus}`);
+            return;
+        }
+
+        console.log(`Attempting to update vendor ${documentId} status from ${currentStatus} to: ${newStatus}`);
         setIsStatusUpdating(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}`, {
+            const apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${documentId}`;
+            console.log('Making API request to:', apiUrl);
+
+            const updateData = {
+                data: {
+                    verificationStatus: newStatus
+                }
+            };
+
+            const response = await fetch(apiUrl, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    data: {
-                        verificationStatus: "verified"
-                    }
-                }),
+                body: JSON.stringify(updateData),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to verify vendor');
+                const errorData = await response.json().catch(() => null);
+                console.error('API Error Response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    errorData,
+                    url: apiUrl
+                });
+                
+                let errorMessage = 'Failed to update vendor status';
+                if (errorData?.error?.message) {
+                    errorMessage = errorData.error.message;
+                } else if (response.status === 401) {
+                    errorMessage = 'Authentication failed. Please check your API token.';
+                } else if (response.status === 403) {
+                    errorMessage = 'You do not have permission to update vendor status.';
+                } else if (response.status === 404) {
+                    errorMessage = 'Vendor not found.';
+                } else if (response.status === 500) {
+                    errorMessage = 'Server error occurred. Please try again later.';
+                }
+                
+                throw new Error(errorMessage);
             }
+
+            const responseData = await response.json();
+            console.log('API Response:', responseData);
+
+            if (!responseData.data) {
+                throw new Error('Invalid response format from server');
+            }
+
+            const updatedVendor = responseData.data;
+            console.log('Vendor update successful:', updatedVendor);
 
             // Update local state after successful API call
             setVendorsList(prevVendors =>
                 prevVendors.map(vendor =>
-                    vendor.id === vendorId
-                        ? { ...vendor, verificationStatus: "verified" }
+                    vendor.documentId === documentId
+                        ? { 
+                            ...vendor, 
+                            verificationStatus: newStatus,
+                          }
                         : vendor
                 )
             );
@@ -385,16 +480,23 @@ const UsersAndVendorsPage = () => {
             // Update chart data
             setVendorsForChart(prevVendors =>
                 prevVendors.map(vendor =>
-                    vendor.id === vendorId
-                        ? { ...vendor, verificationStatus: "verified" }
+                    vendor.documentId === documentId
+                        ? { 
+                            ...vendor, 
+                            verificationStatus: newStatus,
+                          }
                         : vendor
                 )
             );
 
-            toast.success('Vendor verified successfully');
+            toast.success(`Vendor ${newStatus} successfully`);
         } catch (error) {
-            console.error('Error verifying vendor:', error);
-            toast.error(error.message || 'Failed to verify vendor');
+            console.error('Error updating vendor status:', {
+                error,
+                message: error.message,
+                stack: error.stack
+            });
+            toast.error(error.message || 'Failed to update vendor status');
         } finally {
             setIsStatusUpdating(false);
         }
@@ -498,6 +600,8 @@ const UsersAndVendorsPage = () => {
                 onSearchSubmit={handleVendorsSearch}
                 filter={vendorsFilter}
                 onFilterChange={handleVendorsFilterChange}
+                docFilter={vendorsDocFilter}
+                onDocFilterChange={handleVendorsDocFilterChange}
             />
         </div>
     );

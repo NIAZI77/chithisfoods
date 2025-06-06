@@ -4,6 +4,7 @@ import Image from "next/image";
 import { BadgeCheck, ChefHat, MapPin } from "lucide-react";
 import { FaCheckCircle, FaStar } from "react-icons/fa";
 import Link from "next/link";
+import VerificationBadge from "./VerificationBadge";
 
 const VendorCard = ({ chef }) => {
   const isTopRated = chef.rating >= 1.5;
@@ -57,34 +58,7 @@ const VendorCard = ({ chef }) => {
         </div>
       </div>
       <div className="flex items-center justify-end gap-2 p-2 text-gray-600 text-xs">
-        {(() => {
-          switch (chef.verificationStatus) {
-            case 'verified':
-              return (
-                <span className="flex items-center gap-1 bg-green-100 text-green-600 py-0.5 px-2 rounded-full text-xs">
-                  <BadgeCheck size={14} /> Verified
-                </span>
-              );
-            case 'new-chef':
-              return (
-                <span className="flex items-center gap-1 bg-gray-200 text-gray-600 py-0.5 px-2 rounded-full text-xs">
-                  <BadgeCheck size={14} /> New Chef
-                </span>
-              );
-            case 'unverified':
-              return (
-                <span className="flex items-center gap-1 bg-yellow-100 text-yellow-600 py-0.5 px-2 rounded-full text-xs">
-                  <BadgeCheck size={14} /> Unverified
-                </span>
-              );
-            default:
-              return (
-                <span className="flex items-center gap-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
-                  <BadgeCheck size={14} /> Unknown
-                </span>
-              );
-          }
-        })()}
+        <VerificationBadge status={chef.verificationStatus} />
         <span className="flex items-center gap-1 bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">
           <MapPin size={14} />
           {chef?.city.replace(/\b\w/g, (c) => c.toUpperCase()) || "Location"}, {chef?.zipcode || "address"}

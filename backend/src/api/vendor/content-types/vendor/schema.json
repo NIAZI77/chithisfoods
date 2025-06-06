@@ -93,7 +93,9 @@
       "enum": [
         "new-chef",
         "verified",
-        "unverified"
+        "unverified",
+        "banned",
+        "rejected"
       ],
       "default": "new-chef"
     }

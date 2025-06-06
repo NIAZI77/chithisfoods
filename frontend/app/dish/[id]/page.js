@@ -9,6 +9,7 @@ import Loading from "@/app/loading";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
+import VerificationBadge from "@/app/components/VerificationBadge";
 
 const API_ERROR_MESSAGES = {
   CONFIG_MISSING: "API configuration is missing. Please contact support.",
@@ -21,6 +22,7 @@ const API_ERROR_MESSAGES = {
 export default function DishPage() {
   const { id } = useParams();
   const [dishDetails, setDishDetails] = useState(null);
+  const [vendorDetails, setVendorDetails] = useState(null);
   const [selectedSpiceLevel, setSelectedSpiceLevel] = useState(null);
   const [isDishNotFound, setIsDishNotFound] = useState(false);
   const [orderQuantity, setOrderQuantity] = useState(1);
@@ -122,6 +124,40 @@ export default function DishPage() {
     }
   };
 
+  const fetchVendorDetails = async (vendorId) => {
+    try {
+      if (!process.env.NEXT_PUBLIC_STRAPI_HOST || !process.env.NEXT_PUBLIC_STRAPI_TOKEN) {
+        throw new Error(API_ERROR_MESSAGES.CONFIG_MISSING);
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}?populate=*`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.error?.message || API_ERROR_MESSAGES.FETCH_ERROR);
+      }
+
+      if (!responseData.data) {
+        throw new Error(API_ERROR_MESSAGES.NOT_FOUND);
+      }
+
+      setVendorDetails(responseData.data);
+    } catch (error) {
+      console.error("Error fetching vendor:", error);
+      toast.error(error.message || API_ERROR_MESSAGES.FETCH_ERROR);
+    }
+  };
+
   useEffect(() => {
     if (id) {
       fetchDishDetails();
@@ -137,6 +173,12 @@ export default function DishPage() {
       setLoading(false);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (dishDetails?.vendorId) {
+      fetchVendorDetails(dishDetails.vendorId);
+    }
+  }, [dishDetails?.vendorId]);
 
   const calculateTotalPrice = () => {
     const extrasTotal = Object.values(selectedExtras).reduce(
@@ -260,9 +302,8 @@ export default function DishPage() {
     Array.from({ length: 5 }, (_, index) => (
       <FaStar
         key={index}
-        className={`inline w-4 h-4 ${
-          index < Math.round(rating) ? "text-yellow-400" : "text-slate-400"
-        }`}
+        className={`inline w-4 h-4 ${index < Math.round(rating) ? "text-yellow-400" : "text-slate-400"
+          }`}
       />
     ));
 
@@ -364,11 +405,10 @@ export default function DishPage() {
                     key={index}
                     onClick={() => setSelectedSpiceLevel(level)}
                     className={`px-4 py-1 rounded-full border text-xs font-medium transition-all
-                    ${
-                      selectedSpiceLevel === level
+                    ${selectedSpiceLevel === level
                         ? "bg-red-500 text-white border-red-500"
                         : "bg-white text-red-500 border-red-500"
-                    }`}
+                      }`}
                   >
                     {level}
                   </button>
@@ -404,11 +444,10 @@ export default function DishPage() {
                             )
                           }
                           className={`px-4 py-1 rounded-full border text-xs font-medium transition-all capitalize truncate
-                            ${
-                              selectedToppings[topping.name]?.selected ===
+                            ${selectedToppings[topping.name]?.selected ===
                               option.label
-                                ? "bg-red-500 text-white"
-                                : "bg-white text-red-500 border-red-500"
+                              ? "bg-red-500 text-white"
+                              : "bg-white text-red-500 border-red-500"
                             }`}
                         >
                           {option.label}
@@ -448,11 +487,10 @@ export default function DishPage() {
                             )
                           }
                           className={`px-4 py-1 rounded-full border text-xs font-medium transition-all capitalize truncate
-                            ${
-                              selectedExtras[extra.name]?.selected ===
+                            ${selectedExtras[extra.name]?.selected ===
                               option.label
-                                ? "bg-red-500 text-white"
-                                : "bg-white text-red-500 border-red-500"
+                              ? "bg-red-500 text-white"
+                              : "bg-white text-red-500 border-red-500"
                             }`}
                         >
                           {option.label}
@@ -464,42 +502,43 @@ export default function DishPage() {
               </div>
             )}
 
-            <div className="gap-2 my-8">
-              <div className="text-sm text-rose-500 font-bold mb-2">
+            <div className="my-8">
+              <div className="text-sm text-rose-500 font-bold mb-3 flex items-center gap-2">
+                <span className="bg-rose-50 p-1 rounded-full"><FaStar className="text-rose-500" size={12} /></span>
                 Prepared by
               </div>
-              <div className="flex items-center gap-4">
-                <Image
-                  src={dishDetails.chef?.avatar?.url || "/fallback.png"}
-                  alt={dishDetails.chef?.name || "Chef"}
-                  width={48}
-                  height={48}
-                  className="rounded-full w-12 h-12 object-cover"
-                />
-                <span className="text-md font-semibold inline-flex flex-col gap-1">
-                  {dishDetails.chef?.name}
-                  {dishDetails.chef?.username && (
-                    <Link
-                      href={`/vendors/@${dishDetails.chef?.username}`}
-                      className="text-gray-500 text-xs hover:text-rose-500 hover:underline"
-                    >
-                      {" "}
-                      @{dishDetails.chef?.username}
-                    </Link>
-                  )}
-                  {dishDetails.chef.isVerified ? (
-                    <span className="flex items-center gap-1 bg-green-100 text-green-600 py-0.5 px-2 rounded-full text-xs">
-                      <BadgeCheck size={14} /> Verified
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <Image
+                      src={vendorDetails?.avatar?.url || dishDetails.chef?.avatar?.url || "/fallback.png"}
+                      alt={vendorDetails?.fullName || dishDetails.chef?.name || "Chef"}
+                      width={64}
+                      height={64}
+                      className="rounded-full w-16 h-16 object-cover border-2 border-rose-100 shadow-sm"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-lg font-semibold text-gray-800">
+                      {vendorDetails?.fullName || dishDetails.chef?.name}
                     </span>
-                  ) : (
-                    <span className="flex items-center gap-1 bg-gray-200 text-gray-600 py-0.5 px-2 rounded-full text-xs">
-                      <BadgeCheck size={14} /> New Chef
-                    </span>
-                  )}
-                </span>
-                <div className="text-sm text-yellow-400 flex items-center gap-1">
-                  <FaStar />
-                  {dishDetails.chef?.rating || 0}
+                    {vendorDetails?.username && (
+                      <Link
+                        href={`/vendors/@${vendorDetails?.username}`}
+                        className="text-gray-500 text-xs hover:text-rose-500 hover:underline flex items-center gap-1"
+                      >
+                        <span className="bg-gray-100 p-1 rounded-full"><FaUser size={10} /></span>
+                        @{vendorDetails?.username}
+                      </Link>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col justify-center items-end gap-2">
+                  <VerificationBadge status={vendorDetails?.verificationStatus} />
+                  <div className="text-sm text-yellow-500 flex items-center gap-1.5 bg-yellow-50 py-0.5 px-3 rounded-full w-fit">
+                    <FaStar size={14} />
+                    <span className="font-medium">{vendorDetails?.rating || dishDetails.chef?.rating || 0}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -541,17 +580,16 @@ export default function DishPage() {
               <button
                 key={section}
                 onClick={() => setActiveSection(section)}
-                className={`pb-1 border-b-2 ${
-                  activeSection === section
-                    ? "text-red-600 border-red-600 font-semibold"
-                    : "text-gray-500 border-transparent"
-                }`}
+                className={`pb-1 border-b-2 ${activeSection === section
+                  ? "text-red-600 border-red-600 font-semibold"
+                  : "text-gray-500 border-transparent"
+                  }`}
               >
                 {section === "ingredients"
                   ? "Ingredients"
                   : section === "description"
-                  ? "Description"
-                  : "Ratings & reviews"}
+                    ? "Description"
+                    : "Ratings & reviews"}
               </button>
             ))}
           </div>
