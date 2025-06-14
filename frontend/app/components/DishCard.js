@@ -5,8 +5,38 @@ import { Star, Plus } from "lucide-react";
 import { FaUser } from "react-icons/fa";
 import Link from "next/link";
 import VerificationBadge from "./VerificationBadge";
+import { useState, useEffect } from "react";
 
 export default function DishCard({ dish }) {
+  const [vendorData, setVendorData] = useState(null);
+
+  useEffect(() => {
+    const fetchVendorData = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${dish.vendorId}?populate=*`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (response.ok && data.data) {
+          setVendorData(data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching vendor data:", error);
+      }
+    };
+
+    if (dish.vendorId) {
+      fetchVendorData();
+    }
+  }, [dish.vendorId]);
+
   return (
     <Link
       href={`/dish/${dish.documentId}`}
@@ -20,14 +50,14 @@ export default function DishCard({ dish }) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Image
-            src={dish.chef.avatar.url}
-            alt={dish.chef.name}
+            src={vendorData?.avatar?.url || "/fallback.png"}
+            alt={vendorData?.storeName || "Vendor"}
             width={32}
             height={32}
             className="rounded-full w-8 h-8 object-cover object-center"
           />
           <div>
-            <p className="font-semibold text-sm">{dish.chef.name}</p>
+            <p className="font-semibold text-sm">{vendorData?.storeName || "Vendor"}</p>
           </div>
         </div>
         <div className="flex items-center gap-1 text-yellow-500 text-sm font-semibold">

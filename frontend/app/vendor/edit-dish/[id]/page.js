@@ -27,7 +27,6 @@ export default function EditDishPage() {
     name: "",
     description: "",
     price: "",
-    chef: {},
     image: { id: 0, url: "" },
     servings: "",
     category: "",

@@ -27,7 +27,12 @@ const FacebookAuth = () => {
         const data = await response.json();
 
         if (response.ok) {
-          toast.success("Logged in successfully!");
+          if (data.user.isAdmin) {
+            toast.error("Admin access denied");
+            setTimeout(() => router.push("/login"), 1000);
+            return;
+          }
+          toast.success("Welcome to Chithi's Foods!");
           const expires = new Date();
           expires.setDate(expires.getDate() + 7);
           setCookie("jwt", data.jwt, { expires });

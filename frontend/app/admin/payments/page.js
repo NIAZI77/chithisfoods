@@ -24,6 +24,8 @@ import Pagination from "@/app/admin/users-and-vendors/components/Pagination";
 import { toast } from 'react-toastify';
 import Spinner from "@/app/components/Spinner";
 import { FaHandHoldingUsd } from "react-icons/fa";
+import { getCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
 
 const STATUS_STYLES = {
   paid: "bg-green-100 text-green-700",
@@ -60,15 +62,28 @@ const ACTION_STATUS_STYLES = {
 };
 
 const PaymentsPage = () => {
+  const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [fullOrders, setFullOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [timeFilter, setTimeFilter] = useState("all-time");
+  const [timeFilter, setTimeFilter] = useState("this-week");
+  const [orderStatusFilter, setOrderStatusFilter] = useState("all");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
   const [totalPages, setTotalPages] = useState(1);
   const [processingPayments, setProcessingPayments] = useState({});
   const [processingRefunds, setProcessingRefunds] = useState({});
+
+  useEffect(() => {
+    const AdminJWT = getCookie("AdminJWT");
+    const AdminUser = getCookie("AdminUser");
+
+    if (!AdminJWT || !AdminUser) {
+      toast.error("Please login to continue.");
+      router.push("/admin/login");
+    }
+  }, []);
 
   const paymentMetrics = useMemo(() => ({
     totalOrders: fullOrders.length,
@@ -78,11 +93,11 @@ const PaymentsPage = () => {
       .filter(order => order.orderStatus === "delivered" && order.vendor_payment === "unpaid")
       .reduce((sum, order) => sum + order.totalAmount, 0),
     totalCancelledRefunds: fullOrders
-      .filter(order => order.orderStatus === "cancelled")
+      .filter(order => order.orderStatus === "cancelled" && order.paymentStatus !== "refunded" && order.vendor_payment !== "refunded")
       .reduce((sum, order) => sum + order.totalAmount, 0),
   }), [fullOrders]);
 
-  const fetchOrders = async (page = 1, timeFilter = "all-time") => {
+  const fetchOrders = async (page = 1, timeFilter = "all-time", orderStatusFilter = "all", paymentStatusFilter = "all") => {
     try {
       setLoading(true);
       setError(null);
@@ -122,9 +137,20 @@ const PaymentsPage = () => {
         }
       }
 
-      // Use $or operator for order statuses to show orders that need payment processing
-      filters.push(`filters[$or][0][orderStatus][$eq]=delivered`);
-      filters.push(`filters[$or][1][orderStatus][$eq]=cancelled`);
+      // Order status filter handling
+      if (orderStatusFilter !== "all") {
+        filters.push(`filters[orderStatus][$eq]=${orderStatusFilter}`);
+      } else {
+        // Use $or operator for order statuses to show orders that need payment processing
+        filters.push(`filters[$or][0][orderStatus][$eq]=delivered`);
+        filters.push(`filters[$or][1][orderStatus][$eq]=cancelled`);
+      }
+
+      // Payment status filter handling
+      if (paymentStatusFilter !== "all") {
+        filters.push(`filters[paymentStatus][$eq]=${paymentStatusFilter}`);
+      }
+
       filters.push(`populate=*`);
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
@@ -155,7 +181,7 @@ const PaymentsPage = () => {
     }
   };
 
-  const fetchFullOrders = async (timeFilter = "all-time") => {
+  const fetchFullOrders = async (timeFilter = "all-time", orderStatusFilter = "all", paymentStatusFilter = "all") => {
     try {
       const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`;
       const sort = "sort[0]=createdAt:desc";
@@ -189,9 +215,19 @@ const PaymentsPage = () => {
         }
       }
 
-      // Use $or operator to show orders that are either delivered or cancelled
-      filters.push(`filters[$or][0][orderStatus][$eq]=delivered`);
-      filters.push(`filters[$or][1][orderStatus][$eq]=cancelled`);
+      // Order status filter handling
+      if (orderStatusFilter !== "all") {
+        filters.push(`filters[orderStatus][$eq]=${orderStatusFilter}`);
+      } else {
+        // Use $or operator to show orders that are either delivered or cancelled
+        filters.push(`filters[$or][0][orderStatus][$eq]=delivered`);
+        filters.push(`filters[$or][1][orderStatus][$eq]=cancelled`);
+      }
+
+      // Payment status filter handling
+      if (paymentStatusFilter !== "all") {
+        filters.push(`filters[paymentStatus][$eq]=${paymentStatusFilter}`);
+      }
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
       const apiUrl = `${baseUrl}?${sort}${filtersString}&pagination[limit]=9999999999`;
@@ -221,13 +257,27 @@ const PaymentsPage = () => {
   const handleTimeFilterChange = (newFilter) => {
     setTimeFilter(newFilter);
     setCurrentPage(1);
-    fetchOrders(1, newFilter);
-    fetchFullOrders(newFilter);
+    fetchOrders(1, newFilter, orderStatusFilter, paymentStatusFilter);
+    fetchFullOrders(newFilter, orderStatusFilter, paymentStatusFilter);
+  };
+
+  const handleOrderStatusFilterChange = (newFilter) => {
+    setOrderStatusFilter(newFilter);
+    setCurrentPage(1);
+    fetchOrders(1, timeFilter, newFilter, paymentStatusFilter);
+    fetchFullOrders(timeFilter, newFilter, paymentStatusFilter);
+  };
+
+  const handlePaymentStatusFilterChange = (newFilter) => {
+    setPaymentStatusFilter(newFilter);
+    setCurrentPage(1);
+    fetchOrders(1, timeFilter, orderStatusFilter, newFilter);
+    fetchFullOrders(timeFilter, orderStatusFilter, newFilter);
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    fetchOrders(page, timeFilter);
+    fetchOrders(page, timeFilter, orderStatusFilter, paymentStatusFilter);
   };
 
   const processVendorPayment = async (orderId) => {
@@ -275,8 +325,8 @@ const PaymentsPage = () => {
       toast.success("Vendor payment processed successfully!");
 
       // Refresh orders after successful payment
-      await fetchOrders(currentPage, timeFilter);
-      await fetchFullOrders(timeFilter);
+      await fetchOrders(currentPage, timeFilter, orderStatusFilter, paymentStatusFilter);
+      await fetchFullOrders(timeFilter, orderStatusFilter, paymentStatusFilter);
     } catch (err) {
       toast.error(err.message || "Failed to process vendor payment");
       console.error("Error processing vendor payment:", err);
@@ -331,8 +381,8 @@ const PaymentsPage = () => {
       toast.success("Refund processed successfully!");
 
       // Refresh orders after successful refund
-      await fetchOrders(currentPage, timeFilter);
-      await fetchFullOrders(timeFilter);
+      await fetchOrders(currentPage, timeFilter, orderStatusFilter, paymentStatusFilter);
+      await fetchFullOrders(timeFilter, orderStatusFilter, paymentStatusFilter);
     } catch (err) {
       toast.error(err.message || "Failed to process refund");
       console.error("Error processing refund:", err);
@@ -342,9 +392,9 @@ const PaymentsPage = () => {
   };
 
   useEffect(() => {
-    fetchOrders(currentPage, timeFilter);
-    fetchFullOrders(timeFilter);
-  }, [currentPage, timeFilter]);
+    fetchOrders(currentPage, timeFilter, orderStatusFilter, paymentStatusFilter);
+    fetchFullOrders(timeFilter, orderStatusFilter, paymentStatusFilter);
+  }, [currentPage, timeFilter, orderStatusFilter, paymentStatusFilter]);
 
   if (loading) return <Loading />;
 
@@ -438,6 +488,28 @@ const PaymentsPage = () => {
               <SelectItem value="all-time">All Time</SelectItem>
               <SelectItem value="this-week">This Week</SelectItem>
               <SelectItem value="this-month">This Month</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={orderStatusFilter} onValueChange={handleOrderStatusFilterChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Order Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Orders</SelectItem>
+              <SelectItem value="delivered">Delivered</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={paymentStatusFilter} onValueChange={handlePaymentStatusFilterChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Payment Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Payments</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
+              <SelectItem value="refunded">Refunded</SelectItem>
             </SelectContent>
           </Select>
         </div>

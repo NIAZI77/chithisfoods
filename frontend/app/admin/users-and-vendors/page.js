@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { getCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import MetricsCards from "./components/MetricsCards";
@@ -9,6 +11,7 @@ import UsersTable from "./components/UsersTable";
 import VendorsTable from "./components/VendorsTable";
 
 const UsersAndVendorsPage = () => {
+    const router = useRouter();
     // State management
     const [usersList, setUsersList] = useState([]);
     const [usersForChart, setUsersForChart] = useState([]);
@@ -36,6 +39,16 @@ const UsersAndVendorsPage = () => {
     const [usersFilter, setUsersFilter] = useState("all"); // all, active, blocked
     const [vendorsFilter, setVendorsFilter] = useState("all"); // all, verified, new
     const [vendorsDocFilter, setVendorsDocFilter] = useState("all"); // all, with_docs, without_docs
+
+    useEffect(() => {
+        const AdminJWT = getCookie("AdminJWT");
+        const AdminUser = getCookie("AdminUser");
+
+        if (!AdminJWT || !AdminUser) {
+            toast.error("Please login to continue.");
+            router.push("/admin/login");
+        }
+    }, []);
 
     // Fetch functions using Strapi APIs
     const fetchUsers = async (page = 1, search = "", filter = "all") => {

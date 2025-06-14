@@ -26,7 +26,6 @@ export default function AddDishPage() {
     name: "",
     description: "",
     price: "",
-    chef: {},
     zipcode: "",
     email: "",
     image: { id: 0, url: "" },
@@ -113,13 +112,6 @@ export default function AddDishPage() {
         setDishData((prev) => ({
           ...prev,
           zipcode: data.data[0].zipcode,
-          chef: {
-            username: data.data[0].username,
-            name: data.data[0].storeName,
-            verificationStatus: data.data[0].verificationStatus,
-            avatar: { id: data.data[0].id, url: data.data[0].avatar.url },
-            rating: data.data[0].rating,
-          },
           vendorId: data.data[0].documentId,
           email: data.data[0].email,
         }));

@@ -7,6 +7,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaSearch,
+  FaMoneyBillWave,
 } from "react-icons/fa";
 import {
   Select,
@@ -17,6 +18,9 @@ import {
 } from "@/components/ui/select";
 import Loading from "@/app/loading";
 import Pagination from "@/app/admin/users-and-vendors/components/Pagination";
+import { getCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const STATUS_STYLES = {
   paid: "bg-green-100 text-green-700",
@@ -36,6 +40,7 @@ const TIME_FILTERS = {
 };
 
 const OrdersPage = () => {
+  const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [fullOrders, setFullOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,12 +51,30 @@ const OrdersPage = () => {
   const [timeFilter, setTimeFilter] = useState("this-week");
   const [totalPages, setTotalPages] = useState(1);
 
+  useEffect(() => {
+    const AdminJWT = getCookie("AdminJWT");
+    const AdminUser = getCookie("AdminUser");
+
+    if (!AdminJWT || !AdminUser) {
+      toast.error("Please login to continue.");
+      router.push("/admin/login");
+    }
+  }, []);
+
   const orderMetrics = useMemo(() => ({
     total: fullOrders.length,
     delivered: fullOrders.filter(order => order.orderStatus === "delivered").length,
     refunded: fullOrders.filter(order =>
       order.orderStatus === "refunded" || order.orderStatus === "cancelled"
     ).length,
+    totalMoney: fullOrders
+      .reduce((sum, order) => sum + parseFloat(order.totalAmount || 0), 0)
+      .toFixed(2),
+    uncompletedOrders: fullOrders
+      .filter(order =>
+        order.orderStatus !== "delivered" &&
+        order.orderStatus !== "cancelled"
+      ).length,
   }), [fullOrders]);
 
   const fetchOrders = async (page = 1, orderStatus = "all", vendorPayment = "all", timeFilter = "all-time") => {
@@ -78,7 +101,7 @@ const OrdersPage = () => {
           const currentDate = new Date();
           const dayOfWeek = currentDate.getDay();
           const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-          
+
           startDate = new Date(baseDate);
           startDate.setDate(baseDate.getDate() + (currentDate.getDate() - daysToSubtract - 1));
           startDate.setHours(0, 0, 0, 0);
@@ -147,7 +170,7 @@ const OrdersPage = () => {
 
       // Build filters array for time
       let filters = [];
-      
+
       // Time filter handling
       if (timeFilter !== "all-time") {
         // Since all data is in 2025, we'll use 2025 dates for filtering
@@ -159,7 +182,7 @@ const OrdersPage = () => {
           const currentDate = new Date();
           const dayOfWeek = currentDate.getDay();
           const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-          
+
           startDate = new Date(baseDate);
           startDate.setDate(baseDate.getDate() + (currentDate.getDate() - daysToSubtract - 1));
           startDate.setHours(0, 0, 0, 0);
@@ -176,7 +199,7 @@ const OrdersPage = () => {
       }
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
-      const apiUrl = `${baseUrl}?fields[0]=orderStatus&${sort}${filtersString}&pagination[limit]=9999999999`;
+      const apiUrl = `${baseUrl}?fields[0]=orderStatus&fields[1]=totalAmount&${sort}${filtersString}&pagination[limit]=9999999999`;
       console.log('Full Orders API URL:', apiUrl);
 
       const response = await fetch(apiUrl, {
@@ -257,45 +280,73 @@ const OrdersPage = () => {
       <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">Orders</h1>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600">Total Orders</p>
-              <h3 className="text-2xl font-semibold">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200 h-[100px] md:h-[120px]">
+          <div className="flex items-center justify-between h-full">
+            <div className="flex flex-col justify-between h-full">
+              <p className="text-xs md:text-sm text-gray-500 font-medium">Total Money</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">
+                ${orderMetrics.totalMoney}
+              </p>
+            </div>
+            <div className="p-2 md:p-3 bg-pink-100 rounded-full ml-4">
+              <FaMoneyBillWave className="w-5 h-5 md:w-6 md:h-6 text-pink-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200 h-[100px] md:h-[120px]">
+          <div className="flex items-center justify-between h-full">
+            <div className="flex flex-col justify-between h-full">
+              <p className="text-xs md:text-sm text-gray-500 font-medium">Total Orders</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">
                 {orderMetrics.total}
-              </h3>
+              </p>
             </div>
-            <div className="p-3 bg-pink-100 rounded-full">
-              <FaShoppingCart className="w-6 h-6 text-pink-600" />
+            <div className="p-2 md:p-3 bg-pink-100 rounded-full ml-4">
+              <FaShoppingCart className="w-5 h-5 md:w-6 md:h-6 text-pink-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600">Delivered Orders</p>
-              <h3 className="text-2xl font-semibold">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200 h-[100px] md:h-[120px]">
+          <div className="flex items-center justify-between h-full">
+            <div className="flex flex-col justify-between h-full">
+              <p className="text-xs md:text-sm text-gray-500 font-medium">Delivered Orders</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">
                 {orderMetrics.delivered}
-              </h3>
+              </p>
             </div>
-            <div className="p-3 bg-pink-100 rounded-full">
-              <FaCheckCircle className="w-6 h-6 text-pink-600" />
+            <div className="p-2 md:p-3 bg-pink-100 rounded-full ml-4">
+              <FaCheckCircle className="w-5 h-5 md:w-6 md:h-6 text-pink-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600">Refunded/Cancelled</p>
-              <h3 className="text-2xl font-semibold">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200 h-[100px] md:h-[120px]">
+          <div className="flex items-center justify-between h-full">
+            <div className="flex flex-col justify-between h-full">
+              <p className="text-xs md:text-sm text-gray-500 font-medium">Cancelled</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">
                 {orderMetrics.refunded}
-              </h3>
+              </p>
             </div>
-            <div className="p-3 bg-pink-100 rounded-full">
-              <FaTimesCircle className="w-6 h-6 text-pink-600" />
+            <div className="p-2 md:p-3 bg-pink-100 rounded-full ml-4">
+              <FaTimesCircle className="w-5 h-5 md:w-6 md:h-6 text-pink-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200 h-[100px] md:h-[120px]">
+          <div className="flex items-center justify-between h-full">
+            <div className="flex flex-col justify-between h-full">
+              <p className="text-xs md:text-sm text-gray-500 font-medium">Uncompleted Orders</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900">
+                {orderMetrics.uncompletedOrders}
+              </p>
+            </div>
+            <div className="p-2 md:p-3 bg-pink-100 rounded-full ml-4">
+              <FaShoppingCart className="w-5 h-5 md:w-6 md:h-6 text-pink-600" />
             </div>
           </div>
         </div>

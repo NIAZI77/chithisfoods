@@ -15,6 +15,8 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
+import { getCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
 
 // Utility functions
 const toKebabCase = (str) =>
@@ -26,6 +28,7 @@ const toKebabCase = (str) =>
     .toLowerCase();
 
 const Page = () => {
+  const router = useRouter();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -35,6 +38,16 @@ const Page = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    const AdminJWT = getCookie("AdminJWT");
+    const AdminUser = getCookie("AdminUser");
+
+    if (!AdminJWT || !AdminUser) {
+      toast.error("Please login to continue.");
+      router.push("/admin/login");
+    }
+  }, []);
 
   const fetchCategories = async () => {
     try {

@@ -369,10 +369,9 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiAdminAdmin extends Struct.CollectionTypeSchema {
+export interface ApiAdminAdmin extends Struct.SingleTypeSchema {
   collectionName: 'admins';
   info: {
-    description: '';
     displayName: 'Admin';
     pluralName: 'admins';
     singularName: 'admin';
@@ -387,8 +386,9 @@ export interface ApiAdminAdmin extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::admin.admin'> &
       Schema.Attribute.Private;
+    passowrd: Schema.Attribute.Password;
     publishedAt: Schema.Attribute.DateTime;
-    taxPercentage: Schema.Attribute.Integer;
+    taxPercentage: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -442,7 +442,6 @@ export interface ApiDishDish extends Struct.CollectionTypeSchema {
   attributes: {
     available: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     category: Schema.Attribute.String & Schema.Attribute.Required;
-    chef: Schema.Attribute.JSON & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1042,7 +1041,6 @@ export interface PluginUsersPermissionsUser
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -1056,6 +1054,7 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
+    isAdmin: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

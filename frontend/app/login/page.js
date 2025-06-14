@@ -55,7 +55,11 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Logged in successfully!");
+        if (data.user.isAdmin) {
+          toast.error("Admin access denied");
+          return;
+        }
+        toast.success("Welcome to Chithi's Foods!");
         const expires = new Date();
         expires.setDate(expires.getDate() + 7);
         setCookie("jwt", data.jwt, { expires });
@@ -137,7 +141,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center mt-4 text-sm">
-            Don’t have an account?
+            Don't have an account?
             <Link
               href="/signup"
               className="w-full text-center block text-rose-600 py-3 rounded-full border-2 border-rose-600 my-2 hover:bg-rose-600 hover:text-white transition-all font-medium"

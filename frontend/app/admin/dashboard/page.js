@@ -20,6 +20,7 @@ import {
   FaShoppingCart,
   FaCheckCircle,
   FaTimesCircle,
+  FaDollarSign,
 } from "react-icons/fa";
 import {
   Select,
@@ -28,6 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
 
 const TimePeriodSelector = ({ selectedPeriod, onPeriodChange }) => (
   <Select value={selectedPeriod} onValueChange={onPeriodChange}>
@@ -43,9 +46,20 @@ const TimePeriodSelector = ({ selectedPeriod, onPeriodChange }) => (
 );
 
 const DashboardPage = () => {
+  const router = useRouter();
   const [orderData, setOrderData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("week");
+
+  useEffect(() => {
+    const AdminJWT = getCookie("AdminJWT");
+    const AdminUser = getCookie("AdminUser");
+
+    if (!AdminJWT || !AdminUser) {
+      toast.error("Please login to continue.");
+      router.push("/admin/login");
+    }
+  }, []);
 
   const getDateRangeFilter = useMemo(() => {
     const currentDate = new Date();
@@ -64,35 +78,27 @@ const DashboardPage = () => {
     return `&filters[createdAt][$gte]=${startDate.toISOString()}&filters[createdAt][$lte]=${currentDate.toISOString()}`;
   }, [selectedTimePeriod]);
 
-  const dashboardMetrics = useMemo(() => ({
-    taxRevenue: {
-      paidAmount: orderData
-        .filter((order) => order.orderStatus === "delivered")
-        .reduce(
-          (sum, order) =>
-            sum + (order.paymentStatus === "paid" ? parseFloat(order.tax) : 0),
-          0
-        )
+  const dashboardMetrics = useMemo(
+    () => ({
+      totalMoneyReceived: orderData
+        .reduce((sum, order) => sum + parseFloat(order.totalAmount || 0), 0)
         .toFixed(2),
-      totalAmount: orderData
-        .filter((order) => order.orderStatus === "delivered")
-        .reduce((sum, order) => parseFloat(order.tax), 0)
-        .toFixed(2),
-    },
-    orderCounts: {
-      total: orderData.length.toString(),
-      delivered: orderData
-        .filter((order) => order.orderStatus === "delivered")
-        .length.toString(),
-      refunded: orderData
-        .filter(
-          (order) =>
-            order.orderStatus === "refunded" ||
-            order.orderStatus === "cancelled"
-        )
-        .length.toString(),
-    },
-  }), [orderData]);
+      orderCounts: {
+        total: orderData.length.toString(),
+        delivered: orderData
+          .filter((order) => order.orderStatus === "delivered")
+          .length.toString(),
+        refunded: orderData
+          .filter(
+            (order) =>
+              order.orderStatus === "refunded" ||
+              order.orderStatus === "cancelled"
+          )
+          .length.toString(),
+      },
+    }),
+    [orderData]
+  );
 
   const getChartDateRange = useMemo(() => {
     const dates = [];
@@ -109,7 +115,7 @@ const DashboardPage = () => {
 
   const chartData = useMemo(() => {
     const dailyData = getChartDateRange.reduce((acc, date) => {
-      acc[date] = { date, orders: 0, revenue: 0 };
+      acc[date] = { date, orders: 0, totalMoney: 0 };
       return acc;
     }, {});
 
@@ -117,30 +123,29 @@ const DashboardPage = () => {
       const orderDate = new Date(order.createdAt).toISOString().split("T")[0];
       if (dailyData[orderDate]) {
         dailyData[orderDate].orders += 1;
-        if (order.orderStatus === "delivered") {
-          dailyData[orderDate].revenue += parseFloat(order.tax);
-        }
+        dailyData[orderDate].totalMoney += parseFloat(order.totalAmount || 0);
       }
     });
 
     return Object.values(dailyData);
   }, [orderData, getChartDateRange]);
 
-  const recentDeliveredOrders = useMemo(() =>
-    orderData
-      .filter((order) => order.orderStatus === "delivered")
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .slice(0, 5),
+  const recentDeliveredOrders = useMemo(
+    () =>
+      orderData
+        .filter((order) => order.orderStatus === "delivered")
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5),
     [orderData]
   );
-  const recentCancelledOrders = useMemo(() =>
-    orderData
-      .filter((order) => order.orderStatus === "cancelled")
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .slice(0, 5),
+  const recentCancelledOrders = useMemo(
+    () =>
+      orderData
+        .filter((order) => order.orderStatus === "cancelled")
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5),
     [orderData]
   );
-
 
   useEffect(() => {
     const fetchOrderData = async () => {
@@ -158,14 +163,19 @@ const DashboardPage = () => {
         );
 
         if (!response.ok) {
-          throw new Error("Unable to retrieve order data. Please try again later.");
+          throw new Error(
+            "Unable to retrieve order data. Please try again later."
+          );
         }
 
         const { data } = await response.json();
         setOrderData(data || []);
       } catch (error) {
         console.error("Error fetching order data:", error);
-        toast.error(error.message || "Failed to load dashboard data. Please refresh the page.");
+        toast.error(
+          error.message ||
+            "Failed to load dashboard data. Please refresh the page."
+        );
       } finally {
         setIsLoading(false);
       }
@@ -191,18 +201,15 @@ const DashboardPage = () => {
         order.orderStatus === "cancelled" || order.orderStatus === "refunded"
     ).length;
 
-    const deliveredTaxRevenue = ordersForDate
-      .filter((order) => order.orderStatus === "delivered")
-      .reduce(
-        (sum, order) =>
-          sum + (order.paymentStatus === "paid" ? parseFloat(order.tax) : 0),
-        0
-      );
+    const totalMoney = ordersForDate.reduce(
+      (sum, order) => sum + parseFloat(order.totalAmount || 0),
+      0
+    );
 
     return (
       <div className="bg-white p-3 shadow-md rounded-lg border">
         <p className="font-medium">{label}</p>
-        <p className="text-pink-600">${deliveredTaxRevenue.toFixed(2)}</p>
+        <p className="text-pink-600">${totalMoney.toFixed(2)}</p>
         <p className="text-gray-600">{ordersForDate.length} Orders</p>
         <p className="text-green-600">{deliveredCount} Delivered</p>
         <p className="text-red-600">{cancelledCount} Cancelled</p>
@@ -213,73 +220,74 @@ const DashboardPage = () => {
   if (isLoading) return <Loading />;
 
   return (
-    <div className="p-4 pl-16 md:p-6 md:pl-24 lg:p-8 lg:pl-24 mx-auto max-w-7xl">
+    <div className="p-4 pl-16 md:p-6 md:pl-24 lg:p-8 lg:pl-24 mx-auto max-w-[2000px]">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <TimePeriodSelector selectedPeriod={selectedTimePeriod} onPeriodChange={setSelectedTimePeriod} />
+        <TimePeriodSelector
+          selectedPeriod={selectedTimePeriod}
+          onPeriodChange={setSelectedTimePeriod}
+        />
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-6">
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-6">
+        <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600">Tax Revenue</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm sm:text-base text-gray-600 truncate">Total Money Received</p>
               <div className="flex items-center gap-2">
-                <h3 className="text-2xl font-semibold">
-                  ${dashboardMetrics.taxRevenue.paidAmount}
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
+                  ${dashboardMetrics.totalMoneyReceived}
                 </h3>
               </div>
             </div>
-            <div className="p-3 bg-pink-100 rounded-full">
-              <FaMoneyBillWave className="w-6 h-6 text-pink-600" />
+            <div className="p-2 sm:p-3 bg-green-100 rounded-full flex-shrink-0 ml-2">
+              <FaDollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
             </div>
           </div>
         </div>
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+        <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600">Total Orders</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm sm:text-base text-gray-600 truncate">Total Orders</p>
               <div className="flex items-center gap-2">
-                <h3 className="text-2xl font-semibold">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
                   {dashboardMetrics.orderCounts.total}
                 </h3>
               </div>
             </div>
-            <div className="p-3 bg-pink-100 rounded-full">
-              <FaShoppingCart className="w-6 h-6 text-pink-600" />
+            <div className="p-2 sm:p-3 bg-pink-100 rounded-full flex-shrink-0 ml-2">
+              <FaShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-pink-600" />
             </div>
           </div>
         </div>
-
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+        <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600">Delivered Orders</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm sm:text-base text-gray-600 truncate">Delivered Orders</p>
               <div className="flex items-center gap-2">
-                <h3 className="text-2xl font-semibold">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
                   {dashboardMetrics.orderCounts.delivered}
                 </h3>
               </div>
             </div>
-            <div className="p-3 bg-pink-100 rounded-full">
-              <FaCheckCircle className="w-6 h-6 text-pink-600" />
+            <div className="p-2 sm:p-3 bg-pink-100 rounded-full flex-shrink-0 ml-2">
+              <FaCheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-pink-600" />
             </div>
           </div>
         </div>
-
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+        <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600">Refunded/Cancelled</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm sm:text-base text-gray-600 truncate">Refunded/Cancelled</p>
               <div className="flex items-center gap-2">
-                <h3 className="text-2xl font-semibold">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
                   {dashboardMetrics.orderCounts.refunded}
                 </h3>
               </div>
             </div>
-            <div className="p-3 bg-pink-100 rounded-full">
-              <FaTimesCircle className="w-6 h-6 text-pink-600" />
+            <div className="p-2 sm:p-3 bg-pink-100 rounded-full flex-shrink-0 ml-2">
+              <FaTimesCircle className="w-5 h-5 sm:w-6 sm:h-6 text-pink-600" />
             </div>
           </div>
         </div>
@@ -299,8 +307,8 @@ const DashboardPage = () => {
                   {selectedTimePeriod === "week"
                     ? "Last 7 Days"
                     : selectedTimePeriod === "month"
-                      ? "Last 30 Days"
-                      : "All Time"}
+                    ? "Last 30 Days"
+                    : "All Time"}
                 </span>
               </div>
             </div>
@@ -354,9 +362,9 @@ const DashboardPage = () => {
                 <Line
                   yAxisId="right"
                   type="monotone"
-                  dataKey="revenue"
+                  dataKey="totalMoney"
                   stroke="#DB2777"
-                  name="Revenue"
+                  name="Total Money"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -373,8 +381,8 @@ const DashboardPage = () => {
                   {selectedTimePeriod === "week"
                     ? "Last 7 Days"
                     : selectedTimePeriod === "month"
-                      ? "Last 30 Days"
-                      : "All Time"}
+                    ? "Last 30 Days"
+                    : "All Time"}
                 </span>
               </div>
             </div>
@@ -386,10 +394,10 @@ const DashboardPage = () => {
                 <XAxis dataKey="date" />
                 <YAxis tickFormatter={(value) => `$${value}`} />
                 <Tooltip
-                  formatter={(value) => [`$${value.toFixed(2)}`, "Revenue"]}
+                  formatter={(value) => [`$${value.toFixed(2)}`, "Total Money"]}
                 />
                 <Legend />
-                <Bar dataKey="revenue" fill="#DB2777" name="Revenue" />
+                <Bar dataKey="totalMoney" fill="#DB2777" name="Total Money" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -398,7 +406,6 @@ const DashboardPage = () => {
 
       {/* Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-semibold">Recent Delivered Orders</h3>
@@ -431,10 +438,10 @@ const DashboardPage = () => {
                       {new Date(order.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      ${(parseFloat(order.subtotal) + parseFloat(order.vendorDeliveryFee)).toFixed(2)}
+                      ${parseFloat(order.totalAmount || 0).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      @{order.vendorUsername}
+                      @{order.vendorAdminUsername}
                     </td>
                   </tr>
                 ))}
@@ -474,10 +481,10 @@ const DashboardPage = () => {
                       {new Date(order.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      ${(parseFloat(order.subtotal) + parseFloat(order.vendorDeliveryFee)).toFixed(2)}
+                      ${parseFloat(order.totalAmount || 0).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      @{order.vendorUsername}
+                      @{order.vendorAdminUsername}
                     </td>
                   </tr>
                 ))}
@@ -485,7 +492,6 @@ const DashboardPage = () => {
             </table>
           </div>
         </div>
-
       </div>
     </div>
   );

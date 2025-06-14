@@ -50,10 +50,6 @@
       "type": "boolean",
       "default": false
     },
-    "chef": {
-      "type": "json",
-      "required": true
-    },
     "toppings": {
       "type": "json"
     },

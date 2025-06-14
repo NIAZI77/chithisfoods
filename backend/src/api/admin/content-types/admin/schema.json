@@ -1,18 +1,21 @@
 {
-  "kind": "collectionType",
+  "kind": "singleType",
   "collectionName": "admins",
   "info": {
     "singularName": "admin",
     "pluralName": "admins",
-    "displayName": "Admin",
-    "description": ""
+    "displayName": "Admin"
   },
   "options": {
     "draftAndPublish": true
   },
   "attributes": {
     "taxPercentage": {
-      "type": "integer"
+      "type": "integer",
+      "default": 0
+    },
+    "passowrd": {
+      "type": "password"
     }
   }
 }

@@ -63,13 +63,13 @@ const Page = () => {
   // Optimized function to get vendor delivery fees
   const getAllVendorsDeliveryFees = useCallback(async (cartItems) => {
     if (!cartItems.length) return;
-    
+
     setDeliveryFeeLoading(true);
     try {
       const vendorIds = [
         ...new Set(cartItems.map((vendorGroup) => vendorGroup.vendorId)),
       ];
-      
+
       const vendorDeliveryFees = await Promise.all(
         vendorIds.map(async (vendorId) => {
           try {
@@ -99,7 +99,7 @@ const Page = () => {
           }
         })
       );
-      
+
       setDeliveryFees(vendorDeliveryFees);
     } catch (error) {
       console.error("Error fetching delivery fees:", error);
@@ -146,7 +146,7 @@ const Page = () => {
   // Calculate subtotal with memoization to avoid recalculation
   const calculateSubtotal = useCallback(() => {
     if (!cartItems.length) return 0;
-    
+
     return cartItems.reduce((sum, vendor) => {
       const vendorTotal = vendor.dishes.reduce((dishSum, dish) => {
         const toppingsTotal = dish.toppings.reduce(
@@ -172,22 +172,17 @@ const Page = () => {
     const calculatedSubtotal = calculateSubtotal();
     return Number(calculatedSubtotal.toFixed(2));
   }, [calculateSubtotal]);
-  
+
   const calculatedTax = useMemo(() => {
     return Number(((subtotal * TAX_PERCENTAGE) / 100).toFixed(2));
   }, [subtotal]);
-  
+
   const totalDeliveryFee = useMemo(() => {
-    return deliveryFees.reduce(
-      (a, b) => a + (b.vendorDeliveryFee || 0),
-      0
-    );
+    return deliveryFees.reduce((a, b) => a + (b.vendorDeliveryFee || 0), 0);
   }, [deliveryFees]);
-  
+
   const total = useMemo(() => {
-    return Number(
-      (subtotal + calculatedTax + totalDeliveryFee).toFixed(2)
-    );
+    return Number((subtotal + calculatedTax + totalDeliveryFee).toFixed(2));
   }, [subtotal, calculatedTax, totalDeliveryFee]);
 
   // Update tax when calculated tax changes
@@ -202,7 +197,7 @@ const Page = () => {
       if (!user) {
         throw new Error("Authentication required");
       }
-
+      console.log(JSON.stringify({ ...orderData, user }));
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`,
         {
@@ -248,7 +243,7 @@ const Page = () => {
       const orderTax = Number(
         ((orderSubtotal * TAX_PERCENTAGE) / 100).toFixed(2)
       );
-      
+
       // Create vendor proportions map for tax distribution
       const vendorProportions = cartItems.map((vendor) => {
         const vendorSubtotal = vendor.dishes.reduce((sum, dish) => {
@@ -287,7 +282,7 @@ const Page = () => {
         const vendorTotal = Number(
           (vendorSubtotal + vendorTax + vendorDeliveryFee).toFixed(2)
         );
-        
+
         // Prepare order data
         const orderData = {
           customerName: formData.name,
@@ -332,7 +327,7 @@ const Page = () => {
       setSubmitting(false);
     }
   };
-  
+
   if (deliveryFeeLoading) return <Loading />;
 
   return (
@@ -561,9 +556,7 @@ const Page = () => {
                 <LuSquareSigma className="w-5 h-5" />
                 Total
               </span>
-              <span className="text-rose-600">
-                ${total.toFixed(2)}
-              </span>
+              <span className="text-rose-600">${total.toFixed(2)}</span>
             </div>
           </div>
           <button

@@ -15,7 +15,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 import Hero from "../components/Side-Hero";
-import { getCookie } from "cookies-next";
+import { getCookie, setCookie } from "cookies-next";
 import Spinner from "../components/Spinner";
 
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -87,9 +87,17 @@ export default function SignupPage() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Sign up successful!");
+        if (data.user.isAdmin) {
+          toast.error("Admin access denied");
+          return;
+        }
+        toast.success("Welcome!");
+        const expires = new Date();
+        expires.setDate(expires.getDate() + 7);
+        setCookie("jwt", data.jwt, { expires });
+        setCookie("user", data.user.email, { expires });
         setTimeout(() => {
-          router.push("/login");
+          router.push("/");
         }, 1000);
       } else {
         toast.error(data?.error?.message || "Failed to create account.");

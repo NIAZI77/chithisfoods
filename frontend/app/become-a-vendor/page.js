@@ -12,10 +12,6 @@ import Spinner from "../components/Spinner";
 
 export default function BecomeVendor() {
   const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [submitting, setSubmitting] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const totalSteps = 3;
 
   const [formData, setFormData] = useState({
     storeName: "",
@@ -30,6 +26,37 @@ export default function BecomeVendor() {
     avatar: { id: 0, url: "" },
     coverImage: { id: 0, url: "" },
   });
+  const [step, setStep] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const totalSteps = 3;
+
+  const checkIfVendor = async (email) => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${email}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.data.length > 0) {
+        router.push("/vendor/dashboard");
+      }
+    } catch (error) {
+      toast.error("Could not verify your vendor status. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     const storedJwt = getCookie("jwt");
@@ -41,7 +68,7 @@ export default function BecomeVendor() {
       checkIfVendor(storedUser);
       setFormData((prev) => ({ ...prev, email: storedUser }));
     }
-  }, [checkIfVendor, router]);
+  }, [router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -122,32 +149,6 @@ export default function BecomeVendor() {
     if (file) uploadImage(file, name);
   };
 
-  const checkIfVendor = async (email) => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${email}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok && data.data.length > 0) {
-        router.push("/vendor/dashboard");
-      }
-    } catch (error) {
-      toast.error("Could not verify your vendor status. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const createVendor = async () => {
     setSubmitting(true);
     try {
@@ -172,8 +173,7 @@ export default function BecomeVendor() {
         }, 1000);
       } else {
         toast.error(
-          `Unable to create vendor profile: ${
-            data?.error?.message || "Unknown error."
+          `Unable to create vendor profile: ${data?.error?.message || "Unknown error."
           }`
         );
       }
@@ -217,9 +217,8 @@ export default function BecomeVendor() {
           {Array.from({ length: totalSteps }).map((_, index) => (
             <div
               key={index}
-              className={`h-1 w-full mx-1 rounded-full ${
-                step > index ? "bg-red-500" : "bg-gray-300"
-              }`}
+              className={`h-1 w-full mx-1 rounded-full ${step > index ? "bg-red-500" : "bg-gray-300"
+                }`}
             ></div>
           ))}
         </div>
@@ -301,9 +300,8 @@ export default function BecomeVendor() {
                 <div
                   className="bg-cover bg-center w-full aspect-video rounded-lg"
                   style={{
-                    backgroundImage: `url("${
-                      formData.coverImage?.url || "/fallback.png"
-                    }")`,
+                    backgroundImage: `url("${formData.coverImage?.url || "/fallback.png"
+                      }")`,
                   }}
                 >
                   <input
@@ -358,18 +356,17 @@ export default function BecomeVendor() {
                 <FaArrowLeft />
               </button>
             )}
-            <button 
+            <button
               type="submit"
-              className={`${
-                step > 1 ? "w-[calc(100%-55px)]" : "w-full"
-              } bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:bg-rose-300 disabled:cursor-not-allowed`}
+              className={`${step > 1 ? "w-[calc(100%-55px)]" : "w-full"
+                } bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:bg-rose-300 disabled:cursor-not-allowed`}
               disabled={submitting}
             >
               {submitting
-                ? <Spinner/>
+                ? <Spinner />
                 : step === totalSteps
-                ? "Submit"
-                : "Next"}
+                  ? "Submit"
+                  : "Next"}
             </button>
           </div>
         </form>

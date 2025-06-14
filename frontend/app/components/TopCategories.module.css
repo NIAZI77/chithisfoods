@@ -20,7 +20,7 @@
 .categoryCard {
   width: 112px;
   height: 112px;
-  background: #ffe6f0;
+  background: #fdf2f8;
   border-radius: 16px;
   box-shadow: none;
   display: flex;
@@ -35,7 +35,7 @@
 .categoryCard:hover {
   transform: none;
   box-shadow: none;
-  border: 2px solid #ff4da6;
+  border: 2px solid #f3c0da;
 }
 
 .categoryImage {
@@ -52,7 +52,8 @@
 }
 
 /* Swiper navigation arrows */
-.swiper-button-next, .swiper-button-prev {
+.swiper-button-next,
+.swiper-button-prev {
   color: #ff4da6;
   background: #fff;
   border-radius: 50%;
@@ -86,4 +87,4 @@
 }
 .swiper-pagination-bullet-active {
   background: #ff4da6;
-} 
+}

@@ -61,6 +61,38 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
   const [isCheckingReview, setIsCheckingReview] = useState(false);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
 
+  const handleReceived = async () => {
+    setIsUpdating(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders/${order.documentId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: JSON.stringify({
+            data: {
+              orderStatus: "delivered",
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update order status");
+      }
+
+      toast.success("Order marked as received!");
+      onStatusUpdate();
+    } catch (error) {
+      toast.error(error.message || "Failed to update order status");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   // Function to check review status for a single dish
   const checkDishReviewStatus = async (dishId) => {
     try {
