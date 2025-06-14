@@ -406,6 +406,12 @@ const OrdersPage = () => {
                     scope="col"
                     className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase"
                   >
+                    Delivery
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase"
+                  >
                     Customer
                   </th>
                   <th
@@ -448,6 +454,21 @@ const OrdersPage = () => {
                   >
                     <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-left">
                       {new Date(order.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-left">
+                      {order.deliveryDate && order.deliveryTime ? (
+                        <div>
+                          <div>{new Date(order.deliveryDate).toLocaleDateString()}</div>
+                          <div className="text-xs text-gray-400">
+                            {new Date(`2000-01-01T${order.deliveryTime}`).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-left">
                       {order.customerName}

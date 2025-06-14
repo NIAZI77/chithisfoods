@@ -21,21 +21,92 @@ import { useRouter } from "next/navigation";
 export default function CartPage() {
   const [cart, setCart] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdatingVendorData, setIsUpdatingVendorData] = useState(false);
   const [subtotal, setSubtotal] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const router = useRouter();
 
-  useEffect(() => {
-    const savedCart = localStorage.getItem("cart");
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart);
-        setCart(Array.isArray(parsedCart) ? parsedCart : []);
-      } catch {
-        setCart([]);
+  // Function to fetch vendor data from API
+  const fetchVendorData = async (vendorId) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}?populate=*`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch vendor data");
       }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      console.error("Error fetching vendor data:", error);
+      return null;
     }
-    setIsLoading(false);
+  };
+
+  // Function to update cart with vendor data
+  const updateCartWithVendorData = async (cartData) => {
+    setIsUpdatingVendorData(true);
+    try {
+      const updatedCart = await Promise.all(
+        cartData.map(async (vendorGroup) => {
+          // If vendor data is missing or incomplete, fetch it from API
+          if (!vendorGroup.vendorAvatar || !vendorGroup.vendorUsername || !vendorGroup.vendorName) {
+            const vendorData = await fetchVendorData(vendorGroup.vendorId);
+            if (vendorData) {
+              return {
+                ...vendorGroup,
+                vendorName: vendorData.storeName || vendorData.fullName || "Unknown Vendor",
+                vendorUsername: vendorData.username || vendorGroup.vendorUsername || "",
+                vendorAvatar: vendorData.avatar?.url || vendorGroup.vendorAvatar || "/fallback.png",
+              };
+            } else {
+              // If we can't fetch vendor data, use fallbacks
+              return {
+                ...vendorGroup,
+                vendorName: vendorGroup.vendorName || "Unknown Vendor",
+                vendorUsername: vendorGroup.vendorUsername || "",
+                vendorAvatar: vendorGroup.vendorAvatar || "/fallback.png",
+              };
+            }
+          }
+          return vendorGroup;
+        })
+      );
+      return updatedCart;
+    } finally {
+      setIsUpdatingVendorData(false);
+    }
+  };
+
+  useEffect(() => {
+    const loadCart = async () => {
+      const savedCart = localStorage.getItem("cart");
+      if (savedCart) {
+        try {
+          const parsedCart = JSON.parse(savedCart);
+          const cartArray = Array.isArray(parsedCart) ? parsedCart : [];
+          
+          // Update cart with vendor data if needed
+          const updatedCart = await updateCartWithVendorData(cartArray);
+          setCart(updatedCart);
+        } catch (error) {
+          console.error("Error loading cart:", error);
+          setCart([]);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    loadCart();
   }, []);
 
   useEffect(() => {
@@ -162,7 +233,7 @@ export default function CartPage() {
     router.push("/checkout");
   };
 
-  if (isLoading) return <Loading />;
+  if (isLoading || isUpdatingVendorData) return <Loading />;
 
   return (
     <div className="mx-3">
@@ -206,11 +277,14 @@ export default function CartPage() {
                 >
                   <div className="flex items-center gap-3 mb-4 pb-4 border-b">
                     <Image
-                      src={vendorGroup.vendorAvatar}
+                      src={vendorGroup.vendorAvatar || "/fallback.png"}
                       alt={vendorGroup.vendorName}
                       width={40}
                       height={40}
                       className="rounded-full w-8 h-8 md:w-10 md:h-10 object-cover"
+                      onError={(e) => {
+                        e.target.src = "/fallback.png";
+                      }}
                     />
                     <div className="flex items-center justify-between w-full">
                       <div>
@@ -218,7 +292,7 @@ export default function CartPage() {
                           <ChefHat className="w-4 h-4 md:w-5 md:h-5" />
                           {vendorGroup.vendorName}
                         </h3>
-                        {vendorGroup.vendorUsername && (
+                        {vendorGroup.vendorUsername && vendorGroup.vendorUsername.trim() !== "" && (
                           <Link
                             href={`/vendors/@${vendorGroup.vendorUsername}`}
                             className="text-xs md:text-sm text-gray-500 hover:text-rose-500 hover:underline"
@@ -313,7 +387,7 @@ export default function CartPage() {
                                       key={idx}
                                       className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs md:text-sm"
                                     >
-                                      <Image src={"/toppings.png"} alt="Extra" width={14} height={14} className="w-3 h-3 scale-175" />
+                                      <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3 scale-175" />
                                       {topping.name}
                                     </span>
                                   ))}

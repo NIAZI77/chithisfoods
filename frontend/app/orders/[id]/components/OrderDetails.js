@@ -5,6 +5,7 @@ import {
   MapPin,
   Phone,
   FileText,
+  Clock,
 } from "lucide-react";
 
 const OrderDetails = ({ order }) => {
@@ -26,6 +27,31 @@ const OrderDetails = ({ order }) => {
           </p>
         </div>
       </div>
+      {order.deliveryDate && (
+        <div className="flex items-center gap-2">
+          <Calendar className="text-gray-500" size={20} />
+          <div>
+            <span className="text-gray-500">Delivery Date</span>
+            <p className="text-black font-medium">
+              {new Date(order.deliveryDate).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+      )}
+      {order.deliveryTime && (
+        <div className="flex items-center gap-2">
+          <Clock className="text-gray-500" size={20} />
+          <div>
+            <span className="text-gray-500">Delivery Time</span>
+            <p className="text-black font-medium">
+              {new Date(`2000-01-01T${order.deliveryTime}`).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
+        </div>
+      )}
       <div className="flex items-center gap-2">
         <User className="text-gray-500" size={20} />
         <div>
@@ -47,7 +73,7 @@ const OrderDetails = ({ order }) => {
           <p className="text-black font-medium">{order.phone}</p>
         </div>
       </div>
-      {order.note.length > 0 && (
+      {order.note && order.note.length > 0 && (
         <div className="flex items-center gap-2">
           <FileText className="text-gray-500" size={20} />
           <div>

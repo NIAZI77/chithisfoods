@@ -15,8 +15,16 @@ import {
   Phone,
   MapPin,
   Save,
+  FileText,
+  Upload,
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertCircle,
+  Calendar,
 } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
+import Link from "next/link";
 
 const INITIAL_FORM_STATE = {
   storeName: "",
@@ -31,6 +39,8 @@ const INITIAL_FORM_STATE = {
   avatar: { id: 0, url: "" },
   coverImage: { id: 0, url: "" },
   vendorDeliveryFee: "",
+  verificationDocument: null,
+  verificationStatus: "unverified",
 };
 
 const REQUIRED_FIELDS = [
@@ -56,6 +66,7 @@ const Page = () => {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+  const [uploadingDocument, setUploadingDocument] = useState(false);
 
   useEffect(() => {
     const jwt = getCookie("jwt");
@@ -100,6 +111,8 @@ const Page = () => {
           vendorData.vendorDeliveryFee !== null && vendorData.vendorDeliveryFee !== undefined
             ? Number(vendorData.vendorDeliveryFee).toFixed(2)
             : "",
+        verificationDocument: vendorData.verificationDocument || null,
+        verificationStatus: vendorData.verificationStatus || "unverified",
       });
     } catch (error) {
       toast.error(error.message || "Failed to load your vendor information. Please refresh the page or try again later.");
@@ -156,6 +169,157 @@ const Page = () => {
     } catch (error) {
       toast.error("An error occurred while uploading the image. Please try again.");
     }
+  };
+
+  const uploadVerificationDocument = async (file) => {
+    const formDataUpload = new FormData();
+    formDataUpload.append("files", file);
+
+    if (file.type !== "application/pdf") {
+      toast.error("Only PDF files are allowed for verification documents.");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      toast.error("File size must be less than 10MB.");
+      return;
+    }
+
+    setUploadingDocument(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: formDataUpload,
+        }
+      );
+
+      if (!response.ok) {
+        toast.error("Document upload failed. Please try again.");
+        return;
+      }
+
+      const data = await response.json();
+      if (!data || !data[0]) {
+        toast.error("Unexpected server response during document upload. Please try again.");
+        return;
+      }
+
+      const { id, url } = data[0];
+      const fullUrl = url.startsWith("http")
+        ? url
+        : `${process.env.NEXT_PUBLIC_STRAPI_HOST}${url}`;
+
+      // Update vendor with verification document
+      const updateResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${formData.documentId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: JSON.stringify({
+            data: {
+              verificationDocument: id,
+            },
+          }),
+        }
+      );
+
+      if (!updateResponse.ok) {
+        toast.error("Failed to update vendor with verification document.");
+        return;
+      }
+
+      setFormData((prevData) => ({
+        ...prevData,
+        verificationDocument: {
+          id,
+          url: fullUrl,
+          createdAt: new Date().toISOString()
+        },
+      }));
+
+      toast.success("Verification document uploaded successfully!");
+    } catch (error) {
+      toast.error("An error occurred while uploading the document. Please try again.");
+    } finally {
+      setUploadingDocument(false);
+    }
+  };
+
+  const handleVerificationFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      uploadVerificationDocument(file);
+    }
+  };
+
+  const getVerificationStatusConfig = (status) => {
+    const statusConfig = {
+      verified: {
+        bg: "bg-emerald-50",
+        text: "text-emerald-700",
+        border: "border-emerald-200",
+        icon: <CheckCircle className="w-5 h-5" />,
+        label: "Verified",
+        description: "Your account has been verified by our team.",
+        gradient: "from-emerald-50 to-green-50",
+        iconBg: "bg-emerald-100",
+        iconColor: "text-emerald-600",
+      },
+      "new-chef": {
+        bg: "bg-slate-50",
+        text: "text-slate-700",
+        border: "border-slate-200",
+        icon: <Clock className="w-5 h-5" />,
+        label: "New Chef",
+        description: "Your account is being reviewed by our team.",
+        gradient: "from-slate-50 to-gray-50",
+        iconBg: "bg-slate-100",
+        iconColor: "text-slate-600",
+      },
+      banned: {
+        bg: "bg-rose-50",
+        text: "text-rose-700",
+        border: "border-rose-200",
+        icon: <XCircle className="w-5 h-5" />,
+        label: "Banned",
+        description: "Your account has been suspended. Please contact support.",
+        gradient: "from-rose-50 to-red-50",
+        iconBg: "bg-rose-100",
+        iconColor: "text-rose-600",
+      },
+      unverified: {
+        bg: "bg-orange-50",
+        text: "text-orange-700",
+        border: "border-orange-200",
+        icon: <AlertCircle className="w-5 h-5" />,
+        label: "Unverified",
+        description: "Please upload your verification document to get verified.",
+        gradient: "from-orange-50 to-amber-50",
+        iconBg: "bg-orange-100",
+        iconColor: "text-orange-600",
+      },
+      rejected: {
+        bg: "bg-orange-50",
+        text: "text-orange-700",
+        border: "border-orange-200",
+        icon: <XCircle className="w-5 h-5" />,
+        label: "Rejected",
+        description: "Your verification was rejected. Please upload a new document.",
+        gradient: "from-orange-50 to-red-50",
+        iconBg: "bg-orange-100",
+        iconColor: "text-orange-600",
+      },
+    };
+
+    return statusConfig[status] || statusConfig.unverified;
   };
 
   const handleFileChange = (e) => {
@@ -275,6 +439,18 @@ const Page = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   if (loading) return <Loading />;
@@ -518,6 +694,185 @@ const Page = () => {
           </button>
         </div>
       </form>
+
+      {/* Verification Section */}
+      <section className="bg-white rounded-xl shadow-lg p-6 mt-8 border border-gray-100">
+        <h2 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-900">
+          <div className="p-2 bg-orange-100 rounded-lg">
+            <FileText className="h-5 w-5 text-orange-600" />
+          </div>
+          Account Verification
+        </h2>
+
+        <div className="space-y-6">
+          {/* Status Display */}
+          <div className={`bg-gradient-to-r ${getVerificationStatusConfig(formData.verificationStatus).gradient} rounded-xl p-6 border ${getVerificationStatusConfig(formData.verificationStatus).border} shadow-sm`}>
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-full ${getVerificationStatusConfig(formData.verificationStatus).iconBg} shadow-sm`}>
+                  <div className={getVerificationStatusConfig(formData.verificationStatus).iconColor}>
+                    {getVerificationStatusConfig(formData.verificationStatus).icon}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {getVerificationStatusConfig(formData.verificationStatus).label}
+                  </h3>
+                  <p className="text-gray-600 mt-1">
+                    {getVerificationStatusConfig(formData.verificationStatus).description}
+                  </p>
+                </div>
+              </div>
+              <div className={`w-28 flex items-center justify-center py-1 rounded-full text-sm font-medium ${getVerificationStatusConfig(formData.verificationStatus).bg} ${getVerificationStatusConfig(formData.verificationStatus).text} ${getVerificationStatusConfig(formData.verificationStatus).border} border shadow-sm`}>
+                {getVerificationStatusConfig(formData.verificationStatus).label}
+              </div>
+            </div>
+          </div>
+
+          {/* Document Upload Section */}
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+            <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-orange-600" />
+              Verification Document
+            </h4>
+
+            {formData.verificationDocument ? (
+              <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="p-3 bg-red-50 rounded-lg shadow-sm flex-shrink-0">
+                      <FileText className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-sm">Verification Document</p>
+                      <p className="text-gray-500 text-xs">PDF Document</p>
+                      {formData.verificationDocument.createdAt && (
+                        <p className="text-gray-400 text-xs flex items-center gap-1 mt-1">
+                          <Calendar className="w-3 h-3 flex-shrink-0" />
+                          {formatDate(formData.verificationDocument.createdAt)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto mt-4 md:mt-0">
+                    <Link
+                      href={formData.verificationDocument.url}
+                      passHref
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto px-3 py-1.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all duration-200 text-xs font-medium shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      View Document
+                    </Link>
+                   {formData.verificationStatus !== 'verified' && <button
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = '.pdf';
+                        input.onchange = handleVerificationFileChange;
+                        input.click();
+                      }}
+                      disabled={uploadingDocument}
+                      className="w-full sm:w-auto px-3 py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all duration-200 text-xs font-medium shadow-sm hover:shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {uploadingDocument ? (
+                        <>
+                          <Spinner size={14} color="white" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4" />
+                          Replace
+                        </>
+                      )}
+                    </button>}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-orange-300 rounded-lg p-8 text-center hover:border-orange-400 transition-all duration-200 bg-white">
+                <div className="mx-auto w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-4 shadow-sm">
+                  {uploadingDocument ? (
+                    <Spinner size={24} color="#ea580c" />
+                  ) : (
+                    <Upload className="w-8 h-8 text-orange-600" />
+                  )}
+                </div>
+                <h5 className="text-xl font-semibold text-gray-900 mb-2">
+                  {uploadingDocument ? "Uploading Document..." : "Upload Verification Document"}
+                </h5>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed">
+                  Please upload a PDF document for verification. This could be a business license,
+                  food service permit, or any official document that verifies your business.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = '.pdf';
+                      input.onchange = handleVerificationFileChange;
+                      input.click();
+                    }}
+                    disabled={uploadingDocument}
+                    className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all duration-200 font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {uploadingDocument ? (
+                      <>
+                        <Spinner size={20} color="white" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5" />
+                        Choose PDF File
+                      </>
+                    )}
+                  </button>
+                  <input
+                    type="file"
+                    id="verificationDocument"
+                    onChange={handleVerificationFileChange}
+                    className="hidden"
+                    accept=".pdf"
+                  />
+                </div>
+                <p className="text-xs text-gray-400 mt-4">
+                  Maximum file size: 10MB • Only PDF files allowed
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Verification Requirements */}
+          <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-200 shadow-sm">
+            <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-orange-600" />
+              Verification Requirements
+            </h4>
+            <ul className="space-y-3 text-sm text-gray-700">
+              <li className="flex items-start gap-3">
+                <div className="w-2 h-2 bg-orange-600 rounded-full mt-2 flex-shrink-0 shadow-sm"></div>
+                <span className="leading-relaxed">Valid business license or food service permit</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-2 h-2 bg-orange-600 rounded-full mt-2 flex-shrink-0 shadow-sm"></div>
+                <span className="leading-relaxed">Government-issued ID or business registration</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-2 h-2 bg-orange-600 rounded-full mt-2 flex-shrink-0 shadow-sm"></div>
+                <span className="leading-relaxed">Health department certification (if applicable)</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-2 h-2 bg-orange-600 rounded-full mt-2 flex-shrink-0 shadow-sm"></div>
+                <span className="leading-relaxed">Document must be in PDF format and clearly legible</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

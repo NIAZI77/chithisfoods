@@ -1,6 +1,6 @@
 import Image from "next/image";
 import StatusBadge from "./StatusBadge";
-import { Flame } from "lucide-react";
+import { Flame, Calendar, Clock } from "lucide-react";
 
 const OrderCard = ({ order, onViewDetails }) => {
   return (
@@ -17,6 +17,18 @@ const OrderCard = ({ order, onViewDetails }) => {
           timeStyle: "short",
         })}
       </p>
+      {order.deliveryDate && order.deliveryTime && (
+        <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
+          <Calendar className="w-3 h-3" />
+          <span>
+            Delivery: {new Date(order.deliveryDate).toLocaleDateString()} at{" "}
+            {new Date(`2000-01-01T${order.deliveryTime}`).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
+        </div>
+      )}
       <div className="space-y-3 flex-1">
         {order.dishes.slice(0, 2).map((item, i) => (
           <div key={i} className="flex gap-4 items-center">

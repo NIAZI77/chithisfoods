@@ -196,6 +196,31 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                   </div>
                 </div>
               </div>
+              {order.deliveryDate && (
+                <div className="flex gap-2 md:gap-3">
+                  <div className="flex-1 flex items-start gap-2">
+                    <Calendar className="w-4 h-4 text-gray-500 mt-0.5" />
+                    <div>
+                      <p className="text-gray-500 text-xs mb-0.5">Delivery Date</p>
+                      <p className="text-xs text-gray-800 font-medium">
+                        {new Date(order.deliveryDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex-1 flex items-start gap-2">
+                    <ClockIcon className="w-4 h-4 text-gray-500 mt-0.5" />
+                    <div>
+                      <p className="text-gray-500 text-xs mb-0.5">Delivery Time</p>
+                      <p className="text-xs text-gray-800 font-medium">
+                        {new Date(`2000-01-01T${order.deliveryTime}`).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
               {order.note && (
                 <div className="flex items-start gap-2">
                   <FileText className="w-4 h-4 text-gray-500 mt-0.5" />

@@ -14,6 +14,7 @@ import {
   Star,
   MessageSquare,
   X,
+  Clock,
 } from "lucide-react";
 import { FaShoppingBag, FaStore, FaStar } from "react-icons/fa";
 import { HiOutlineReceiptTax } from "react-icons/hi";
@@ -625,6 +626,31 @@ export default function OrderPage() {
               </p>
             </div>
           </div>
+          {currentOrder.deliveryDate && (
+            <div className="flex items-center gap-2">
+              <Calendar className="text-gray-500" size={20} />
+              <div>
+                <span className="text-gray-500">Delivery Date</span>
+                <p className="text-black font-medium">
+                  {new Date(currentOrder.deliveryDate).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          )}
+          {currentOrder.deliveryTime && (
+            <div className="flex items-center gap-2">
+              <Clock className="text-gray-500" size={20} />
+              <div>
+                <span className="text-gray-500">Delivery Time</span>
+                <p className="text-black font-medium">
+                  {new Date(`2000-01-01T${currentOrder.deliveryTime}`).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <User className="text-gray-500" size={20} />
             <div>
@@ -648,7 +674,7 @@ export default function OrderPage() {
               <p className="text-black font-medium">{currentOrder.phone}</p>
             </div>
           </div>
-          {currentOrder.note.length > 0 && (
+          {currentOrder.note && currentOrder.note.length > 0 && (
             <div className="flex items-center gap-2">
               <FileText className="text-gray-500" size={20} />
               <div>
