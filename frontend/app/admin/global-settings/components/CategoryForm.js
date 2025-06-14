@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, X, Tag, Layers, Image as ImageIcon } from 'lucide-react';
@@ -29,12 +29,18 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
   useEffect(() => {
     if (initialData) {
       // Transform Strapi data to form format
+      const imageUrl = initialData.image?.url
+        ? (initialData.image.url.startsWith('http')
+          ? initialData.image.url
+          : `${process.env.NEXT_PUBLIC_STRAPI_HOST}${initialData.image.url}`)
+        : '';
+
       setFormData({
         documentId: initialData.documentId,
         name: initialData.name,
         image: {
           id: initialData.image?.id || null,
-          url: initialData.image?.url || '',
+          url: imageUrl,
         },
         subcategories: initialData.subcategories?.map(sub => ({
           name: sub.name,
@@ -257,12 +263,17 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!isSaving) {
-        onClose();
-      }
-    }}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto custom-scrollbar animate-in zoom-in-50 duration-200">
+    <AlertDialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!isSaving) {
+          if (!open) {
+            onClose();
+          }
+        }
+      }}
+    >
+      <AlertDialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto custom-scrollbar">
         <style jsx global>{`
           .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
@@ -280,12 +291,30 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
           }
         `}</style>
 
-        <DialogHeader>
-          <DialogTitle className="text-pink-600 flex items-center gap-2">
-            <Tag className="w-5 h-5" />
-            {initialData ? 'Edit Category' : 'Add New Category'}
-          </DialogTitle>
-        </DialogHeader>
+        <AlertDialogHeader>
+          <div className="flex items-center justify-between">
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              disabled={isSaving}
+              className="absolute top-4 right-4 h-8 w-8 text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <AlertDialogTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            <div className="mx-auto sm:mx-0 flex h-12 w-12 items-center justify-center rounded-full bg-pink-100">
+              <Tag className="h-6 w-6 text-pink-600" />
+            </div>
+              {initialData ? 'Edit Category' : 'Add New Category'}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-base text-gray-600 mt-2">
+            {initialData ? 'Update the category information below.' : 'Fill in the details to create a new category.'}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
@@ -422,34 +451,34 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
             </div>
           </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
+          <AlertDialogFooter className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <AlertDialogCancel
+              className="mt-0 border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-800"
               disabled={isSaving}
-              className="border-pink-200 text-pink-600 hover:bg-pink-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
-            </Button>
-            <Button
-              type="submit"
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSubmit}
               disabled={isSaving}
-              className="bg-pink-600 hover:bg-pink-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-pink-600 hover:bg-pink-700 text-white shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                   {initialData ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
-                initialData ? 'Update' : 'Create'
-              )} Category
-            </Button>
-          </DialogFooter>
+                <>
+                  <Tag className="h-4 w-4" />
+                  {initialData ? 'Update' : 'Create'} Category
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 

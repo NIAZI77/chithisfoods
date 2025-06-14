@@ -37,7 +37,6 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     const AdminJWT = getCookie("AdminJWT");
@@ -46,7 +45,9 @@ const Page = () => {
     if (!AdminJWT || !AdminUser) {
       toast.error("Please login to continue.");
       router.push("/admin/login");
+      return;
     }
+    fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
@@ -70,52 +71,20 @@ const Page = () => {
       setCategories(data.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      toast.error(error.message || 'Failed to fetch categories');
+      toast.error('Failed to fetch categories. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
-
-  const refreshCategories = async () => {
-    try {
-      setIsRefreshing(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/categories?populate=*&sort=createdAt:desc`,
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to refresh categories');
-      }
-
-      const data = await response.json();
-      setCategories(data.data || []);
-    } catch (error) {
-      console.error('Error refreshing categories:', error);
-      toast.error(error.message || 'Failed to refresh categories');
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
   const handleEdit = (category) => {
     setSelectedCategory(category);
     setIsFormOpen(true);
   };
 
-  const handleFormClose = async () => {
+  const handleFormClose = () => {
     setIsFormOpen(false);
     setSelectedCategory(null);
-    await refreshCategories(); // Refresh categories after form closes
   };
 
   const handleDelete = (documentId) => {
@@ -124,6 +93,8 @@ const Page = () => {
   };
 
   const confirmDelete = async () => {
+    if (!categoryToDelete) return;
+    
     try {
       setIsDeleting(true);
       const response = await fetch(
@@ -141,13 +112,13 @@ const Page = () => {
         throw new Error('Failed to delete category');
       }
 
-      await refreshCategories(); // Refresh the categories list
+      setCategories(prev => prev.filter(cat => cat.documentId !== categoryToDelete));
       setDeleteDialogOpen(false);
       setCategoryToDelete(null);
       toast.success('Category deleted successfully');
     } catch (error) {
       console.error('Error deleting category:', error);
-      toast.error(error.message || 'Failed to delete category');
+      toast.error('Failed to delete category. Please try again.');
     } finally {
       setIsDeleting(false);
     }
@@ -156,7 +127,6 @@ const Page = () => {
   const handleCategoryFormSave = async (formData) => {
     try {
       setIsSaving(true);
-      // Convert all names to kebab-case for storage
       const kebabCategory = {
         ...formData,
         name: toKebabCase(formData.name),
@@ -169,8 +139,16 @@ const Page = () => {
       const payload = {
         name: kebabCategory.name,
         subcategories: kebabCategory.subcategories,
-        ...(kebabCategory.image?.id && { image: kebabCategory.image.id })
       };
+
+      // Handle image data properly
+      if (kebabCategory.image?.id) {
+        // New image uploaded or existing image preserved
+        payload.image = kebabCategory.image.id;
+      } else if (formData.documentId && selectedCategory?.image?.id) {
+        // Editing existing category, keep existing image if no new image provided
+        payload.image = selectedCategory.image.id;
+      }
 
       const url = formData.documentId
         ? `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/categories/${formData.documentId}`
@@ -190,13 +168,55 @@ const Page = () => {
         throw new Error(errorData.error?.message || 'Failed to save category');
       }
 
-      await refreshCategories(); // Refresh the categories list
-      setIsFormOpen(false);
-      setSelectedCategory(null);
+      const updatedData = await response.json();
+      
+      // For updates, fetch the complete category data with populated image
+      if (formData.documentId) {
+        try {
+          const fetchResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/categories/${formData.documentId}?populate=*`,
+            {
+              headers: {
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          
+          if (fetchResponse.ok) {
+            const completeData = await fetchResponse.json();
+            setCategories(prev => 
+              prev.map(cat => 
+                cat.documentId === formData.documentId ? completeData.data : cat
+              )
+            );
+          } else {
+            // Fallback to using the update response data
+            setCategories(prev => 
+              prev.map(cat => 
+                cat.documentId === formData.documentId ? updatedData.data : cat
+              )
+            );
+          }
+        } catch (fetchError) {
+          console.error('Error fetching updated category:', fetchError);
+          // Fallback to using the update response data
+          setCategories(prev => 
+            prev.map(cat => 
+              cat.documentId === formData.documentId ? updatedData.data : cat
+            )
+          );
+        }
+      } else {
+        // For new categories, add to the beginning of the list
+        setCategories(prev => [updatedData.data, ...prev]);
+      }
+
+      handleFormClose();
       toast.success(formData.documentId ? 'Category updated successfully' : 'Category created successfully');
     } catch (error) {
       console.error('Error saving category:', error);
-      toast.error(error.message || 'Failed to save category');
+      toast.error('Failed to save category. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -215,12 +235,38 @@ const Page = () => {
 
   return (
     <div className="container mx-auto p-6 pl-20">
-      <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => {
-        if (!isDeleting) {
-          setDeleteDialogOpen(open);
-        }
-      }}>
-        <AlertDialogContent>
+      {/* Full-screen loading overlay for saving categories */}
+      {isSaving && (
+        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-600"></div>
+            <p className="text-lg text-gray-600 font-medium">Saving category...</p>
+            <p className="text-sm text-gray-500">Please wait while we process your changes</p>
+          </div>
+        </div>
+      )}
+
+      {/* Full-screen loading overlay for deleting categories */}
+      {isDeleting && (
+        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
+            <p className="text-lg text-gray-600 font-medium">Deleting category...</p>
+            <p className="text-sm text-gray-500">Please wait while we remove the category</p>
+          </div>
+        </div>
+      )}
+
+      <AlertDialog 
+        open={deleteDialogOpen} 
+        onOpenChange={(open) => {
+          if (!isDeleting) {
+            setDeleteDialogOpen(open);
+            if (!open) setCategoryToDelete(null);
+          }
+        }}
+      >
+        <AlertDialogContent className="sm:max-w-md">
           <AlertDialogHeader>
             <div className="mx-auto sm:mx-0 mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
               <Trash2 className="h-6 w-6 text-red-600" />
@@ -270,78 +316,64 @@ const Page = () => {
         <Button
           onClick={() => setIsFormOpen(true)}
           className="bg-pink-600 hover:bg-pink-700 text-white transition-colors"
-          disabled={isRefreshing}
+          disabled={isSaving}
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Category
         </Button>
       </div>
 
-      <div className="relative">
-        {isRefreshing && (
-          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-10">
-            <div className="flex flex-col items-center gap-2">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
-              <p className="text-sm text-gray-600">Updating...</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {categories.map((category, index) => (
+          <div
+            key={category.documentId || index}
+            className="border border-pink-100 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-pink-200 animate-in fade-in-50 slide-in-from-bottom-4"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="relative w-32 h-32 bg-pink-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 group">
+                <Image
+                  src={category.image?.url || '/fallback.png'}
+                  alt={`${category.name || 'category'} image`}
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors rounded-lg" />
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-gray-800 capitalize">{category.name?.replace(/-/g, ' ')}</h3>
+              <p className="text-sm text-gray-500 mt-1">
+                {category.subcategories?.length || 0} subcategories
+              </p>
+            </div>
+
+            <div className="mt-6 flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1 border-pink-200 text-pink-600 hover:bg-pink-50 hover:text-pink-700 transition-colors"
+                onClick={() => handleEdit(category)}
+                disabled={isSaving}
+              >
+                <Edit2 className="w-4 h-4 mr-2" />
+                Edit
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                onClick={() => handleDelete(category.documentId)}
+                disabled={isSaving}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
             </div>
           </div>
-        )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map((category, index) => (
-            <div
-              key={index}
-              className="border border-pink-100 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-pink-200 animate-in fade-in-50 slide-in-from-bottom-4"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="flex flex-col items-center justify-center text-center">
-                <div className="relative w-32 h-32 bg-pink-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 group">
-                  <Image
-                    src={category.image?.url || '/fallback.png'}
-                    alt={`${category.name || 'category'} image`}
-                    width={128}
-                    height={128}
-                    className="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors rounded-lg" />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-800 capitalize">{category.name?.replace(/-/g, ' ')}</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  {category.subcategories?.length || 0} subcategories
-                </p>
-              </div>
-
-              <div className="mt-6 flex gap-2">
-                <Button
-                  variant="outline"
-                  className="flex-1 border-pink-200 text-pink-600 hover:bg-pink-50 hover:text-pink-700 transition-colors"
-                  onClick={() => handleEdit(category)}
-                  disabled={isRefreshing}
-                >
-                  <Edit2 className="w-4 h-4 mr-2" />
-                  Edit
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
-                  onClick={() => handleDelete(category.documentId)}
-                  disabled={isRefreshing}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+        ))}
       </div>
 
       <CategoryForm
         isOpen={isFormOpen}
-        onClose={() => {
-          if (!isSaving) {
-            handleFormClose();
-          }
-        }}
+        onClose={handleFormClose}
         initialData={selectedCategory}
         onSave={handleCategoryFormSave}
         isSaving={isSaving}
