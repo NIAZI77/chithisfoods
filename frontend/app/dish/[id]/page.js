@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { LuPlus, LuMinus } from "react-icons/lu";
 import { FaStar, FaUser } from "react-icons/fa";
-import { Timer, AlertCircle, Eye, BadgeCheck } from "lucide-react";
+import { Timer, AlertCircle, Eye, BadgeCheck, XCircle } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 import { toast } from "react-toastify";
@@ -33,6 +33,7 @@ export default function DishPage() {
   const [isPreview, setIsPreview] = useState(false);
   const [isAvailable, setIsAvailable] = useState(true);
   const [userZipcode, setUserZipcode] = useState(null);
+  const [isVendorBanned, setIsVendorBanned] = useState(false);
   const router = useRouter();
 
   const fetchDishDetails = async () => {
@@ -152,6 +153,10 @@ export default function DishPage() {
       }
 
       setVendorDetails(responseData.data);
+      
+      // Check if vendor is banned
+      const vendorStatus = responseData.data.verificationStatus;
+      setIsVendorBanned(vendorStatus === "banned");
     } catch (error) {
       console.error("Error fetching vendor:", error);
       toast.error(error.message || API_ERROR_MESSAGES.FETCH_ERROR);
@@ -341,6 +346,12 @@ export default function DishPage() {
             <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
               <AlertCircle className="w-5 h-5" />
               This dish is unavailable in your city
+            </div>
+          )}
+          {isVendorBanned && (
+            <div className="bg-red-600 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+              <XCircle className="w-5 h-5" />
+              This vendor has been banned
             </div>
           )}
           {isPreview && (
@@ -565,7 +576,8 @@ export default function DishPage() {
                 disabled={
                   isPreview ||
                   !isAvailable ||
-                  !(userZipcode == dishDetails.zipcode)
+                  !(userZipcode == dishDetails.zipcode) ||
+                  isVendorBanned
                 }
               >
                 Add to cart

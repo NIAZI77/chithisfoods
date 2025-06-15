@@ -107,7 +107,6 @@ const TransactionStats = ({ stats }) => (
 const TransactionListByDate = ({ transactions, isLoading }) => {
   const calculateTotal = (subtotal, deliveryFee) => subtotal + deliveryFee;
 
-  // Group transactions by date
   const groupedTransactions = transactions.reduce((groups, transaction) => {
     const date = new Date(transaction.createdAt);
     const dateKey = date.toLocaleDateString("en-US", {
@@ -123,7 +122,6 @@ const TransactionListByDate = ({ transactions, isLoading }) => {
     return groups;
   }, {});
 
-  // Sort dates in descending order (most recent first)
   const sortedDates = Object.keys(groupedTransactions).sort((a, b) => {
     return new Date(b) - new Date(a);
   });
@@ -537,7 +535,6 @@ function PaymentPage() {
         setPaypalEmail(vendorData.paypalEmail);
         setIsPaypalConnected(true);
       }
-      // Fetch orders after getting vendor ID
       await fetchVendorOrders(vendorData.documentId);
     } catch (error) {
       toast.error(error.message || "Failed to load vendor information.");

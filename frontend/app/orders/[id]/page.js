@@ -94,12 +94,11 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
     }
   };
 
-  // Function to check review status for a single dish
   const checkDishReviewStatus = async (dishId) => {
     try {
       const user = getCookie("user");
       if (!user) {
-        return false; // Not logged in
+        return false;
       }
 
       const response = await fetch(
@@ -120,16 +119,14 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
       const dishData = await response.json();
       const reviews = dishData.data.reviews || [];
 
-      // Check if user has already reviewed this dish
       const userReview = reviews.find((review) => review.email === user);
-      return !!userReview; // Return true if user has reviewed
+      return !!userReview;
     } catch (error) {
       console.error("Error checking review status:", error);
       return false;
     }
   };
 
-  // Check review status for all dishes when component mounts
   useEffect(() => {
     const checkAllDishesReviewStatus = async () => {
       setIsLoadingReviews(true);
@@ -141,7 +138,6 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
           })
         );
 
-        // Update reviewedDishes state with the results
         const reviewedStatus = reviewStatuses.reduce(
           (acc, { dishId, hasReviewed }) => {
             acc[dishId] = hasReviewed;
@@ -196,7 +192,6 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
       return;
     }
 
-    // Double check if user has already reviewed
     if (reviewedDishes[selectedDish.id]) {
       toast.error("You have already reviewed this dish");
       setIsReviewDialogOpen(false);
@@ -205,7 +200,6 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
 
     setIsRating(true);
     try {
-      // First get the current dish data
       const dishResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${selectedDish.id}?populate=*`,
         {
@@ -226,7 +220,6 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
       const currentRating = dishData.data.rating || 0;
       const currentReviewCount = currentReviews.length;
 
-      // Final check if user has already reviewed
       const userReview = currentReviews.find((review) => review.email === user);
       if (userReview) {
         toast.error("You have already reviewed this dish");
@@ -234,7 +227,6 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
         return;
       }
 
-      // Add new review with email
       const newReview = {
         name: order.customerName,
         email: user,
@@ -242,12 +234,10 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
         text: reviewText || "No comment provided",
       };
 
-      // Calculate new average rating
       const newRating =
         (currentRating * currentReviewCount + selectedRating) /
         (currentReviewCount + 1);
 
-      // Update dish with new review and rating
       const updateResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${selectedDish.id}`,
         {
@@ -269,6 +259,8 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
         throw new Error("Failed to update dish review");
       }
 
+      await updateVendorRating(selectedDish.id);
+
       toast.success(`Thank you for rating ${selectedDish.name}!`);
       setReviewedDishes((prev) => ({ ...prev, [selectedDish.id]: true }));
       setIsReviewDialogOpen(false);
@@ -279,6 +271,89 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
       toast.error(error.message || "Failed to submit review");
     } finally {
       setIsRating(false);
+    }
+  };
+
+  const updateVendorRating = async (dishId) => {
+    try {
+      const dishResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dishId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (!dishResponse.ok) {
+        throw new Error("Failed to fetch dish data");
+      }
+
+      const dishData = await dishResponse.json();
+      const vendorId = dishData.data.vendorId;
+
+      if (!vendorId) {
+        console.warn("No vendorId found for dish:", dishId);
+        return;
+      }
+
+      const vendorDishesResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[vendorId][$eq]=${vendorId}&fields[0]=reviews`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (!vendorDishesResponse.ok) {
+        throw new Error("Failed to fetch vendor dishes");
+      }
+
+      const vendorDishesData = await vendorDishesResponse.json();
+      const vendorDishes = vendorDishesData.data || [];
+
+      let totalRating = 0;
+      let totalReviews = 0;
+
+      vendorDishes.forEach((dish) => {
+        const reviews = dish.reviews || [];
+        if (reviews.length > 0) {
+          const dishTotalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+          totalRating += dishTotalRating;
+          totalReviews += reviews.length;
+        }
+      });
+
+      const averageRating = totalReviews > 0 ? totalRating / totalReviews : 0;
+
+      const vendorUpdateResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: JSON.stringify({
+            data: {
+              rating: averageRating,
+            },
+          }),
+        }
+      );
+
+      if (!vendorUpdateResponse.ok) {
+        throw new Error("Failed to update vendor rating");
+      }
+
+      console.log(`Vendor ${vendorId} rating updated to: ${averageRating.toFixed(2)} (${totalReviews} reviews)`);
+    } catch (error) {
+      console.error("Error updating vendor rating:", error);
     }
   };
 
@@ -702,7 +777,6 @@ export default function OrderPage() {
               ${currentOrder.totalTax.toFixed(2)}
             </span>
           </div>
-          {/* Per-vendor delivery fees */}
           {orderData.some(
             (order) => order.vendorDeliveryFee && order.vendorUsername
           ) && (

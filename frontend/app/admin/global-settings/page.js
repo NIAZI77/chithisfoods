@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Tag, Edit2, Trash2 } from "lucide-react";
 import CategoryForm from "./components/CategoryForm";
+import TaxPercentage from "./components/TaxPercentage";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import {
@@ -94,7 +95,7 @@ const Page = () => {
 
   const confirmDelete = async () => {
     if (!categoryToDelete) return;
-    
+
     try {
       setIsDeleting(true);
       const response = await fetch(
@@ -169,7 +170,7 @@ const Page = () => {
       }
 
       const updatedData = await response.json();
-      
+
       // For updates, fetch the complete category data with populated image
       if (formData.documentId) {
         try {
@@ -182,18 +183,18 @@ const Page = () => {
               },
             }
           );
-          
+
           if (fetchResponse.ok) {
             const completeData = await fetchResponse.json();
-            setCategories(prev => 
-              prev.map(cat => 
+            setCategories(prev =>
+              prev.map(cat =>
                 cat.documentId === formData.documentId ? completeData.data : cat
               )
             );
           } else {
             // Fallback to using the update response data
-            setCategories(prev => 
-              prev.map(cat => 
+            setCategories(prev =>
+              prev.map(cat =>
                 cat.documentId === formData.documentId ? updatedData.data : cat
               )
             );
@@ -201,8 +202,8 @@ const Page = () => {
         } catch (fetchError) {
           console.error('Error fetching updated category:', fetchError);
           // Fallback to using the update response data
-          setCategories(prev => 
-            prev.map(cat => 
+          setCategories(prev =>
+            prev.map(cat =>
               cat.documentId === formData.documentId ? updatedData.data : cat
             )
           );
@@ -257,8 +258,8 @@ const Page = () => {
         </div>
       )}
 
-      <AlertDialog 
-        open={deleteDialogOpen} 
+      <AlertDialog
+        open={deleteDialogOpen}
         onOpenChange={(open) => {
           if (!isDeleting) {
             setDeleteDialogOpen(open);
@@ -279,7 +280,7 @@ const Page = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
-            <AlertDialogCancel 
+            <AlertDialogCancel
               className="mt-0 border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-800"
               disabled={isDeleting}
             >
@@ -313,62 +314,77 @@ const Page = () => {
           </div>
           <h1 className="text-2xl font-bold text-gray-800">Global Settings</h1>
         </div>
-        <Button
-          onClick={() => setIsFormOpen(true)}
-          className="bg-pink-600 hover:bg-pink-700 text-white transition-colors"
-          disabled={isSaving}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Category
-        </Button>
+
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map((category, index) => (
-          <div
-            key={category.documentId || index}
-            className="border border-pink-100 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-pink-200 animate-in fade-in-50 slide-in-from-bottom-4"
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
-            <div className="flex flex-col items-center justify-center text-center">
-              <div className="relative w-32 h-32 bg-pink-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 group">
-                <Image
-                  src={category.image?.url || '/fallback.png'}
-                  alt={`${category.name || 'category'} image`}
-                  width={128}
-                  height={128}
-                  className="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors rounded-lg" />
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-gray-800 capitalize">{category.name?.replace(/-/g, ' ')}</h3>
-              <p className="text-sm text-gray-500 mt-1">
-                {category.subcategories?.length || 0} subcategories
-              </p>
-            </div>
+      {/* Tax Percentage Section */}
+      <div className="mb-8">
+        <div className="flex flex-wrap gap-6">
+          <TaxPercentage />
+        </div>
+      </div>
 
-            <div className="mt-6 flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1 border-pink-200 text-pink-600 hover:bg-pink-50 hover:text-pink-700 transition-colors"
-                onClick={() => handleEdit(category)}
-                disabled={isSaving}
-              >
-                <Edit2 className="w-4 h-4 mr-2" />
-                Edit
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
-                onClick={() => handleDelete(category.documentId)}
-                disabled={isSaving}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
-              </Button>
+      {/* Categories Section */}
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-4">
+
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Categories Management</h2>
+          <Button
+            onClick={() => setIsFormOpen(true)}
+            className="bg-pink-600 hover:bg-pink-700 text-white transition-colors"
+            disabled={isSaving}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Category
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categories.map((category, index) => (
+            <div
+              key={category.documentId || index}
+              className="border border-pink-100 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-pink-200 animate-in fade-in-50 slide-in-from-bottom-4"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="flex flex-col items-center justify-center text-center">
+                <div className="relative w-32 h-32 bg-pink-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 group">
+                  <Image
+                    src={category.image?.url || '/fallback.png'}
+                    alt={`${category.name || 'category'} image`}
+                    width={128}
+                    height={128}
+                    className="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors rounded-lg" />
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-gray-800 capitalize">{category.name?.replace(/-/g, ' ')}</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {category.subcategories?.length || 0} subcategories
+                </p>
+              </div>
+
+              <div className="mt-6 flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 border-pink-200 text-pink-600 hover:bg-pink-50 hover:text-pink-700 transition-colors"
+                  onClick={() => handleEdit(category)}
+                  disabled={isSaving}
+                >
+                  <Edit2 className="w-4 h-4 mr-2" />
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                  onClick={() => handleDelete(category.documentId)}
+                  disabled={isSaving}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <CategoryForm

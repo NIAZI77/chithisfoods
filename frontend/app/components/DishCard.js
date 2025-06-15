@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Star, Plus } from "lucide-react";
 import { FaUser } from "react-icons/fa";
 import Link from "next/link";
-import VerificationBadge from "./VerificationBadge";
 import { useState, useEffect } from "react";
 
 export default function DishCard({ dish }) {

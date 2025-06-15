@@ -137,7 +137,6 @@ export default function VendorOrderManagement() {
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
 
-      // Fetch all time counts
       const allTimeRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {
@@ -149,7 +148,6 @@ export default function VendorOrderManagement() {
         }
       );
 
-      // Fetch week counts
       const weekRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {
@@ -161,7 +159,6 @@ export default function VendorOrderManagement() {
         }
       );
 
-      // Fetch month counts
       const monthRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${monthAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {

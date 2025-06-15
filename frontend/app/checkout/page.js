@@ -22,7 +22,6 @@ import Loading from "../loading";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker"; // Ensure this import is correct
 
-const TAX_PERCENTAGE = 10;
 const initialFormData = {
   name: "",
   phone: "",
@@ -47,6 +46,43 @@ const Page = () => {
   const [deliveryFees, setDeliveryFees] = useState([]);
   const [tax, setTax] = useState(0);
   const [deliveryFeeLoading, setDeliveryFeeLoading] = useState(false);
+  const [taxPercentage, setTaxPercentage] = useState(10); // Default fallback value
+  const [taxLoading, setTaxLoading] = useState(true);
+
+  // Fetch tax percentage from admin API
+  const fetchTaxPercentage = useCallback(async () => {
+    try {
+      setTaxLoading(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/admin`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch tax percentage');
+      }
+
+      const data = await response.json();
+      
+      if (data.data && data.data.taxPercentage !== undefined) {
+        setTaxPercentage(data.data.taxPercentage);
+      } else {
+        // Fallback to default if no tax percentage is set
+        setTaxPercentage(10);
+      }
+    } catch (error) {
+      console.error('Error fetching tax percentage:', error);
+      toast.error('Failed to fetch tax percentage. Using default value.');
+      setTaxPercentage(10); // Fallback to default
+    } finally {
+      setTaxLoading(false);
+    }
+  }, []);
 
   // Memoized function to validate cart
   const validateCart = useCallback(() => {
@@ -109,7 +145,7 @@ const Page = () => {
     }
   }, []);
 
-  // Authentication check on component mount
+  // Authentication check and fetch tax percentage on component mount
   useEffect(() => {
     const checkAuth = async () => {
       const user = getCookie("user");
@@ -123,7 +159,8 @@ const Page = () => {
       validateCart();
     };
     checkAuth();
-  }, [router, validateCart]);
+    fetchTaxPercentage();
+  }, [router, validateCart, fetchTaxPercentage]);
 
   // Fetch delivery fees when cart items change
   useEffect(() => {
@@ -174,8 +211,8 @@ const Page = () => {
   }, [calculateSubtotal]);
 
   const calculatedTax = useMemo(() => {
-    return Number(((subtotal * TAX_PERCENTAGE) / 100).toFixed(2));
-  }, [subtotal]);
+    return Number(((subtotal * taxPercentage) / 100).toFixed(2));
+  }, [subtotal, taxPercentage]);
 
   const totalDeliveryFee = useMemo(() => {
     return deliveryFees.reduce((a, b) => a + (b.vendorDeliveryFee || 0), 0);
@@ -241,7 +278,7 @@ const Page = () => {
       const orderSubtotal = calculateSubtotal();
 
       const orderTax = Number(
-        ((orderSubtotal * TAX_PERCENTAGE) / 100).toFixed(2)
+        ((orderSubtotal * taxPercentage) / 100).toFixed(2)
       );
 
       // Create vendor proportions map for tax distribution
@@ -271,7 +308,7 @@ const Page = () => {
       const orderPromises = cartItems.map((vendor, index) => {
         const { subtotal: vendorSubtotal } = vendorProportions[index];
         const vendorTax = Number(
-          ((vendorSubtotal * TAX_PERCENTAGE) / 100).toFixed(2)
+          ((vendorSubtotal * taxPercentage) / 100).toFixed(2)
         );
         const vendorFeeObj = deliveryFees.find(
           (fee) => fee.vendorId === vendor.vendorId
@@ -328,7 +365,7 @@ const Page = () => {
     }
   };
 
-  if (deliveryFeeLoading) return <Loading />;
+  if (deliveryFeeLoading || taxLoading) return <Loading />;
 
   return (
     <form onSubmit={handleSubmit} className="mx-3">

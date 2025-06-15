@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import Link from "next/link";
+import VerificationBadge from "@/app/components/VerificationBadge";
 
 const INITIAL_FORM_STATE = {
   storeName: "",
@@ -180,7 +181,7 @@ const Page = () => {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+    if (file.size > 10 * 1024 * 1024) {
       toast.error("File size must be less than 10MB.");
       return;
     }
@@ -214,7 +215,6 @@ const Page = () => {
         ? url
         : `${process.env.NEXT_PUBLIC_STRAPI_HOST}${url}`;
 
-      // Update vendor with verification document
       const updateResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${formData.documentId}`,
         {
@@ -695,7 +695,6 @@ const Page = () => {
         </div>
       </form>
 
-      {/* Verification Section */}
       <section className="bg-white rounded-xl shadow-lg p-6 mt-8 border border-gray-100">
         <h2 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-900">
           <div className="p-2 bg-orange-100 rounded-lg">
@@ -705,7 +704,6 @@ const Page = () => {
         </h2>
 
         <div className="space-y-6">
-          {/* Status Display */}
           <div className={`bg-gradient-to-r ${getVerificationStatusConfig(formData.verificationStatus).gradient} rounded-xl p-6 border ${getVerificationStatusConfig(formData.verificationStatus).border} shadow-sm`}>
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
@@ -723,13 +721,12 @@ const Page = () => {
                   </p>
                 </div>
               </div>
-              <div className={`w-28 flex items-center justify-center py-1 rounded-full text-sm font-medium ${getVerificationStatusConfig(formData.verificationStatus).bg} ${getVerificationStatusConfig(formData.verificationStatus).text} ${getVerificationStatusConfig(formData.verificationStatus).border} border shadow-sm`}>
-                {getVerificationStatusConfig(formData.verificationStatus).label}
+              <div>
+                <VerificationBadge status={formData.verificationStatus} size="small" />
               </div>
             </div>
           </div>
 
-          {/* Document Upload Section */}
           <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
             <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5 text-orange-600" />
@@ -765,7 +762,7 @@ const Page = () => {
                       <FileText className="w-4 h-4" />
                       View Document
                     </Link>
-                   {formData.verificationStatus !== 'verified' && <button
+                    {formData.verificationStatus !== 'verified' && <button
                       onClick={() => {
                         const input = document.createElement('input');
                         input.type = 'file';
@@ -846,7 +843,6 @@ const Page = () => {
             )}
           </div>
 
-          {/* Verification Requirements */}
           <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-200 shadow-sm">
             <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-orange-600" />

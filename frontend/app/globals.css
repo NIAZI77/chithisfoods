@@ -14,7 +14,7 @@
 
 body {
   font-family: "AirbnbCereal", sans-serif;
-  /* user-select: none; */
+  user-select: none;
 }
 
 .cursive {
@@ -210,10 +210,10 @@ button {
     transform: scale(1);
   }
   50% {
-    transform: scale(0.5); /* Zoom in */
+    transform: scale(0.5);
   }
   100% {
-    transform: scale(1); /* Back to normal */
+    transform: scale(1);
   }
 }
 
@@ -250,4 +250,9 @@ button {
       transform: scale(1);
     }
   }
+}
+/* In your CSS file or inside a <style jsx> block */
+.swiper-button-next,
+.swiper-button-prev {
+  color: red !important;
 }

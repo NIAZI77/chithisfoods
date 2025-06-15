@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import Pagination from "@/app/admin/users-and-vendors/components/Pagination";
 import Spinner from '@/app/components/Spinner';
+import UserStatusBadge from '@/app/components/UserStatusBadge';
 
 const UsersTable = ({
     users,
@@ -115,15 +116,7 @@ const UsersTable = ({
                                         {formatDate(user.createdAt)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        {user.blocked ? (
-                                            <span className="flex items-center justify-center gap-1 bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs w-fit">
-                                                <FaUserTimes size={14} /> Blocked
-                                            </span>
-                                        ) : (
-                                            <span className="flex items-center justify-center gap-1 bg-green-100 text-green-600 py-0.5 px-2 rounded-full text-xs w-fit">
-                                                <FaUserCheck size={14} /> Active
-                                            </span>
-                                        )}
+                                        <UserStatusBadge isBlocked={user.blocked} size="default" />
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <button

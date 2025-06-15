@@ -1,49 +1,50 @@
 import { BadgeCheck, OctagonAlert, XCircle } from "lucide-react";
+import React from "react";
 
-const VerificationBadge = ({ status, size = "default" }) => {
+const VerificationBadge = ({ status, size = "small" }) => {
   const getStatusStyles = (status) => {
     switch (status) {
       case "verified":
         return {
-          bg: "bg-green-100",
-          text: "text-green-600",
+          bg: "bg-green-600",
+          text: "text-white",
           label: "Verified",
-          icon: <BadgeCheck className="w-4 h-4" />,
+          icon: <BadgeCheck className="inline w-4 h-4" />,
         };
       case "new-chef":
         return {
-          bg: "bg-gray-200",
-          text: "text-gray-600",
+          bg: "bg-gray-700",
+          text: "text-white",
           label: "New Chef",
-          icon: <OctagonAlert className="w-4 h-4" />,
+          icon: <OctagonAlert className="inline w-4 h-4" />,
         };
       case "unverified":
         return {
-          bg: "bg-yellow-100",
-          text: "text-yellow-600",
+          bg: "bg-yellow-500",
+          text: "text-white",
           label: "Unverified",
-          icon: <OctagonAlert className="w-4 h-4" />,
+          icon: <OctagonAlert className="inline w-4 h-4" />,
         };
       case "banned":
         return {
-          bg: "bg-red-100",
-          text: "text-red-600",
+          bg: "bg-red-600",
+          text: "text-white",
           label: "Banned",
-          icon: <XCircle className="w-4 h-4" />,
+          icon: <XCircle className="inline w-4 h-4" />,
         };
       case "rejected":
         return {
-          bg: "bg-orange-200",
-          text: "text-orange-600",
+          bg: "bg-orange-600",
+          text: "text-white",
           label: "Rejected",
-          icon: <OctagonAlert className="w-4 h-4" />,
+          icon: <OctagonAlert className="inline w-4 h-4" />,
         };
       default:
         return {
-          bg: "bg-gray-100",
-          text: "text-gray-600",
+          bg: "bg-gray-500",
+          text: "text-white",
           label: "Unknown",
-          icon: <BadgeCheck className="w-4 h-4" />,
+          icon: <BadgeCheck className="inline w-4 h-4" />,
         };
     }
   };
@@ -52,21 +53,24 @@ const VerificationBadge = ({ status, size = "default" }) => {
     switch (size) {
       case "small":
         return {
-          text: "text-2.5",
-          icon: 10,
+          text: "text-xs",
+          icon: "w-3 h-3",
           padding: "py-0.5",
+          width: "w-28",
         };
       case "large":
         return {
-          text: "text-sm",
-          icon: 16,
+          text: "text-base",
+          icon: "w-4 h-4",
           padding: "py-1",
+          width: "w-32",
         };
       default:
         return {
-          text: "text-xs",
-          icon: 14,
+          text: "text-sm",
+          icon: "w-4 h-4",
           padding: "py-0.5",
+          width: "w-32",
         };
     }
   };
@@ -76,9 +80,11 @@ const VerificationBadge = ({ status, size = "default" }) => {
 
   return (
     <span
-      className={`flex items-center justify-center gap-1 ${statusStyles.bg} ${statusStyles.text} ${sizeStyles.padding} ${sizeStyles.text} w-28 flex items-center justify-center rounded-full font-medium`}
+      className={`flex items-center justify-center gap-1 ${statusStyles.bg} ${statusStyles.text} ${sizeStyles.text} ${sizeStyles.padding} ${sizeStyles.width} rounded-full font-semibold`}
     >
+
       {statusStyles.icon}
+
       {statusStyles.label}
     </span>
   );

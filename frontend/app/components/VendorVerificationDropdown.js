@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
+import VerificationBadge from "./VerificationBadge";
 
 const VendorVerificationDropdown = ({ vendor, onStatusChange }) => {
     const [isLoading, setIsLoading] = useState(false);
@@ -49,60 +50,48 @@ const VendorVerificationDropdown = ({ vendor, onStatusChange }) => {
         }
     };
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case "verified":
-                return "text-green-600 bg-green-50";
-            case "unverified":
-                return "text-yellow-600 bg-yellow-50";
-            case "banned":
-                return "text-red-600 bg-red-50";
-            case "new-chef":
-                return "text-blue-600 bg-blue-50";
-            default:
-                return "text-gray-600 bg-gray-50";
-        }
-    };
-
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="outline"
-                    className={`flex items-center gap-2 ${getStatusColor(
-                        vendor.verificationStatus
-                    )}`}
+                    className="flex items-center gap-2 p-2"
                     disabled={isLoading}
                 >
-                    {vendor.verificationStatus.charAt(0).toUpperCase() +
-                        vendor.verificationStatus.slice(1).replace("-", " ")}
+                    <VerificationBadge status={vendor.verificationStatus} size="small" />
                     <ChevronDown className="h-4 w-4" />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuItem
                     onClick={() => updateVerificationStatus("verified")}
-                    className="text-green-600"
+                    className="flex items-center gap-2"
                 >
-                    Verified
+                    <VerificationBadge status="verified" size="small" />
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={() => updateVerificationStatus("unverified")}
-                    className="text-yellow-600"
+                    className="flex items-center gap-2"
                 >
-                    Unverified
+                    <VerificationBadge status="unverified" size="small" />
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={() => updateVerificationStatus("banned")}
-                    className="text-red-600"
+                    className="flex items-center gap-2"
                 >
-                    Banned
+                    <VerificationBadge status="banned" size="small" />
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={() => updateVerificationStatus("new-chef")}
-                    className="text-blue-600"
+                    className="flex items-center gap-2"
                 >
-                    New Chef
+                    <VerificationBadge status="new-chef" size="small" />
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={() => updateVerificationStatus("rejected")}
+                    className="flex items-center gap-2"
+                >
+                    <VerificationBadge status="rejected" size="small" />
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

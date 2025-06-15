@@ -194,6 +194,9 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
         throw new Error("Failed to update dish review");
       }
 
+      // Update vendor's average rating
+      await updateVendorRating(selectedDish.id);
+
       toast.success(`Thank you for rating ${selectedDish.name}!`);
       setReviewedDishes((prev) => ({ ...prev, [selectedDish.id]: true }));
       setIsReviewDialogOpen(false);
@@ -204,6 +207,97 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
       toast.error(error.message || "Failed to submit review");
     } finally {
       setIsRating(false);
+    }
+  };
+
+  // Function to calculate and update vendor's average rating
+  const updateVendorRating = async (dishId) => {
+    try {
+      // Step 1: Get the dish to find its vendorId
+      const dishResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dishId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (!dishResponse.ok) {
+        throw new Error("Failed to fetch dish data");
+      }
+
+      const dishData = await dishResponse.json();
+      const vendorId = dishData.data.vendorId;
+
+      if (!vendorId) {
+        console.warn("No vendorId found for dish:", dishId);
+        return;
+      }
+
+      // Step 2: Fetch all dishes that belong to this vendor (only reviews field)
+      const vendorDishesResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[vendorId][$eq]=${vendorId}&fields[0]=reviews`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (!vendorDishesResponse.ok) {
+        throw new Error("Failed to fetch vendor dishes");
+      }
+
+      const vendorDishesData = await vendorDishesResponse.json();
+      const vendorDishes = vendorDishesData.data || [];
+
+      // Step 3: Calculate total rating and total reviews across all dishes
+      let totalRating = 0;
+      let totalReviews = 0;
+
+      vendorDishes.forEach((dish) => {
+        const reviews = dish.reviews || [];
+        if (reviews.length > 0) {
+          // Only include dishes that have actual reviews
+          const dishTotalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+          totalRating += dishTotalRating;
+          totalReviews += reviews.length;
+        }
+      });
+
+      // Step 4: Calculate average rating
+      const averageRating = totalReviews > 0 ? totalRating / totalReviews : 0;
+
+      // Step 5: Update the vendor's rating field
+      const vendorUpdateResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: JSON.stringify({
+            data: {
+              rating: averageRating,
+            },
+          }),
+        }
+      );
+
+      if (!vendorUpdateResponse.ok) {
+        throw new Error("Failed to update vendor rating");
+      }
+
+      console.log(`Vendor ${vendorId} rating updated to: ${averageRating.toFixed(2)} (${totalReviews} reviews)`);
+    } catch (error) {
+      console.error("Error updating vendor rating:", error);
+      // Don't throw error to avoid breaking the review submission
     }
   };
 

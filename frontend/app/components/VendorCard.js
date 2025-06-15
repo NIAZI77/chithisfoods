@@ -7,7 +7,7 @@ import Link from "next/link";
 import VerificationBadge from "./VerificationBadge";
 
 const VendorCard = ({ chef }) => {
-  const isTopRated = chef.rating >= 1.5;
+  // const isTopRated = chef.rating >= 1.5;
   return (
     <Link
       href={`/vendors/@${chef?.username}`}
@@ -20,12 +20,12 @@ const VendorCard = ({ chef }) => {
           fill
           className="object-cover"
         />
-        {isTopRated && (
+        {/* {isTopRated && (
           <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-3 rounded-md flex items-center gap-1 shadow">
             <ChefHat className="inline w-4" />
             Top Rated
           </div>
-        )}
+        )} */}
       </div>
       <div className="grid grid-cols-3 gap-1 p-1">
         <div className="">
@@ -58,7 +58,7 @@ const VendorCard = ({ chef }) => {
         </div>
       </div>
       <div className="flex items-center justify-end gap-2 p-2 text-gray-600 text-xs">
-        <VerificationBadge status={chef.verificationStatus} />
+        <VerificationBadge status={chef.verificationStatus} size="small"/>
         <span className="flex items-center gap-1 bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">
           <MapPin size={14} />
           {chef?.city.replace(/\b\w/g, (c) => c.toUpperCase()) || "Location"}, {chef?.zipcode || "address"}
