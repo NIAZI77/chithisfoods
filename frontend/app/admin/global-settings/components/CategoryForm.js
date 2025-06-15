@@ -3,7 +3,6 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, X, Tag, Layers, Image as ImageIcon } from 'lucide-react';
-import Image from 'next/image';
 import { toast } from 'react-toastify';
 
 const defaultFormData = {
@@ -343,11 +342,9 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
               </label>
               {formData.image?.url && (
                 <div className="mt-3 relative w-32 h-32 rounded-xl overflow-hidden bg-gray-50 shadow-sm mx-auto border border-gray-200 hover:border-pink-300 transition-colors p-4 my-4">
-                  <Image
+                  <img
                     src={formData.image.url}
                     alt="Category preview"
-                    width={128}
-                    height={128}
                     className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />

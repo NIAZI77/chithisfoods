@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { FaCamera } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -568,13 +567,10 @@ const Page = () => {
               </label>
             </div>
             <div className="absolute bottom-[-50px] left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white">
-              <Image
-                height={100}
-                width={100}
+              <img
                 src={formData.avatar?.url || "/fallback.png"}
                 alt="Profile"
                 className="w-full h-full object-cover"
-                unoptimized
               />
             </div>
             <input

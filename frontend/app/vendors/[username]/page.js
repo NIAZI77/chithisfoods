@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import { FaMapMarkerAlt, FaStar } from "react-icons/fa";
 import { Separator } from "@/components/ui/separator";
 import { useParams } from "next/navigation";
@@ -116,23 +115,17 @@ const Page = () => {
     <div className="md:w-[80%] w-[90%] mx-auto">
       <section className="relative">
         {vendorData?.coverImage?.url && (
-          <Image
+          <img
             src={vendorData.coverImage.url}
             alt="Cover Image"
             className="w-full h-auto aspect-4/1 object-cover rounded-lg"
-            width={1200}
-            height={300}
-            priority
           />
         )}
         {vendorData?.avatar?.url && (
-          <Image
+          <img
             src={vendorData.avatar.url}
             alt="Profile"
             className="md:w-48 md:h-48 w-24 h-24 rounded-full object-cover relative md:bottom-16 bottom-8 left-5 border-white border-8"
-            width={192}
-            height={192}
-            priority
           />
         )}
         <div className="lg:mb-0 lg:absolute lg:bottom-0 lg:right-0 lg:w-[75%] xl:w-[80%] pl-4 -mt-6 lg:mt-0">

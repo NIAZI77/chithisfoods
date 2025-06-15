@@ -96,13 +96,10 @@ export default function Navbar() {
     <nav className="bg-transparent w-full border-gray-200 md:h-20 md:max-h-20 h-16 max-h-16 sticky top-0 z-50 backdrop-blur-sm">
       <div className="flex flex-wrap items-center justify-between w-full mx-auto md:p-5 p-3 md:px-12">
         <Link href="/">
-          <Image
-            height={48}
-            width={48}
+          <img
             src="/logo.png"
             alt="Logo"
-            className="w-12 md:w-20"
-            priority={true}
+            className="w-12 md:w-20 h-auto"
           />
         </Link>
 

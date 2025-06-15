@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import FoodPromo from "./components/FoodPromo";
 import Testimonials from "./components/Testimonial";
-import Image from "next/image";
 import ZipcodeDialogue from "./components/zipcodeDialogue";
 import { useRouter } from "next/navigation";
 import Loading from "./loading";
@@ -26,13 +25,10 @@ const Page = () => {
     <div>
       <section className="relative h-screen max-h-[700px] -mt-20 flex items-center justify-center text-white">
         <div className="absolute inset-0 -z-10">
-          <Image
-            height={100}
-            width={100}
+          <img
             src="/hero-bg.jpg"
             alt="Chef preparing food"
             className="w-full h-full object-cover"
-            priority={true}
           />
           <div className="absolute inset-0 bg-black/60" />
         </div>
@@ -67,13 +63,10 @@ const Page = () => {
             <div>
               {" "}
               <div className="flex flex-col items-center text-center space-y-4 max-w-80">
-                <Image
-                  height={100}
-                  width={100}
+                <img
                   src="/FF-1.png"
                   alt="Savor Freshly Made Homemade Meals"
                   className="w-1/2 h-full object-contain mb-4 px-2"
-                  priority={true}
                 />
                 <h3 className="text-xl text-rose-600 font-semibold">
                   Savor Freshly Made Homemade Meals
@@ -88,13 +81,10 @@ const Page = () => {
             <div>
               {" "}
               <div className="flex flex-col items-center text-center space-y-4 max-w-80">
-                <Image
-                  height={100}
-                  width={100}
+                <img
                   src="/FF-2.png"
                   alt="Shef: A Sharose Personal Chef"
                   className="w-1/2 h-full object-contain mb-4 px-2"
-                  priority={true}
                 />
                 <h3 className="text-xl text-rose-600 font-semibold">
                   Shef: A Sharose Personal Chef
@@ -109,13 +99,10 @@ const Page = () => {
             <div>
               {" "}
               <div className="flex flex-col items-center text-center space-y-4 max-w-80">
-                <Image
-                  height={100}
-                  width={100}
+                <img
                   src="/FF-3.png"
                   alt="Choose From Flexible Delivery Options"
                   className="w-1/2 h-full object-contain mb-4 px-2"
-                  priority={true}
                 />
                 <h3 className="text-xl text-rose-600 font-semibold">
                   Choose From Flexible Delivery Options

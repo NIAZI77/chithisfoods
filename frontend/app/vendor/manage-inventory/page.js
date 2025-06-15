@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
 import { Edit, Plus, Trash2, AlertTriangle } from "lucide-react";
-import Image from "next/image";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Link from "next/link";
@@ -244,12 +243,9 @@ export default function ManageInventory() {
                     <Link href={`/dish/${dish.documentId}`}>{dish.name}</Link>
                   </td>
                   <td>
-                    <Image
+                    <img
                       src={dish.image?.url || "/placeholder.jpg"}
                       alt={dish.name}
-                      height={40}
-                      width={64}
-                      priority
                       className="h-10 w-16 object-cover rounded-md"
                     />
                   </td>

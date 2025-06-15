@@ -2,7 +2,6 @@
 
 import Loading from "@/app/loading";
 import { getCookie } from "cookies-next";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -493,10 +492,8 @@ export default function OrderHistoryPage() {
                 {order.items.slice(0, 2).map((item, i) => (
                   <div key={i} className="flex gap-4 items-center">
                     <div className="w-20 md:w-24 relative rounded overflow-hidden flex-shrink-0 aspect-video">
-                      <Image
+                      <img
                         src={item.image?.url || "/fallback.png"}
-                        height={64}
-                        width={64}
                         alt={item.name}
                         className="object-cover w-full h-full"
                       />

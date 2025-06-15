@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import Image from "next/image";
 import {
   User,
   Phone,
@@ -246,11 +245,10 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                   className="flex items-start gap-3 md:gap-4 bg-gray-50 border border-gray-100 rounded-lg p-2 md:p-3"
                 >
                   <div className="w-16 md:w-20 relative rounded overflow-hidden flex-shrink-0 aspect-video">
-                    <Image
+                    <img
                       src={dish.image?.url || "/food.png"}
                       alt={dish.name}
-                      fill
-                      className="object-cover"
+                      className="object-cover w-full h-full"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -271,7 +269,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3 scale-175" /> {topping.name} (${topping.price})
+                                  <img src={"/toppings.png"} alt="Topping" className="w-3 h-3 scale-175" /> {topping.name} (${topping.price})
                                 </span>
                               ))}
                             </div>
@@ -285,7 +283,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3 scale-125" /> {extra.name} (${extra.price})
+                                  <img src={"/extras.png"} alt="Extra" className="w-3 h-3 scale-125" /> {extra.name} (${extra.price})
                                 </span>
                               ))}
                             </div>

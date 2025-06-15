@@ -22,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const STATUS_STYLES = {
@@ -473,10 +472,8 @@ const Page = () => {
             {dashboardData.orders.map((order) => (
               <div key={order.id} className="flex items-center gap-2">
                 <div className="w-16 h-fit rounded overflow-hidden">
-                  <Image
+                  <img
                     src={order.dishes?.[0]?.image?.url || "/food.png"}
-                    height={100}
-                    width={100}
                     alt={order.dishes?.[0]?.name || "Food"}
                     className="w-full h-fit object-cover aspect-video"
                   />

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { BadgeCheck, ChefHat, MapPin } from "lucide-react";
 import { FaCheckCircle, FaStar } from "react-icons/fa";
 import Link from "next/link";
@@ -14,11 +13,10 @@ const VendorCard = ({ chef }) => {
       className="block w-72 bg-white rounded-2xl shadow-md overflow-hidden relative pb-1 hover:shadow-lg transition-shadow duration-300 ease-in-out"
     >
       <div className="relative h-40 w-full">
-        <Image
+        <img
           src={chef?.coverImage?.url || "/fallback.png"}
           alt={chef?.coverImage?.alternativeText || "Vendor Food"}
-          fill
-          className="object-cover"
+          className="object-cover w-full h-full"
         />
         {/* {isTopRated && (
           <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-3 rounded-md flex items-center gap-1 shadow">
@@ -30,10 +28,9 @@ const VendorCard = ({ chef }) => {
       <div className="grid grid-cols-3 gap-1 p-1">
         <div className="">
           <div className="relative w-20 h-20 mx-auto -mt-10 mb-2">
-            <Image
+            <img
               src={chef?.avatar?.url || "/vendor-avatar.jpg"}
               alt={chef?.avatar?.alternativeText || "Vendor Avatar"}
-              fill
               className="object-cover rounded-full border-5 border-white"
             />
           </div>

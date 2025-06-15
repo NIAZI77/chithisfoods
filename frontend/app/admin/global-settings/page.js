@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Plus, Tag, Edit2, Trash2 } from "lucide-react";
 import CategoryForm from "./components/CategoryForm";
 import TaxPercentage from "./components/TaxPercentage";
-import Image from "next/image";
 import { toast } from "react-toastify";
 import {
   AlertDialog,
@@ -347,11 +346,9 @@ const Page = () => {
             >
               <div className="flex flex-col items-center justify-center text-center">
                 <div className="relative w-32 h-32 bg-pink-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 group">
-                  <Image
+                  <img
                     src={category.image?.url || '/fallback.png'}
                     alt={`${category.name || 'category'} image`}
-                    width={128}
-                    height={128}
                     className="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors rounded-lg" />

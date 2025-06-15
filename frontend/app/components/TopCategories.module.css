@@ -40,6 +40,12 @@
 
 .categoryImage {
   margin-bottom: 8px;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  overflow: hidden;
 }
 
 .categoryName {

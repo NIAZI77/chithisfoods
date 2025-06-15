@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { LuPlus, LuMinus } from "react-icons/lu";
 import { FaStar, FaUser } from "react-icons/fa";
@@ -363,7 +362,7 @@ export default function DishPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-5">
           <div>
-            <Image
+            <img
               src={dishDetails.image?.url || "/fallback.png"}
               width={400}
               height={300}
@@ -521,7 +520,7 @@ export default function DishPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <Image
+                    <img
                       src={vendorDetails?.avatar?.url || dishDetails.chef?.avatar?.url || "/fallback.png"}
                       alt={vendorDetails?.fullName || dishDetails.chef?.name || "Chef"}
                       width={64}
@@ -613,7 +612,7 @@ export default function DishPage() {
                   key={index}
                   className="flex flex-col p-4 border bg-slate-50 rounded-lg w-24 h-24"
                 >
-                  <Image
+                  <img
                     src="/ingredients.png"
                     width={30}
                     height={30}

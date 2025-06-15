@@ -1,4 +1,3 @@
-import Image from "next/image";
 import StatusBadge from "./StatusBadge";
 import { Flame, Calendar, Clock } from "lucide-react";
 
@@ -33,11 +32,10 @@ const OrderCard = ({ order, onViewDetails }) => {
         {order.dishes.slice(0, 2).map((item, i) => (
           <div key={i} className="flex gap-4 items-center">
             <div className="w-20 md:w-24 relative rounded overflow-hidden flex-shrink-0 aspect-video">
-              <Image
-                fill
+              <img
                 src={item.image?.url || "/food.png"}
                 alt={item.name || "Food item"}
-                className="object-cover"
+                className="object-cover w-full h-full"
               />
             </div>
             <div className="flex-1 min-w-0">

@@ -18,7 +18,6 @@ import {
 import { FaShoppingBag, FaStore } from "react-icons/fa";
 import { HiOutlineReceiptTax } from "react-icons/hi";
 import { LuSquareSigma } from "react-icons/lu";
-import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -60,8 +59,7 @@ const VendorOrderGroup = ({ order }) => {
             className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-gray-50 rounded-lg"
           >
             <div className="relative h-10 w-16 aspect-auto flex-shrink-0">
-              <Image
-                fill
+              <img
                 src={dish.image?.url}
                 alt={dish.name}
                 className="object-cover rounded-md h-20 w-fit aspect-auto"
@@ -93,11 +91,9 @@ const VendorOrderGroup = ({ order }) => {
                       key={idx}
                       className="bg-pink-100 px-2 py-0.5 rounded-full text-pink-700 text-xs sm:text-sm flex items-center gap-1"
                     >
-                      <Image
+                      <img
                         src={"/toppings.png"}
                         alt="Topping"
-                        width={12}
-                        height={12}
                         className="w-3 h-3 sm:w-4 sm:h-4"
                       />
                       {topping.name} (${topping.price})
@@ -108,11 +104,9 @@ const VendorOrderGroup = ({ order }) => {
                       key={idx}
                       className="bg-emerald-100 px-2 py-0.5 rounded-full text-emerald-700 text-xs sm:text-sm flex items-center gap-1"
                     >
-                      <Image
+                      <img
                         src={"/extras.png"}
                         alt="Extra"
-                        width={12}
-                        height={12}
                         className="w-3 h-3 sm:w-4 sm:h-4"
                       />
                       {extra.name} (${extra.price})

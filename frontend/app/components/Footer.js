@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { FaFacebookF, FaTwitter } from "react-icons/fa";
+import { FaFacebookF } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { RiInstagramFill } from "react-icons/ri";
 
 const Footer = () => {
@@ -24,14 +24,7 @@ const Footer = () => {
         <div className="flex items-start justify-around flex-wrap">
           <div className="space-y-6 md:max-w-72">
             <Link href="/" className="inline-flex items-center">
-              <Image
-                height={48}
-                width={48}
-                src="/logo.png"
-                alt="Logo"
-                className="w-12 md:w-20"
-                priority={true}
-              />
+              <img src="/logo.png" alt="Logo" className="w-12 md:w-20 h-auto" />
             </Link>
             <p className="text-sm text-gray-700 leading-relaxed font-semibold tracking-wide">
               Fast delivery of delicious meals from multiple restaurants,
@@ -56,7 +49,7 @@ const Footer = () => {
                 href="/"
                 className="text-rose-500 hover:text-rose-600 transition-all duration-300 hover:scale-125"
               >
-                <FaTwitter className="w-5 h-5" />
+                <FaXTwitter className="w-5 h-5" />
                 <span className="sr-only">Twitter</span>
               </Link>
             </div>

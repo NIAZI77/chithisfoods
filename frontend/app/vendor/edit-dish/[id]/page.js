@@ -14,7 +14,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FaCamera } from "react-icons/fa";
-import Image from "next/image";
 import { getCookie } from "cookies-next";
 import Loading from "@/app/loading";
 import { useParams, useRouter } from "next/navigation";
@@ -411,9 +410,7 @@ export default function EditDishPage() {
               onChange={handleFileChange}
               className="hidden"
             />
-            <Image
-              height={100}
-              width={100}
+            <img
               src={dishData.image.url ? dishData.image.url : "/img.png"}
               alt="Dish"
               className="object-cover bg-center aspect-video shadow md:w-[50%] w-full mx-auto rounded-md"

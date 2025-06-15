@@ -12,7 +12,6 @@ import {
   User,
 } from "lucide-react";
 import { MdOutlinePayments } from "react-icons/md";
-import Image from "next/image";
 
 export default function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(true);
@@ -40,7 +39,7 @@ export default function AdminSidebar() {
         }
           py-4 px-3 border-b border-gray-100`}
       >
-        <Image
+        <img
           src="/logo.png"
           alt="Logo"
           width={50}

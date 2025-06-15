@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Loading from "../loading";
@@ -73,11 +72,9 @@ export default function TopCategories() {
                 href={`/category/${category.name}`}
                 className={styles.categoryCard}
               >
-                <Image
+                <img
                   src={category.image?.url || "/fallback.png"}
                   alt={category.name}
-                  width={64}
-                  height={64}
                   className={styles.categoryImage}
                 />
                 <p className={styles.categoryName}>

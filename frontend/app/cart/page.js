@@ -276,11 +276,9 @@ export default function CartPage() {
                   className="border rounded-lg p-3 md:p-4"
                 >
                   <div className="flex items-center gap-3 mb-4 pb-4 border-b">
-                    <Image
+                    <img
                       src={vendorGroup.vendorAvatar || "/fallback.png"}
                       alt={vendorGroup.vendorName}
-                      width={40}
-                      height={40}
                       className="rounded-full w-8 h-8 md:w-10 md:h-10 object-cover"
                       onError={(e) => {
                         e.target.src = "/fallback.png";
@@ -356,11 +354,9 @@ export default function CartPage() {
                           className="grid grid-cols-1 md:grid-cols-[2fr_1.6fr_1.2fr_0.75fr_0.5fr] items-start md:items-center py-4 px-0 md:px-2 gap-3 md:gap-0"
                         >
                           <div className="flex items-center gap-3 md:gap-4 ">
-                            <Image
+                            <img
                               src={dish.image.url}
                               alt={dish.name}
-                              width={80}
-                              height={80}
                               className="rounded-lg object-cover w-auto h-12 aspect-video"
                             />
                             <div>
