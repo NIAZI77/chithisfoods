@@ -372,6 +372,7 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
 export interface ApiAdminAdmin extends Struct.SingleTypeSchema {
   collectionName: 'admins';
   info: {
+    description: '';
     displayName: 'Admin';
     pluralName: 'admins';
     singularName: 'admin';
@@ -386,7 +387,6 @@ export interface ApiAdminAdmin extends Struct.SingleTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::admin.admin'> &
       Schema.Attribute.Private;
-    passowrd: Schema.Attribute.Password;
     publishedAt: Schema.Attribute.DateTime;
     taxPercentage: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     updatedAt: Schema.Attribute.DateTime;
@@ -508,6 +508,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     paymentStatus: Schema.Attribute.Enumeration<['paid', 'unpaid', 'refunded']>;
     phone: Schema.Attribute.BigInteger & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
+    refundEmail: Schema.Attribute.Email;
     subtotal: Schema.Attribute.Decimal &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<0>;

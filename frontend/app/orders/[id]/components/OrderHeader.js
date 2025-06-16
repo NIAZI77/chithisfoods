@@ -13,9 +13,7 @@ const OrderHeader = () => {
       </div>
       <div className="text-center mb-10">
         <h1 className="text-3xl font-bold text-gray-900">Order Details</h1>
-        <p className="text-gray-600 mt-2">
-          Here are the details of your order.
-        </p>
+        <p className="text-gray-600 mt-2">Here are the details of your order.</p>
       </div>
     </>
   );

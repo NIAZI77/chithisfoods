@@ -26,6 +26,11 @@ import Spinner from "@/app/components/Spinner";
 import { FaHandHoldingUsd } from "react-icons/fa";
 import { getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
+import PaymentMetrics from "./components/PaymentMetrics";
+import PaymentFilters from "./components/PaymentFilters";
+import PaymentOrdersTable from "./components/PaymentOrdersTable";
+import { customScrollbarStyles } from "./constants";
+import PaymentConfirmationDialog from "./components/PaymentConfirmationDialog";
 
 const STATUS_STYLES = {
   paid: "bg-green-100 text-green-700",
@@ -74,6 +79,9 @@ const PaymentsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [processingPayments, setProcessingPayments] = useState({});
   const [processingRefunds, setProcessingRefunds] = useState({});
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [dialogType, setDialogType] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const AdminJWT = getCookie("AdminJWT");
@@ -107,46 +115,33 @@ const PaymentsPage = () => {
       const pagination = `pagination[page]=${page}&pagination[pageSize]=${pageSize}`;
       const sort = "sort[0]=createdAt:desc";
 
-      // Build filters array
       let filters = [];
 
-      // Time filter handling
       if (timeFilter !== "all-time") {
-        // Since all data is in 2025, we'll use 2025 dates for filtering
-        const baseDate = new Date('2025-01-01T00:00:00.000Z');
+        const currentDate = new Date();
         let startDate;
 
         if (timeFilter === "this-week") {
-          // Get the current week's Monday in 2025
-          const currentDate = new Date();
-          const dayOfWeek = currentDate.getDay();
-          const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-          
-          startDate = new Date(baseDate);
-          startDate.setDate(baseDate.getDate() + (currentDate.getDate() - daysToSubtract - 1));
-          startDate.setHours(0, 0, 0, 0);
+          startDate = new Date(currentDate);
+          startDate.setDate(currentDate.getDate() - 7);
         } else if (timeFilter === "this-month") {
-          // Get the current month in 2025
-          const currentMonth = new Date().getMonth();
-          startDate = new Date(2025, currentMonth, 1);
-          startDate.setHours(0, 0, 0, 0);
+          startDate = new Date(currentDate);
+          startDate.setMonth(currentDate.getMonth() - 1);
         }
 
         if (startDate) {
           filters.push(`filters[createdAt][$gte]=${startDate.toISOString()}`);
+          filters.push(`filters[createdAt][$lte]=${currentDate.toISOString()}`);
         }
       }
 
-      // Order status filter handling
       if (orderStatusFilter !== "all") {
         filters.push(`filters[orderStatus][$eq]=${orderStatusFilter}`);
       } else {
-        // Use $or operator for order statuses to show orders that need payment processing
         filters.push(`filters[$or][0][orderStatus][$eq]=delivered`);
         filters.push(`filters[$or][1][orderStatus][$eq]=cancelled`);
       }
 
-      // Payment status filter handling
       if (paymentStatusFilter !== "all") {
         filters.push(`filters[paymentStatus][$eq]=${paymentStatusFilter}`);
       }
@@ -155,7 +150,6 @@ const PaymentsPage = () => {
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
       const apiUrl = `${baseUrl}?${sort}&${pagination}${filtersString}`;
-      console.log('Payments API URL:', apiUrl);
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -188,50 +182,37 @@ const PaymentsPage = () => {
 
       let filters = [];
 
-      // Time filter handling
       if (timeFilter !== "all-time") {
-        // Since all data is in 2025, we'll use 2025 dates for filtering
-        const baseDate = new Date('2025-01-01T00:00:00.000Z');
+        const currentDate = new Date();
         let startDate;
 
         if (timeFilter === "this-week") {
-          // Get the current week's Monday in 2025
-          const currentDate = new Date();
-          const dayOfWeek = currentDate.getDay();
-          const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-          
-          startDate = new Date(baseDate);
-          startDate.setDate(baseDate.getDate() + (currentDate.getDate() - daysToSubtract - 1));
-          startDate.setHours(0, 0, 0, 0);
+          startDate = new Date(currentDate);
+          startDate.setDate(currentDate.getDate() - 7);
         } else if (timeFilter === "this-month") {
-          // Get the current month in 2025
-          const currentMonth = new Date().getMonth();
-          startDate = new Date(2025, currentMonth, 1);
-          startDate.setHours(0, 0, 0, 0);
+          startDate = new Date(currentDate);
+          startDate.setMonth(currentDate.getMonth() - 1);
         }
 
         if (startDate) {
           filters.push(`filters[createdAt][$gte]=${startDate.toISOString()}`);
+          filters.push(`filters[createdAt][$lte]=${currentDate.toISOString()}`);
         }
       }
 
-      // Order status filter handling
       if (orderStatusFilter !== "all") {
         filters.push(`filters[orderStatus][$eq]=${orderStatusFilter}`);
       } else {
-        // Use $or operator to show orders that are either delivered or cancelled
         filters.push(`filters[$or][0][orderStatus][$eq]=delivered`);
         filters.push(`filters[$or][1][orderStatus][$eq]=cancelled`);
       }
 
-      // Payment status filter handling
       if (paymentStatusFilter !== "all") {
         filters.push(`filters[paymentStatus][$eq]=${paymentStatusFilter}`);
       }
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
       const apiUrl = `${baseUrl}?${sort}${filtersString}&pagination[limit]=9999999999`;
-      console.log('Full Payments API URL:', apiUrl);
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -282,16 +263,22 @@ const PaymentsPage = () => {
 
   const processVendorPayment = async (orderId) => {
     try {
-      // Validate order exists and is in correct state
       const order = orders.find(o => o.documentId === orderId);
-      if (!order) {
-        toast.error("Order not found");
-        return;
-      }
-      if (order.orderStatus !== "delivered" || order.vendor_payment !== "unpaid") {
-        toast.error("Order is not in a valid state for vendor payment");
-        return;
-      }
+      if (!order) return;
+      if (order.orderStatus !== "delivered" || order.vendor_payment !== "unpaid") return;
+
+      // Fetch vendor data to check PayPal email
+      const vendorResponse = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${order.vendorId}`, {
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!vendorResponse.ok) return;
+
+      const vendorData = await vendorResponse.json();
+      if (!vendorData.data?.paypalEmail) return;
 
       setProcessingPayments(prev => ({ ...prev, [orderId]: true }));
 
@@ -313,7 +300,6 @@ const PaymentsPage = () => {
         throw new Error(errorData.error?.message || "Failed to process vendor payment");
       }
 
-      // Optimistically update the local state
       setOrders(prevOrders =>
         prevOrders.map(order =>
           order.documentId === orderId
@@ -324,7 +310,6 @@ const PaymentsPage = () => {
 
       toast.success("Vendor payment processed successfully!");
 
-      // Refresh orders after successful payment
       await fetchOrders(currentPage, timeFilter, orderStatusFilter, paymentStatusFilter);
       await fetchFullOrders(timeFilter, orderStatusFilter, paymentStatusFilter);
     } catch (err) {
@@ -337,16 +322,10 @@ const PaymentsPage = () => {
 
   const processRefund = async (orderId) => {
     try {
-      // Validate order exists and is in correct state
       const order = orders.find(o => o.documentId === orderId);
-      if (!order) {
-        toast.error("Order not found");
-        return;
-      }
-      if (order.orderStatus !== "cancelled") {
-        toast.error("Order is not in a valid state for refund");
-        return;
-      }
+      if (!order) return;
+      if (order.orderStatus !== "cancelled") return;
+      if (!order.refundEmail) return;
 
       setProcessingRefunds(prev => ({ ...prev, [orderId]: true }));
 
@@ -369,18 +348,16 @@ const PaymentsPage = () => {
         throw new Error(errorData.error?.message || "Failed to process refund");
       }
 
-      // Optimistically update the local state
       setOrders(prevOrders =>
         prevOrders.map(order =>
           order.documentId === orderId
-            ? { ...order, paymentStatus: "refunded" }
+            ? { ...order, paymentStatus: "refunded", vendor_payment: "refunded" }
             : order
         )
       );
 
       toast.success("Refund processed successfully!");
 
-      // Refresh orders after successful refund
       await fetchOrders(currentPage, timeFilter, orderStatusFilter, paymentStatusFilter);
       await fetchFullOrders(timeFilter, orderStatusFilter, paymentStatusFilter);
     } catch (err) {
@@ -389,6 +366,50 @@ const PaymentsPage = () => {
     } finally {
       setProcessingRefunds(prev => ({ ...prev, [orderId]: false }));
     }
+  };
+
+  const handleVendorPaymentClick = (orderId) => {
+    const order = orders.find(o => o.documentId === orderId);
+    if (!order) {
+      toast.error("Order not found");
+      return;
+    }
+    if (order.orderStatus !== "delivered" || order.vendor_payment !== "unpaid") {
+      toast.error("Order is not in a valid state for vendor payment");
+      return;
+    }
+    setSelectedOrder(order);
+    setDialogType("payment");
+    setDialogOpen(true);
+  };
+
+  const handleRefundClick = (orderId) => {
+    const order = orders.find(o => o.documentId === orderId);
+    if (!order) {
+      toast.error("Order not found");
+      return;
+    }
+    if (order.orderStatus !== "cancelled") {
+      toast.error("Order is not in a valid state for refund");
+      return;
+    }
+    setSelectedOrder(order);
+    setDialogType("refund");
+    setDialogOpen(true);
+  };
+
+  const handleDialogConfirm = async () => {
+    if (!selectedOrder) return;
+    
+    if (dialogType === "payment") {
+      await processVendorPayment(selectedOrder.documentId);
+    } else if (dialogType === "refund") {
+      await processRefund(selectedOrder.documentId);
+    }
+    
+    setDialogOpen(false);
+    setSelectedOrder(null);
+    setDialogType(null);
   };
 
   useEffect(() => {
@@ -407,243 +428,50 @@ const PaymentsPage = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6 rounded-xl !pl-20">
+    <>
+      <style>{customScrollbarStyles}</style>
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 rounded-xl !pl-20">
+        <PaymentConfirmationDialog
+          isOpen={dialogOpen}
+          onOpenChange={setDialogOpen}
+          type={dialogType}
+          order={selectedOrder}
+          onConfirm={handleDialogConfirm}
+          isProcessing={processingPayments[selectedOrder?.documentId] || processingRefunds[selectedOrder?.documentId]}
+        />
 
-      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">Payments</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">Payments</h1>
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600">Total Orders</p>
-              <h3 className="text-2xl font-semibold">{paymentMetrics.totalOrders}</h3>
-            </div>
-            <div className="p-3 bg-blue-100 rounded-full">
-              <DollarSign className="w-6 h-6 text-blue-600" />
-            </div>
+        <PaymentMetrics metrics={paymentMetrics} />
+
+        <PaymentFilters
+          timeFilter={timeFilter}
+          orderStatusFilter={orderStatusFilter}
+          paymentStatusFilter={paymentStatusFilter}
+          onTimeFilterChange={handleTimeFilterChange}
+          onOrderStatusFilterChange={handleOrderStatusFilterChange}
+          onPaymentStatusFilterChange={handlePaymentStatusFilterChange}
+        />
+
+        <PaymentOrdersTable
+          orders={orders}
+          processingPayments={processingPayments}
+          processingRefunds={processingRefunds}
+          onProcessVendorPayment={handleVendorPaymentClick}
+          onProcessRefund={handleRefundClick}
+        />
+
+        {totalPages > 1 && (
+          <div className="mt-4 flex justify-center">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm">Delivered Orders</p>
-              <h3 className="text-2xl font-semibold">{paymentMetrics.deliveredOrders}</h3>
-            </div>
-            <div className="p-3 bg-green-100 rounded-full">
-              <CheckCircle2 className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm">Cancelled Orders</p>
-              <h3 className="text-2xl font-semibold">{paymentMetrics.cancelledOrders}</h3>
-            </div>
-            <div className="p-3 bg-red-100 rounded-full">
-              <XCircle className="w-6 h-6 text-red-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-xs">Pending Vendor Payments</p>
-              <h3 className="text-2xl font-semibold">
-                ${paymentMetrics.totalVendorPayments.toFixed(2)}
-              </h3>
-            </div>
-            <div className="p-3 bg-yellow-100 rounded-full">
-              <FaHandHoldingUsd className="w-6 h-6 text-yellow-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm">Pending Refunds</p>
-              <h3 className="text-2xl font-semibold">
-                ${paymentMetrics.totalCancelledRefunds.toFixed(2)}
-              </h3>
-            </div>
-            <div className="p-3 bg-red-100 rounded-full">
-              <CircleDollarSign className="w-6 h-6 text-red-600" />
-            </div>
-          </div>
-        </div>
+        )}
       </div>
-
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-          <Select value={timeFilter} onValueChange={handleTimeFilterChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Time Period" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all-time">All Time</SelectItem>
-              <SelectItem value="this-week">This Week</SelectItem>
-              <SelectItem value="this-month">This Month</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={orderStatusFilter} onValueChange={handleOrderStatusFilterChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Order Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Orders</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={paymentStatusFilter} onValueChange={handlePaymentStatusFilterChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Payment Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Payments</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="refunded">Refunded</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Orders Table */}
-      <div className="overflow-x-auto rounded-md -mx-4 sm:mx-0">
-        <div className="min-w-[800px] sm:min-w-full">
-          {orders.length === 0 ? (
-            <div className="text-center py-8 bg-white rounded-lg">
-              <div className="text-gray-500 text-lg font-medium">No orders requiring payment processing</div>
-              <div className="text-gray-400 text-sm mt-1">Try adjusting your filters</div>
-            </div>
-          ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Customer</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Vendor</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase">Status</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase">Payment Status</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase">Vendor Payment</th>
-                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase">Tax</th>
-                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase">Pay to Vendor</th>
-                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase">Total Amount</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {orders.map((order) => (
-                  <tr key={order.documentId} className="bg-white hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-900">{order.customerName}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900">@{order.vendorUsername}</td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className={`px-3 py-1 text-xs font-medium rounded-full flex items-center justify-center w-24 text-center capitalize ${STATUS_STYLES[order.orderStatus] || STATUS_STYLES.default}`}>
-                        {order.orderStatus}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className={`px-3 py-1 text-xs font-medium rounded-full text-center flex items-center justify-center w-24 capitalize ${PAYMENT_STATUS_STYLES[order.paymentStatus] || PAYMENT_STATUS_STYLES.default}`}>
-                        {order.paymentStatus || 'pending'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className={`px-3 py-1 text-xs font-medium rounded-full text-center flex items-center justify-center w-24 capitalize ${STATUS_STYLES[order.vendor_payment] || STATUS_STYLES.default}`}>
-                        {order.vendor_payment}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900">${order.tax?.toFixed(2) || '0.00'}</td>
-                    <td className="px-4 py-3 text-sm text-right font-medium text-emerald-600">
-                      ${((order.subtotal || 0) + (order.deliveryFee || 0)).toFixed(2)}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">${order.totalAmount.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-sm text-center space-y-2">
-                      {order.orderStatus === "delivered" && order.vendor_payment === "unpaid" && (
-                        <button
-                          onClick={() => processVendorPayment(order.documentId)}
-                          disabled={processingPayments[order.documentId]}
-                          className={`${BUTTON_STYLES.payVendor} ${processingPayments[order.documentId] ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          {processingPayments[order.documentId] ? (
-                            <span className="flex items-center justify-center gap-2">
-                              <Spinner />
-                            </span>
-                          ) : (
-                            <>
-                              <FaHandHoldingUsd className="w-4 h-4" />
-                              Pay Vendor
-                            </>
-                          )}
-                        </button>
-                      )}
-                      {order.orderStatus === "cancelled" && order.paymentStatus !== "refunded" && order.vendor_payment !== "refunded" && (
-                        <button
-                          onClick={() => processRefund(order.documentId)}
-                          disabled={processingRefunds[order.documentId]}
-                          className={`${BUTTON_STYLES.processRefund} ${processingRefunds[order.documentId] ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          {processingRefunds[order.documentId] ? (
-                            <span className="flex items-center justify-center gap-2">
-                              <Spinner />
-                            </span>
-                          ) : (
-                            <div className="flex items-center justify-center gap-1 text-xs">
-                              <CircleDollarSign className="w-4 h-4" />
-                              Process Refund
-                            </div>
-                          )}
-                        </button>
-                      )}
-                      {!((order.orderStatus === "delivered" && order.vendor_payment === "unpaid") ||
-                        (order.orderStatus === "cancelled" && order.paymentStatus !== "refunded" && order.vendor_payment !== "refunded")) && (
-                          <span className={`${ACTION_STATUS_STYLES[order.paymentStatus === "refunded" || order.vendor_payment === "refunded" ? "refunded" : order.vendor_payment === "paid" ? "paid" : "default"]}`}>
-                            {order.paymentStatus === "refunded" || order.vendor_payment === "refunded" ? (
-                              <>
-                                <X className="w-4 h-4" />
-                                Refunded
-                              </>
-                            ) : order.vendor_payment === "paid" ? (
-                              <>
-                                <Check className="w-4 h-4" />
-                                Paid to Vendor
-                              </>
-                            ) : (
-                              <>
-                                <Info className="w-4 h-4" />
-                                No Action Required
-                              </>
-                            )}
-                          </span>
-                        )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
-
-      {totalPages > 1 && (
-        <div className="mt-4 flex justify-center">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 

@@ -55,45 +55,7 @@ const Footer = () => {
             </div>
           </div>
 
-          <div>
-            <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase">
-              About
-            </h2>
-            <ul className="text-gray-600 font-medium">
-              <li className="mb-3">
-                <Link
-                  href="/about"
-                  className="text-sm hover:underline hover:text-rose-500 transition-all"
-                >
-                  About Us
-                </Link>
-              </li>
-              <li className="mb-3">
-                <Link
-                  href="/features"
-                  className="text-sm hover:underline hover:text-rose-500 transition-all"
-                >
-                  Features
-                </Link>
-              </li>
-              <li className="mb-3">
-                <Link
-                  href="/news"
-                  className="text-sm hover:underline hover:text-rose-500 transition-all"
-                >
-                  News
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/menu"
-                  className="text-sm hover:underline hover:text-rose-500 transition-all"
-                >
-                  Menu
-                </Link>
-              </li>
-            </ul>
-          </div>
+    
 
           <div>
             <div className="mb-8">

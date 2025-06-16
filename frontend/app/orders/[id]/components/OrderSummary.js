@@ -3,8 +3,12 @@ import { HiOutlineReceiptTax } from "react-icons/hi";
 import { LuSquareSigma } from "react-icons/lu";
 import { Truck } from "lucide-react";
 
-const OrderSummary = ({ orderData, orderSubtotal, totalDeliveryFee }) => {
-  const currentOrder = orderData[0];
+const OrderSummary = ({ orderData, currentOrder }) => {
+  const orderSubtotal = orderData.reduce((sum, order) => sum + order.subtotal, 0);
+  const totalDeliveryFee = orderData.reduce(
+    (sum, order) => sum + (Number(order.vendorDeliveryFee) || 0),
+    0
+  );
 
   return (
     <div className="bg-gray-100 p-6 rounded-lg shadow h-fit">
@@ -20,14 +24,9 @@ const OrderSummary = ({ orderData, orderSubtotal, totalDeliveryFee }) => {
           <HiOutlineReceiptTax className="text-gray-500" size={20} />
           <span>Tax</span>
         </div>
-        <span className="font-semibold">
-          ${currentOrder.totalTax.toFixed(2)}
-        </span>
+        <span className="font-semibold">${currentOrder.totalTax.toFixed(2)}</span>
       </div>
-      {/* Per-vendor delivery fees */}
-      {orderData.some(
-        (order) => order.vendorDeliveryFee && order.vendorUsername
-      ) && (
+      {orderData.some((order) => order.vendorDeliveryFee && order.vendorUsername) && (
         <div className="mb-2">
           {orderData.map((order, idx) =>
             order.vendorDeliveryFee && order.vendorUsername ? (
@@ -50,9 +49,7 @@ const OrderSummary = ({ orderData, orderSubtotal, totalDeliveryFee }) => {
           <Truck className="text-gray-500" size={20} />
           <span>Delivery</span>
         </div>
-        <span className="font-semibold">
-          ${totalDeliveryFee.toFixed(2)}
-        </span>
+        <span className="font-semibold">${totalDeliveryFee.toFixed(2)}</span>
       </div>
 
       <div className="flex justify-between border-t mt-2 pt-3 text-lg font-bold">

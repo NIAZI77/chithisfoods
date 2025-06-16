@@ -44,10 +44,13 @@ const OrderDetails = ({ order }) => {
           <div>
             <span className="text-gray-500">Delivery Time</span>
             <p className="text-black font-medium">
-              {new Date(`2000-01-01T${order.deliveryTime}`).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              {new Date(`2000-01-01T${order.deliveryTime}`).toLocaleTimeString(
+                [],
+                {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }
+              )}
             </p>
           </div>
         </div>

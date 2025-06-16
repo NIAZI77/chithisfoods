@@ -1,8 +1,4 @@
-"use client";
-import { useState } from "react";
-import { Star, MessageSquare, X, Send } from "lucide-react";
-import { FaStar } from "react-icons/fa";
-import Spinner from "../../../components/Spinner";
+import { X, Star, MessageSquare, Send } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,18 +6,19 @@ import {
   DialogHeader,
   DialogPrimitive,
   DialogTitle,
-} from "./dialog";
+} from "@/app/orders/[id]/components/dialog";
+import Spinner from "@/app/components/Spinner";
 
 const ReviewDialog = ({
   isOpen,
-  onClose,
+  onOpenChange,
   selectedDish,
-  onSubmit,
-  isRating,
   selectedRating,
   setSelectedRating,
   reviewText,
   setReviewText,
+  isRating,
+  onRatingSubmit,
 }) => {
   const renderRatingStars = (rating, interactive = false) => {
     return Array.from({ length: 5 }, (_, index) => (
@@ -31,7 +28,7 @@ const ReviewDialog = ({
         className={`${interactive ? "cursor-pointer" : ""}`}
         disabled={!interactive || isRating}
       >
-        <FaStar
+        <Star
           className={`w-5 h-5 ${
             index < rating ? "text-yellow-400" : "text-gray-300"
           } ${interactive ? "hover:text-yellow-400" : ""}`}
@@ -41,7 +38,7 @@ const ReviewDialog = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95%] sm:w-[85%] md:w-[600px] max-h-[90vh] overflow-y-auto bg-white mx-auto">
         <DialogHeader className="space-y-2 px-4 sm:px-6 md:px-8 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b sticky top-0 bg-white z-10">
           <div className="flex items-center justify-between">
@@ -58,13 +55,13 @@ const ReviewDialog = ({
           </p>
         </DialogHeader>
 
-        <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+        <div className="p-4 space-x-2 space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <label className="text-sm sm:text-base font-medium text-gray-700 flex items-center gap-1.5 sm:gap-2">
               <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
               Your Rating
             </label>
-            <div className="flex gap-1 sm:gap-2 p-2 sm:p-3 bg-gray-50 rounded-lg sm:rounded-xl">
+            <div className="flex gap-1 sm:gap-2 p-2 sm:p-3 bg-gray-50 rounded-lg sm:rounded-xl items-center justify-center">
               {renderRatingStars(selectedRating, true)}
             </div>
           </div>
@@ -87,14 +84,14 @@ const ReviewDialog = ({
 
         <DialogFooter className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 pt-2 sticky bottom-0 bg-white border-t">
           <button
-            onClick={onClose}
+            onClick={() => onOpenChange(false)}
             className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base text-gray-600 hover:text-gray-800 font-medium rounded-lg sm:rounded-xl hover:bg-gray-100 transition-colors"
             disabled={isRating}
           >
             Cancel
           </button>
           <button
-            onClick={onSubmit}
+            onClick={onRatingSubmit}
             disabled={isRating || selectedRating === 0}
             className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base bg-rose-500 text-white rounded-lg sm:rounded-xl transition-colors hover:bg-rose-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-2.5"
           >

@@ -4,7 +4,8 @@
   "info": {
     "singularName": "admin",
     "pluralName": "admins",
-    "displayName": "Admin"
+    "displayName": "Admin",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -13,9 +14,6 @@
     "taxPercentage": {
       "type": "integer",
       "default": 0
-    },
-    "passowrd": {
-      "type": "password"
     }
   }
 }

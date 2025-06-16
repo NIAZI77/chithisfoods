@@ -115,7 +115,7 @@ const DashboardPage = () => {
 
   const chartData = useMemo(() => {
     const dailyData = getChartDateRange.reduce((acc, date) => {
-      acc[date] = { date, orders: 0, totalMoney: 0 };
+      acc[date] = { date, orders: 0, totalMoney: 0, taxRevenue: 0 };
       return acc;
     }, {});
 
@@ -124,6 +124,9 @@ const DashboardPage = () => {
       if (dailyData[orderDate]) {
         dailyData[orderDate].orders += 1;
         dailyData[orderDate].totalMoney += parseFloat(order.totalAmount || 0);
+        if (order.orderStatus === "delivered") {
+          dailyData[orderDate].taxRevenue += parseFloat(order.tax || 0);
+        }
       }
     });
 
@@ -210,6 +213,7 @@ const DashboardPage = () => {
       <div className="bg-white p-3 shadow-md rounded-lg border">
         <p className="font-medium">{label}</p>
         <p className="text-pink-600">${totalMoney.toFixed(2)}</p>
+        <p className="text-green-600">Tax Revenue: ${data.taxRevenue.toFixed(2)}</p>
         <p className="text-gray-600">{ordersForDate.length} Orders</p>
         <p className="text-green-600">{deliveredCount} Delivered</p>
         <p className="text-red-600">{cancelledCount} Cancelled</p>
@@ -394,7 +398,18 @@ const DashboardPage = () => {
                 <XAxis dataKey="date" />
                 <YAxis tickFormatter={(value) => `$${value}`} />
                 <Tooltip
-                  formatter={(value) => [`$${value.toFixed(2)}`, "Total Money"]}
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    const data = payload[0].payload;
+                    return (
+                      <div className="bg-white p-3 shadow-md rounded-lg border">
+                        <p className="font-medium">{label}</p>
+                        <p className="text-pink-600">Total: ${data.totalMoney.toFixed(2)}</p>
+                        <p className="text-green-600">Tax Revenue: ${data.taxRevenue.toFixed(2)}</p>
+                        <p className="text-gray-600">{data.orders} Orders</p>
+                      </div>
+                    );
+                  }}
                 />
                 <Legend />
                 <Bar dataKey="totalMoney" fill="#DB2777" name="Total Money" />
