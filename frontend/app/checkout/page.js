@@ -355,7 +355,6 @@ const Page = () => {
           totalTax: tax,
           subtotal: Number(vendorSubtotal.toFixed(2)),
           totalAmount: vendorTotal,
-          paymentStatus: "paid",
           deliveryType: formData.deliveryType,
           deliveryDate: formData.deliveryDate
             ? format(formData.deliveryDate, "yyyy-MM-dd")
@@ -488,91 +487,55 @@ const Page = () => {
 
             {/* Delivery Schedule Section */}
             <div className="mb-8">
-              <h3 className="font-black text-lg mb-6 text-black flex items-center gap-2">
-                <Calendar className="inline" /> Delivery Schedule
+              <h3 className="font-black text-lg mb-6 text-rose-600 flex items-center gap-2">
+                <Calendar className="inline text-rose-500" /> Delivery Schedule
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                <div className="flex flex-col gap-1 px-1">
                   <label className="block font-semibold text-sm text-slate-500 pl-3">
                     Delivery Date
                   </label>
-                  <DatePicker
-                    value={dayjs(formData.deliveryDate)}
-                    onChange={(date) => {
-                      const minTime = getMinTimeForDate(date.toDate());
-                      setFormData((prev) => ({
-                        ...prev,
-                        deliveryDate: date.toDate(),
-                        deliveryTime: minTime && prev.deliveryTime < minTime ? minTime : prev.deliveryTime,
-                      }));
-                    }}
-                    minDate={dayjs()}
-                    className="w-full"
-                    slotProps={{
-                      textField: {
-                        sx: {
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '12px',
-                            backgroundColor: '#f9fafb',
-                            '&:hover': {
-                              backgroundColor: '#ffffff',
-                            },
-                            '&.Mui-focused': {
-                              backgroundColor: '#ffffff',
-                            }
-                          }
-                        }
-                      }
-                    }}
-                  />
-                  <p className="text-xs text-slate-500 mt-1 pl-3">
-                    Select a date for your delivery
-                  </p>
+                  <div className="w-full">
+                    <DatePicker
+                      value={dayjs(formData.deliveryDate)}
+                      onChange={(date) => {
+                        const minTime = getMinTimeForDate(date.toDate());
+                        setFormData((prev) => ({
+                          ...prev,
+                          deliveryDate: date.toDate(),
+                          deliveryTime: minTime && prev.deliveryTime < minTime ? minTime : prev.deliveryTime,
+                        }));
+                      }}
+                      minDate={dayjs()}
+                      className="w-full rounded-xl"
+                    />
+                  </div>
                 </div>
-                <div>
+                <div className="flex flex-col gap-1 px-1">
                   <label className="block font-semibold text-sm text-slate-500 pl-3">
                     Delivery Time
                   </label>
-                  <TimePicker
-                    value={dayjs(`2000-01-01 ${formData.deliveryTime}`)}
-                    onChange={(time) => {
-                      const minTime = getMinTimeForDate(formData.deliveryDate);
-                      const selectedTime = time.format("HH:mm");
-                      
-                      if (minTime && selectedTime < minTime) {
-                        toast.error("Please select a time at least 30 minutes from now");
-                        return;
-                      }
-                      
-                      setFormData((prev) => ({
-                        ...prev,
-                        deliveryTime: selectedTime,
-                      }));
-                    }}
-                    minTime={getMinTimeForDate(formData.deliveryDate) ? dayjs(`2000-01-01 ${getMinTimeForDate(formData.deliveryDate)}`) : undefined}
-                    className="w-full"
-                    slotProps={{
-                      textField: {
-                        sx: {
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '12px',
-                            backgroundColor: '#f9fafb',
-                            '&:hover': {
-                              backgroundColor: '#ffffff',
-                            },
-                            '&.Mui-focused': {
-                              backgroundColor: '#ffffff',
-                            }
-                          }
+                  <div className="w-full">
+                    <TimePicker
+                      value={dayjs(`2000-01-01 ${formData.deliveryTime}`)}
+                      onChange={(time) => {
+                        const minTime = getMinTimeForDate(formData.deliveryDate);
+                        const selectedTime = time.format("HH:mm");
+                        
+                        if (minTime && selectedTime < minTime) {
+                          toast.error("Please select a time at least 30 minutes from now");
+                          return;
                         }
-                      }
-                    }}
-                  />
-                  <p className="text-xs text-slate-500 mt-1 pl-3">
-                    {dayjs(formData.deliveryDate).format("yyyy-MM-dd") === dayjs().format("yyyy-MM-dd")
-                      ? "Select a time at least 30 minutes from now"
-                      : "Select your preferred delivery time"}
-                  </p>
+                        
+                        setFormData((prev) => ({
+                          ...prev,
+                          deliveryTime: selectedTime,
+                        }));
+                      }}
+                      minTime={getMinTimeForDate(formData.deliveryDate) ? dayjs(`2000-01-01 ${getMinTimeForDate(formData.deliveryDate)}`) : undefined}
+                      className="w-full rounded-xl"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

@@ -36,7 +36,6 @@
 }
 
 .categoryCard:hover {
-  transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(255, 77, 166, 0.15);
   border: 2px solid #f3c0da;
 }

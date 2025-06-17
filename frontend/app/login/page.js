@@ -59,6 +59,13 @@ export default function LoginPage() {
           toast.error("Admin access denied");
           return;
         }
+        
+        // Check if user is blocked
+        if (data.user.blocked) {
+          setShowBlockedMessage(true);
+          return;
+        }
+        
         toast.success("Welcome to Chithi's Foods!");
         const expires = new Date();
         expires.setDate(expires.getDate() + 7);

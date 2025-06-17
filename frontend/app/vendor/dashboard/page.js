@@ -130,10 +130,7 @@ const Page = () => {
     const dates = Array.from({ length: daysToShow }, (_, i) => {
       const date = new Date(now);
       date.setDate(date.getDate() - i);
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      });
+      return date.toISOString().split("T")[0];
     }).reverse();
 
     dates.forEach(date => {
@@ -148,13 +145,10 @@ const Page = () => {
       statusCounts[order.orderStatus]++;
       uniqueCustomers.add(order.user);
 
-      const date = new Date(order.createdAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      });
-      if (dates.includes(date)) {
-        salesByDate[date].sales += parseFloat(order.subtotal || 0);
-        salesByDate[date].orders += 1;
+      const orderDate = new Date(order.createdAt).toISOString().split("T")[0];
+      if (salesByDate[orderDate]) {
+        salesByDate[orderDate].sales += parseFloat(order.subtotal || 0);
+        salesByDate[orderDate].orders += 1;
       }
     });
 
@@ -449,7 +443,32 @@ const Page = () => {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={dashboardData.salesData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
+              <XAxis 
+                dataKey="date" 
+                tickFormatter={(date) => {
+                  const d = new Date(date);
+                  const currentMonth = d.getMonth();
+
+                  // Get the previous date to check if month changed
+                  const prevDate = new Date(date);
+                  prevDate.setDate(d.getDate() - 1);
+                  const prevMonth = prevDate.getMonth();
+
+                  // If month changed or it's the first date, show month
+                  if (
+                    currentMonth !== prevMonth ||
+                    date === dashboardData.salesData[0]?.date
+                  ) {
+                    return d.toLocaleDateString("en-US", {
+                      day: "numeric",
+                      month: "short",
+                    });
+                  }
+
+                  // Otherwise just show the day
+                  return d.getDate().toString();
+                }}
+              />
               <YAxis />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="sales" fill="oklch(75% 0.183 55.934)" />

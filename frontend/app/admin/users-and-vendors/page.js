@@ -37,7 +37,7 @@ const UsersAndVendorsPage = () => {
     const [usersSearchQuery, setUsersSearchQuery] = useState("");
     const [vendorsSearchQuery, setVendorsSearchQuery] = useState("");
     const [usersFilter, setUsersFilter] = useState("all"); // all, active, blocked
-    const [vendorsFilter, setVendorsFilter] = useState("all"); // all, verified, new
+    const [vendorsFilter, setVendorsFilter] = useState("all"); // all, verified, new, unverified, banned, pending_verification
     const [vendorsDocFilter, setVendorsDocFilter] = useState("all"); // all, with_docs, without_docs
 
     useEffect(() => {
@@ -177,6 +177,8 @@ const UsersAndVendorsPage = () => {
                 statusFilter = "&filters[verificationStatus][$eq]=banned";
             } else if (filter === "rejected") {
                 statusFilter = "&filters[verificationStatus][$eq]=rejected";
+            } else if (filter === "pending_verification") {
+                statusFilter = "&filters[$or][0][verificationStatus][$eq]=new-chef&filters[$or][1][verificationStatus][$eq]=unverified&filters[verificationDocument][$notNull]=true";
             }
 
             // Document filter

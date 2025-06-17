@@ -32,6 +32,14 @@ const GoogleAuth = () => {
             setTimeout(() => router.push("/login"), 1000);
             return;
           }
+          
+          // Check if user is blocked
+          if (data.user.blocked) {
+            setShowBlockedMessage(true);
+            setTimeout(() => router.push("/login"), 1000);
+            return;
+          }
+          
           toast.success("Welcome to Chithi's Foods!");
           const expires = new Date();
           expires.setDate(expires.getDate() + 7);

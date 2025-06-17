@@ -38,6 +38,13 @@ const VendorsTable = ({
         }
     };
 
+    // Function to determine if vendor should show "Verify" button
+    const shouldShowVerifyButton = (vendor) => {
+        const isPendingVerification = (vendor.verificationStatus === 'new-chef' || vendor.verificationStatus === 'unverified') && 
+                                     vendor.verificationDocument !== null;
+        return isPendingVerification;
+    };
+
     const handleVerifyClick = (vendor) => {
         if (!vendor.documentId) {
             console.error('Missing vendor documentId');
@@ -96,6 +103,7 @@ const VendorsTable = ({
                                 <SelectItem value="new">New</SelectItem>
                                 <SelectItem value="unverified">Unverified</SelectItem>
                                 <SelectItem value="banned">Banned</SelectItem>
+                                <SelectItem value="pending_verification">Pending Verification</SelectItem>
                             </SelectContent>
                         </Select>
                         <Select value={docFilter} onValueChange={onDocFilterChange}>
@@ -166,12 +174,21 @@ const VendorsTable = ({
                                             {formatDate(vendor.createdAt)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <button
-                                                onClick={() => handleVerifyClick(vendor)}
-                                                className='px-5 py-2.5 text-pink-100 bg-pink-500 rounded-full'
-                                            >
-                                                See Details
-                                            </button>
+                                            {shouldShowVerifyButton(vendor) ? (
+                                                <button
+                                                    onClick={() => handleVerifyClick(vendor)}
+                                                    className='w-32 py-2.5 text-pink-100 bg-pink-500 rounded-full'
+                                                >
+                                                    Verify
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleVerifyClick(vendor)}
+                                                    className='w-32 py-2.5 text-pink-100 bg-pink-500 rounded-full'
+                                                >
+                                                    See Details
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
