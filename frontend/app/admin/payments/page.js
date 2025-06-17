@@ -31,6 +31,7 @@ import PaymentFilters from "./components/PaymentFilters";
 import PaymentOrdersTable from "./components/PaymentOrdersTable";
 import { customScrollbarStyles } from "./constants";
 import PaymentConfirmationDialog from "./components/PaymentConfirmationDialog";
+import TaxMetrics from "./components/TaxMetrics";
 
 const STATUS_STYLES = {
   paid: "bg-green-100 text-green-700",
@@ -103,6 +104,10 @@ const PaymentsPage = () => {
     totalCancelledRefunds: fullOrders
       .filter(order => order.orderStatus === "cancelled" && order.paymentStatus !== "refunded" && order.vendor_payment !== "refunded")
       .reduce((sum, order) => sum + order.totalAmount, 0),
+    totalTax: fullOrders.reduce((sum, order) => sum + (order.tax || 0), 0),
+    deliveredOrdersTax: fullOrders
+      .filter(order => order.orderStatus === "delivered")
+      .reduce((sum, order) => sum + (order.tax || 0), 0),
   }), [fullOrders]);
 
   const fetchOrders = async (page = 1, timeFilter = "all-time", orderStatusFilter = "all", paymentStatusFilter = "all") => {
@@ -443,6 +448,8 @@ const PaymentsPage = () => {
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">Payments</h1>
 
         <PaymentMetrics metrics={paymentMetrics} />
+
+        <TaxMetrics metrics={paymentMetrics} />
 
         <PaymentFilters
           timeFilter={timeFilter}

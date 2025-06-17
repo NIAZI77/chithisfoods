@@ -456,7 +456,7 @@ const DashboardPage = () => {
                       ${parseFloat(order.totalAmount || 0).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      @{order.vendorAdminUsername}
+                      @{order.vendorUsername}
                     </td>
                   </tr>
                 ))}
@@ -499,7 +499,7 @@ const DashboardPage = () => {
                       ${parseFloat(order.totalAmount || 0).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      @{order.vendorAdminUsername}
+                      @{order.vendorUsername}
                     </td>
                   </tr>
                 ))}
