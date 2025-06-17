@@ -55,19 +55,30 @@ export default function OrderHistoryPage() {
     delivered: 0,
     cancelled: 0,
   });
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     setMounted(true);
+    const userCookie = getCookie("user");
+    setUser(userCookie);
   }, []);
 
-  const fetchStatusCounts = async () => {
-    try {
-      const user = getCookie("user");
-      if (!user) {
-        toast.error("Please sign in to view orders");
-        return;
-      }
+  useEffect(() => {
+    if (!mounted) return;
+    
+    if (!user) {
+      toast.error("Please sign in to view orders");
+      router.push("/login");
+      return;
+    }
 
+    fetchStatusCounts();
+  }, [mounted, user, router]);
+
+  const fetchStatusCounts = async () => {
+    if (!user) return;
+    
+    try {
       const now = new Date();
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
@@ -139,21 +150,11 @@ export default function OrderHistoryPage() {
     }
   };
 
-  useEffect(() => {
-    if (mounted) {
-      fetchStatusCounts();
-    }
-  }, [mounted]);
-
   const getAllOrders = async () => {
+    if (!user) return { data: [], meta: { pagination: { total: 0, pageCount: 0 } } };
+    
     setLoading(true);
     try {
-      const user = getCookie("user");
-      if (!user) {
-        toast.error("Please sign in to view orders");
-        return { data: [], meta: { pagination: { total: 0, pageCount: 0 } } };
-      }
-
       // Build filter queries
       let statusFilterQuery = "";
       if (statusFilter !== "all") {
@@ -283,6 +284,8 @@ export default function OrderHistoryPage() {
   };
 
   useEffect(() => {
+    if (!mounted || !user) return;
+
     const fetchOrders = async () => {
       try {
         const orders = await getAllOrders();
@@ -295,7 +298,7 @@ export default function OrderHistoryPage() {
     };
 
     fetchOrders();
-  }, [statusFilter, timeFilter, currentPage, pageSize]);
+  }, [mounted, user, statusFilter, timeFilter, currentPage, pageSize]);
 
   const countByStatus = (status) =>
     orderData.filter((order) => order.status === status).length;
@@ -325,18 +328,12 @@ export default function OrderHistoryPage() {
       </span>
     );
   };
-  const user = getCookie("user");
-  if (!user) {
-    toast.error("Please sign in to view orders");
-    router.push("/login");
-    return null;
-  }
 
   if (!mounted) {
     return null;
   }
 
-  if (loading) {
+  if (loading || !user) {
     return <Loading />;
   }
 

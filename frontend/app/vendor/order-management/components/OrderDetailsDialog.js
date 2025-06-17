@@ -25,6 +25,7 @@ import {
 import Spinner from "@/app/components/Spinner";
 import { HiOutlineReceiptTax } from "react-icons/hi";
 import { BadgePercent } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const ORDER_STATUS = {
   PENDING: "pending",
@@ -41,6 +42,7 @@ const TOAST_MESSAGES = {
 };
 
 function OrderDetailsDialog({ order, isOpen, onClose }) {
+  const router = useRouter();
   const [loadingStates, setLoadingStates] = useState({
     processing: false,
     ready: false,
@@ -90,7 +92,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
 
       toast.success(TOAST_MESSAGES.ORDER_UPDATE_SUCCESS);
       onClose();
-      window.location.reload();
+      router.refresh();
     } catch (error) {
       toast.error(TOAST_MESSAGES.ORDER_UPDATE_ERROR);
     } finally {

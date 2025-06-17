@@ -50,18 +50,29 @@ export default function TopCategories() {
       <div className={styles.sliderWrapper}>
         <Swiper
           modules={[Navigation]}
-          spaceBetween={12}
+          spaceBetween={16}
           slidesPerView={2}
           navigation
           breakpoints={{
+            480: {
+              slidesPerView: 2,
+              spaceBetween: 16,
+            },
             640: {
               slidesPerView: 3,
+              spaceBetween: 20,
             },
             768: {
               slidesPerView: 4,
+              spaceBetween: 24,
             },
             1024: {
               slidesPerView: 5,
+              spaceBetween: 28,
+            },
+            1280: {
+              slidesPerView: 6,
+              spaceBetween: 32,
             },
           }}
           className={styles.swiper}

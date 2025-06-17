@@ -8,6 +8,10 @@ import {
   User,
   Calendar,
   Clock,
+  MapPin,
+  Phone,
+  Mail,
+  FileText,
 } from "lucide-react";
 import { HiOutlineReceiptTax } from "react-icons/hi";
 import { LuSquareSigma } from "react-icons/lu";
@@ -19,8 +23,11 @@ import { FaShoppingBag } from "react-icons/fa";
 import { getCookie } from "cookies-next";
 import Spinner from "../components/Spinner";
 import Loading from "../loading";
-import { DatePicker } from "@/components/ui/date-picker";
-import { TimePicker } from "@/components/ui/time-picker"; // Ensure this import is correct
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import dayjs from 'dayjs';
 
 const initialFormData = {
   name: "",
@@ -32,10 +39,24 @@ const initialFormData = {
   user: "",
   deliveryType: "delivery",
   deliveryDate: new Date(),
-  deliveryTime:
-    new Date().getHours().toString().padStart(2, "0") +
-    ":" +
-    (Math.floor(new Date().getMinutes() / 30) * 30).toString().padStart(2, "0"),
+  deliveryTime: (() => {
+    const now = new Date();
+    const minTime = new Date(now.getTime() + 30 * 60000);
+    return format(minTime, "HH:mm");
+  })(),
+};
+
+const getMinTimeForDate = (date) => {
+  const now = new Date();
+  const selectedDate = new Date(date);
+  const isToday = format(now, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd");
+  
+  if (!isToday) return undefined;
+  
+  // Add exactly 30 minutes to current time - no rounding
+  const minTime = new Date(now.getTime() + 30 * 60000);
+  
+  return format(minTime, "HH:mm");
 };
 
 const Page = () => {
@@ -368,105 +389,209 @@ const Page = () => {
   if (deliveryFeeLoading || taxLoading) return <Loading />;
 
   return (
-    <form onSubmit={handleSubmit} className="mx-3">
-      <div className="w-full mx-auto pb-10 px-2 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] col-span-2 mb-6 md:mb-0">
-          <h2 className="text-2xl font-black tracking-tight mb-8 text-rose-600 flex items-center gap-2">
-            <ShoppingCart className="inline" />
-            Checkout
-          </h2>
-          <div className="mb-8">
-            <h3 className="font-black text-lg mb-6 text-black flex items-center gap-2">
-              <User className="inline" /> General Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-              <div>
-                <label className="block font-semibold text-sm text-slate-500 pl-3">
-                  Name
-                </label>
-                <input
-                  required
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Name"
-                  className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
-                />
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <form onSubmit={handleSubmit} className="mx-3">
+        <div className="w-full mx-auto pb-10 px-2 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] col-span-2 mb-6 md:mb-0">
+            <h2 className="text-2xl font-black tracking-tight mb-8 text-rose-600 flex items-center gap-2">
+              <ShoppingCart className="inline" />
+              Checkout
+            </h2>
+            <div className="mb-8">
+              <h3 className="font-black text-lg mb-6 text-black flex items-center gap-2">
+                <User className="inline" /> General Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                  <label className="block font-semibold text-sm text-slate-500 pl-3">
+                    Name
+                  </label>
+                  <input
+                    required
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Name"
+                    className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-sm text-slate-500 pl-3">
+                    Phone Number
+                  </label>
+                  <input
+                    required
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="Phone Number"
+                    className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-sm text-slate-500 pl-3">
+                    Email
+                  </label>
+                  <input
+                    required
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Email"
+                    className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
+                  />
+                </div>
+                {formData.deliveryType === "delivery" && (
+                  <>
+                    <div>
+                      <label className="block font-semibold text-sm text-slate-500 pl-3">
+                        Zip Code
+                      </label>
+                      <input
+                        required
+                        name="zip"
+                        value={formData.zip}
+                        onChange={handleChange}
+                        placeholder="Zip Code"
+                        className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block font-semibold text-sm text-slate-500 pl-3">
+                        Address
+                      </label>
+                      <input
+                        required
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        placeholder="Address"
+                        className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
+                      />
+                    </div>
+                  </>
+                )}
+                <div className="md:col-span-2">
+                  <label className="block font-semibold text-sm text-slate-500 pl-3">
+                    Note
+                  </label>
+                  <textarea
+                    name="note"
+                    value={formData.note}
+                    onChange={handleChange}
+                    placeholder="Instructions"
+                    className="w-full px-4 py-2 my-1 border rounded-lg outline-rose-400 h-24 resize-none"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block font-semibold text-sm text-slate-500 pl-3">
-                  Phone Number
-                </label>
-                <input
-                  required
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="Phone Number"
-                  className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
-                />
+            </div>
+
+            {/* Delivery Schedule Section */}
+            <div className="mb-8">
+              <h3 className="font-black text-lg mb-6 text-black flex items-center gap-2">
+                <Calendar className="inline" /> Delivery Schedule
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                  <label className="block font-semibold text-sm text-slate-500 pl-3">
+                    Delivery Date
+                  </label>
+                  <DatePicker
+                    value={dayjs(formData.deliveryDate)}
+                    onChange={(date) => {
+                      const minTime = getMinTimeForDate(date.toDate());
+                      setFormData((prev) => ({
+                        ...prev,
+                        deliveryDate: date.toDate(),
+                        deliveryTime: minTime && prev.deliveryTime < minTime ? minTime : prev.deliveryTime,
+                      }));
+                    }}
+                    minDate={dayjs()}
+                    className="w-full"
+                    slotProps={{
+                      textField: {
+                        sx: {
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '12px',
+                            backgroundColor: '#f9fafb',
+                            '&:hover': {
+                              backgroundColor: '#ffffff',
+                            },
+                            '&.Mui-focused': {
+                              backgroundColor: '#ffffff',
+                            }
+                          }
+                        }
+                      }
+                    }}
+                  />
+                  <p className="text-xs text-slate-500 mt-1 pl-3">
+                    Select a date for your delivery
+                  </p>
+                </div>
+                <div>
+                  <label className="block font-semibold text-sm text-slate-500 pl-3">
+                    Delivery Time
+                  </label>
+                  <TimePicker
+                    value={dayjs(`2000-01-01 ${formData.deliveryTime}`)}
+                    onChange={(time) => {
+                      const minTime = getMinTimeForDate(formData.deliveryDate);
+                      const selectedTime = time.format("HH:mm");
+                      
+                      if (minTime && selectedTime < minTime) {
+                        toast.error("Please select a time at least 30 minutes from now");
+                        return;
+                      }
+                      
+                      setFormData((prev) => ({
+                        ...prev,
+                        deliveryTime: selectedTime,
+                      }));
+                    }}
+                    minTime={getMinTimeForDate(formData.deliveryDate) ? dayjs(`2000-01-01 ${getMinTimeForDate(formData.deliveryDate)}`) : undefined}
+                    className="w-full"
+                    slotProps={{
+                      textField: {
+                        sx: {
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '12px',
+                            backgroundColor: '#f9fafb',
+                            '&:hover': {
+                              backgroundColor: '#ffffff',
+                            },
+                            '&.Mui-focused': {
+                              backgroundColor: '#ffffff',
+                            }
+                          }
+                        }
+                      }
+                    }}
+                  />
+                  <p className="text-xs text-slate-500 mt-1 pl-3">
+                    {dayjs(formData.deliveryDate).format("yyyy-MM-dd") === dayjs().format("yyyy-MM-dd")
+                      ? "Select a time at least 30 minutes from now"
+                      : "Select your preferred delivery time"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <label className="block font-semibold text-sm text-slate-500 pl-3">
-                  Email
+            </div>
+
+            {/* Delivery Type Section */}
+            <div className="mb-8">
+              <h3 className="font-black text-lg mb-6 text-black flex items-center gap-2">
+                <Truck className="inline" /> Delivery Options
+              </h3>
+              <div className="space-y-4">
+                <label className="block font-semibold text-lg text-gray-800">
+                  Choose Delivery Type
                 </label>
-                <input
-                  required
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Email"
-                  className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
-                />
-              </div>
-              {formData.deliveryType === "delivery" && (
-                <>
-                  <div>
-                    <label className="block font-semibold text-sm text-slate-500 pl-3">
-                      Zip Code
-                    </label>
-                    <input
-                      required
-                      name="zip"
-                      value={formData.zip}
-                      onChange={handleChange}
-                      placeholder="Zip Code"
-                      className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block font-semibold text-sm text-slate-500 pl-3">
-                      Address
-                    </label>
-                    <input
-                      required
-                      name="address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      placeholder="Address"
-                      className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
-                    />
-                  </div>
-                </>
-              )}
-              <div className="md:col-span-2">
-                <label className="block font-semibold text-sm text-slate-500 pl-3">
-                  Note
-                </label>
-                <textarea
-                  name="note"
-                  value={formData.note}
-                  onChange={handleChange}
-                  placeholder="Instructions"
-                  className="w-full px-4 py-2 my-1 border rounded-lg outline-rose-400 h-24 resize-none"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block font-semibold text-sm text-slate-500 pl-3">
-                  Delivery Type
-                </label>
-                <div className="py-2 px-4 flex gap-4">
-                  <div className="flex items-center gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className={`relative border-2 rounded-xl p-6 cursor-pointer transition-all duration-200 ${
+                    formData.deliveryType === "delivery" 
+                      ? "border-rose-500 bg-rose-50 shadow-md" 
+                      : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                  }`}>
                     <input
                       type="radio"
                       name="deliveryType"
@@ -474,17 +599,35 @@ const Page = () => {
                       value="delivery"
                       checked={formData.deliveryType === "delivery"}
                       onChange={handleChange}
-                      className="w-4 h-4 accent-rose-600"
+                      className="sr-only"
                     />
                     <label
                       htmlFor="delivery"
-                      className="font-semibold text-sm text-slate-500 flex items-center gap-2"
+                      className="flex items-center gap-3 cursor-pointer"
                     >
-                      <Truck className="w-4 h-4" />
-                      Delivery
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        formData.deliveryType === "delivery" 
+                          ? "border-rose-500 bg-rose-500" 
+                          : "border-gray-300"
+                      }`}>
+                        {formData.deliveryType === "delivery" && (
+                          <div className="w-3 h-3 bg-white rounded-full"></div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Truck className="w-6 h-6 text-rose-600" />
+                        <div>
+                          <div className="font-semibold text-gray-900">Home Delivery</div>
+                          <div className="text-sm text-gray-600">We&apos;ll deliver to your address</div>
+                        </div>
+                      </div>
                     </label>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className={`relative border-2 rounded-xl p-6 cursor-pointer transition-all duration-200 ${
+                    formData.deliveryType === "pickup" 
+                      ? "border-rose-500 bg-rose-50 shadow-md" 
+                      : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                  }`}>
                     <input
                       type="radio"
                       name="deliveryType"
@@ -492,131 +635,105 @@ const Page = () => {
                       value="pickup"
                       checked={formData.deliveryType === "pickup"}
                       onChange={handleChange}
-                      className="w-4 h-4 accent-rose-600"
+                      className="sr-only"
                     />
                     <label
                       htmlFor="pickup"
-                      className="font-semibold text-sm text-slate-500 flex items-center gap-2"
+                      className="flex items-center gap-3 cursor-pointer"
                     >
-                      <FaShoppingBag className="w-4 h-4" />
-                      Pickup
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        formData.deliveryType === "pickup" 
+                          ? "border-rose-500 bg-rose-500" 
+                          : "border-gray-300"
+                      }`}>
+                        {formData.deliveryType === "pickup" && (
+                          <div className="w-3 h-3 bg-white rounded-full"></div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <FaShoppingBag className="w-6 h-6 text-rose-600" />
+                        <div>
+                          <div className="font-semibold text-gray-900">Pickup</div>
+                          <div className="text-sm text-gray-600">Collect from the restaurant</div>
+                        </div>
+                      </div>
                     </label>
                   </div>
                 </div>
               </div>
-              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <div>
-                  <label className="block font-semibold text-sm text-slate-500 pl-3">
-                    Delivery Date
-                  </label>
-                  <DatePicker
-                    value={formData.deliveryDate}
-                    onChange={(date) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        deliveryDate: date,
-                      }));
-                    }}
-                    minDate={new Date()}
-                    className="w-full"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-sm text-slate-500 pl-3">
-                    Delivery Time
-                  </label>
-                  <TimePicker
-                    value={formData.deliveryTime}
-                    onChange={(time) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        deliveryTime: time,
-                      }));
-                    }}
-                    minTime={
-                      format(formData.deliveryDate, "yyyy-MM-dd") ===
-                      format(new Date(), "yyyy-MM-dd")
-                        ? format(new Date(), "HH:mm")
-                        : undefined
-                    }
-                    deliveryDate={formData.deliveryDate} // Pass deliveryDate for time validation
-                    className="w-full"
-                  />
-                </div>
+            </div>
+          </div>
+          <div className="rounded-2xl p-8 shadow-sm border border-gray-200 h-fit flex flex-col min-w-[320px]">
+            <h3 className="font-black text-2xl mb-6 flex items-center gap-2 text-rose-600">
+              <Receipt className="w-6 h-6" />
+              Order Summary
+            </h3>
+            <div className="rounded-xl p-6 mb-6">
+              <div className="flex justify-between text-base font-bold mb-2">
+                <span className="flex items-center gap-2">
+                  <ShoppingCart className="w-4 h-4" />
+                  Subtotal
+                </span>
+                <span>${subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-base font-bold mb-2">
+                <span className="flex items-center gap-2">
+                  <HiOutlineReceiptTax />
+                  Tax
+                </span>
+                <span>${tax.toFixed(2)}</span>
+              </div>
+              <div className="mb-2">
+                {deliveryFees.map((fee) => (
+                  <div
+                    key={fee.vendorId}
+                    className="flex justify-between text-sm text-gray-700"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Truck className="w-4 h-4" />
+                      {fee.storeName}
+                    </span>
+                    <span>${fee.vendorDeliveryFee.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-between text-base font-bold mb-2">
+                <span className="flex items-center gap-2">
+                  <Truck className="w-4 h-4" />
+                  Delivery
+                </span>
+                <span>${totalDeliveryFee.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-lg font-black mt-2">
+                <span className="flex items-center gap-2">
+                  <LuSquareSigma className="w-5 h-5" />
+                  Total
+                </span>
+                <span className="text-rose-600">${total.toFixed(2)}</span>
               </div>
             </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
+            >
+              {!submitting ? <Lock className="w-5 h-5" /> : ""}
+              {submitting ? <Spinner /> : "PLACE ORDER"}
+            </button>
+            <div className="text-xs text-center text-gray-500 mt-4">
+              By placing your order you agree to the{" "}
+              <a href="/privacy-policy" className="underline text-rose-600">
+                Privacy Policy
+              </a>{" "}
+              and{" "}
+              <a href="/terms-and-conditions" className="underline text-rose-600">
+                Terms & Conditions
+              </a>
+            </div>
           </div>
         </div>
-        <div className="rounded-2xl p-8 shadow-sm border border-gray-200 h-fit flex flex-col min-w-[320px]">
-          <h3 className="font-black text-2xl mb-6 flex items-center gap-2 text-rose-600">
-            <Receipt className="w-6 h-6" />
-            Order Summary
-          </h3>
-          <div className="rounded-xl p-6 mb-6">
-            <div className="flex justify-between text-base font-bold mb-2">
-              <span className="flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4" />
-                Subtotal
-              </span>
-              <span>${subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-base font-bold mb-2">
-              <span className="flex items-center gap-2">
-                <HiOutlineReceiptTax />
-                Tax
-              </span>
-              <span>${tax.toFixed(2)}</span>
-            </div>
-            <div className="mb-2">
-              {deliveryFees.map((fee) => (
-                <div
-                  key={fee.vendorId}
-                  className="flex justify-between text-sm text-gray-700"
-                >
-                  <span className="flex items-center gap-2">
-                    <Truck className="w-4 h-4" />
-                    {fee.storeName}
-                  </span>
-                  <span>${fee.vendorDeliveryFee.toFixed(2)}</span>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-between text-base font-bold mb-2">
-              <span className="flex items-center gap-2">
-                <Truck className="w-4 h-4" />
-                Delivery
-              </span>
-              <span>${totalDeliveryFee.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-lg font-black mt-2">
-              <span className="flex items-center gap-2">
-                <LuSquareSigma className="w-5 h-5" />
-                Total
-              </span>
-              <span className="text-rose-600">${total.toFixed(2)}</span>
-            </div>
-          </div>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
-          >
-            {!submitting ? <Lock className="w-5 h-5" /> : ""}
-            {submitting ? <Spinner /> : "PLACE ORDER"}
-          </button>
-          <div className="text-xs text-center text-gray-500 mt-4">
-            By placing your order you agree to the{" "}
-            <a href="/privacy-policy" className="underline text-rose-600">
-              Privacy Policy
-            </a>{" "}
-            and{" "}
-            <a href="/terms-and-conditions" className="underline text-rose-600">
-              Terms & Conditions
-            </a>
-          </div>
-        </div>
-      </div>
-    </form>
+      </form>
+    </LocalizationProvider>
   );
 };
 

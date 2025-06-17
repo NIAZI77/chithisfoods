@@ -1,11 +1,15 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 import Loading from "../loading";
 
 const Page = () => {
   const router = useRouter();
-  router.push("/profile/order-history");
+  
+  useEffect(() => {
+    router.push("/profile/order-history");
+  }, [router]);
+
   return <Loading />;
 };
 
