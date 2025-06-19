@@ -32,9 +32,7 @@ export default function PopularDishes({ zipcode }) {
           },
         }
       );
-
       const result = await response.json();
-
       if (response.ok) {
         setPopularDishes(result.data || []);
       } else {

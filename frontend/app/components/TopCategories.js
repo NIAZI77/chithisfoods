@@ -25,11 +25,9 @@ export default function TopCategories() {
             },
           }
         );
-
         if (!response.ok) {
           throw new Error("Failed to fetch categories");
         }
-
         const data = await response.json();
         setCategories(data.data || []);
       } catch (error) {

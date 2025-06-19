@@ -8,19 +8,19 @@ import FoodPromo from "../components/FoodPromo";
 import TopChefs from "../components/TopChefs";
 import PopularDishes from "../components/PopularDishes";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Loading from "../loading";
 import ZipcodeDialogue from "../components/zipcodeDialogue";
-import Spinner from "../components/Spinner";
+import DiscoverSomethingNew from "../components/DiscoverNew";
 
 export default function Explore() {
   const [loading, setLoading] = useState(true);
   const [zipcode, setZipcode] = useState("");
   const router = useRouter();
 
-  const handleZipcodeChange = (e) => {
+  const handleZipcodeChange = useCallback((e) => {
     setZipcode(e.detail.zipcode);
-  };
+  }, []);
 
   useEffect(() => {
     const savedZipcode = localStorage.getItem("zipcode");
@@ -28,12 +28,12 @@ export default function Explore() {
       router.push("/");
       return;
     }
-
     setZipcode(savedZipcode);
     setLoading(false);
     window.addEventListener("zipcodeChange", handleZipcodeChange);
-    return () =>
+    return () => {
       window.removeEventListener("zipcodeChange", handleZipcodeChange);
+    };
   }, [router, handleZipcodeChange]);
 
   if (loading) return <Loading />;
@@ -63,7 +63,6 @@ export default function Explore() {
               </div>
             </div>
           </div>
-
           <div className="flex justify-center items-center order-1 lg:order-2">
             <div className="w-full h-full flex justify-center items-center">
               <Image
@@ -78,10 +77,10 @@ export default function Explore() {
           </div>
         </div>
       </section>
-
       <TopCategories />
       <TopChefs zipcode={zipcode} />
       <PopularDishes zipcode={zipcode} />
+      <DiscoverSomethingNew zipcode={zipcode} />
       <Testimonials />
       <FoodPromo />
     </div>

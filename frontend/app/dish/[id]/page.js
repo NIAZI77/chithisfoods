@@ -125,6 +125,7 @@ export default function DishPage() {
   };
 
   const fetchVendorDetails = async (vendorId) => {
+    setLoading(true);
     try {
       if (!process.env.NEXT_PUBLIC_STRAPI_HOST || !process.env.NEXT_PUBLIC_STRAPI_TOKEN) {
         throw new Error(API_ERROR_MESSAGES.CONFIG_MISSING);
@@ -159,6 +160,8 @@ export default function DishPage() {
     } catch (error) {
       console.error("Error fetching vendor:", error);
       toast.error(error.message || API_ERROR_MESSAGES.FETCH_ERROR);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -374,7 +377,9 @@ export default function DishPage() {
           <div className="space-y-4 p-4 h-fit">
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold">
-                {dishDetails.name.replace(/\b\w/g, (c) => c.toUpperCase())}
+                {vendorDetails?.name
+                  ? vendorDetails.name.replace(/\b\w/g, (c) => c.toUpperCase())
+                  : "Loading..."}
               </h1>
               <div className="text-2xl font-bold text-red-600">
                 ${calculateTotalPrice().toFixed(2)}

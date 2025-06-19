@@ -27,7 +27,6 @@ export default function ZipcodeDialogue() {
   const router = useRouter();
 
   useEffect(() => {
-    // Load zipcode from localStorage on component mount
     const savedZipcode = localStorage.getItem("zipcode");
     if (savedZipcode) {
       setZipcode(savedZipcode);

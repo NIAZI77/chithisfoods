@@ -5,12 +5,14 @@ import { Star, Plus } from "lucide-react";
 import { FaUser } from "react-icons/fa";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import Loading from "../loading";
 
 export default function DishCard({ dish }) {
   const [vendorData, setVendorData] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchVendorData = async () => {
+      setLoading(true);
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${dish.vendorId}?populate=*`,
@@ -28,6 +30,8 @@ export default function DishCard({ dish }) {
         }
       } catch (error) {
         console.error("Error fetching vendor data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -35,7 +39,7 @@ export default function DishCard({ dish }) {
       fetchVendorData();
     }
   }, [dish.vendorId]);
-
+if(loading) return <Loading />;
   return (
     <Link
       href={`/dish/${dish.documentId}`}
@@ -56,7 +60,9 @@ export default function DishCard({ dish }) {
             className="rounded-full w-8 h-8 object-cover object-center"
           />
           <div>
-            <p className="font-semibold text-sm">{vendorData?.storeName || "Vendor"}</p>
+            <p className="font-semibold text-sm">
+              {vendorData?.storeName || "Vendor"}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-1 text-yellow-500 text-sm font-semibold">
@@ -78,7 +84,9 @@ export default function DishCard({ dish }) {
 
       {/* Title and Serving */}
       <div className="flex items-center justify-between mb-1">
-        <h3 className="text-lg font-semibold capitalize truncate">{dish.name.replace("-"," ")}</h3>
+        <h3 className="text-lg font-semibold capitalize truncate">
+          {dish.name.replace("-", " ")}
+        </h3>
         <div className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-sm flex items-center gap-1 justify-center">
           Servings <FaUser /> {dish.servings}
         </div>
@@ -87,7 +95,9 @@ export default function DishCard({ dish }) {
       {/* Category and Subcategory */}
       <p className="text-xs text-gray-500 capitalize">
         {dish.category.replace("-", " ")} ·{" "}
-        <span className="text-green-500 font-medium text-sm capitalize truncate">{dish.subcategory.replace("-", " ")}</span>
+        <span className="text-green-500 font-medium text-sm capitalize truncate">
+          {dish.subcategory.replace("-", " ")}
+        </span>
       </p>
 
       {/* Add to Cart Section */}

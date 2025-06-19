@@ -31,7 +31,7 @@ const VendorCard = ({ chef }) => {
             <img
               src={chef?.avatar?.url || "/vendor-avatar.jpg"}
               alt={chef?.avatar?.alternativeText || "Vendor Avatar"}
-              className="object-cover rounded-full border-5 border-white"
+              className="object-cover rounded-full border-5 border-white w-20 h-20"
             />
           </div>
         </div>
@@ -55,10 +55,13 @@ const VendorCard = ({ chef }) => {
         </div>
       </div>
       <div className="flex items-center justify-end gap-2 p-2 text-gray-600 text-xs">
-        <VerificationBadge status={chef.verificationStatus} size="small"/>
+        <VerificationBadge status={chef.verificationStatus} size="small" />
         <span className="flex items-center gap-1 bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">
           <MapPin size={14} />
-          {chef?.city.replace(/\b\w/g, (c) => c.toUpperCase()) || "Location"}, {chef?.zipcode || "address"}
+          {chef?.city.length < 10
+            ? chef?.city || "Location"
+            : chef?.city.substr(0, 6) + "..." || "Location"}
+          , {chef?.zipcode || "address"}
         </span>
       </div>
     </Link>
