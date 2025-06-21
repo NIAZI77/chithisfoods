@@ -2,24 +2,26 @@ import React from "react";
 
 const Page = () => {
   return (
-    <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] w-[80%] mx-auto my-8">
+    <div className="bg-white rounded-2xl p-2 md:p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] md:w-[80%] w-[90%] mx-auto">
       <h1 className="text-3xl font-bold mb-6">
         Terms of Service for Chithi&apos;s Foods
       </h1>
 
-      <p className="mb-6">
-        Welcome to <strong>Chithi&apos;s Foods</strong>! These{" "}
-        <strong>Terms of Service</strong> (&quot;Terms&quot;) govern your use of
-        our website, mobile applications, and services (collectively, the
-        &quot;Services&quot;). By accessing or using our Services, you agree to
-        be bound by these Terms. If you do not agree to these Terms, please do
-        not use our Services.
-      </p>
-
       <div className="space-y-6">
         <section>
-          <h2 className="text-xl font-semibold mb-2">1. Acceptance of Terms</h2>
-          <p>
+          <p className="text-gray-700 mb-4">
+            Welcome to <strong>Chithi&apos;s Foods</strong>! These{" "}
+            <strong>Terms of Service</strong> (&quot;Terms&quot;) govern your use of
+            our website, mobile applications, and services (collectively, the
+            &quot;Services&quot;). By accessing or using our Services, you agree to
+            be bound by these Terms. If you do not agree to these Terms, please do
+            not use our Services.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-3">1. Acceptance of Terms</h2>
+          <p className="text-gray-700">
             By using <strong>Chithi&apos;s Foods</strong> Services, you confirm
             that you are at least <strong>18 years old</strong> or have the
             consent of a parent or legal guardian to use our Services. You also
@@ -28,8 +30,8 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">2. Services Provided</h2>
-          <p>
+          <h2 className="text-xl font-semibold mb-3">2. Services Provided</h2>
+          <p className="text-gray-700">
             <strong>Chithi&apos;s Foods</strong> provides a platform for
             ordering food, purchasing products, and accessing related services.
             We reserve the right to modify, suspend, or discontinue any part of
@@ -38,8 +40,8 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">3. User Accounts</h2>
-          <p>
+          <h2 className="text-xl font-semibold mb-3">3. User Accounts</h2>
+          <p className="text-gray-700">
             To access certain features of our Services, you may need to create
             an account. You are responsible for maintaining the{" "}
             <strong>confidentiality of your account information</strong>,
@@ -50,10 +52,10 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">
+          <h2 className="text-xl font-semibold mb-3">
             4. Ordering and Payments
           </h2>
-          <div className="space-y-2">
+          <div className="space-y-2 text-gray-700">
             <p>
               <strong>Orders:</strong> By placing an order through our Services,
               you agree to provide{" "}
@@ -75,8 +77,8 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">5. Delivery</h2>
-          <p>
+          <h2 className="text-xl font-semibold mb-3">5. Delivery</h2>
+          <p className="text-gray-700">
             <strong>Chithi&apos;s Foods</strong> aims to deliver your orders
             promptly. However, delivery times are <strong>estimates</strong> and
             may vary due to factors beyond our control. We are not liable for
@@ -86,8 +88,8 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">6. Refunds and Returns</h2>
-          <div className="space-y-2">
+          <h2 className="text-xl font-semibold mb-3">6. Refunds and Returns</h2>
+          <div className="space-y-2 text-gray-700">
             <p>
               <strong>Refunds:</strong> Refunds may be issued for canceled
               orders or in cases of incorrect or unsatisfactory orders. Refund
@@ -103,9 +105,9 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">7. User Conduct</h2>
-          <p>You agree not to:</p>
-          <ul className="list-disc pl-6 space-y-1">
+          <h2 className="text-xl font-semibold mb-3">7. User Conduct</h2>
+          <p className="text-gray-700 mb-2">You agree not to:</p>
+          <ul className="list-disc pl-6 text-gray-700 space-y-1">
             <li>
               Use our Services for any <strong>unlawful purpose</strong>.
             </li>
@@ -125,10 +127,10 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">
+          <h2 className="text-xl font-semibold mb-3">
             8. Intellectual Property
           </h2>
-          <p>
+          <p className="text-gray-700">
             All content on our Services, including text, graphics, logos, and
             images, is the <strong>property of Chithi&apos;s Foods</strong> or
             its licensors and is protected by intellectual property laws. You
@@ -138,8 +140,8 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">9. Privacy</h2>
-          <p>
+          <h2 className="text-xl font-semibold mb-3">9. Privacy</h2>
+          <p className="text-gray-700">
             Your use of our Services is subject to our{" "}
             <strong>Privacy Policy</strong>, which explains how we collect, use,
             and protect your personal information. By using our Services, you
@@ -148,10 +150,10 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">
+          <h2 className="text-xl font-semibold mb-3">
             10. Limitation of Liability
           </h2>
-          <p>
+          <p className="text-gray-700">
             <strong>Chithi&apos;s Foods</strong> is not liable for any indirect,
             incidental, or consequential damages arising from your use of our
             Services. Our total liability to you for any claim is limited to the
@@ -160,8 +162,8 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">11. Indemnification</h2>
-          <p>
+          <h2 className="text-xl font-semibold mb-3">11. Indemnification</h2>
+          <p className="text-gray-700">
             You agree to indemnify and hold harmless{" "}
             <strong>Chithi&apos;s Foods</strong>, its affiliates, and their
             respective officers, directors, and employees from any claims,
@@ -171,8 +173,8 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">12. Termination</h2>
-          <p>
+          <h2 className="text-xl font-semibold mb-3">12. Termination</h2>
+          <p className="text-gray-700">
             We reserve the right to <strong>suspend or terminate</strong> your
             access to our Services at any time, without notice, for any reason,
             including violation of these Terms.
@@ -180,8 +182,8 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">13. Changes to Terms</h2>
-          <p>
+          <h2 className="text-xl font-semibold mb-3">13. Changes to Terms</h2>
+          <p className="text-gray-700">
             We may update these Terms from time to time. Any changes will be
             posted on this page, and your continued use of our Services
             constitutes <strong>acceptance of the revised Terms</strong>.
@@ -189,25 +191,23 @@ const Page = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">14. Governing Law</h2>
-          <p>
+          <h2 className="text-xl font-semibold mb-3">14. Governing Law</h2>
+          <p className="text-gray-700">
             These Terms are governed by the laws of{" "}
-            <strong>[Insert Jurisdiction]</strong>. Any disputes arising from
+            <strong>Illinois, United States</strong>. Any disputes arising from
             these Terms or your use of our Services will be resolved in the
-            courts of <strong>[Insert Jurisdiction]</strong>.
+            courts of <strong>Illinois, United States</strong>.
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">15. Contact Us</h2>
-          <p>
+          <h2 className="text-xl font-semibold mb-3">15. Contact Us</h2>
+          <p className="text-gray-700 mb-4">
             If you have any questions or concerns about these Terms, please
             contact us at:
           </p>
-          <div className="mt-2">
-            <p>
-              <strong>Chithi&apos;s Foods</strong>
-            </p>
+          <div className="pl-6 text-gray-700">
+            <p className="font-semibold">Chithi&apos;s Foods</p>
             <p>
               <strong>Email:</strong>{" "}
               <a
@@ -218,10 +218,10 @@ const Page = () => {
               </a>
             </p>
             <p>
-              <strong>Phone:</strong> [Insert Phone Number]
+              <strong>Phone:</strong> 312-985-6684
             </p>
             <p>
-              <strong>Address:</strong> [Insert Physical Address]
+              <strong>Address:</strong> 2501 Chatham Rd Springfield, IL 62704
             </p>
           </div>
         </section>

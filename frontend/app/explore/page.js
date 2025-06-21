@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import Loading from "../loading";
 import ZipcodeDialogue from "../components/zipcodeDialogue";
-import DiscoverSomethingNew from "../components/DiscoverNew";
 
 export default function Explore() {
   const [loading, setLoading] = useState(true);
@@ -80,7 +79,6 @@ export default function Explore() {
       <TopCategories />
       <TopChefs zipcode={zipcode} />
       <PopularDishes zipcode={zipcode} />
-      <DiscoverSomethingNew zipcode={zipcode} />
       <Testimonials />
       <FoodPromo />
     </div>

@@ -2,11 +2,12 @@
 
 import { useParams } from "next/navigation";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Menu, Search, X, ChevronRight } from "lucide-react";
+import { Menu, Search, X, ChevronRight, FilterIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Pagination from "@/app/components/pagination";
 import DishCard from "@/app/components/DishCard";
+import FilterPopup from "./components/FilterPopup";
 
 const Page = () => {
   const { slug } = useParams();
@@ -24,6 +25,12 @@ const Page = () => {
   const [currentSearchQuery, setCurrentSearchQuery] = useState("");
   const [subSubCategories, setSubSubCategories] = useState([]);
   const [activeSubSubCategory, setActiveSubSubCategory] = useState("All");
+  const [filterPopupOpen, setFilterPopupOpen] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState({
+    rating: 0,
+    spiceLevel: "",
+    priceRange: [0, 1000],
+  });
 
   const fetchDishes = useCallback(
     async (subcategory, page, search = "", subSubCategory = "All") => {
@@ -125,38 +132,6 @@ const Page = () => {
     getSubcategories();
     fetchDishes("All", 1, "", activeSubSubCategory);
   }, []);
-  // Seeded shuffle logic
-  function seededShuffle(array, seed) {
-    const result = [...array];
-    const random = mulberry32(seed);
-
-    for (let i = result.length - 1; i > 0; i--) {
-      const j = Math.floor(random() * (i + 1));
-      [result[i], result[j]] = [result[j], result[i]];
-    }
-
-    return result;
-  }
-
-  // Seed generator based on today's date (YYYYMMDD)
-  function getDailySeed() {
-    const today = new Date();
-    return (
-      today.getFullYear() * 10000 +
-      (today.getMonth() + 1) * 100 +
-      today.getDate()
-    );
-  }
-
-  // Deterministic random generator
-  function mulberry32(seed) {
-    return function () {
-      let t = (seed += 0x6d2b79f5);
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
 
   useEffect(() => {
     setCurrentPage(1);
@@ -165,26 +140,42 @@ const Page = () => {
 
   const filteredDishes = useMemo(() => {
     let dishes = allDishes;
-  
+
     if (activeSubcategory !== "All") {
       dishes = dishes.filter(
         (dish) =>
           dish?.subcategory?.toLowerCase() === activeSubcategory.toLowerCase()
       );
     }
-  
+
     if (activeSubSubCategory !== "All") {
       dishes = dishes.filter(
         (dish) =>
-          dish?.subSubCategory?.toLowerCase() === activeSubSubCategory.toLowerCase()
+          dish?.subSubCategory?.toLowerCase() ===
+          activeSubSubCategory.toLowerCase()
       );
     }
-  
-    // ✅ Apply seeded daily shuffle here
-    const seed = getDailySeed();
-    return seededShuffle(dishes, seed);
-  }, [allDishes, activeSubcategory, activeSubSubCategory]);
-  
+
+    // Apply additional filters
+    if (appliedFilters.rating > 0) {
+      dishes = dishes.filter((dish) => dish.rating >= appliedFilters.rating);
+    }
+
+    if (appliedFilters.spiceLevel) {
+      dishes = dishes.filter((dish) => 
+        dish.spiciness && dish.spiciness.includes(appliedFilters.spiceLevel)
+      );
+    }
+
+    if (appliedFilters.priceRange[0] > 0 || appliedFilters.priceRange[1] < 100) {
+      dishes = dishes.filter((dish) => 
+        dish.price >= appliedFilters.priceRange[0] && 
+        dish.price <= appliedFilters.priceRange[1]
+      );
+    }
+
+    return dishes;
+  }, [allDishes, activeSubcategory, activeSubSubCategory, appliedFilters]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -246,6 +237,16 @@ const Page = () => {
     setSubSubCategories(uniqueSubSubCategories);
   }, [allDishes, activeSubcategory]);
 
+  const handleApplyFilters = (filters) => {
+    setAppliedFilters(filters);
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = appliedFilters.rating > 0 || 
+    appliedFilters.spiceLevel || 
+    appliedFilters.priceRange[0] > 0 || 
+    appliedFilters.priceRange[1] < 100;
+
   if (loading) return <Loading />;
 
   return (
@@ -266,9 +267,8 @@ const Page = () => {
       )}
 
       <aside
-        className={`${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 duration-300 transition-all fixed md:static top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-20 p-6 flex flex-col gap-6 pt-16 md:pt-0`}
+        className={`${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } md:translate-x-0 duration-300 transition-all fixed md:static top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-20 p-6 flex flex-col gap-6 pt-16 md:pt-0`}
       >
         <div className="md:hidden flex justify-end mb-4">
           <button
@@ -283,9 +283,8 @@ const Page = () => {
           <p className="font-semibold text-red-600 mb-4">Sub Categories</p>
           <ul className="space-y-2 text-sm text-gray-700">
             <li
-              className={`cursor-pointer hover:text-red-600 flex items-center justify-between ${
-                activeSubcategory === "All" ? "text-red-600 font-bold" : ""
-              }`}
+              className={`cursor-pointer hover:text-red-600 flex items-center justify-between ${activeSubcategory === "All" ? "text-red-600 font-bold" : ""
+                }`}
               onClick={() => handleSubcategoryChange("All")}
             >
               <span>All</span>
@@ -297,9 +296,8 @@ const Page = () => {
               subcategories.map((item) => (
                 <li
                   key={item}
-                  className={`cursor-pointer hover:text-red-600 capitalize flex items-center justify-between ${
-                    activeSubcategory === item ? "text-red-600 font-bold" : ""
-                  }`}
+                  className={`cursor-pointer hover:text-red-600 capitalize flex items-center justify-between ${activeSubcategory === item ? "text-red-600 font-bold" : ""
+                    }`}
                   onClick={() => handleSubcategoryChange(item)}
                 >
                   <span>{item}</span>
@@ -320,11 +318,10 @@ const Page = () => {
               </p>
               <ul className="space-y-2 text-sm text-gray-700">
                 <li
-                  className={`cursor-pointer hover:text-red-600 flex items-center justify-between ${
-                    activeSubSubCategory === "All"
-                      ? "text-red-600 font-bold"
-                      : ""
-                  }`}
+                  className={`cursor-pointer hover:text-red-600 flex items-center justify-between ${activeSubSubCategory === "All"
+                    ? "text-red-600 font-bold"
+                    : ""
+                    }`}
                   onClick={() => setActiveSubSubCategory("All")}
                 >
                   <span>All</span>
@@ -335,11 +332,10 @@ const Page = () => {
                 {subSubCategories.map((ssc) => (
                   <li
                     key={ssc}
-                    className={`cursor-pointer hover:text-red-600 capitalize flex items-center justify-between ${
-                      activeSubSubCategory === ssc
-                        ? "text-red-600 font-bold"
-                        : ""
-                    }`}
+                    className={`cursor-pointer hover:text-red-600 capitalize flex items-center justify-between ${activeSubSubCategory === ssc
+                      ? "text-red-600 font-bold"
+                      : ""
+                      }`}
                     onClick={() => setActiveSubSubCategory(ssc)}
                   >
                     <span>{ssc}</span>
@@ -359,26 +355,42 @@ const Page = () => {
           <h1 className="text-2xl font-bold text-gray-800 capitalize">
             {slug?.replace("-", " ")}
           </h1>
-          <form onSubmit={handleSearch} className="flex">
-            <div className="relative flex items-center">
-              <input
-                type="search"
-                name="search"
-                id="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search dishes..."
-                className="bg-gray-100 pl-10 pr-4 py-2 rounded-l-full border-none outline-none w-full sm:w-64"
-              />
-              <Search className="w-5 h-5 text-gray-500 absolute left-3" />
-            </div>
-            <button
-              type="submit"
-              className="bg-red-600 text-white px-3 py-2 rounded-r-full border-none outline-none hover:bg-red-700 transition duration-200"
+          <div className="flex items-center gap-2 w-full sm:w-auto flex-col-reverse md:flex-row">
+            <form onSubmit={handleSearch} className="flex">
+              <div className="relative flex items-center">
+                <input
+                  type="search"
+                  name="search"
+                  id="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search dishes..."
+                  className="bg-gray-100 pl-10 pr-4 py-2 rounded-l-full border-none outline-none w-full sm:w-64"
+                />
+                <Search className="w-5 h-5 text-gray-500 absolute left-3" />
+              </div>
+              <button
+                type="submit"
+                className="bg-red-600 text-white px-3 py-2 rounded-r-full border-none outline-none hover:bg-red-700 transition duration-200"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+            </form>
+            <button 
+              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                hasActiveFilters 
+                  ? "bg-red-100 text-red-700 border border-red-300" 
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+              onClick={() => setFilterPopupOpen(true)}
             >
-              <Search className="w-5 h-5" />
+              <FilterIcon className="w-4 h-4" />
+              <span className="font-medium">Filters</span>
+              {hasActiveFilters && (
+                <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+              )}
             </button>
-          </form>
+          </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 2xl:grid-cols-4 place-items-center">
           {filteredDishes.length > 0 ? (
@@ -398,6 +410,13 @@ const Page = () => {
           />
         )}
       </main>
+
+      <FilterPopup
+        isOpen={filterPopupOpen}
+        onClose={() => setFilterPopupOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        currentFilters={appliedFilters}
+      />
     </div>
   );
 };

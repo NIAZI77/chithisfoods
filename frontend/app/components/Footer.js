@@ -6,6 +6,8 @@ import { useEffect } from "react";
 import { FaFacebookF } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { RiInstagramFill } from "react-icons/ri";
+import {  FaMapMarkerAlt } from "react-icons/fa";
+import { FaPhone } from "react-icons/fa6";
 
 const Footer = () => {
   const pathname = usePathname();
@@ -19,10 +21,11 @@ const Footer = () => {
   }
 
   return (
-    <footer className="bg-white pt-10 pb-3">
+    <footer className="bg-white pt-10 pb-3 w-full sm:w-[90%] md:w-[80%] mx-auto">
       <div className="mx-auto w-full max-w-screen-xl px-6 md:px-8">
-        <div className="flex items-start justify-around flex-wrap">
-          <div className="space-y-6 md:max-w-72">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+          {/* Company Info Section */}
+          <div className="space-y-6">
             <Link href="/" className="inline-flex items-center">
               <img src="/logo.png" alt="Logo" className="w-12 md:w-20 h-auto" />
             </Link>
@@ -54,16 +57,39 @@ const Footer = () => {
               </Link>
             </div>
           </div>
-
-    
-
-          <div>
-            <div className="mb-8">
+ {/* Contact Section */}
+ <div className="space-y-6">
+            <div>
+              <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase">
+                Contact
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <FaMapMarkerAlt className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-gray-700 font-medium">
+                    2501 Chatham Rd Springfield, IL 62704
+                  </p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <FaPhone className="w-4 h-4 text-rose-500 flex-shrink-0" />
+                  <a 
+                    href="tel:3129856684" 
+                    className="text-sm text-gray-700 font-medium hover:text-rose-500 transition-colors"
+                  >
+                    (312) 985-6684
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Legal Section */}
+          <div className="space-y-6">
+            <div>
               <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase">
                 Legal
               </h2>
-              <ul className="text-gray-600 font-medium">
-                <li className="mb-3">
+              <ul className="text-gray-600 font-medium space-y-3">
+                <li>
                   <Link
                     href="/terms-and-conditions"
                     className="text-sm hover:underline hover:text-rose-500 transition-all"
@@ -71,7 +97,7 @@ const Footer = () => {
                     Terms & Conditions
                   </Link>
                 </li>
-                <li className="mb-3">
+                <li>
                   <Link
                     href="/privacy-policy"
                     className="text-sm hover:underline hover:text-rose-500 transition-all"
@@ -79,7 +105,7 @@ const Footer = () => {
                     Privacy Policy
                   </Link>
                 </li>
-                <li className="mb-3">
+                <li>
                   <Link
                     href="/vendor-privacy-policy"
                     className="text-sm hover:underline hover:text-rose-500 transition-all"
@@ -90,6 +116,8 @@ const Footer = () => {
               </ul>
             </div>
           </div>
+
+         
         </div>
       </div>
     </footer>
