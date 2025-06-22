@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import { BadgeCheck, XCircle } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { FaUsers } from 'react-icons/fa';
 import {
     Select,
     SelectContent,
@@ -74,6 +75,35 @@ const VendorsTable = ({
         handleCloseModal();
     };
 
+    // Empty state component
+    const EmptyState = () => (
+        <div className="flex flex-col items-center justify-center py-12 px-4">
+            <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mb-4">
+                        <FaUsers className="w-8 h-8 text-pink-400" />
+                    </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2 capitalize text-pink-600">No Vendors Found</h3>
+            <p className="text-gray-500 text-center max-w-md mb-6">
+                {searchQuery || filter !== 'all' || docFilter !== 'all' 
+                    ? "Try adjusting your search criteria or filters to find more vendors."
+                    : "There are currently no vendors registered in the system."
+                }
+            </p>
+            {(searchQuery || filter !== 'all' || docFilter !== 'all') && (
+                <button
+                    onClick={() => {
+                        onSearchChange('');
+                        onFilterChange('all');
+                        onDocFilterChange('all');
+                    }}
+                    className="inline-flex items-center px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors duration-200"
+                >
+                    <Search className="w-4 h-4 mr-2" />
+                    Clear filters
+                </button>
+            )}
+        </div>
+    );
+
     return (
         <>
             <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
@@ -145,8 +175,8 @@ const VendorsTable = ({
                                 </tr>
                             ) : vendors.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
-                                        No vendors found
+                                    <td colSpan="4" className="px-6 py-4">
+                                        <EmptyState />
                                     </td>
                                 </tr>
                             ) : (

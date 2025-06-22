@@ -2,7 +2,7 @@ import React from "react";
 
 const Page = () => {
   return (
-    <div className="bg-white rounded-2xl p-2 md:p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] md:w-[80%] w-[90%] mx-auto">
+    <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] md:w-[80%] w-[95%] mx-auto">
       <h1 className="text-3xl font-bold mb-6">
         Terms of Service for Chithi&apos;s Foods
       </h1>

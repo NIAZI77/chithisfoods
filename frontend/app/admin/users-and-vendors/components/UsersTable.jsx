@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FaUserCheck, FaUserTimes, FaSearch } from 'react-icons/fa';
+import { FaUserCheck, FaUserTimes, FaSearch, FaUsers } from 'react-icons/fa';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
     Select,
@@ -32,6 +32,29 @@ const UsersTable = ({
             onSearchSubmit(e);
         }
     };
+
+    const EmptyState = () => (
+        <tr>
+            <td colSpan="6" className="px-6 py-12">
+                <div className="flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mb-4">
+                        <FaUsers className="w-8 h-8 text-pink-400" />
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2 capitalize text-pink-600">
+                        {searchQuery ? 'No Users Found' : 'No Users Available'}
+                    </h3>
+                    <p className="text-gray-500 max-w-sm">
+                        {searchQuery 
+                            ? `No users match your search for "${searchQuery}". Try adjusting your search terms.`
+                            : filter !== 'all' 
+                                ? `No ${filter} users found. Try changing the filter or check back later.`
+                                : 'There are currently no users registered in the system.'
+                        }
+                    </p>
+                </div>
+            </td>
+        </tr>
+    );
 
     return (
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mb-6">
@@ -95,11 +118,7 @@ const UsersTable = ({
                                 </td>
                             </tr>
                         ) : users.length === 0 ? (
-                            <tr>
-                                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                                    No users found
-                                </td>
-                            </tr>
+                            <EmptyState />
                         ) : (
                             users.map((user) => (
                                 <tr key={user.id}>

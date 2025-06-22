@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
-import { Edit, Plus, Trash2, AlertTriangle } from "lucide-react";
+import { Edit, Plus, Trash2, AlertTriangle, ChefHat, Search, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Link from "next/link";
@@ -226,14 +226,46 @@ export default function ManageInventory() {
           <tbody className="text-gray-700">
             {loadingMenu ? (
               <tr className="h-12">
-                <td colSpan="9" className="p-4 text-center text-gray-400">
-                  Loading menu, please wait...
+                <td colSpan="9" className="p-8 text-center">
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                      <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-orange-600 mb-2 capitalize">
+                      Loading your dishes...
+                    </h3>
+                    <p className="text-gray-500 text-sm">
+                      Please wait while we fetch your menu items
+                    </p>
+                  </div>
                 </td>
               </tr>
             ) : filteredDishes.length === 0 ? (
               <tr className="h-12">
-                <td colSpan="9" className="p-4 text-center text-gray-400">
-                  No matching dishes found.
+                <td colSpan="9" className="p-8 text-center">
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                      <ChefHat className="w-8 h-8 text-orange-500" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 capitalize text-orange-600">
+                      No dishes found
+                    </h3>
+                    <p className="text-gray-500 text-sm mb-4 max-w-md">
+                      {searchTerm || filterStatus !== "All" 
+                        ? "Try adjusting your search or filters to find what you're looking for."
+                        : "Get started by adding your first dish to your menu."
+                      }
+                    </p>
+                    {!searchTerm && filterStatus === "All" && (
+                      <button
+                        onClick={handleAddDish}
+                        className="bg-orange-500 text-white px-4 py-2 rounded-md font-medium flex items-center gap-2 hover:bg-orange-600 transition-all"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Your First Dish
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ) : (

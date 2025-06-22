@@ -13,6 +13,8 @@ import {
   XCircle,
   AlertCircle,
   Calendar,
+  ShoppingBag,
+  Search,
 } from "lucide-react";
 import {
   Select,
@@ -452,13 +454,49 @@ export default function OrderHistoryPage() {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 place-items-center">
         {orderData.length === 0 ? (
-          <div className="col-span-full text-center py-12">
-            <p className="text-gray-500 text-lg font-medium">No orders found</p>
-            <p className="text-gray-400 text-sm mt-2">
-              {statusFilter !== "all" || timeFilter !== "all"
-                ? "Try adjusting your filters"
-                : "You haven't placed any orders yet"}
-            </p>
+          <div className="col-span-full text-center py-16 px-4">
+            <div className="max-w-md mx-auto">
+              <div className="flex justify-center mb-6">
+                <div className="relative">
+                  <div className="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center">
+                    <ShoppingBag className="w-12 h-12 text-rose-500" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-rose-200 rounded-full flex items-center justify-center">
+                    <Search className="w-4 h-4 text-rose-600" />
+                  </div>
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3 capitalize text-rose-600">
+                {statusFilter !== "all" || timeFilter !== "all"
+                  ? "No orders match your filters"
+                  : "No orders found"}
+              </h3>
+              <p className="text-gray-500 mb-6 leading-relaxed">
+                {statusFilter !== "all" || timeFilter !== "all"
+                  ? "Try adjusting your status or time filters to see more results."
+                  : "You haven't placed any orders yet. Start exploring our delicious menu and place your first order!"}
+              </p>
+              {statusFilter !== "all" || timeFilter !== "all" ? (
+                <button
+                  onClick={() => {
+                    setStatusFilter("all");
+                    setTimeFilter("all");
+                  }}
+                  className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
+                >
+                  <Search className="w-4 h-4" />
+                  Clear Filters
+                </button>
+              ) : (
+                <Link
+                  href="/explore"
+                  className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  Explore Menu
+                </Link>
+              )}
+            </div>
           </div>
         ) : (
           orderData.map((order, idx) => (

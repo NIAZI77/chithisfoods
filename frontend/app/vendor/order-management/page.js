@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
+import { Package, Filter, Clock } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -371,8 +372,27 @@ export default function VendorOrderManagement() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 place-items-center">
         {orders.length === 0 ? (
-          <div className="col-span-full text-center text-gray-500 py-12 text-lg font-semibold">
-            No orders found for the selected criteria.
+          <div className="col-span-full flex flex-col items-center justify-center py-16 px-4">
+            <div className="bg-orange-50 border-2 border-orange-200 rounded-full p-6 mb-6">
+              <Package className="w-16 h-16 text-orange-500" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2 capitalize text-orange-600">
+              No Orders Found
+            </h3>
+            <p className="text-gray-600 text-center max-w-md mb-6">
+              {statusFilter !== "all" || timeFilter !== "all" 
+                ? "No orders match your current filters. Try adjusting your search criteria."
+                : "You haven't received any orders yet. Orders will appear here once customers start placing them."
+              }
+            </p>
+            <div className="flex items-center gap-2 text-sm text-orange-600 bg-orange-50 px-4 py-2 rounded-lg">
+              <Filter className="w-4 h-4" />
+              <span>
+                {statusFilter !== "all" && `Status: ${statusFilter}`}
+                {statusFilter !== "all" && timeFilter !== "all" && " • "}
+                {timeFilter !== "all" && `Time: ${timeFilter === "week" ? "This Week" : "This Month"}`}
+              </span>
+            </div>
           </div>
         ) : (
           orders.map((order) => (

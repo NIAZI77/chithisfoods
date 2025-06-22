@@ -3,9 +3,12 @@ import React, { useEffect, useState } from "react";
 import { FaMapMarkerAlt, FaStar } from "react-icons/fa";
 import { Separator } from "@/components/ui/separator";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import Loading from "@/app/loading";
-import ProductCard from "@/app/components/DishCard";
+import DishCard from "@/app/components/DishCard";
 import VerificationBadge from "@/app/components/VerificationBadge";
+
+import { UserX, ArrowLeft, Search } from "lucide-react";
 
 const Page = () => {
   const [loading, setLoading] = useState(true);
@@ -24,11 +27,11 @@ const Page = () => {
 
   const groupDishesByCategory = (dishes) => {
     if (!Array.isArray(dishes)) return {};
-    
+
     const grouped = {};
     dishes.forEach((dish) => {
       if (!dish) return;
-      
+
       const category = dish.category || 'Uncategorized';
       const subcategory = dish.subcategory || 'General';
 
@@ -45,7 +48,7 @@ const Page = () => {
 
   const getVendorMenu = async (id) => {
     if (!id) return;
-    
+
     setMenuLoading(true);
     try {
       const response = await fetch(
@@ -76,7 +79,7 @@ const Page = () => {
 
   const getVendor = async (username) => {
     if (!username) return;
-    
+
     setLoading(true);
     try {
       const response = await fetch(
@@ -109,7 +112,32 @@ const Page = () => {
   };
 
   if (loading) return <Loading />;
-  if (!vendorData) return <div className="text-center py-10">Vendor not found</div>;
+  if (!vendorData) return (<div className="min-h-screen flex items-center justify-center px-4">
+    <div className="text-center max-w-md">
+      <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-6 mx-auto">
+        <UserX className="w-12 h-12 text-rose-400" />
+      </div>
+      <h3 className="text-xl font-semibold text-gray-800 mb-2 text-rose-600 capitalize">
+        Vendor not found
+      </h3>
+      <p className="text-gray-600 mb-6">
+        Sorry, we couldn't locate this vendor.
+        <br />
+        <span className="text-gray-500 text-sm flex items-center justify-center gap-2 text-center my-2">
+          <Search className="w-4 h-4" /> @{username}
+        </span>
+      </p>
+      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <Link
+          href="/explore"
+          className="px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors flex items-center justify-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Explore Vendors
+        </Link>
+      </div>
+    </div>
+  </div>);
 
   return (
     <div className="md:w-[80%] w-[90%] mx-auto">
@@ -177,7 +205,7 @@ const Page = () => {
                   {Object.entries(subcategories).map(([subcategory, dishes]) => (
                     <div key={subcategory} className="space-y-4">
                       {dishes.map((dish) => (
-                        <ProductCard key={dish.id} dish={dish} />
+                        <DishCard key={dish.id} dish={dish} />
                       ))}
                     </div>
                   ))}

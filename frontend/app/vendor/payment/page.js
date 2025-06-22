@@ -10,6 +10,8 @@ import {
   AlertCircle,
   X,
   Loader2,
+  Receipt,
+  Calendar,
 } from "lucide-react";
 import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
@@ -137,8 +139,22 @@ const TransactionListByDate = ({ transactions, isLoading }) => {
 
   if (transactions?.length === 0) {
     return (
-      <div className="text-center text-gray-500 py-8">
-        No transactions found
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="bg-orange-50 p-8 rounded-2xl border-2 border-orange-200 max-w-md w-full text-center">
+          <div className="bg-orange-100 p-4 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+            <Receipt className="h-10 w-10 text-orange-600" />
+          </div>
+          <h3 className="text-xl font-semibold text-orange-800 mb-3">
+            No Transactions Found
+          </h3>
+          <p className="text-orange-600 mb-6 leading-relaxed">
+            You haven't received any payments yet. Once customers place orders and payments are processed, they will appear here.
+          </p>
+          <div className="flex items-center justify-center space-x-2 text-sm text-orange-500">
+            <Calendar className="h-4 w-4" />
+            <span>Transactions will show up after orders are delivered</span>
+          </div>
+        </div>
       </div>
     );
   }

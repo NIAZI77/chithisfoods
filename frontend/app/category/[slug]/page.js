@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Menu, Search, X, ChevronRight, FilterIcon } from "lucide-react";
+import { Menu, Search, X, ChevronRight, FilterIcon, UtensilsCrossed } from "lucide-react";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Pagination from "@/app/components/pagination";
@@ -162,14 +162,14 @@ const Page = () => {
     }
 
     if (appliedFilters.spiceLevel) {
-      dishes = dishes.filter((dish) => 
+      dishes = dishes.filter((dish) =>
         dish.spiciness && dish.spiciness.includes(appliedFilters.spiceLevel)
       );
     }
 
     if (appliedFilters.priceRange[0] > 0 || appliedFilters.priceRange[1] < 100) {
-      dishes = dishes.filter((dish) => 
-        dish.price >= appliedFilters.priceRange[0] && 
+      dishes = dishes.filter((dish) =>
+        dish.price >= appliedFilters.priceRange[0] &&
         dish.price <= appliedFilters.priceRange[1]
       );
     }
@@ -242,9 +242,9 @@ const Page = () => {
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = appliedFilters.rating > 0 || 
-    appliedFilters.spiceLevel || 
-    appliedFilters.priceRange[0] > 0 || 
+  const hasActiveFilters = appliedFilters.rating > 0 ||
+    appliedFilters.spiceLevel ||
+    appliedFilters.priceRange[0] > 0 ||
     appliedFilters.priceRange[1] < 100;
 
   if (loading) return <Loading />;
@@ -376,12 +376,11 @@ const Page = () => {
                 <Search className="w-5 h-5" />
               </button>
             </form>
-            <button 
-              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
-                hasActiveFilters 
-                  ? "bg-red-100 text-red-700 border border-red-300" 
+            <button
+              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${hasActiveFilters
+                  ? "bg-red-100 text-red-700 border border-red-300"
                   : "text-gray-700 hover:bg-gray-100"
-              }`}
+                }`}
               onClick={() => setFilterPopupOpen(true)}
             >
               <FilterIcon className="w-4 h-4" />
@@ -396,9 +395,38 @@ const Page = () => {
           {filteredDishes.length > 0 ? (
             filteredDishes.map((dish) => <DishCard key={dish.id} dish={dish} />)
           ) : (
-            <p className="text-gray-500 text-center w-full">
-              No dishes available in this category
-            </p>
+            <div className="col-span-full flex flex-col items-center justify-center py-16 px-4">
+              <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-6">
+                <UtensilsCrossed className="w-12 h-12 text-rose-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2 capitalize text-rose-600">
+                No dishes found
+              </h3>
+              <p className="text-gray-600 text-center max-w-md mb-6 ">
+                {hasActiveFilters
+                  ? "No dishes match your current filters. Try adjusting your search criteria or clearing some filters."
+                  : `We couldn't find any dishes in the ${slug?.replace("-", " ")} category for your area.`
+                }
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                {hasActiveFilters && (
+                  <button
+                    onClick={() => {
+                      setAppliedFilters({
+                        rating: 0,
+                        spiceLevel: "",
+                        priceRange: [0, 1000],
+                      });
+                      setCurrentPage(1);
+                    }}
+                    className="px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+                  >
+                    Clear Filters
+                  </button>
+                )}
+
+              </div>
+            </div>
           )}
         </div>
 

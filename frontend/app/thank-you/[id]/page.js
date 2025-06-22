@@ -14,6 +14,8 @@ import {
   Salad,
   BadgePercent,
   Clock,
+  Shield,
+  AlertTriangle,
 } from "lucide-react";
 import { FaShoppingBag, FaStore } from "react-icons/fa";
 import { HiOutlineReceiptTax } from "react-icons/hi";
@@ -51,7 +53,7 @@ const VendorOrderGroup = ({ order }) => {
         </div>
         <OrderStatusBadge status={order.orderStatus} />
       </div>
-      
+
       <div className="space-y-3 sm:space-y-4">
         {order.dishes.map((dish, index) => (
           <div
@@ -177,29 +179,106 @@ export default function ThankYouPage() {
 
   if (isUnauthorized) {
     return (
-      <div className="text-center mt-10">
-        <p className="text-rose-500">
-          You are not authorized to view this order.
-        </p>
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-6 mx-auto">
+            <Shield className="w-12 h-12 text-rose-400" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-3 capitalize text-rose-600">
+            Access Denied
+          </h1>
+          <p className="text-gray-600 mb-6">
+            You are not authorized to view this order. This order belongs to another user account.
+          </p>
+          <div className="space-y-3">
+            <Link
+              href="/profile/order-history"
+              className="inline-block px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+            >
+              View My Orders
+            </Link>
+            <div>
+              <Link
+                href="/"
+                className="text-rose-600 hover:text-rose-700 underline"
+              >
+                Return to Home
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (errorMessage) {
     return (
-      <div className="text-center mt-10">
-        <p className="text-rose-500">{errorMessage}</p>
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-6 mx-auto">
+            <AlertTriangle className="w-12 h-12 text-rose-400" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-3">
+            Error Loading Order
+          </h1>
+          <p className="text-gray-600 mb-6">
+            {errorMessage}
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={() => fetchOrderDetails(orderId)}
+              className="px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+            >
+              Try Again
+            </button>
+            <div>
+              <Link
+                href="/profile/order-history"
+                className="text-rose-600 hover:text-rose-700 underline"
+              >
+                View My Orders
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!orderData?.length) {
     return (
-      <div className="text-center mt-10">
-        <p className="text-gray-500">Order not found</p>
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-6 mx-auto">
+            <Package className="w-12 h-12 text-rose-400" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-3 capitalize text-rose-600">
+            Order Not Found
+          </h1>
+          <p className="text-gray-600 mb-6">
+            We couldn't find an order with the ID <strong>{orderId}</strong>. Please check the order number and try again.
+          </p>
+          <div className="space-y-3">
+            <Link
+              href="/profile/order-history"
+              className="inline-block px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+            >
+              View My Orders
+            </Link>
+            <div>
+              <Link
+                href="/"
+                className="text-rose-600 hover:text-rose-700 underline"
+              >
+                Return to Home
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
+
 
   const orderSubtotal = orderData.reduce(
     (sum, order) => sum + order.subtotal,

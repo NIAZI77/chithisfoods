@@ -7,7 +7,7 @@ import AdminSidebar from "./components/adminSidebar";
 import VendorSidebar from "./components/vendorSidebar";
 
 export const metadata = {
-  title: "ChithisFoods – Love Every Bite",
+  title: "ChithisFoods – Taste Home, Anywhere",
   description:
     "ChithisFoods is a multi-vendor food delivery platform that connects local chefs and home cooks with food lovers. Explore a diverse range of homemade, authentic meals, snacks, and desserts, delivered fresh to your door. Discover unique flavors while supporting local culinary talent, all with a simple and convenient ordering experience.",
 };
