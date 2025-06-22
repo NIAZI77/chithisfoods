@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import Image from "next/image";
 
 import VendorCard from "./VendorCard";
 import Loading from "../loading";
+import ComingSoon from "./ComingSoon";
 import { useRouter } from "next/navigation";
 
 export default function TopChefs({ zipcode }) {
@@ -58,16 +58,7 @@ export default function TopChefs({ zipcode }) {
   }
 
   if (topVendors.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center">
-        <Image
-          src="/coming-soon.png"
-          alt="Coming Soon"
-          width={500}
-          height={500}
-        />
-      </div>
-    );
+    return <ComingSoon zipcode={zipcode} />;
   }
 
   return (

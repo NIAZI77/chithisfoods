@@ -48,7 +48,7 @@ const Page = () => {
       return;
     }
     fetchCategories();
-  }, []);
+  }, [router]);
 
   const fetchCategories = async () => {
     try {

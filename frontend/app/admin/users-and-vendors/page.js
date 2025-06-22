@@ -48,7 +48,7 @@ const UsersAndVendorsPage = () => {
             toast.error("Please login to continue.");
             router.push("/admin/login");
         }
-    }, []);
+    }, [router]);
 
     // Fetch functions using Strapi APIs
     const fetchUsers = async (page = 1, search = "", filter = "all") => {

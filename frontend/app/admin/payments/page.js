@@ -92,7 +92,7 @@ const PaymentsPage = () => {
       toast.error("Please login to continue.");
       router.push("/admin/login");
     }
-  }, []);
+  }, [router]);
 
   const paymentMetrics = useMemo(() => ({
     totalOrders: fullOrders.length,

@@ -55,7 +55,7 @@ export default function AddDishPage() {
       toast.error("Please login to continue.");
       router.push("/login");
     }
-  }, []);
+  }, [router]);
 
   const fetchCategories = async () => {
     try {
@@ -76,7 +76,7 @@ export default function AddDishPage() {
 
       const data = await response.json();
       setCategories(data.data);
-      
+
       // Set initial category and subcategory if available
       if (data.data.length > 0) {
         setDishData(prev => ({
@@ -311,8 +311,8 @@ export default function AddDishPage() {
 
   const handleCategoryChange = (value) => {
     const selectedCategory = categories.find(cat => cat.name === value);
-    setDishData((prev) => ({ 
-      ...prev, 
+    setDishData((prev) => ({
+      ...prev,
       category: value,
       subcategory: selectedCategory?.subcategories[0]?.name || "",
       subSubCategory: "other" // Set default to "other"
@@ -322,7 +322,7 @@ export default function AddDishPage() {
   const handleSubcategoryChange = (value) => {
     const selectedCategory = categories.find(cat => cat.name === dishData.category);
     const selectedSubcategory = selectedCategory?.subcategories.find(sub => sub.name === value);
-    
+
     setDishData((prev) => ({
       ...prev,
       subcategory: value,
@@ -441,7 +441,7 @@ export default function AddDishPage() {
                     .find(cat => cat.name === dishData.category)
                     ?.subcategories.map((subcat) => (
                       <SelectItem key={subcat.name} value={subcat.name}>
-                        {subcat.name.split('-').map(word => 
+                        {subcat.name.split('-').map(word =>
                           word.charAt(0).toUpperCase() + word.slice(1)
                         ).join(' ')}
                       </SelectItem>
@@ -456,7 +456,7 @@ export default function AddDishPage() {
             const selectedSubcategory = selectedCategory?.subcategories.find(
               sub => sub.name === dishData.subcategory
             );
-            
+
             if (selectedSubcategory) {
               return (
                 <div className="flex flex-col my-2 md:col-span-2">
@@ -475,7 +475,7 @@ export default function AddDishPage() {
                         <SelectItem value="other">Other</SelectItem>
                         {selectedSubcategory.subSubcategories.map((subSubcat) => (
                           <SelectItem key={subSubcat} value={subSubcat}>
-                            {subSubcat.split('-').map(word => 
+                            {subSubcat.split('-').map(word =>
                               word.charAt(0).toUpperCase() + word.slice(1)
                             ).join(' ')}
                           </SelectItem>
@@ -560,11 +560,10 @@ export default function AddDishPage() {
             <div
               key={level}
               onClick={() => handleSpicinessChange(level)}
-              className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md text-xs font-semibold transition-all ${
-                dishData.spiciness.includes(level)
+              className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md text-xs font-semibold transition-all ${dishData.spiciness.includes(level)
                   ? "bg-orange-500 text-white border-orange-500"
                   : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
-              }`}
+                }`}
             >
               {level}
             </div>
@@ -582,7 +581,7 @@ export default function AddDishPage() {
               <PlusCircle size={20} /> Add Topping
             </button>
           </div>
-          
+
           {dishData.toppings.map((group, groupIndex) => (
             <div
               key={groupIndex}
@@ -684,7 +683,7 @@ export default function AddDishPage() {
               <PlusCircle size={20} /> Add Extra
             </button>
           </div>
-          
+
           {dishData.extras.map((group, groupIndex) => (
             <div
               key={groupIndex}

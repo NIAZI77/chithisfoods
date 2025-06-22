@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FaUser, FaLock, FaEye, FaEyeSlash, FaEnvelope } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -29,7 +29,7 @@ export default function AccountSettings() {
 
   const usernameRegex = /^[a-z0-9_]{3,15}$/;
 
-  const getUser = async (token) => {
+  const getUser = useCallback(async (token) => {
     setLoading(true);
     try {
       const res = await fetch(
@@ -57,7 +57,7 @@ export default function AccountSettings() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     const token = getCookie("jwt");
@@ -69,7 +69,7 @@ export default function AccountSettings() {
       getUser(token);
       setJwt(token);
     }
-  }, []);
+  }, [router]);
 
   const togglePasswordVisibility = (field) => {
     setShowPasswords((prev) => ({
@@ -278,7 +278,7 @@ export default function AccountSettings() {
               disabled={savingPassword}
               className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:opacity-50"
             >
-              {savingPassword ? <Spinner/> : "Save"}
+              {savingPassword ? <Spinner /> : "Save"}
             </button>
           </form>
         </section>

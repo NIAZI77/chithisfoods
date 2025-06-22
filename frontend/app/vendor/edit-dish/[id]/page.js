@@ -54,7 +54,7 @@ export default function EditDishPage() {
       toast.error("Please login to continue.");
       router.push("/login");
     }
-  }, []);
+  }, [id, router]);
 
   const fetchCategories = async () => {
     try {

@@ -59,7 +59,7 @@ const DashboardPage = () => {
       toast.error("Please login to continue.");
       router.push("/admin/login");
     }
-  }, []);
+  }, [router]);
 
   const getDateRangeFilter = useMemo(() => {
     const currentDate = new Date();

@@ -137,7 +137,7 @@ export default function ManageInventory() {
       fetchInventory(email);
       setLoading(false);
     }
-  }, []);
+  }, [router]);
   if (loading) return <Loading />;
   return (
     <div className="p-2 py-6 md:p-8 !pl-16 md:!pl-24">

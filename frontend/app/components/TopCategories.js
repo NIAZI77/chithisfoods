@@ -41,7 +41,7 @@ export default function TopCategories() {
   }, []);
 
   if (isLoading) return <Loading />;
-
+  if (categories.length === 0) return;
   return (
     <div className="md:w-[80%] w-full mx-auto p-2">
       <h2 className="md:text-2xl text-xl font-bold mb-4">Top Categories</h2>

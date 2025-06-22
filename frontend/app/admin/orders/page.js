@@ -31,7 +31,7 @@ const OrdersPage = () => {
       toast.error("Please login to continue.");
       router.push("/admin/login");
     }
-  }, []);
+  }, [router]);
 
   const orderMetrics = useMemo(() => ({
     total: fullOrders.length,

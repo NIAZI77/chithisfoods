@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { LuPlus, LuMinus } from "react-icons/lu";
 import { FaStar, FaUser } from "react-icons/fa";
 import { Timer, AlertCircle, Eye, BadgeCheck, XCircle } from "lucide-react";
@@ -35,7 +35,7 @@ export default function DishPage() {
   const [isVendorBanned, setIsVendorBanned] = useState(false);
   const router = useRouter();
 
-  const fetchDishDetails = async () => {
+  const fetchDishDetails = useCallback(async () => {
     try {
       if (
         !process.env.NEXT_PUBLIC_STRAPI_HOST ||
@@ -122,7 +122,7 @@ export default function DishPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   const fetchVendorDetails = async (vendorId) => {
     setLoading(true);
@@ -179,7 +179,7 @@ export default function DishPage() {
       setIsDishNotFound(true);
       setLoading(false);
     }
-  }, [id]);
+  }, [id, router]);
 
   useEffect(() => {
     if (dishDetails?.vendorId) {
