@@ -521,6 +521,123 @@ const UsersAndVendorsPage = () => {
     const handleBlockUser = async (userId, currentBlockedStatus) => {
         setIsStatusUpdating(true);
         try {
+            // Find the user object to get their email
+            const user = usersList.find(u => u.id === userId);
+            let vendorBanResult = null;
+            let vendorUnverifyResult = null;
+            // If blocking (not unblocking) and user has an email, try to ban their vendor account
+            if (!currentBlockedStatus && user && user.email) {
+                try {
+                    const encodedEmail = encodeURIComponent(user.email);
+                    const vendorRes = await fetch(
+                        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${encodedEmail}&populate=*`,
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+                                'Content-Type': 'application/json',
+                            },
+                        }
+                    );
+                    const vendorData = await vendorRes.json();
+                    const vendor = vendorData.data && vendorData.data[0];
+                    if (vendor && vendor.documentId) {
+                        // Ban the vendor
+                        const apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendor.documentId}`;
+                        const updateData = {
+                            data: {
+                                verificationStatus: 'banned'
+                            }
+                        };
+                        const response = await fetch(apiUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(updateData),
+                        });
+                        if (!response.ok) {
+                            throw new Error('Failed to ban vendor account');
+                        }
+                        vendorBanResult = true;
+                        // Update local state for vendors
+                        setVendorsList(prevVendors =>
+                            prevVendors.map(vendorObj =>
+                                vendorObj.documentId === vendor.documentId
+                                    ? { ...vendorObj, verificationStatus: 'banned' }
+                                    : vendorObj
+                            )
+                        );
+                        setVendorsForChart(prevVendors =>
+                            prevVendors.map(vendorObj =>
+                                vendorObj.documentId === vendor.documentId
+                                    ? { ...vendorObj, verificationStatus: 'banned' }
+                                    : vendorObj
+                            )
+                        );
+                    }
+                } catch (err) {
+                    console.error('Error banning vendor account:', err);
+                }
+            }
+            // If unblocking (currentBlockedStatus is true) and user has an email, set vendor to unverified
+            if (currentBlockedStatus && user && user.email) {
+                try {
+                    const encodedEmail = encodeURIComponent(user.email);
+                    const vendorRes = await fetch(
+                        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${encodedEmail}&populate=*`,
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+                                'Content-Type': 'application/json',
+                            },
+                        }
+                    );
+                    const vendorData = await vendorRes.json();
+                    const vendor = vendorData.data && vendorData.data[0];
+                    if (vendor && vendor.documentId) {
+                        // Unverify the vendor
+                        const apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendor.documentId}`;
+                        const updateData = {
+                            data: {
+                                verificationStatus: 'unverified'
+                            }
+                        };
+                        const response = await fetch(apiUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(updateData),
+                        });
+                        if (!response.ok) {
+                            throw new Error('Failed to unverify vendor account');
+                        }
+                        vendorUnverifyResult = true;
+                        // Update local state for vendors
+                        setVendorsList(prevVendors =>
+                            prevVendors.map(vendorObj =>
+                                vendorObj.documentId === vendor.documentId
+                                    ? { ...vendorObj, verificationStatus: 'unverified' }
+                                    : vendorObj
+                            )
+                        );
+                        setVendorsForChart(prevVendors =>
+                            prevVendors.map(vendorObj =>
+                                vendorObj.documentId === vendor.documentId
+                                    ? { ...vendorObj, verificationStatus: 'unverified' }
+                                    : vendorObj
+                            )
+                        );
+                    }
+                } catch (err) {
+                    console.error('Error unverifying vendor account:', err);
+                }
+            }
+            // Block/unblock user as before
             const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userId}`, {
                 method: 'PUT',
                 headers: {
@@ -554,7 +671,7 @@ const UsersAndVendorsPage = () => {
                 )
             );
 
-            toast.success(`User ${currentBlockedStatus ? 'unblocked' : 'blocked'} successfully`);
+            toast.success(`User ${currentBlockedStatus ? 'unblocked' : 'blocked'} successfully${vendorBanResult ? ' (Vendor account also banned)' : ''}${vendorUnverifyResult ? ' (Vendor account set to unverified)' : ''}`);
         } catch (error) {
             console.error('Error updating user status:', error);
             toast.error(error.message || 'Failed to update user status');
@@ -600,6 +717,7 @@ const UsersAndVendorsPage = () => {
                 onSearchSubmit={handleUsersSearch}
                 filter={usersFilter}
                 onFilterChange={handleUsersFilterChange}
+                onVerifyVendor={handleVerifyVendor}
             />
 
             <VendorsTable

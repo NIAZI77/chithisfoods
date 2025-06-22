@@ -121,7 +121,7 @@ const Page = () => {
         Vendor not found
       </h3>
       <p className="text-gray-600 mb-6">
-        Sorry, we couldn't locate this vendor.
+        Sorry, we couldn&apos;t locate this vendor.
         <br />
         <span className="text-gray-500 text-sm flex items-center justify-center gap-2 text-center my-2">
           <Search className="w-4 h-4" /> @{username}

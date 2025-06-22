@@ -179,7 +179,7 @@ export default function OrderPage() {
             Order Not Found
           </h1>
           <p className="text-gray-600 mb-6">
-            We couldn't find an order with the ID <strong>{orderId}</strong>. Please check the order number and try again.
+            We couldn&apos;t find an order with the ID <strong>{orderId}</strong>. Please check the order number and try again.
           </p>
           <div className="space-y-3">
             <Link

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaUserCheck, FaUserTimes, FaSearch, FaUsers } from 'react-icons/fa';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
@@ -11,6 +11,7 @@ import {
 import Pagination from "@/app/admin/users-and-vendors/components/Pagination";
 import Spinner from '@/app/components/Spinner';
 import UserStatusBadge from '@/app/components/UserStatusBadge';
+import UserDetailsModal from './UserDetailsModal';
 
 const UsersTable = ({
     users,
@@ -24,13 +25,27 @@ const UsersTable = ({
     onSearchChange,
     onSearchSubmit,
     filter,
-    onFilterChange
+    onFilterChange,
+    onVerifyVendor
 }) => {
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             onSearchSubmit(e);
         }
+    };
+
+    const handleViewUser = (user) => {
+        setSelectedUser(user);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedUser(null);
     };
 
     const EmptyState = () => (
@@ -139,13 +154,10 @@ const UsersTable = ({
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <button
-                                            onClick={() => onBlockUser(user.id, user.blocked)}
-                                            className={`${user.blocked
-                                                    ? "text-green-600 hover:text-green-900"
-                                                    : "text-red-600 hover:text-red-900"
-                                                } font-medium`}
+                                            onClick={() => handleViewUser(user)}
+                                            className="text-pink-600 hover:text-pink-900 font-medium"
                                         >
-                                            {user.blocked ? "Unblock" : "Block"}
+                                            View
                                         </button>
                                     </td>
                                 </tr>
@@ -163,6 +175,15 @@ const UsersTable = ({
                     />
                 </div>
             )}
+            <UserDetailsModal
+                user={selectedUser}
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onBlockUser={onBlockUser}
+                isLoading={isLoading}
+                formatDate={formatDate}
+                onVerifyVendor={onVerifyVendor}
+            />
         </div>
     );
 };

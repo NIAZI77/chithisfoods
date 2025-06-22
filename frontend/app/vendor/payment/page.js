@@ -148,7 +148,7 @@ const TransactionListByDate = ({ transactions, isLoading }) => {
             No Transactions Found
           </h3>
           <p className="text-orange-600 mb-6 leading-relaxed">
-            You haven't received any payments yet. Once customers place orders and payments are processed, they will appear here.
+            You haven&apos;t received any payments yet. Once customers place orders and payments are processed, they will appear here.
           </p>
           <div className="flex items-center justify-center space-x-2 text-sm text-orange-500">
             <Calendar className="h-4 w-4" />

@@ -71,10 +71,6 @@ const VendorsTable = ({
         }
     };
 
-    const handleReject = () => {
-        handleCloseModal();
-    };
-
     // Empty state component
     const EmptyState = () => (
         <div className="flex flex-col items-center justify-center py-12 px-4">
@@ -242,7 +238,6 @@ const VendorsTable = ({
                     vendor={selectedVendor}
                     onClose={handleCloseModal}
                     onVerify={handleVerify}
-                    onReject={handleReject}
                     isLoading={isLoading}
                 />
             )}

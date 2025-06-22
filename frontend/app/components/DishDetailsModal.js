@@ -298,7 +298,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                     <div className="p-8 text-center">
                         <div className="text-3xl text-gray-600 mb-4">Dish not found</div>
                         <p className="text-gray-500 mb-4">
-                            The dish you're looking for doesn't exist or has been removed.
+                            The dish you&apos;re looking for doesn&apos;t exist or has been removed.
                         </p>
                         <button
                             onClick={onClose}
