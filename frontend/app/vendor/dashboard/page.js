@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer
 } from "recharts";
-import { ShoppingCart, Users, Package } from "lucide-react";
+import { ShoppingCart, User, Package } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import { getCookie } from "cookies-next";
@@ -64,6 +64,7 @@ const TimePeriodSelect = ({ value, onValueChange }) => (
 
 const Page = () => {
   const [timePeriod, setTimePeriod] = useState("week");
+  const [vendorInfo, setVendorInfo] = useState({});
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [dashboardData, setDashboardData] = useState({
@@ -274,7 +275,7 @@ const Page = () => {
 
       try {
         const vendorRes = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${user}`,
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${user}&populate=*`,
           {
             method: "GET",
             headers: {
@@ -291,6 +292,7 @@ const Page = () => {
         }
 
         const vendorData = await vendorRes.json();
+        setVendorInfo(vendorData);
         if (!vendorData.data?.[0]?.documentId) {
           toast.error("Please complete your vendor registration");
           router.push("/become-a-vendor");
@@ -313,6 +315,9 @@ const Page = () => {
 
   if (loading) return <Loading />;
 
+  // Extract vendor object from vendorInfo
+  const vendor = vendorInfo?.data?.[0] || {};
+
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -329,6 +334,54 @@ const Page = () => {
 
   return (
     <div className="p-4 pl-16 md:p-6 md:pl-24 lg:p-8 lg:pl-24 mx-auto">
+      <div className="flex flex-col gap-4 mb-8">
+        {/* Delivery Fee Banner */}
+        {(!vendor.vendorDeliveryFee || vendor.vendorDeliveryFee === 0) && (
+          <div className="flex items-center bg-gradient-to-r from-yellow-50 to-yellow-100 shadow-md rounded-2xl p-5 w-full">
+            <span className="flex items-center justify-center mr-4 w-12 h-12 rounded-full bg-yellow-200/70">
+              <Package className="w-6 h-6 text-yellow-600" />
+            </span>
+            <div className="flex-1">
+              <p className="font-semibold text-lg text-yellow-900 mb-1">Set up your delivery fee</p>
+              <p className="text-sm text-yellow-700">Add your delivery fee details to start receiving orders smoothly.</p>
+            </div>
+            <Link href="/vendor/settings#delivery-free" className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base">
+              Set Delivery Fee
+            </Link>
+          </div>
+        )}
+        {/* Verification Banner */}
+        {!vendor.verificationDocument && (
+          <div className="flex items-center bg-gradient-to-r from-blue-50 to-blue-100 shadow-md rounded-2xl p-5 w-full">
+            <span className="flex items-center justify-center mr-4 w-12 h-12 rounded-full bg-blue-200/70">
+              <User className="w-6 h-6 text-blue-600" />
+            </span>
+            <div className="flex-1">
+              <p className="font-semibold text-lg text-blue-900 mb-1">Verify your account</p>
+              <p className="text-sm text-blue-700">Complete your account verification for full access and customer trust.</p>
+            </div>
+            <Link href="/vendor/settings#account-verification" className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base">
+              Verify Account
+            </Link>
+          </div>
+        )}
+        {/* Verification Rejected Banner */}
+        {vendor.verificationStatus === "rejected" && (
+          <div className="flex items-center bg-gradient-to-r from-red-50 to-red-100 shadow-md rounded-2xl p-5 w-full">
+            <span className="flex items-center justify-center mr-4 w-12 h-12 rounded-full bg-red-200/70">
+              <User className="w-6 h-6 text-red-600" />
+            </span>
+            <div className="flex-1">
+              <p className="font-semibold text-lg text-red-900 mb-1">Verification was rejected</p>
+              <p className="text-sm text-red-700">Please review your details and resubmit your verification to activate your account.</p>
+            </div>
+            <Link href="/vendor/settings#account-verification" className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base">
+              Resubmit Verification
+            </Link>
+          </div>
+        )}
+      </div>
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <TimePeriodSelect value={timePeriod} onValueChange={setTimePeriod} />
@@ -375,7 +428,7 @@ const Page = () => {
               </div>
             </div>
             <div className="p-3 bg-orange-100 rounded-full">
-              <Users className="w-6 h-6 text-orange-600" />
+              <User className="w-6 h-6 text-orange-600" />
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -440,40 +493,40 @@ const Page = () => {
             </div>
           </div>
           <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={dashboardData.salesData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date" 
-                tickFormatter={(date) => {
-                  const d = new Date(date);
-                  const currentMonth = d.getMonth();
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={dashboardData.salesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(date) => {
+                    const d = new Date(date);
+                    const currentMonth = d.getMonth();
 
-                  // Get the previous date to check if month changed
-                  const prevDate = new Date(date);
-                  prevDate.setDate(d.getDate() - 1);
-                  const prevMonth = prevDate.getMonth();
+                    // Get the previous date to check if month changed
+                    const prevDate = new Date(date);
+                    prevDate.setDate(d.getDate() - 1);
+                    const prevMonth = prevDate.getMonth();
 
-                  // If month changed or it's the first date, show month
-                  if (
-                    currentMonth !== prevMonth ||
-                    date === dashboardData.salesData[0]?.date
-                  ) {
-                    return d.toLocaleDateString("en-US", {
-                      day: "numeric",
-                      month: "short",
-                    });
-                  }
+                    // If month changed or it's the first date, show month
+                    if (
+                      currentMonth !== prevMonth ||
+                      date === dashboardData.salesData[0]?.date
+                    ) {
+                      return d.toLocaleDateString("en-US", {
+                        day: "numeric",
+                        month: "short",
+                      });
+                    }
 
-                  // Otherwise just show the day
-                  return d.getDate().toString();
-                }}
-              />
-              <YAxis />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="sales" fill="oklch(75% 0.183 55.934)" />
-            </BarChart>
-          </ResponsiveContainer>
+                    // Otherwise just show the day
+                    return d.getDate().toString();
+                  }}
+                />
+                <YAxis />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="sales" fill="oklch(75% 0.183 55.934)" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 

@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getCookie } from "cookies-next";
+import { deleteCookie, getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 
 const TimePeriodSelector = ({ selectedPeriod, onPeriodChange }) => (
@@ -55,7 +55,33 @@ const DashboardPage = () => {
     const AdminJWT = getCookie("AdminJWT");
     const AdminUser = getCookie("AdminUser");
 
-    if (!AdminJWT || !AdminUser) {
+    if (AdminJWT || AdminUser) { 
+      const isAdmin = async () => {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${AdminJWT}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (data.isAdmin) {
+          return;
+        }
+        else {
+          toast.error("You are not authorized to access this page.");
+          deleteCookie("AdminJWT");
+          deleteCookie("AdminUser");
+          router.push("/admin/login");
+          return;
+        }
+      };
+      isAdmin();
+    } 
+    else {
       toast.error("Please login to continue.");
       router.push("/admin/login");
     }
@@ -177,7 +203,7 @@ const DashboardPage = () => {
         console.error("Error fetching order data:", error);
         toast.error(
           error.message ||
-            "Failed to load dashboard data. Please refresh the page."
+          "Failed to load dashboard data. Please refresh the page."
         );
       } finally {
         setIsLoading(false);
@@ -311,8 +337,8 @@ const DashboardPage = () => {
                   {selectedTimePeriod === "week"
                     ? "Last 7 Days"
                     : selectedTimePeriod === "month"
-                    ? "Last 30 Days"
-                    : "All Time"}
+                      ? "Last 30 Days"
+                      : "All Time"}
                 </span>
               </div>
             </div>
@@ -385,8 +411,8 @@ const DashboardPage = () => {
                   {selectedTimePeriod === "week"
                     ? "Last 7 Days"
                     : selectedTimePeriod === "month"
-                    ? "Last 30 Days"
-                    : "All Time"}
+                      ? "Last 30 Days"
+                      : "All Time"}
                 </span>
               </div>
             </div>

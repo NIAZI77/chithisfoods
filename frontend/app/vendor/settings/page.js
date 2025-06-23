@@ -514,6 +514,7 @@ const Page = () => {
             </label>
             <input
               name="vendorDeliveryFee"
+              id="delivery-free"
               type="text"
               value={formData.vendorDeliveryFee}
               onChange={handleChange}
@@ -691,7 +692,7 @@ const Page = () => {
         </div>
       </form>
 
-      <section className="bg-white rounded-xl shadow-lg p-6 mt-8 border border-gray-100">
+      <section className="bg-white rounded-xl shadow-lg p-6 mt-8 border border-gray-100" id="account-verification">
         <h2 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-900">
           <div className="p-2 bg-orange-100 rounded-lg">
             <FileText className="h-5 w-5 text-orange-600" />

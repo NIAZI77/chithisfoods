@@ -10,7 +10,7 @@ const Hero = () => {
           <img
             src="/logo.png"
             alt="Chef Illustration"
-            className="mx-auto w-32 h-20 md:w-[200px] md:h-[150px] object-cover rounded-xl"
+            className="mx-auto w-32 h-20 md:w-[200px] md:h-[150px] object-contain rounded-xl"
           />
 
           <h2 className="text-lg font-semibold mt-4 cursive">
@@ -20,7 +20,7 @@ const Hero = () => {
           <img
             src="/chef-ill.png"
             alt="Chef Illustration"
-            className="w-40 h-40 md:w-[300px] md:h-[300px] object-cover rounded-xl mx-auto"
+            className="w-40 h-40 md:w-[300px] md:h-[300px] object-contain rounded-xl mx-auto"
           />
         </div>
       </div>

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import {
   LayoutDashboard,
   Settings,
@@ -12,10 +12,13 @@ import {
   User,
 } from "lucide-react";
 import { MdOutlinePayments } from "react-icons/md";
+import { deleteCookie } from "cookies-next";
+import { toast } from "react-toastify";
 
 export default function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(true);
   const pathname = usePathname();
+  const router = useRouter();
 
   const isActive = (path) => pathname === path;
   useEffect(() => {
@@ -131,6 +134,19 @@ export default function AdminSidebar() {
             </span>
           )}
         </Link>
+        <button
+          onClick={() => {
+              deleteCookie("AdminJWT");
+              deleteCookie("AdminUser");
+              toast.success("You've been successfully logged out.");
+              localStorage.clear();
+              router.push("/");
+            }}
+          className="flex items-center gap-3 px-3 py-2.5 w-full transition-all duration-200 hover:bg-pink-700 hover:text-white border-l-[3px] border-transparent text-left font-medium"
+        >
+          <LogOut className="w-5 h-5" />
+          {!collapsed && <span className="whitespace-nowrap">Logout</span>}
+        </button>
       </nav>
     </aside>
   );

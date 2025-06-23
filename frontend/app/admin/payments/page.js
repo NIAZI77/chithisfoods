@@ -24,7 +24,7 @@ import Pagination from "@/app/admin/users-and-vendors/components/Pagination";
 import { toast } from 'react-toastify';
 import Spinner from "@/app/components/Spinner";
 import { FaHandHoldingUsd } from "react-icons/fa";
-import { getCookie } from "cookies-next";
+import { getCookie, deleteCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import PaymentMetrics from "./components/PaymentMetrics";
 import PaymentFilters from "./components/PaymentFilters";
@@ -88,7 +88,31 @@ const PaymentsPage = () => {
     const AdminJWT = getCookie("AdminJWT");
     const AdminUser = getCookie("AdminUser");
 
-    if (!AdminJWT || !AdminUser) {
+    if (AdminJWT || AdminUser) {
+      const isAdmin = async () => {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${AdminJWT}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (data.isAdmin) {
+          return;
+        } else {
+          toast.error("You are not authorized to access this page.");
+          deleteCookie("AdminJWT");
+          deleteCookie("AdminUser");
+          router.push("/admin/login");
+          return;
+        }
+      };
+      isAdmin();
+    } else {
       toast.error("Please login to continue.");
       router.push("/admin/login");
     }
