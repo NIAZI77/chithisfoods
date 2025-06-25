@@ -58,9 +58,11 @@ const VendorCard = ({ chef }) => {
         <VerificationBadge status={chef.verificationStatus} size="small" />
         <span className="flex items-center gap-1 bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">
           <MapPin size={14} />
-          {chef?.city.length < 10
-            ? chef?.city || "Location"
-            : chef?.city.substr(0, 6) + "..." || "Location"}
+          {chef?.city && chef.city.length < 10
+            ? chef.city
+            : chef?.city
+            ? chef.city.substr(0, 6) + "..."
+            : "Location"}
           , {chef?.zipcode || "address"}
         </span>
       </div>
