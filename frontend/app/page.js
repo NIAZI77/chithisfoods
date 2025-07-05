@@ -5,6 +5,7 @@ import Testimonials from "./components/Testimonial";
 import ZipcodeDialogue from "./components/zipcodeDialogue";
 import { useRouter } from "next/navigation";
 import Loading from "./loading";
+import FAQs from "./components/FAQs";
 
 const Page = () => {
   const router = useRouter();
@@ -123,6 +124,9 @@ const Page = () => {
 
       <section>
         <FoodPromo />
+      </section>
+      <section>
+        <FAQs />
       </section>
     </div>
   );
