@@ -30,11 +30,11 @@ export default function Testimonials() {
       <h2 className="text-3xl px-4 font-bold mb-16 text-gray-900 text-center">
         What clients say about us
       </h2>
-      <div className="flex flex-wrap justify-center gap-16">
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 grid-cols-1 gap-16 w-[90%] mx-auto">
         {testimonials.map((testimonial, index) => (
           <div
             key={index}
-            className="bg-gray-100 p-6 rounded-xl shadow-md md:w-84 w-80 flex flex-col"
+            className="bg-gray-100 p-6 rounded-xl shadow-md w-full flex flex-col"
           >
             <Image
               src={testimonial.image}

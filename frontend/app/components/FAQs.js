@@ -39,7 +39,7 @@ const items = [
 
 const FAQs = () => {
     return (
-        <div className="max-w-5xl mx-auto p-6">
+        <div className="w-[90%] mx-auto p-6 mt-12">
             <h2 className="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
             <Accordion type="single" collapsible className="w-full my-4">
                 {items.map(({ title, content }, index) => (
