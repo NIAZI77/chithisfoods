@@ -44,7 +44,7 @@ const LoginPage = () => {
                 }
                 toast.success("Welcome To Admin Panel!");
                 const expires = new Date();
-                expires.setDate(expires.getDate() + 7);
+                expires.setHours(expires.getHours() + 1);
                 setCookie("AdminJWT", data.jwt, { expires });
                 setCookie("AdminUser", data.user.email, { expires });
                 setTimeout(() => router.push("/admin/dashboard"), 1000);

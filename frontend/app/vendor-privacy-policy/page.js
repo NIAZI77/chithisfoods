@@ -85,7 +85,7 @@ const Page = () => {
           <div className="pl-6 text-gray-700">
             <p className="font-semibold">Chithi&apos;s Foods</p>
             <p>Email: <a href="mailto:info@chithisfoods.com" className="text-rose-500 hover:text-rose-600 hover:underline">info@chithisfoods.com</a></p>
-            <p>Phone: 312-985-6684</p>
+            <p>Phone: (312) 985-6684</p>
             <p>Address: 2501 Chatham Rd Springfield, IL 62704</p>
           </div>
         </section>

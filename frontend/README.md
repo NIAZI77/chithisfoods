@@ -95,6 +95,24 @@ npm run build
 npm start
 ```
 
+## Environment Variables: .env and .env.example
+
+- **.env**: Stores sensitive configuration (API base URLs, public keys, etc.) required for the frontend to run. **You must create and configure this file before running `npm run start` or `npm run dev`.**
+- **.env.example**: A template file listing all required environment variables (without secrets). Use this as a reference for your own .env.
+
+### How to use
+1. Copy `.env.example` to `.env`
+2. Fill in the required values
+3. Start the frontend
+
+```bash
+cp .env.example .env
+# Edit .env and fill in your secrets and config
+```
+
+- **Never commit your `.env` file** to version control.
+- Always update `.env.example` when you add new required environment variables.
+
 ---
 
 ## Project Structure

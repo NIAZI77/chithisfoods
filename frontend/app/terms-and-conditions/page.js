@@ -218,7 +218,7 @@ const Page = () => {
               </a>
             </p>
             <p>
-              <strong>Phone:</strong> 312-985-6684
+              <strong>Phone:</strong> (312) 985-6684
             </p>
             <p>
               <strong>Address:</strong> 2501 Chatham Rd Springfield, IL 62704

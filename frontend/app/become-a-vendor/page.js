@@ -188,6 +188,7 @@ export default function BecomeVendor() {
 
   const handleSubmit = async () => {
     const usernameRegex = /^[a-z0-9_]{3,15}$/;
+    const phoneRegex = /^\+?(\d{1,3})?[-. (]*\d{1,4}[-. )]*\d{1,4}[-. ]*\d{1,9}$/;
     if (formData.zipcode.length !== 5) {
       toast.error("ZIP Code must be 5 digits.");
       return;
@@ -196,6 +197,12 @@ export default function BecomeVendor() {
     if (!usernameRegex.test(formData.username)) {
       toast.error(
         "Username can contain lowercase letters, numbers, and underscores (3-15 chars)."
+      );
+      return;
+    }
+    if (!phoneRegex.test(formData.phoneNumber)) {
+      toast.error(
+        "Invalid Phone Number Format"
       );
       return;
     }

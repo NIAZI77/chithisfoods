@@ -87,6 +87,43 @@ yarn dev
 
 For more frontend details, see [frontend/README.md](./frontend/README.md).
 
+## Environment Variables: .env and .env.example
+
+### Purpose
+- **.env**: Stores sensitive configuration (API keys, database URLs, secrets) required for your app to run. **This file must be created and configured before running `npm run start` or any production/development server.**
+- **.env.example**: A template file showing all required environment variables (without sensitive values). Share this in your repo so others know what to set in their own .env.
+
+### Project Policy
+- Both **backend** and **frontend** require a `.env` file for correct operation.
+- The `.env` file is **gitignored** (not committed), but `.env.example` should be present in the repo as a reference.
+
+#### Backend (`/backend`)
+- **Required before running:** `npm run start`, `npm run develop`, or `yarn start`
+- **Typical variables:** Database connection strings, JWT secrets, API keys, etc.
+- **How to use:**
+  1. Copy `.env.example` to `.env`
+  2. Fill in the required values
+  3. Start the backend
+
+#### Frontend (`/frontend`)
+- **Required before running:** `npm run start`, `npm run dev`, or `yarn start`
+- **Typical variables:** API base URLs, public keys for third-party services, etc.
+- **How to use:**
+  1. Copy `.env.example` to `.env`
+  2. Fill in the required values
+  3. Start the frontend
+
+#### Example Workflow
+```bash
+# For both backend and frontend
+cp .env.example .env
+# Edit .env and fill in your secrets and config
+```
+
+#### Important
+- **Never commit your `.env` file** to version control.
+- Always update `.env.example` when you add new required environment variables.
+
 ---
 
 ## Directory Structure
