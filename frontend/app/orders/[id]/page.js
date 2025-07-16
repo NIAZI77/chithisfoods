@@ -107,7 +107,7 @@ export default function OrderPage() {
           <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-6 mx-auto">
             <Shield className="w-12 h-12 text-rose-400" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-3 capitalize text-rose-600">
+          <h1 className="text-2xl font-bold mb-3 capitalize text-rose-600">
             Access Denied
           </h1>
           <p className="text-gray-600 mb-6">
@@ -175,7 +175,7 @@ export default function OrderPage() {
           <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-6 mx-auto">
             <Package className="w-12 h-12 text-rose-400" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-3 capitalize text-rose-600">
+          <h1 className="text-2xl font-bold mb-3 capitalize text-rose-600">
             Order Not Found
           </h1>
           <p className="text-gray-600 mb-6">

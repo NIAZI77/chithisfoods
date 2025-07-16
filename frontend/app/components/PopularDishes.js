@@ -23,7 +23,7 @@ export default function PopularDishes({ zipcode }) {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[zipcode][$eq]=${zipcode}&filters[available][$eq]=true&populate=*&sort=rating:desc&pagination[pageSize]=6`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[zipcode][$eq]=${zipcode}&filters[available][$eq]=true&populate=*&sort[0]=weeklySalesCount:desc&pagination[pageSize]=6`,
         {
           method: "GET",
           headers: {

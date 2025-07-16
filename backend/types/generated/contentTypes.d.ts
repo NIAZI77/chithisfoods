@@ -372,7 +372,6 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
 export interface ApiAdminAdmin extends Struct.SingleTypeSchema {
   collectionName: 'admins';
   info: {
-    description: '';
     displayName: 'Admin';
     pluralName: 'admins';
     singularName: 'admin';
@@ -388,7 +387,15 @@ export interface ApiAdminAdmin extends Struct.SingleTypeSchema {
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::admin.admin'> &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    taxPercentage: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    taxPercentage: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 100;
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -468,6 +475,7 @@ export interface ApiDishDish extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     vendorId: Schema.Attribute.String & Schema.Attribute.Required;
+    weeklySalesCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     zipcode: Schema.Attribute.BigInteger & Schema.Attribute.Required;
   };
 }
@@ -505,7 +513,10 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.DefaultTo<'pending'>;
     orderTotal: Schema.Attribute.Decimal & Schema.Attribute.Required;
-    paymentStatus: Schema.Attribute.Enumeration<['paid', 'unpaid', 'refunded']>;
+    paymentStatus: Schema.Attribute.Enumeration<
+      ['paid', 'unpaid', 'refunded']
+    > &
+      Schema.Attribute.DefaultTo<'unpaid'>;
     phone: Schema.Attribute.BigInteger & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     refundEmail: Schema.Attribute.Email;
@@ -583,6 +594,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
       ['new-chef', 'verified', 'unverified', 'banned', 'rejected']
     > &
       Schema.Attribute.DefaultTo<'new-chef'>;
+    weeklyItemsSold: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     zipcode: Schema.Attribute.BigInteger & Schema.Attribute.Required;
   };
 }

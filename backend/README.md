@@ -7,10 +7,13 @@ This is the backend API for the ChithisFoods platform, built with [Strapi](https
 ## Table of Contents
 - [Overview](#overview)
 - [Features & API Modules](#features--api-modules)
+- [API Endpoints & Structure](#api-endpoints--structure)
+- [How to Add a New API Module](#how-to-add-a-new-api-module)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [Scripts](#scripts)
 - [Deployment](#deployment)
+- [Cron Jobs & Scheduled Tasks](#cron-jobs--scheduled-tasks)
 - [Further Reading](#further-reading)
 
 ---
@@ -32,6 +35,63 @@ This is the backend API for the ChithisFoods platform, built with [Strapi](https
 - **User Permissions:** Role-based access control (RBAC)
 
 APIs are organized under `src/api/` and user permissions under `src/extensions/users-permissions/`.
+
+---
+
+## API Endpoints & Structure
+
+APIs are organized under `src/api/`:
+- **admin/**: Platform management (users, vendors, orders, payments, settings)
+- **category/**: Food categories CRUD
+- **dish/**: Dishes/products CRUD
+- **order/**: Order placement, tracking, management
+- **vendor/**: Vendor registration, verification, management
+
+Each module contains:
+- `content-types/`: Data models (schema.json)
+- `controllers/`: Business logic for endpoints
+- `routes/`: API route definitions
+- `services/`: Reusable service logic
+
+User permissions and roles are managed in `src/extensions/users-permissions/`.
+
+---
+
+## How to Add a New API Module
+
+1. Duplicate an existing module in `src/api/` (e.g., `category/`).
+2. Update `content-types/schema.json` for your new data model.
+3. Implement controller logic in `controllers/`.
+4. Define routes in `routes/`.
+5. Add business logic in `services/` if needed.
+6. Register permissions if required in `extensions/users-permissions/`.
+7. Restart the backend server.
+
+---
+
+## Cron Jobs & Scheduled Tasks
+
+- **Weekly Stats Reset:**
+  - Every Monday at midnight (server time), a cron job resets all vendors' `weeklyItemsSold` and all dishes' `weeklySalesCount` to 0.
+  - This powers the weekly "Top Chefs" and "Popular Dishes" features on the frontend.
+  - The cron job is configured in [`config/server.js`](./config/server.js) under the `cron.tasks` section.
+  - To modify or disable, edit the schedule or logic in that file.
+  - **Example:**
+    ```js
+    // backend/config/server.js
+    module.exports = ({ env }) => ({
+      // ...
+      cron: {
+        enabled: true,
+        tasks: {
+          '0 0 * * 1': async () => {
+            // Reset logic here
+          },
+        },
+      },
+    });
+    ```
+  - **Troubleshooting:** If stats are not updating, ensure the backend server is running and cron is enabled.
 
 ---
 

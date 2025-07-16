@@ -396,6 +396,89 @@ const Page = () => {
               <ShoppingCart className="inline" />
               Checkout
             </h2>
+              {/* Delivery Type Section */}
+            <div className="mb-8">
+              <h3 className="font-black text-lg mb-6 text-black flex items-center gap-2">
+                <Truck className="inline" /> Delivery Options
+              </h3>
+              <div className="space-y-4">
+         
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className={`relative border-2 rounded-xl p-6 cursor-pointer transition-all duration-200 ${
+                    formData.deliveryType === "delivery" 
+                      ? "border-rose-500 bg-rose-50 shadow-md" 
+                      : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                  }`}>
+                    <input
+                      type="radio"
+                      name="deliveryType"
+                      id="delivery"
+                      value="delivery"
+                      checked={formData.deliveryType === "delivery"}
+                      onChange={handleChange}
+                      className="sr-only"
+                    />
+                    <label
+                      htmlFor="delivery"
+                      className="flex items-center gap-3 cursor-pointer"
+                    >
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        formData.deliveryType === "delivery" 
+                          ? "border-rose-500 bg-rose-500" 
+                          : "border-gray-300"
+                      }`}>
+                        {formData.deliveryType === "delivery" && (
+                          <div className="w-3 h-3 bg-white rounded-full"></div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Truck className="w-6 h-6 text-rose-600" />
+                        <div>
+                          <div className="font-semibold text-gray-900">Home Delivery</div>
+                          <div className="text-sm text-gray-600">We&apos;ll deliver to your address</div>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                  <div className={`relative border-2 rounded-xl p-6 cursor-pointer transition-all duration-200 ${
+                    formData.deliveryType === "pickup" 
+                      ? "border-rose-500 bg-rose-50 shadow-md" 
+                      : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                  }`}>
+                    <input
+                      type="radio"
+                      name="deliveryType"
+                      id="pickup"
+                      value="pickup"
+                      checked={formData.deliveryType === "pickup"}
+                      onChange={handleChange}
+                      className="sr-only"
+                    />
+                    <label
+                      htmlFor="pickup"
+                      className="flex items-center gap-3 cursor-pointer"
+                    >
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        formData.deliveryType === "pickup" 
+                          ? "border-rose-500 bg-rose-500" 
+                          : "border-gray-300"
+                      }`}>
+                        {formData.deliveryType === "pickup" && (
+                          <div className="w-3 h-3 bg-white rounded-full"></div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <FaShoppingBag className="w-6 h-6 text-rose-600" />
+                        <div>
+                          <div className="font-semibold text-gray-900">Pickup</div>
+                          <div className="text-sm text-gray-600">Collect from the restaurant</div>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="mb-8">
               <h3 className="font-black text-lg mb-6 text-black flex items-center gap-2">
                 <User className="inline" /> General Information
@@ -540,91 +623,7 @@ const Page = () => {
               </div>
             </div>
 
-            {/* Delivery Type Section */}
-            <div className="mb-8">
-              <h3 className="font-black text-lg mb-6 text-black flex items-center gap-2">
-                <Truck className="inline" /> Delivery Options
-              </h3>
-              <div className="space-y-4">
-                <label className="block font-semibold text-lg text-gray-800">
-                  Choose Delivery Type
-                </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className={`relative border-2 rounded-xl p-6 cursor-pointer transition-all duration-200 ${
-                    formData.deliveryType === "delivery" 
-                      ? "border-rose-500 bg-rose-50 shadow-md" 
-                      : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
-                  }`}>
-                    <input
-                      type="radio"
-                      name="deliveryType"
-                      id="delivery"
-                      value="delivery"
-                      checked={formData.deliveryType === "delivery"}
-                      onChange={handleChange}
-                      className="sr-only"
-                    />
-                    <label
-                      htmlFor="delivery"
-                      className="flex items-center gap-3 cursor-pointer"
-                    >
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        formData.deliveryType === "delivery" 
-                          ? "border-rose-500 bg-rose-500" 
-                          : "border-gray-300"
-                      }`}>
-                        {formData.deliveryType === "delivery" && (
-                          <div className="w-3 h-3 bg-white rounded-full"></div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Truck className="w-6 h-6 text-rose-600" />
-                        <div>
-                          <div className="font-semibold text-gray-900">Home Delivery</div>
-                          <div className="text-sm text-gray-600">We&apos;ll deliver to your address</div>
-                        </div>
-                      </div>
-                    </label>
-                  </div>
-                  <div className={`relative border-2 rounded-xl p-6 cursor-pointer transition-all duration-200 ${
-                    formData.deliveryType === "pickup" 
-                      ? "border-rose-500 bg-rose-50 shadow-md" 
-                      : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
-                  }`}>
-                    <input
-                      type="radio"
-                      name="deliveryType"
-                      id="pickup"
-                      value="pickup"
-                      checked={formData.deliveryType === "pickup"}
-                      onChange={handleChange}
-                      className="sr-only"
-                    />
-                    <label
-                      htmlFor="pickup"
-                      className="flex items-center gap-3 cursor-pointer"
-                    >
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        formData.deliveryType === "pickup" 
-                          ? "border-rose-500 bg-rose-500" 
-                          : "border-gray-300"
-                      }`}>
-                        {formData.deliveryType === "pickup" && (
-                          <div className="w-3 h-3 bg-white rounded-full"></div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <FaShoppingBag className="w-6 h-6 text-rose-600" />
-                        <div>
-                          <div className="font-semibold text-gray-900">Pickup</div>
-                          <div className="text-sm text-gray-600">Collect from the restaurant</div>
-                        </div>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
+          
           </div>
           <div className="rounded-2xl p-8 shadow-sm border border-gray-200 h-fit flex flex-col min-w-[320px]">
             <h3 className="font-black text-2xl mb-6 flex items-center gap-2 text-rose-600">

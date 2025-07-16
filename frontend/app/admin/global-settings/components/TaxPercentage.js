@@ -43,7 +43,7 @@ const TaxPercentage = () => {
         return;
       }
 
-      const currentTaxPercentage = data.data.taxPercentage || 10;
+      const currentTaxPercentage = data.data.taxPercentage || 0;
       
       setTaxPercentage(currentTaxPercentage);
       setOriginalValue(currentTaxPercentage);

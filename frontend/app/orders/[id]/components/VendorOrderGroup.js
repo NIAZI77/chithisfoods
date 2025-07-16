@@ -47,6 +47,79 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
         throw new Error("Failed to update order status");
       }
 
+      // --- Begin sales increment logic ---
+      let totalQuantity = 0;
+      // Increment each dish's weeklySalesCount
+      for (const dish of order.dishes) {
+        const dishId = dish.id;
+        const quantity = dish.quantity || 1;
+        totalQuantity += quantity;
+        // Fetch current dish data to get the current weeklySalesCount
+        const dishDataRes = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dishId}`, {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        });
+        const dishData = await dishDataRes.json();
+        const currentWeeklySalesCount = dishData.data.weeklySalesCount || 0;
+        const updatedWeeklySalesCount = currentWeeklySalesCount + quantity;
+
+        // Now update the dish with the new weeklySalesCount
+        const dishRes = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dishId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+            body: JSON.stringify({
+              data: {
+                weeklySalesCount: updatedWeeklySalesCount,
+              },
+            }),
+          }
+        );
+        if (!dishRes.ok) {
+          toast.error(`Failed to update sales for dish: ${dish.name}`);
+        }
+      }
+      // Increment vendor's weeklyItemsSold
+      if (order.vendorId && totalQuantity > 0) {
+        const vendorRes = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${order.vendorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+          }
+        );
+        const vendorData = await vendorRes.json();
+        const currentWeeklyItemsSold = vendorData.data?.weeklyItemsSold || 0;
+
+        // 2. Update with the new value
+        const updatedWeeklyItemsSold = currentWeeklyItemsSold + totalQuantity;
+
+        const updateRes = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${order.vendorId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+            body: JSON.stringify({
+              data: {
+                weeklyItemsSold: updatedWeeklyItemsSold,
+              },
+            }),
+          }
+        );
+        if (!vendorRes.ok) {
+          toast.error("Failed to update vendor's weekly sales count");
+        }
+      }
+      // --- End sales increment logic ---
+
       toast.success("Order marked as received!");
       onStatusUpdate();
     } catch (error) {

@@ -13,6 +13,9 @@ A modern multi-vendor food delivery platform connecting local chefs and home coo
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
+- [Pages & Components Map](#pages--components-map)
+- [How to Add a New Page or Component](#how-to-add-a-new-page-or-component)
+- [Role-based Navigation](#role-based-navigation)
 - [Scripts](#scripts)
 - [Contributing](#contributing)
 - [License](#license)
@@ -140,6 +143,52 @@ public/
 
 ---
 
+## Pages & Components Map
+
+### Main Pages
+- `admin/`
+  - `dashboard/` (page.js)
+  - `global-settings/` (page.js, components: CategoryForm.js, TaxPercentage.js)
+  - `login/` (page.js)
+  - `orders/` (page.js, components: OrdersTable.js, Filters.js, MetricsCards.js)
+  - `payments/` (page.js, components: TaxMetrics.js, PaymentOrdersTable.js, PaymentMetrics.js, PaymentConfirmationDialog.js, PaymentFilters.js)
+  - `users-and-vendors/` (page.js, components: VendorsTable.jsx, VendorVerificationModal.js, UsersTable.jsx, UserDetailsModal.jsx, Charts.jsx, MetricsCards.jsx, Pagination.jsx)
+- `vendor/`
+  - `dashboard/` (page.js)
+  - `add-dish/` (page.js)
+  - `edit-dish/[id]/` (page.js)
+  - `manage-inventory/` (page.js)
+  - `order-management/` (page.js, components: StatusBadge.js, StatusSummary.js, OrderDetailsDialog.js, OrderCard.js)
+  - `payment/` (page.js)
+  - `settings/` (page.js)
+- `orders/`
+  - `[id]/` (page.js, components: VendorOrderGroup.js, dialog.jsx, ReviewDialog.js, RefundDialog.js, OrderSummary.js, OrderDetails.js, OrderHeader.js, OrderStatusBadge.js)
+- Other main pages: become-a-vendor/, cart/, category/, checkout/, explore/, forget-password/, login/, not-found.js, profile/, reset-password/, signup/, terms-and-conditions/, thank-you/, vendors/.
+
+---
+
+## How to Add a New Page or Component
+
+- **Add a new page:**
+  1. Create a new folder under `app/` (e.g., `app/new-feature/`).
+  2. Add a `page.js` file for the route.
+  3. Add any subfolders/components as needed.
+- **Add a new component:**
+  1. Place shared components in `app/components/`.
+  2. Place page-specific components in the relevant page's `components/` subfolder.
+- **Add a new admin/vendor/user feature:**
+  1. Place under the respective role directory (e.g., `admin/`, `vendor/`).
+
+---
+
+## Role-based Navigation
+
+- **User:** `/`, `/category/`, `/cart/`, `/orders/`, `/profile/`, `/explore/`, `/login/`, `/signup/`, `/forget-password/`, `/reset-password/`, `/thank-you/`, `/vendors/`, `/terms-and-conditions/`, `/privacy-policy/`
+- **Vendor:** `/vendor/dashboard/`, `/vendor/manage-inventory/`, `/vendor/order-management/`, `/vendor/payment/`, `/vendor/settings/`, `/vendor/add-dish/`, `/vendor/edit-dish/[id]/`
+- **Admin:** `/admin/login/`, `/admin/dashboard/`, `/admin/users-and-vendors/`, `/admin/orders/`, `/admin/payments/`, `/admin/global-settings/`
+
+---
+
 ## Scripts
 
 - `npm run dev` – Start development server
@@ -166,3 +215,5 @@ This project is licensed under the MIT License.
 ---
 
 **For more details, see the code and comments in each directory.**
+
+- **Top Chefs & Popular Dishes:** Homepage and Explore now show top vendors and dishes for the week, based on weekly sales (fields: weeklyItemsSold for vendors, weeklySalesCount for dishes). These stats reset every Monday at midnight (powered by backend cron job, see [backend/README.md](../backend/README.md) for details).

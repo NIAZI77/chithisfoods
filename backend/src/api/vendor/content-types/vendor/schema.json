@@ -98,6 +98,10 @@
         "rejected"
       ],
       "default": "new-chef"
+    },
+    "weeklyItemsSold": {
+      "type": "integer",
+      "default": 0
     }
   }
 }

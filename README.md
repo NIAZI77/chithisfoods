@@ -13,6 +13,10 @@ A modern multi-vendor food delivery platform connecting local chefs and home coo
 - [Contributing](#contributing)
 - [License](#license)
 - [Further Reading](#further-reading)
+- [Pages & API Map](#pages--api-map)
+- [Quick Start for Each Role](#quick-start-for-each-role)
+- [How to Extend](#how-to-extend)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -22,10 +26,12 @@ ChithisFoods is a full-stack platform for food ordering and delivery, supporting
 - **Vendor:** Manage dishes, orders, and payments.
 - **Admin:** Oversee users, vendors, orders, payments, and platform settings.
 
+**Weekly Stats:** The backend uses a scheduled cron job to reset weekly sales stats for vendors and dishes every Monday at midnight. This powers the "Top Chefs" and "Popular Dishes" features on the frontend. See [backend/README.md](./backend/README.md) for details.
+
 ---
 
 ## Architecture
-- **Backend:** [Strapi](https://strapi.io/) (Node.js) – Handles API, authentication, content management, and business logic.
+- **Backend:** [Strapi](https://strapi.io/) (Node.js) – Handles API, authentication, content management, business logic, and scheduled tasks (cron jobs for weekly stats).
 - **Frontend:** [Next.js](https://nextjs.org/) (React) – Provides a modern, responsive web interface for all user roles.
 
 ```
@@ -167,4 +173,74 @@ This project is licensed under the MIT License.
 
 ---
 
-**For more details, see the code and comments in each directory.** 
+## Pages & API Map
+
+### Frontend (Next.js)
+- **admin/**
+  - dashboard/
+  - global-settings/
+  - login/
+  - orders/
+  - payments/
+  - users-and-vendors/
+- **vendor/**
+  - dashboard/
+  - add-dish/
+  - edit-dish/[id]/
+  - manage-inventory/
+  - order-management/
+  - payment/
+  - settings/
+- **orders/**
+  - [id]/
+- **Other main pages:** become-a-vendor/, cart/, category/, checkout/, explore/, forget-password/, login/, not-found.js, profile/, reset-password/, signup/, terms-and-conditions/, thank-you/, vendors/.
+
+### Backend (Strapi)
+- **admin/** (content-types, controllers, routes, services)
+- **category/** (content-types, controllers, routes, services)
+- **dish/** (content-types, controllers, routes, services)
+- **order/** (content-types, controllers, routes, services)
+- **vendor/** (content-types, controllers, routes, services)
+- **Other:** config/, database/, public/, types/, extensions/users-permissions/
+
+---
+
+## Quick Start for Each Role
+
+### User
+- Sign up, browse dishes, add to cart, checkout, track orders.
+- Access: `/`, `/category/`, `/cart/`, `/orders/`, `/profile/`.
+
+### Vendor
+- Register as vendor, manage inventory, view orders, track payments.
+- Access: `/vendor/dashboard/`, `/vendor/manage-inventory/`, `/vendor/order-management/`, `/vendor/payment/`, `/vendor/settings/`.
+
+### Admin
+- Login, manage users/vendors/orders/payments, configure global settings.
+- Access: `/admin/login/`, `/admin/dashboard/`, `/admin/users-and-vendors/`, `/admin/orders/`, `/admin/payments/`, `/admin/global-settings/`.
+
+---
+
+## How to Extend
+
+- **Frontend:**
+  - Add a new page: Create a new folder under `frontend/app/` and add a `page.js` file.
+  - Add a new component: Add to `frontend/app/components/` or the relevant subfolder.
+  - Add a new admin/vendor/user feature: Place under the respective role directory.
+- **Backend:**
+  - Add a new API module: Duplicate an existing module in `backend/src/api/`, update content-types, controllers, routes, and services.
+  - Add new fields: Update the relevant `schema.json` in `content-types`.
+  - Add new scheduled tasks: Edit `backend/config/server.js` under the `cron.tasks` section.
+
+---
+
+## Troubleshooting
+
+- **.env issues:** Ensure both backend and frontend have a properly configured `.env` file. Use `.env.example` as a template.
+- **Database connection errors:** Check your database URL and credentials in `backend/.env`.
+- **Frontend API errors:** Make sure the API base URL in `frontend/.env` matches your backend server.
+- **Strapi admin not loading:** Run `npm run build` in `backend/` if you see admin panel build errors.
+- **Next.js build errors:** Run `npm run lint` and fix any reported issues.
+- **Weekly stats not updating:** Ensure backend cron jobs are running (see `backend/config/server.js`).
+
+For more, see the code and comments in each directory. 

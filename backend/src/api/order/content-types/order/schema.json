@@ -33,7 +33,8 @@
         "paid",
         "unpaid",
         "refunded"
-      ]
+      ],
+      "default": "unpaid"
     },
     "totalAmount": {
       "type": "decimal",

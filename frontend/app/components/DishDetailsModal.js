@@ -208,41 +208,90 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
     const handleAddToCart = () => {
         try {
-            if (!dishDetails) return;
+            const activeExtras = Object.entries(selectedExtras)
+                .filter(([, item]) => item.price > 0)
+                .map(([name, item]) => ({
+                    name,
+                    option: item.selected,
+                    price: Number(item.price),
+                }));
 
-            const cartItem = {
-                id: dishDetails.documentId,
-                name: dishDetails.name,
-                price: calculateTotalPrice() / orderQuantity,
-                quantity: orderQuantity,
-                image: dishDetails.image?.url,
-                vendorId: dishDetails.vendorId,
-                vendorName: vendorDetails?.storeName || vendorDetails?.storeName,
-                spiceLevel: selectedSpiceLevel,
-                extras: selectedExtras,
-                toppings: selectedToppings,
-                totalPrice: calculateTotalPrice(),
-            };
+            const activeToppings = Object.entries(selectedToppings)
+                .filter(([, item]) => item.price > 0)
+                .map(([name, item]) => ({
+                    name,
+                    option: item.selected,
+                    price: Number(item.price),
+                }));
 
-            const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-            const existingItemIndex = existingCart.findIndex(
-                (item) => item.id === cartItem.id
-            );
-
-            if (existingItemIndex !== -1) {
-                existingCart[existingItemIndex].quantity += cartItem.quantity;
-            } else {
-                existingCart.push(cartItem);
+            let cart = [];
+            try {
+                const savedCart = localStorage.getItem("cart");
+                cart = savedCart ? JSON.parse(savedCart) : [];
+                if (!Array.isArray(cart)) {
+                    cart = [];
+                }
+            } catch (error) {
+                console.error("Error parsing cart:", error);
+                cart = [];
             }
 
-            localStorage.setItem("cart", JSON.stringify(existingCart));
-            toast.success("Added to cart successfully!");
-            onClose();
+            const vendorGroupIndex = cart.findIndex(
+                (group) => group.vendorId === dishDetails.vendorId
+            );
+
+            const newDishItem = {
+                id: dishDetails.documentId,
+                name: dishDetails.name,
+                image: { id: dishDetails.image?.id, url: dishDetails.image?.url },
+                basePrice: dishDetails.price,
+                quantity: orderQuantity,
+                selectedSpiciness: selectedSpiceLevel,
+                toppings: activeToppings,
+                extras: activeExtras,
+                total: calculateTotalPrice().toFixed(2),
+            };
+
+            if (vendorGroupIndex > -1) {
+                const existingDishIndex = cart[vendorGroupIndex].dishes.findIndex(
+                    (dish) =>
+                        dish.id === dishDetails.documentId &&
+                        dish.selectedSpiciness === selectedSpiceLevel &&
+                        JSON.stringify(dish.toppings) === JSON.stringify(activeToppings) &&
+                        JSON.stringify(dish.extras) === JSON.stringify(activeExtras)
+                );
+
+                if (existingDishIndex > -1) {
+                    cart[vendorGroupIndex].dishes[existingDishIndex].quantity +=
+                        orderQuantity;
+                    cart[vendorGroupIndex].dishes[existingDishIndex].total = (
+                        Number(cart[vendorGroupIndex].dishes[existingDishIndex].basePrice) *
+                        cart[vendorGroupIndex].dishes[existingDishIndex].quantity
+                    ).toFixed(2);
+                } else {
+                    cart[vendorGroupIndex].dishes.push(newDishItem);
+                }
+            } else {
+                cart.push({
+                    vendorId: dishDetails.vendorId,
+                    vendorName: vendorDetails?.storeName || "Unknown Chef",
+                    vendorUsername: vendorDetails?.username || "",
+                    vendorAvatar: vendorDetails?.avatar?.url || "/fallback.png",
+                    dishes: [newDishItem],
+                });
+            }
+
+            localStorage.setItem("cart", JSON.stringify(cart));
+            toast.success(
+                `Successfully added ${orderQuantity} ${dishDetails.name} to your cart!`
+            );
         } catch (error) {
-            console.error("Error adding to cart:", error);
             toast.error(API_ERROR_MESSAGES.CART_ERROR);
+            console.error("Error adding to cart:", error);
         }
     };
+
+
 
     const handleOptionSelect = (type, name, option, price) => {
         try {
@@ -503,11 +552,11 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                                                     alt={vendorDetails?.storeName || "Chef"}
                                                     width={64}
                                                     height={64}
-                                                    className="rounded-full w-16 h-16 object-cover border-2 border-rose-100 shadow-sm"
+                                                    className="rounded-full w-16 h-16 object-cover shadow-md"
                                                 />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-lg font-semibold text-gray-800">
+                                                <span className="text-md font-semibold text-gray-800">
                                                     {vendorDetails?.storeName || "Unknown Chef"}
                                                 </span>
                                                 {vendorDetails?.username && (
