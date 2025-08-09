@@ -57,7 +57,6 @@ export default function BecomeVendor() {
     }
   };
 
-
   useEffect(() => {
     const storedJwt = getCookie("jwt");
     const storedUser = getCookie("user");
@@ -70,10 +69,14 @@ export default function BecomeVendor() {
     }
   }, [router]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+ const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  const sanitizedValue =
+    name === "phoneNumber" ? value.replace(/[^0-9 +]/g, "") : value;
+
+  setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
+};
 
   const getFieldsForStep = () => {
     switch (step) {
@@ -173,7 +176,8 @@ export default function BecomeVendor() {
         }, 1000);
       } else {
         toast.error(
-          `Unable to create vendor profile: ${data?.error?.message || "Unknown error."
+          `Unable to create vendor profile: ${
+            data?.error?.message || "Unknown error."
           }`
         );
       }
@@ -188,7 +192,8 @@ export default function BecomeVendor() {
 
   const handleSubmit = async () => {
     const usernameRegex = /^[a-z0-9_]{3,15}$/;
-    const phoneRegex = /^\+?(\d{1,3})?[-. (]*\d{1,4}[-. )]*\d{1,4}[-. ]*\d{1,9}$/;
+    const phoneRegex =
+      /^\+?(\d{1,3})?[-. (]*\d{1,4}[-. )]*\d{1,4}[-. ]*\d{1,9}$/;
     if (formData.zipcode.length !== 5) {
       toast.error("ZIP Code must be 5 digits.");
       return;
@@ -201,12 +206,13 @@ export default function BecomeVendor() {
       return;
     }
     if (!phoneRegex.test(formData.phoneNumber)) {
-      toast.error(
-        "Invalid Phone Number Format"
-      );
+      toast.error("Invalid Phone Number Format");
       return;
     }
-    if (formData.avatar.url.length === 0 || formData.coverImage.url.length === 0) {
+    if (
+      formData.avatar.url.length === 0 ||
+      formData.coverImage.url.length === 0
+    ) {
       toast.error("Please upload both profile and cover images");
       return;
     }
@@ -224,8 +230,9 @@ export default function BecomeVendor() {
           {Array.from({ length: totalSteps }).map((_, index) => (
             <div
               key={index}
-              className={`h-1 w-full mx-1 rounded-full ${step > index ? "bg-red-500" : "bg-gray-300"
-                }`}
+              className={`h-1 w-full mx-1 rounded-full ${
+                step > index ? "bg-red-500" : "bg-gray-300"
+              }`}
             ></div>
           ))}
         </div>
@@ -291,7 +298,7 @@ export default function BecomeVendor() {
               />
               <input
                 name="phoneNumber"
-                type="tel"
+                type="text"
                 value={formData.phoneNumber}
                 onChange={handleChange}
                 placeholder="Phone Number"
@@ -307,8 +314,9 @@ export default function BecomeVendor() {
                 <div
                   className="bg-cover bg-center w-full aspect-video rounded-lg"
                   style={{
-                    backgroundImage: `url("${formData.coverImage?.url || "/fallback.png"
-                      }")`,
+                    backgroundImage: `url("${
+                      formData.coverImage?.url || "/fallback.png"
+                    }")`,
                   }}
                 >
                   <input
@@ -363,15 +371,18 @@ export default function BecomeVendor() {
             )}
             <button
               type="submit"
-              className={`${step > 1 ? "w-[calc(100%-55px)]" : "w-full"
-                } bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:bg-rose-300 disabled:cursor-not-allowed`}
+              className={`${
+                step > 1 ? "w-[calc(100%-55px)]" : "w-full"
+              } bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:bg-rose-300 disabled:cursor-not-allowed`}
               disabled={submitting}
             >
-              {submitting
-                ? <Spinner />
-                : step === totalSteps
-                  ? "Submit"
-                  : "Next"}
+              {submitting ? (
+                <Spinner />
+              ) : step === totalSteps ? (
+                "Submit"
+              ) : (
+                "Next"
+              )}
             </button>
           </div>
         </form>

@@ -79,10 +79,10 @@ export default function AddDishPage() {
 
       // Set initial category and subcategory if available
       if (data.data.length > 0) {
-        setDishData(prev => ({
+        setDishData((prev) => ({
           ...prev,
           category: data.data[0].name,
-          subcategory: data.data[0].subcategories[0]?.name || ""
+          subcategory: data.data[0].subcategories[0]?.name || "",
         }));
       }
     } catch (error) {
@@ -235,7 +235,9 @@ export default function AddDishPage() {
 
   const deleteOption = (type, groupIndex, optionIndex) => {
     const updated = [...dishData[type]];
-    updated[groupIndex].options = updated[groupIndex].options.filter((_, i) => i !== optionIndex);
+    updated[groupIndex].options = updated[groupIndex].options.filter(
+      (_, i) => i !== optionIndex
+    );
     setDishData((prev) => ({ ...prev, [type]: updated }));
   };
 
@@ -310,30 +312,34 @@ export default function AddDishPage() {
   };
 
   const handleCategoryChange = (value) => {
-    const selectedCategory = categories.find(cat => cat.name === value);
+    const selectedCategory = categories.find((cat) => cat.name === value);
     setDishData((prev) => ({
       ...prev,
       category: value,
       subcategory: selectedCategory?.subcategories[0]?.name || "",
-      subSubCategory: "other" // Set default to "other"
+      subSubCategory: "other", // Set default to "other"
     }));
   };
 
   const handleSubcategoryChange = (value) => {
-    const selectedCategory = categories.find(cat => cat.name === dishData.category);
-    const selectedSubcategory = selectedCategory?.subcategories.find(sub => sub.name === value);
+    const selectedCategory = categories.find(
+      (cat) => cat.name === dishData.category
+    );
+    const selectedSubcategory = selectedCategory?.subcategories.find(
+      (sub) => sub.name === value
+    );
 
     setDishData((prev) => ({
       ...prev,
       subcategory: value,
-      subSubCategory: "other" // Reset to "other" when subcategory changes
+      subSubCategory: "other", // Reset to "other" when subcategory changes
     }));
   };
 
   const handleSubSubCategoryChange = (value) => {
     setDishData((prev) => ({
       ...prev,
-      subSubCategory: value
+      subSubCategory: value,
     }));
   };
 
@@ -416,7 +422,8 @@ export default function AddDishPage() {
                 <SelectGroup>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.name}>
-                      {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
+                      {category.name.charAt(0).toUpperCase() +
+                        category.name.slice(1)}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -438,12 +445,16 @@ export default function AddDishPage() {
               <SelectContent>
                 <SelectGroup>
                   {categories
-                    .find(cat => cat.name === dishData.category)
+                    .find((cat) => cat.name === dishData.category)
                     ?.subcategories.map((subcat) => (
                       <SelectItem key={subcat.name} value={subcat.name}>
-                        {subcat.name.split('-').map(word =>
-                          word.charAt(0).toUpperCase() + word.slice(1)
-                        ).join(' ')}
+                        {subcat.name
+                          .split("-")
+                          .map(
+                            (word) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(" ")}
                       </SelectItem>
                     ))}
                 </SelectGroup>
@@ -452,9 +463,11 @@ export default function AddDishPage() {
           </div>
 
           {(() => {
-            const selectedCategory = categories.find(cat => cat.name === dishData.category);
+            const selectedCategory = categories.find(
+              (cat) => cat.name === dishData.category
+            );
             const selectedSubcategory = selectedCategory?.subcategories.find(
-              sub => sub.name === dishData.subcategory
+              (sub) => sub.name === dishData.subcategory
             );
 
             if (selectedSubcategory) {
@@ -473,13 +486,19 @@ export default function AddDishPage() {
                     <SelectContent>
                       <SelectGroup>
                         <SelectItem value="other">Other</SelectItem>
-                        {selectedSubcategory.subSubcategories.map((subSubcat) => (
-                          <SelectItem key={subSubcat} value={subSubcat}>
-                            {subSubcat.split('-').map(word =>
-                              word.charAt(0).toUpperCase() + word.slice(1)
-                            ).join(' ')}
-                          </SelectItem>
-                        ))}
+                        {selectedSubcategory.subSubcategories.map(
+                          (subSubcat) => (
+                            <SelectItem key={subSubcat} value={subSubcat}>
+                              {subSubcat
+                                .split("-")
+                                .map(
+                                  (word) =>
+                                    word.charAt(0).toUpperCase() + word.slice(1)
+                                )
+                                .join(" ")}
+                            </SelectItem>
+                          )
+                        )}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -555,15 +574,17 @@ export default function AddDishPage() {
           />
         </div>
 
+          <label className="text-sm text-slate-400 ml-2">Spice Level</label>
         <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
           {["Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map((level) => (
             <div
               key={level}
               onClick={() => handleSpicinessChange(level)}
-              className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md text-xs font-semibold transition-all ${dishData.spiciness.includes(level)
+              className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md text-xs font-semibold transition-all ${
+                dishData.spiciness.includes(level)
                   ? "bg-orange-500 text-white border-orange-500"
                   : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
-                }`}
+              }`}
             >
               {level}
             </div>
@@ -647,7 +668,9 @@ export default function AddDishPage() {
                     {group.options.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => deleteOption("toppings", groupIndex, optionIndex)}
+                        onClick={() =>
+                          deleteOption("toppings", groupIndex, optionIndex)
+                        }
                         className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
                       >
                         <X size={18} />
@@ -749,7 +772,9 @@ export default function AddDishPage() {
                     {group.options.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => deleteOption("extras", groupIndex, optionIndex)}
+                        onClick={() =>
+                          deleteOption("extras", groupIndex, optionIndex)
+                        }
                         className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
                       >
                         <X size={18} />

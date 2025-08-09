@@ -81,8 +81,8 @@ export default function Explore() {
       <TopChefs zipcode={zipcode} />
       <PopularDishes zipcode={zipcode} />
       <Testimonials />
-      <FoodPromo />
       <FAQs />
+      <FoodPromo />
     </div>
   );
 }

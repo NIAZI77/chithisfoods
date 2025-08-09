@@ -334,30 +334,34 @@ export default function EditDishPage() {
   };
 
   const handleCategoryChange = (value) => {
-    const selectedCategory = categories.find(cat => cat.name === value);
-    setDishData((prev) => ({ 
-      ...prev, 
+    const selectedCategory = categories.find((cat) => cat.name === value);
+    setDishData((prev) => ({
+      ...prev,
       category: value,
       subcategory: selectedCategory?.subcategories[0]?.name || "",
-      subSubCategory: "other" // Set default to "other"
+      subSubCategory: "other", // Set default to "other"
     }));
   };
 
   const handleSubcategoryChange = (value) => {
-    const selectedCategory = categories.find(cat => cat.name === dishData.category);
-    const selectedSubcategory = selectedCategory?.subcategories.find(sub => sub.name === value);
-    
+    const selectedCategory = categories.find(
+      (cat) => cat.name === dishData.category
+    );
+    const selectedSubcategory = selectedCategory?.subcategories.find(
+      (sub) => sub.name === value
+    );
+
     setDishData((prev) => ({
       ...prev,
       subcategory: value,
-      subSubCategory: "other" // Reset to "other" when subcategory changes
+      subSubCategory: "other", // Reset to "other" when subcategory changes
     }));
   };
 
   const handleSubSubCategoryChange = (value) => {
     setDishData((prev) => ({
       ...prev,
-      subSubCategory: value
+      subSubCategory: value,
     }));
   };
 
@@ -438,7 +442,8 @@ export default function EditDishPage() {
                 <SelectGroup>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.name}>
-                      {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
+                      {category.name.charAt(0).toUpperCase() +
+                        category.name.slice(1)}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -460,12 +465,16 @@ export default function EditDishPage() {
               <SelectContent>
                 <SelectGroup>
                   {categories
-                    .find(cat => cat.name === dishData.category)
+                    .find((cat) => cat.name === dishData.category)
                     ?.subcategories.map((subcat) => (
                       <SelectItem key={subcat.name} value={subcat.name}>
-                        {subcat.name.split('-').map(word => 
-                          word.charAt(0).toUpperCase() + word.slice(1)
-                        ).join(' ')}
+                        {subcat.name
+                          .split("-")
+                          .map(
+                            (word) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(" ")}
                       </SelectItem>
                     ))}
                 </SelectGroup>
@@ -474,11 +483,13 @@ export default function EditDishPage() {
           </div>
 
           {(() => {
-            const selectedCategory = categories.find(cat => cat.name === dishData.category);
-            const selectedSubcategory = selectedCategory?.subcategories.find(
-              sub => sub.name === dishData.subcategory
+            const selectedCategory = categories.find(
+              (cat) => cat.name === dishData.category
             );
-            
+            const selectedSubcategory = selectedCategory?.subcategories.find(
+              (sub) => sub.name === dishData.subcategory
+            );
+
             if (selectedSubcategory) {
               return (
                 <div className="flex flex-col my-2 md:col-span-2">
@@ -495,13 +506,19 @@ export default function EditDishPage() {
                     <SelectContent>
                       <SelectGroup>
                         <SelectItem value="other">Other</SelectItem>
-                        {selectedSubcategory.subSubcategories.map((subSubcat) => (
-                          <SelectItem key={subSubcat} value={subSubcat}>
-                            {subSubcat.split('-').map(word => 
-                              word.charAt(0).toUpperCase() + word.slice(1)
-                            ).join(' ')}
-                          </SelectItem>
-                        ))}
+                        {selectedSubcategory.subSubcategories.map(
+                          (subSubcat) => (
+                            <SelectItem key={subSubcat} value={subSubcat}>
+                              {subSubcat
+                                .split("-")
+                                .map(
+                                  (word) =>
+                                    word.charAt(0).toUpperCase() + word.slice(1)
+                                )
+                                .join(" ")}
+                            </SelectItem>
+                          )
+                        )}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -577,6 +594,7 @@ export default function EditDishPage() {
           />
         </div>
 
+          <label className="text-sm text-slate-400 ml-2">Spice Level</label>
         <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
           {["Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map((level) => (
             <div

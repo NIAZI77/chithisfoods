@@ -123,10 +123,10 @@ const Page = () => {
       </section>
 
       <section>
-        <FoodPromo />
+        <FAQs />
       </section>
       <section>
-        <FAQs />
+        <FoodPromo />
       </section>
     </div>
   );
