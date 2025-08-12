@@ -9,7 +9,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -210,22 +209,35 @@ export default function AddDishPage() {
     setDishData((prev) => ({ ...prev, [type]: updated }));
   };
 
-  const addOptionGroup = (type) => {
+  const canAddNewGroup = (type) => {
     const last = dishData[type].at(-1);
-    if (
+    return (
       dishData[type].length === 0 ||
-      (last.name && last.options.every((opt) => opt.label && opt.price))
-    ) {
-      setDishData((prev) => ({
-        ...prev,
-        [type]: [
-          ...prev[type],
-          { name: "", options: [{ label: "", price: "" }] },
-        ],
-      }));
-    } else {
+      (last?.name && last.options.every((opt) => opt.label && opt.price))
+    );
+  };
+
+  const addGroup = (type) => {
+    if (!canAddNewGroup(type)) {
       toast.warning(`Please complete the previous ${type.slice(0, -1)} first.`);
+      return;
     }
+    const newGroup = {
+      name: "",
+      mode: "included",
+      options: [{ label: "included", price: "0.00" }],
+    };
+    setDishData((prev) => ({ ...prev, [type]: [...prev[type], newGroup] }));
+  };
+
+  const handleModeChange = (type, groupIndex, mode) => {
+    const updated = [...dishData[type]];
+    updated[groupIndex].mode = mode;
+    updated[groupIndex].options =
+      mode === "included"
+        ? [{ label: "included", price: "0.00" }]
+        : [{ label: "", price: "0.00" }];
+    setDishData((prev) => ({ ...prev, [type]: updated }));
   };
 
   const deleteOptionGroup = (type, index) => {
@@ -240,6 +252,8 @@ export default function AddDishPage() {
     );
     setDishData((prev) => ({ ...prev, [type]: updated }));
   };
+
+  const isIncludedGroup = (group) => group.mode === "included";
 
   const isValid = () => {
     const complete = (list) =>
@@ -596,7 +610,7 @@ export default function AddDishPage() {
             <h2 className="text-xl font-semibold text-orange-500">Toppings</h2>
             <button
               type="button"
-              onClick={() => addOptionGroup("toppings")}
+              onClick={() => addGroup("toppings")}
               className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
             >
               <PlusCircle size={20} /> Add Topping
@@ -608,89 +622,154 @@ export default function AddDishPage() {
               key={groupIndex}
               className="p-6 rounded-lg mb-6 bg-white shadow-sm space-y-4 border border-gray-100"
             >
-              <div className="flex justify-between items-center gap-4">
-                <input
-                  type="text"
-                  placeholder="Topping Group Name"
-                  value={group.name}
-                  onChange={(e) =>
-                    handleArrayChange(
-                      "toppings",
-                      groupIndex,
-                      "name",
-                      e.target.value
-                    )
-                  }
-                  className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                />
-                <button
-                  type="button"
-                  onClick={() => deleteOptionGroup("toppings", groupIndex)}
-                  className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
-                >
-                  <Trash2 size={18} />
-                </button>
+              <div className="flex flex-col gap-3">
+                <div className="flex justify-between items-center gap-4">
+                  <input
+                    type="text"
+                    placeholder="Topping Group Name"
+                    value={group.name}
+                    onChange={(e) =>
+                      handleArrayChange(
+                        "toppings",
+                        groupIndex,
+                        "name",
+                        e.target.value
+                      )
+                    }
+                    className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => deleteOptionGroup("toppings", groupIndex)}
+                    className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-6">
+                  <div role="radiogroup" className="inline-flex items-center gap-1 bg-slate-100 rounded-full p-1 border border-slate-200">
+                    <label className="cursor-pointer">
+                      <input
+                        type="radio"
+                        name={`toppings-mode-${groupIndex}`}
+                        checked={group.mode === "included"}
+                        onChange={() => handleModeChange("toppings", groupIndex, "included")}
+                        className="sr-only"
+                      />
+                      <span
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                          group.mode === "included"
+                            ? "bg-slate-700 text-white shadow"
+                            : "text-slate-700 hover:bg-slate-200"
+                        }`}
+                      >
+                        Fixed Price
+                      </span>
+                    </label>
+                    <label className="cursor-pointer">
+                      <input
+                        type="radio"
+                        name={`toppings-mode-${groupIndex}`}
+                        checked={group.mode === "quantity"}
+                        onChange={() => handleModeChange("toppings", groupIndex, "quantity")}
+                        className="sr-only"
+                      />
+                      <span
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                          group.mode === "quantity"
+                            ? "bg-slate-700 text-white shadow"
+                            : "text-slate-700 hover:bg-slate-200"
+                        }`}
+                      >
+                        Multiple Options
+                      </span>
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-3">
                 {group.options.map((option, optionIndex) => (
                   <div key={optionIndex} className="flex gap-4 items-center">
-                    <input
-                      type="text"
-                      placeholder="Label"
-                      value={option.label}
-                      onChange={(e) =>
-                        handleArrayChange(
-                          "toppings",
-                          groupIndex,
-                          "label",
-                          e.target.value,
-                          optionIndex
-                        )
-                      }
-                      className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Price"
-                      value={option.price}
-                      onChange={(e) =>
-                        handleArrayChange(
-                          "toppings",
-                          groupIndex,
-                          "price",
-                          e.target.value,
-                          optionIndex
-                        )
-                      }
-                      className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                    />
-                    {group.options.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          deleteOption("toppings", groupIndex, optionIndex)
+                    {isIncludedGroup(group) ? (
+                      <input
+                        type="text"
+                        placeholder="Price"
+                        value={option.price}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "toppings",
+                            groupIndex,
+                            "price",
+                            e.target.value,
+                            optionIndex
+                          )
                         }
-                        className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
-                      >
-                        <X size={18} />
-                      </button>
+                        className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                      />
+                    ) : (
+                      <>
+                        <input
+                          type="text"
+                          placeholder="i.e 1"
+                          value={option.label}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "toppings",
+                              groupIndex,
+                              "label",
+                              e.target.value,
+                              optionIndex
+                            )
+                          }
+                          className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Price"
+                          value={option.price}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "toppings",
+                              groupIndex,
+                              "price",
+                              e.target.value,
+                              optionIndex
+                            )
+                          }
+                          className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                        />
+                        {group.options.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              deleteOption("toppings", groupIndex, optionIndex)
+                            }
+                            className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
+                          >
+                            <X size={18} />
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 ))}
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  const updated = [...dishData.toppings];
-                  updated[groupIndex].options.push({ label: "", price: "" });
-                  setDishData((prev) => ({ ...prev, toppings: updated }));
-                }}
-                className="text-sm text-orange-500 hover:text-orange-600 transition-colors"
-              >
-                + Add Option
-              </button>
+              {!isIncludedGroup(group) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = [...dishData.toppings];
+                    updated[groupIndex].options.push({ label: "", price: "0.00" });
+                    setDishData((prev) => ({ ...prev, toppings: updated }));
+                  }}
+                  className="text-sm text-orange-500 hover:text-orange-600 transition-colors"
+                >
+                  + Add Option
+                </button>
+              )}
             </div>
           ))}
         </section>
@@ -700,7 +779,7 @@ export default function AddDishPage() {
             <h2 className="text-xl font-semibold text-orange-500">Extras</h2>
             <button
               type="button"
-              onClick={() => addOptionGroup("extras")}
+              onClick={() => addGroup("extras")}
               className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
             >
               <PlusCircle size={20} /> Add Extra
@@ -712,89 +791,154 @@ export default function AddDishPage() {
               key={groupIndex}
               className="p-6 rounded-lg mb-6 bg-white shadow-sm space-y-4 border border-gray-100"
             >
-              <div className="flex justify-between items-center gap-4">
-                <input
-                  type="text"
-                  placeholder="Extra Group Name"
-                  value={group.name}
-                  onChange={(e) =>
-                    handleArrayChange(
-                      "extras",
-                      groupIndex,
-                      "name",
-                      e.target.value
-                    )
-                  }
-                  className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                />
-                <button
-                  type="button"
-                  onClick={() => deleteOptionGroup("extras", groupIndex)}
-                  className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
-                >
-                  <Trash2 size={18} />
-                </button>
+              <div className="flex flex-col gap-3">
+                <div className="flex justify-between items-center gap-4">
+                  <input
+                    type="text"
+                    placeholder="Extra Group Name"
+                    value={group.name}
+                    onChange={(e) =>
+                      handleArrayChange(
+                        "extras",
+                        groupIndex,
+                        "name",
+                        e.target.value
+                      )
+                    }
+                    className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => deleteOptionGroup("extras", groupIndex)}
+                    className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-6">
+                  <div role="radiogroup" className="inline-flex items-center gap-1 bg-slate-100 rounded-full p-1 border border-slate-200">
+                    <label className="cursor-pointer">
+                      <input
+                        type="radio"
+                        name={`extras-mode-${groupIndex}`}
+                        checked={group.mode === "included"}
+                        onChange={() => handleModeChange("extras", groupIndex, "included")}
+                        className="sr-only"
+                      />
+                      <span
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                          group.mode === "included"
+                            ? "bg-slate-700 text-white shadow"
+                            : "text-slate-700 hover:bg-slate-200"
+                        }`}
+                      >
+                        Fixed Price 
+                      </span>
+                    </label>
+                    <label className="cursor-pointer">
+                      <input
+                        type="radio"
+                        name={`extras-mode-${groupIndex}`}
+                        checked={group.mode === "quantity"}
+                        onChange={() => handleModeChange("extras", groupIndex, "quantity")}
+                        className="sr-only"
+                      />
+                      <span
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                          group.mode === "quantity"
+                            ? "bg-slate-700 text-white shadow"
+                            : "text-slate-700 hover:bg-slate-200"
+                        }`}
+                      >
+                        Multiple Options
+                      </span>
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-3">
                 {group.options.map((option, optionIndex) => (
                   <div key={optionIndex} className="flex gap-4 items-center">
-                    <input
-                      type="text"
-                      placeholder="Label"
-                      value={option.label}
-                      onChange={(e) =>
-                        handleArrayChange(
-                          "extras",
-                          groupIndex,
-                          "label",
-                          e.target.value,
-                          optionIndex
-                        )
-                      }
-                      className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Price"
-                      value={option.price}
-                      onChange={(e) =>
-                        handleArrayChange(
-                          "extras",
-                          groupIndex,
-                          "price",
-                          e.target.value,
-                          optionIndex
-                        )
-                      }
-                      className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                    />
-                    {group.options.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          deleteOption("extras", groupIndex, optionIndex)
+                    {isIncludedGroup(group) ? (
+                      <input
+                        type="text"
+                        placeholder="Price"
+                        value={option.price}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "extras",
+                            groupIndex,
+                            "price",
+                            e.target.value,
+                            optionIndex
+                          )
                         }
-                        className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
-                      >
-                        <X size={18} />
-                      </button>
+                        className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                      />
+                    ) : (
+                      <>
+                        <input
+                          type="text"
+                          placeholder="i.e 1"
+                          value={option.label}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "extras",
+                              groupIndex,
+                              "label",
+                              e.target.value,
+                              optionIndex
+                            )
+                          }
+                          className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Price"
+                          value={option.price}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "extras",
+                              groupIndex,
+                              "price",
+                              e.target.value,
+                              optionIndex
+                            )
+                          }
+                          className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                        />
+                        {group.options.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              deleteOption("extras", groupIndex, optionIndex)
+                            }
+                            className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
+                          >
+                            <X size={18} />
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 ))}
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  const updated = [...dishData.extras];
-                  updated[groupIndex].options.push({ label: "", price: "" });
-                  setDishData((prev) => ({ ...prev, extras: updated }));
-                }}
-                className="text-sm text-orange-500 hover:text-orange-600 transition-colors"
-              >
-                + Add Option
-              </button>
+              {!isIncludedGroup(group) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = [...dishData.extras];
+                    updated[groupIndex].options.push({ label: "", price: "0.00" });
+                    setDishData((prev) => ({ ...prev, extras: updated }));
+                  }}
+                  className="text-sm text-orange-500 hover:text-orange-600 transition-colors"
+                >
+                  + Add Option
+                </button>
+              )}
             </div>
           ))}
         </section>

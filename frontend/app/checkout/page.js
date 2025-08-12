@@ -42,6 +42,10 @@ const initialFormData = {
   deliveryTime: (() => {
     const now = new Date();
     const minTime = new Date(now.getTime() + 30 * 60000);
+    // Round up to next 5-minute interval
+    const minutes = minTime.getMinutes();
+    const roundedMinutes = Math.ceil(minutes / 5) * 5;
+    minTime.setMinutes(roundedMinutes, 0, 0);
     return format(minTime, "HH:mm");
   })(),
 };
@@ -50,11 +54,13 @@ const getMinTimeForDate = (date) => {
   const now = new Date();
   const selectedDate = new Date(date);
   const isToday = format(now, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd");
-  
   if (!isToday) return undefined;
   
-  // Add exactly 30 minutes to current time - no rounding
+  // Add 30 minutes to current time and round up to next 5-minute interval
   const minTime = new Date(now.getTime() + 30 * 60000);
+  const minutes = minTime.getMinutes();
+  const roundedMinutes = Math.ceil(minutes / 5) * 5;
+  minTime.setMinutes(roundedMinutes, 0, 0);
   
   return format(minTime, "HH:mm");
 };
@@ -67,10 +73,9 @@ const Page = () => {
   const [deliveryFees, setDeliveryFees] = useState([]);
   const [tax, setTax] = useState(0);
   const [deliveryFeeLoading, setDeliveryFeeLoading] = useState(false);
-  const [taxPercentage, setTaxPercentage] = useState(10); // Default fallback value
+  const [taxPercentage, setTaxPercentage] = useState(10);
   const [taxLoading, setTaxLoading] = useState(true);
 
-  // Fetch tax percentage from admin API
   const fetchTaxPercentage = useCallback(async () => {
     try {
       setTaxLoading(true);
@@ -83,29 +88,24 @@ const Page = () => {
           },
         }
       );
-
       if (!response.ok) {
         throw new Error('Failed to fetch tax percentage');
       }
-
       const data = await response.json();
-      
       if (data.data && data.data.taxPercentage !== undefined) {
         setTaxPercentage(data.data.taxPercentage);
       } else {
-        // Fallback to default if no tax percentage is set
         setTaxPercentage(10);
       }
     } catch (error) {
       console.error('Error fetching tax percentage:', error);
       toast.error('Failed to fetch tax percentage. Using default value.');
-      setTaxPercentage(10); // Fallback to default
+      setTaxPercentage(10);
     } finally {
       setTaxLoading(false);
     }
   }, []);
 
-  // Memoized function to validate cart
   const validateCart = useCallback(() => {
     const storedCartItems = localStorage.getItem("cart");
     if (!storedCartItems || JSON.parse(storedCartItems).length === 0) {
@@ -117,16 +117,13 @@ const Page = () => {
     return true;
   }, [router]);
 
-  // Optimized function to get vendor delivery fees
   const getAllVendorsDeliveryFees = useCallback(async (cartItems) => {
     if (!cartItems.length) return;
-
     setDeliveryFeeLoading(true);
     try {
       const vendorIds = [
         ...new Set(cartItems.map((vendorGroup) => vendorGroup.vendorId)),
       ];
-
       const vendorDeliveryFees = await Promise.all(
         vendorIds.map(async (vendorId) => {
           try {
@@ -156,7 +153,6 @@ const Page = () => {
           }
         })
       );
-
       setDeliveryFees(vendorDeliveryFees);
     } catch (error) {
       console.error("Error fetching delivery fees:", error);
@@ -166,7 +162,6 @@ const Page = () => {
     }
   }, []);
 
-  // Authentication check and fetch tax percentage on component mount
   useEffect(() => {
     const checkAuth = async () => {
       const user = getCookie("user");
@@ -176,14 +171,14 @@ const Page = () => {
         router.push("/login");
         return;
       }
-      setFormData((prev) => ({ ...prev, user }));
+      const storedZipCode = typeof window !== "undefined" ? (localStorage.getItem("zipcode") || "") : "";
+      setFormData((prev) => ({ ...prev, user, zip: storedZipCode }));
       validateCart();
     };
     checkAuth();
     fetchTaxPercentage();
   }, [router, validateCart, fetchTaxPercentage]);
 
-  // Fetch delivery fees when cart items change
   useEffect(() => {
     if (cartItems.length > 0) {
       getAllVendorsDeliveryFees(cartItems);
@@ -192,19 +187,15 @@ const Page = () => {
     }
   }, [cartItems, getAllVendorsDeliveryFees]);
 
-  // Handle form input changes
-  const handleChange = useCallback((e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  }, []);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const sanitizedValue =
+      name === "phone" ? value.replace(/[^0-9 +]/g, "") : value;
+    setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
+  };
 
-  // Calculate subtotal with memoization to avoid recalculation
   const calculateSubtotal = useCallback(() => {
     if (!cartItems.length) return 0;
-
     return cartItems.reduce((sum, vendor) => {
       const vendorTotal = vendor.dishes.reduce((dishSum, dish) => {
         const toppingsTotal = dish.toppings.reduce(
@@ -225,7 +216,6 @@ const Page = () => {
     }, 0);
   }, [cartItems]);
 
-  // Memoized values to prevent unnecessary recalculations
   const subtotal = useMemo(() => {
     const calculatedSubtotal = calculateSubtotal();
     return Number(calculatedSubtotal.toFixed(2));
@@ -243,12 +233,10 @@ const Page = () => {
     return Number((subtotal + calculatedTax + totalDeliveryFee).toFixed(2));
   }, [subtotal, calculatedTax, totalDeliveryFee]);
 
-  // Update tax when calculated tax changes
   useEffect(() => {
     setTax(calculatedTax);
   }, [calculatedTax]);
 
-  // Optimized function to add an order
   const addOrder = useCallback(async (orderData) => {
     try {
       const user = getCookie("user");
@@ -267,12 +255,10 @@ const Page = () => {
           body: JSON.stringify({ data: { ...orderData, user } }),
         }
       );
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error?.message || "Failed to place order");
       }
-
       return await response.json();
     } catch (error) {
       throw new Error(
@@ -281,12 +267,10 @@ const Page = () => {
     }
   }, []);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     const customerOrderId = new Date().getTime();
-
     try {
       const user = getCookie("user");
       if (!user) {
@@ -294,15 +278,10 @@ const Page = () => {
         router.push("/login");
         return;
       }
-
-      // Calculate order subtotal once to avoid redundant calculations
       const orderSubtotal = calculateSubtotal();
-
       const orderTax = Number(
         ((orderSubtotal * taxPercentage) / 100).toFixed(2)
       );
-
-      // Create vendor proportions map for tax distribution
       const vendorProportions = cartItems.map((vendor) => {
         const vendorSubtotal = vendor.dishes.reduce((sum, dish) => {
           const toppingsTotal = dish.toppings.reduce(
@@ -324,8 +303,6 @@ const Page = () => {
           proportion: orderSubtotal > 0 ? vendorSubtotal / orderSubtotal : 0,
         };
       });
-
-      // Create order promises with proper error handling
       const orderPromises = cartItems.map((vendor, index) => {
         const { subtotal: vendorSubtotal } = vendorProportions[index];
         const vendorTax = Number(
@@ -340,8 +317,6 @@ const Page = () => {
         const vendorTotal = Number(
           (vendorSubtotal + vendorTax + vendorDeliveryFee).toFixed(2)
         );
-
-        // Prepare order data
         const orderData = {
           customerName: formData.name,
           customerOrderId,
@@ -368,11 +343,8 @@ const Page = () => {
           orderStatus: "pending",
           ...vendor,
         };
-
         return addOrder(orderData);
       });
-
-      // Process all orders in parallel
       await Promise.all(orderPromises);
       toast.success("Your order has been placed successfully!");
       localStorage.removeItem("cart");
@@ -396,13 +368,11 @@ const Page = () => {
               <ShoppingCart className="inline" />
               Checkout
             </h2>
-              {/* Delivery Type Section */}
             <div className="mb-8">
               <h3 className="font-black text-lg mb-6 text-black flex items-center gap-2">
                 <Truck className="inline" /> Delivery Options
               </h3>
               <div className="space-y-4">
-         
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className={`relative border-2 rounded-xl p-6 cursor-pointer transition-all duration-200 ${
                     formData.deliveryType === "delivery" 
@@ -434,7 +404,7 @@ const Page = () => {
                       <div className="flex items-center gap-3">
                         <Truck className="w-6 h-6 text-rose-600" />
                         <div>
-                          <div className="font-semibold text-gray-900">Home Delivery</div>
+                          <div className="font-semibold text-gray-900">Delivery Address</div>
                           <div className="text-sm text-gray-600">We&apos;ll deliver to your address</div>
                         </div>
                       </div>
@@ -481,7 +451,7 @@ const Page = () => {
             </div>
             <div className="mb-8">
               <h3 className="font-black text-lg mb-6 text-black flex items-center gap-2">
-                <User className="inline" /> General Information
+                <User className="inline" /> Delivery Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                 <div>
@@ -533,8 +503,8 @@ const Page = () => {
                         required
                         name="zip"
                         value={formData.zip}
-                        onChange={handleChange}
                         placeholder="Zip Code"
+                        readOnly
                         className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
                       />
                     </div>
@@ -566,70 +536,115 @@ const Page = () => {
                   />
                 </div>
               </div>
-            </div>
-
-            {/* Delivery Schedule Section */}
-            <div className="mb-8">
-              <h3 className="font-black text-lg mb-6 text-rose-600 flex items-center gap-2">
-                <Calendar className="inline text-rose-500" /> Delivery Schedule
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                <div className="flex flex-col gap-1 px-1">
-                  <label className="block font-semibold text-sm text-slate-500 pl-3">
-                    Delivery Date
-                  </label>
-                  <div className="w-full">
-                    <DatePicker
-                      value={dayjs(formData.deliveryDate)}
-                      onChange={(date) => {
-                        const minTime = getMinTimeForDate(date.toDate());
-                        setFormData((prev) => ({
-                          ...prev,
-                          deliveryDate: date.toDate(),
-                          deliveryTime: minTime && prev.deliveryTime < minTime ? minTime : prev.deliveryTime,
-                        }));
-                      }}
-                      minDate={dayjs()}
-                      className="w-full rounded-xl"
-                    />
+              <div className="mb-8">
+                <h3 className="font-black text-lg mt-8 mb-4 text-black flex items-center gap-2">
+                  <Calendar className="inline" /> Delivery Schedule
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  <div className="flex flex-col gap-1 px-1">
+                    <label className="block font-semibold text-sm text-slate-500 pl-3">
+                      Delivery Date
+                    </label>
+                    <div className="w-full">
+                      <DatePicker
+                        value={dayjs(formData.deliveryDate)}
+                        onChange={(date) => {
+                          if (!date) return;
+                          const selectedDate = date.toDate();
+                          const now = new Date();
+                          
+                          // Check if selected date is in the past
+                          if (selectedDate < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
+                            toast.error("Cannot select a past date");
+                            return;
+                          }
+                          
+                          const minTime = getMinTimeForDate(selectedDate);
+                          setFormData((prev) => ({
+                            ...prev,
+                            deliveryDate: selectedDate,
+                            deliveryTime: minTime || prev.deliveryTime,
+                          }));
+                        }}
+                        minDate={dayjs()}
+                        className="w-full rounded-xl"
+                        sx={{
+                          '& .MuiPickersSectionList-root': {
+                            paddingTop: '21px',
+                          },
+                          '& .MuiIconButton-root': {
+                            marginBottom: '-5px',
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-col gap-1 px-1">
-                  <label className="block font-semibold text-sm text-slate-500 pl-3">
-                    Delivery Time
-                  </label>
-                  <div className="w-full">
-                    <TimePicker
-                      value={dayjs(`2000-01-01 ${formData.deliveryTime}`)}
-                      onChange={(time) => {
-                        const minTime = getMinTimeForDate(formData.deliveryDate);
-                        const selectedTime = time.format("HH:mm");
-                        
-                        if (minTime && selectedTime < minTime) {
-                          toast.error("Please select a time at least 30 minutes from now");
-                          return;
-                        }
-                        
-                        setFormData((prev) => ({
-                          ...prev,
-                          deliveryTime: selectedTime,
-                        }));
-                      }}
-                      minTime={getMinTimeForDate(formData.deliveryDate) ? dayjs(`2000-01-01 ${getMinTimeForDate(formData.deliveryDate)}`) : undefined}
-                      className="w-full rounded-xl"
-                    />
+                  <div className="flex flex-col gap-1 px-1">
+                    <label className="block font-semibold text-sm text-slate-500 pl-3">
+                      Delivery Time
+                    </label>
+                    <div className="w-full">
+                      <TimePicker
+                        value={dayjs(`2000-01-01 ${formData.deliveryTime}`)}
+                        onChange={(time) => {
+                          if (!time) return;
+                          const selectedTime = time.format("HH:mm");
+                          const now = new Date();
+                          const selectedDate = formData.deliveryDate;
+                          
+                          // Check if selected date is today and time is in the past
+                          if (format(now, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")) {
+                            const currentTime = format(now, "HH:mm");
+                            if (selectedTime <= currentTime) {
+                              toast.error("Cannot select a time in the past");
+                              return;
+                            }
+                            
+                            // Check if time is at least 30 minutes from now
+                            const minTime = getMinTimeForDate(selectedDate);
+                            if (minTime && selectedTime < minTime) {
+                              toast.error("Please select a time at least 30 minutes from now");
+                              return;
+                            }
+                          }
+                          
+                          // Validate 5-minute intervals
+                          const minutes = parseInt(selectedTime.split(':')[1]);
+                          if (minutes % 5 !== 0) {
+                            toast.error("Please select a time in 5-minute intervals (e.g., 5:00, 5:05, 5:10)");
+                            return;
+                          }
+                          
+                          setFormData((prev) => ({
+                            ...prev,
+                            deliveryTime: selectedTime,
+                          }));
+                        }}
+                        minTime={getMinTimeForDate(formData.deliveryDate) ? dayjs(`2000-01-01 ${getMinTimeForDate(formData.deliveryDate)}`) : undefined}
+                        className="w-full rounded-xl"
+                        views={['hours', 'minutes']}
+                        minutesStep={5}
+                        sx={{
+                          '& .MuiPickersSectionList-root': {
+                            paddingTop: '21px',
+                          },
+                          '& .MuiIconButton-root': {
+                            marginBottom: '-5px',
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-          
+            </div>
           </div>
           <div className="rounded-2xl p-8 shadow-sm border border-gray-200 h-fit flex flex-col min-w-[320px]">
-            <h3 className="font-black text-2xl mb-6 flex items-center gap-2 text-rose-600">
-              <Receipt className="w-6 h-6" />
-              Order Summary
-            </h3>
+              <h3 className="font-black text-2xl mb-6 flex items-center gap-2 text-rose-600">
+                <Receipt className="w-6 h-6" />
+                Order Summary
+              </h3>
             <div className="rounded-xl p-6 mb-6">
               <div className="flex justify-between text-base font-bold mb-2">
                 <span className="flex items-center gap-2">

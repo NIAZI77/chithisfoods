@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { LuPlus, LuMinus } from "react-icons/lu";
 import { FaStar, FaUser } from "react-icons/fa";
-import { Timer, AlertCircle, Eye, BadgeCheck, X } from "lucide-react";
+import { Timer, AlertCircle, Eye, BadgeCheck, X, MessageSquare } from "lucide-react";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
@@ -323,9 +323,8 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
     Array.from({ length: 5 }, (_, index) => (
       <FaStar
         key={index}
-        className={`inline w-4 h-4 ${
-          index < Math.round(rating) ? "text-yellow-400" : "text-slate-400"
-        }`}
+        className={`inline w-4 h-4 ${index < Math.round(rating) ? "text-yellow-400" : "text-slate-400"
+          }`}
       />
     ));
 
@@ -405,6 +404,17 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                   alt={dishDetails.name}
                   className="rounded-xl w-full object-cover aspect-video"
                 />
+                <div className="mt-4">
+                  <div className="text-sm text-gray-600">
+                    <h3 className="font-bold text-lg mb-1">Description</h3>
+                    <p>{dishDetails.description}</p>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-start gap-2 sm:gap-4 mt-4">
+                      <p className="font-bold text-md flex items-center gap-x-1">
+                        <Timer className="w-5 h-5" /> {dishDetails.preparation_time} Minutes
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -452,11 +462,10 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                           key={index}
                           onClick={() => setSelectedSpiceLevel(level)}
                           className={`px-4 py-1 rounded-full border text-xs font-medium transition-all
-                          ${
-                            selectedSpiceLevel === level
+                          ${selectedSpiceLevel === level
                               ? "bg-red-500 text-white border-red-500"
                               : "bg-white text-red-500 border-red-500"
-                          }`}
+                            }`}
                         >
                           {level}
                         </button>
@@ -477,9 +486,9 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                     {dishDetails.toppings.map((topping, index) => (
                       <div
                         key={index}
-                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2"
+                        className="flex flex-col flex-row justify-between items-center gap-2"
                       >
-                        <span className="text-gray-800 capitalize truncate">
+                        <span className="text-gray-800 capitalize text-sm">
                           {topping.name}
                         </span>
                         <div className="flex gap-2 flex-wrap">
@@ -494,12 +503,11 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                                   option.price
                                 )
                               }
-                              className={`px-3 py-1 rounded-full border text-xs font-medium transition-all capitalize truncate
-                                ${
-                                  selectedToppings[topping.name]?.selected ===
+                              className={`px-1.5 py-0.5 rounded-full border text-xs font-medium transition-all capitalize
+                                ${selectedToppings[topping.name]?.selected ===
                                   option.label
-                                    ? "bg-red-500 text-white"
-                                    : "bg-white text-red-500 border-red-500"
+                                  ? "bg-red-500 text-white"
+                                  : "bg-white text-red-500 border-red-500"
                                 }`}
                             >
                               {option.label}
@@ -523,9 +531,9 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                     {dishDetails.extras.map((extra, index) => (
                       <div
                         key={index}
-                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2"
+                        className="flex flex-col flex-row justify-between items-center gap-2"
                       >
-                        <span className="text-gray-800 capitalize truncate">
+                        <span className="text-gray-800 capitalize text-sm">
                           {extra.name}
                         </span>
                         <div className="flex gap-2 flex-wrap">
@@ -540,12 +548,11 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                                   option.price
                                 )
                               }
-                              className={`px-3 py-1 rounded-full border text-xs font-medium transition-all capitalize truncate
-                                ${
-                                  selectedExtras[extra.name]?.selected ===
+                              className={`px-1.5 py-0.5 rounded-full border text-xs font-medium transition-all capitalize 
+                                ${selectedExtras[extra.name]?.selected ===
                                   option.label
-                                    ? "bg-red-500 text-white"
-                                    : "bg-white text-red-500 border-red-500"
+                                  ? "bg-red-500 text-white"
+                                  : "bg-white text-red-500 border-red-500"
                                 }`}
                             >
                               {option.label}
@@ -642,21 +649,16 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
             <div className="mt-6 sm:mt-8">
               <div className="flex gap-4 sm:gap-6 border-b pb-2 overflow-x-auto scrollbar-hide">
-                {["ingredients", "description", "reviews"].map((section) => (
+                {["ingredients", "reviews"].map((section) => (
                   <button
                     key={section}
                     onClick={() => setActiveSection(section)}
-                    className={`pb-1 border-b-2 whitespace-nowrap ${
-                      activeSection === section
+                    className={`pb-1 border-b-2 whitespace-nowrap ${activeSection === section
                         ? "text-red-600 border-red-600 font-semibold"
                         : "text-gray-500 border-transparent"
-                    }`}
+                      }`}
                   >
-                    {section === "ingredients"
-                      ? "Ingredients"
-                      : section === "description"
-                      ? "Description"
-                      : "Reviews"}
+                    {section === "ingredients" ? "Ingredients" : "Reviews"}
                   </button>
                 ))}
               </div>
@@ -683,17 +685,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                 </div>
               )}
 
-              {activeSection === "description" && (
-                <div className="text-sm text-gray-600 mt-6">
-                  <p>{dishDetails.description}</p>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-start gap-2 sm:gap-4 mt-4">
-                    <h2 className="font-bold text-lg flex items-center gap-x-1">
-                      <Timer className="w-5 h-5" /> Preparation Time
-                    </h2>
-                    <p>{dishDetails.preparation_time} minutes</p>
-                  </div>
-                </div>
-              )}
+              {/* Description tab removed; content moved under the image */}
 
               {activeSection === "reviews" && (
                 <div className="mt-6 space-y-4">
@@ -708,11 +700,15 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8">
-                      <div className="text-gray-500 mb-2">No reviews yet</div>
-                      <p className="text-sm text-gray-400">
-                        Be the first to review this dish!
-                      </p>
+                    <div className="text-center py-12">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                          <MessageSquare className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <div className="space-y-1">
+                          <h3 className="text-lg font-semibold text-gray-700">No reviews yet</h3>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>

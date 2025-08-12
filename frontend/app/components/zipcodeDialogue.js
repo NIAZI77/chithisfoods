@@ -73,7 +73,7 @@ export default function ZipcodeDialogue() {
   const buttonText = pathname === "/" ? "Explore Chef Services" : "Change Location";
   const buttonClass = pathname === "/" 
     ? "uppercase w-full mt-8 px-8 py-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-semibold transition-all block"
-    : "bg-green-400 text-white md:px-4 px-2 md:py-3 py-1.5 rounded-full shadow-md hover:bg-green-500 transition-all font-semibold";
+    : "bg-green-400 text-white px-4 md:py-3 py-1.5 rounded-full shadow-md hover:bg-green-500 transition-all font-semibold";
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -100,6 +100,11 @@ export default function ZipcodeDialogue() {
             placeholder="Enter zipcode"
             value={zipcode}
             onChange={handleZipcodeChange}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && zipcode.length === ZIPCODE_MAX_LENGTH) {
+                handleSaveZipcode();
+              }
+            }}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent ${
               error ? "border-red-500" : "border-gray-300"
             }`}

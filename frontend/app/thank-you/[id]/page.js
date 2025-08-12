@@ -60,11 +60,11 @@ const VendorOrderGroup = ({ order }) => {
             key={index}
             className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-gray-50 rounded-lg"
           >
-            <div className="relative h-10 w-16 aspect-auto flex-shrink-0">
+            <div className="relative h-fit w-16 aspect-video flex-shrink-0">
               <img
                 src={dish.image?.url}
                 alt={dish.name}
-                className="object-cover rounded-md h-20 w-fit aspect-auto"
+                className="object-cover rounded-md h-fit w-16 aspect-video"
               />
             </div>
             <div className="flex-grow space-y-2">

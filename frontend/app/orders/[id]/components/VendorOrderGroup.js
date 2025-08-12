@@ -3,12 +3,22 @@ import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import { FaStore, FaStar, FaPaypal } from "react-icons/fa6";
 import { FaShoppingBag } from "react-icons/fa";
-import { Flame, Star, X } from "lucide-react";
+import { Flame, Star, X, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import Spinner from "@/app/components/Spinner";
 import OrderStatusBadge from "./OrderStatusBadge";
 import ReviewDialog from "./ReviewDialog";
 import RefundDialog from "./RefundDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const VendorOrderGroup = ({ order, onStatusUpdate }) => {
   const [isUpdating, setIsUpdating] = useState(false);
@@ -23,6 +33,8 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
   const [refundEmail, setRefundEmail] = useState("");
   const [isUpdatingRefund, setIsUpdatingRefund] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [isReceiveDialogOpen, setIsReceiveDialogOpen] = useState(false);
 
   const handleReceived = async () => {
     setIsUpdating(true);
@@ -126,6 +138,7 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
       toast.error(error.message || "Failed to update order status");
     } finally {
       setIsUpdating(false);
+      setIsReceiveDialogOpen(false);
     }
   };
 
@@ -510,7 +523,16 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
       toast.error(error.message || "Failed to cancel order");
     } finally {
       setIsCancelling(false);
+      setIsCancelDialogOpen(false);
     }
+  };
+
+  const openCancelDialog = () => {
+    setIsCancelDialogOpen(true);
+  };
+
+  const openReceiveDialog = () => {
+    setIsReceiveDialogOpen(true);
   };
 
   return (
@@ -533,7 +555,7 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
 
             {order.orderStatus === "pending" && (
               <button
-                onClick={handleCancelOrder}
+                onClick={openCancelDialog}
                 disabled={isCancelling}
                 className="px-4 py-1.5 text-sm bg-rose-500 text-white rounded-md transition-colors hover:bg-rose-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
@@ -543,7 +565,7 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
 
             {order.orderStatus === "ready" && (
               <button
-                onClick={handleReceived}
+                onClick={openReceiveDialog}
                 disabled={isUpdating}
                 className="px-4 py-1.5 text-sm bg-green-500 text-white rounded-md transition-colors hover:bg-green-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
@@ -706,6 +728,62 @@ const VendorOrderGroup = ({ order, onStatusUpdate }) => {
         isUpdatingRefund={isUpdatingRefund}
         onSubmit={handleRefundEmailSubmit}
       />
+
+      <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="mx-auto sm:mx-0 mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <AlertTriangle className="h-6 w-6 text-red-600" />
+            </div>
+            <AlertDialogTitle className="text-xl font-semibold text-gray-900">
+              Cancel Order
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-gray-600 mt-2">
+              Are you sure you want to cancel this order? This action cannot be reversed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <AlertDialogCancel className="mt-0 border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-800">
+              Keep Order
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCancelOrder}
+              className="bg-red-500 hover:bg-red-600 text-white shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2"
+            >
+              <X className="h-4 w-4" />
+              Cancel Order
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={isReceiveDialogOpen} onOpenChange={setIsReceiveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="mx-auto sm:mx-0 mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+              <Flame className="h-6 w-6 text-green-600" />
+            </div>
+            <AlertDialogTitle className="text-xl font-semibold text-gray-900">
+              Mark Order as Received
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-gray-600 mt-2">
+              Are you sure you have received this order?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <AlertDialogCancel className="mt-0 border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-800">
+              Not Yet
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReceived}
+              className="bg-green-500 hover:bg-green-600 text-white shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2"
+            >
+              <Flame className="h-4 w-4" />
+              Mark as Received
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
