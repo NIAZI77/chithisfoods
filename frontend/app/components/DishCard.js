@@ -97,9 +97,9 @@ if(loading) return <Loading />;
 
         {/* Category and Subcategory */}
         <p className="text-xs text-gray-500 capitalize">
-          {dish.category.replace("-", " ")} ·{" "}
+          {dish.category.replaceAll("-", " ")} ·{" "}
           <span className="text-green-500 font-medium text-sm capitalize truncate">
-            {dish.subcategory.replace("-", " ")}
+            {dish.subcategory.replaceAll("-", " ")}
           </span>
         </p>
 

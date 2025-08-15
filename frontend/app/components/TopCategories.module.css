@@ -1,6 +1,6 @@
 .sliderWrapper {
-  padding: 0 40px;
-  margin-bottom: 32px;
+  padding: 0 30px;
+  margin-bottom: 24px;
   background: none;
   box-shadow: none;
   border-radius: 0;
@@ -8,7 +8,7 @@
 }
 
 .swiper {
-  padding: 0 40px;
+  padding: 0 30px;
 }
 
 .swiper-slide {
@@ -18,10 +18,9 @@
 }
 
 .categoryCard {
-  width: 140px;
-  height: 140px;
-  background: #fdf2f8;
-  border-radius: 20px;
+  width: 110px;
+  height: 110px;
+  border-radius: 16px;
   box-shadow: none;
   display: flex;
   flex-direction: column;
@@ -31,28 +30,28 @@
   transition: all 0.3s ease;
   cursor: pointer;
   border: 2px solid transparent;
-  padding: 16px;
+  padding: 12px;
   box-sizing: border-box;
 }
 
 .categoryCard:hover {
-  box-shadow: 0 8px 25px rgba(255, 77, 166, 0.15);
+  box-shadow: 0 6px 20px rgba(255, 77, 166, 0.15);
   border: 2px solid #f3c0da;
 }
 
 .categoryImage {
-  margin-bottom: 12px;
-  width: 80px;
-  height: 80px;
+  margin-bottom: 8px;
+  width: 60px;
+  height: 60px;
   object-fit: cover;
-  border-radius: 16px;
+  border-radius: 12px;
   display: block;
   overflow: hidden;
 }
 
 .categoryName {
-  margin-top: 4px;
-  font-size: 14px;
+  margin-top: 2px;
+  font-size: 12px;
   font-weight: 600;
   color: #222;
   letter-spacing: 0.02em;
@@ -63,14 +62,40 @@
 /* Responsive adjustments */
 @media (max-width: 480px) {
   .categoryCard {
-    width: 110px;
-    height: 110px;
+    width: 90px;
+    height: 90px;
+    padding: 8px;
+  }
+  
+  .categoryImage {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 4px;
+  }
+  
+  .categoryName {
+    font-size: 10px;
+  }
+  
+  .sliderWrapper {
+    padding: 0 16px;
+  }
+  
+  .swiper {
+    padding: 0 16px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 640px) {
+  .categoryCard {
+    width: 100px;
+    height: 100px;
     padding: 10px;
   }
   
   .categoryImage {
-    width: 60px;
-    height: 60px;
+    width: 52px;
+    height: 52px;
     margin-bottom: 6px;
   }
   
@@ -87,79 +112,53 @@
   }
 }
 
-@media (min-width: 481px) and (max-width: 640px) {
-  .categoryCard {
-    width: 120px;
-    height: 120px;
-    padding: 12px;
-  }
-  
-  .categoryImage {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 8px;
-  }
-  
-  .categoryName {
-    font-size: 12px;
-  }
-  
-  .sliderWrapper {
-    padding: 0 24px;
-  }
-  
-  .swiper {
-    padding: 0 24px;
-  }
-}
-
 @media (min-width: 641px) and (max-width: 768px) {
   .categoryCard {
-    width: 130px;
-    height: 130px;
-    padding: 14px;
+    width: 105px;
+    height: 105px;
+    padding: 11px;
   }
   
   .categoryImage {
-    width: 72px;
-    height: 72px;
-    margin-bottom: 10px;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 7px;
   }
   
   .categoryName {
-    font-size: 13px;
+    font-size: 11px;
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .categoryCard {
-    width: 135px;
-    height: 135px;
-    padding: 15px;
+    width: 108px;
+    height: 108px;
+    padding: 12px;
   }
   
   .categoryImage {
-    width: 76px;
-    height: 76px;
-    margin-bottom: 11px;
+    width: 58px;
+    height: 58px;
+    margin-bottom: 8px;
   }
 }
 
 @media (min-width: 1025px) {
   .categoryCard {
-    width: 150px;
-    height: 150px;
-    padding: 18px;
+    width: 120px;
+    height: 120px;
+    padding: 14px;
   }
   
   .categoryImage {
-    width: 85px;
-    height: 85px;
-    margin-bottom: 14px;
+    width: 65px;
+    height: 65px;
+    margin-bottom: 10px;
   }
   
   .categoryName {
-    font-size: 15px;
+    font-size: 13px;
   }
 }
 
@@ -169,8 +168,8 @@
   color: #ff4da6;
   background: #fff;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   top: 50%;
   transform: translateY(-50%);
@@ -180,12 +179,12 @@
 
 .swiper-button-prev {
   left: 0;
-  margin-left: -32px;
+  margin-left: -24px;
 }
 
 .swiper-button-next {
   right: 0;
-  margin-right: -32px;
+  margin-right: -24px;
 }
 
 .swiper-button-next:hover,

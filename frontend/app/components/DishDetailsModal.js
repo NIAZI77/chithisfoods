@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { LuPlus, LuMinus } from "react-icons/lu";
 import { FaStar, FaUser } from "react-icons/fa";
 import { Timer, AlertCircle, Eye, BadgeCheck, X, MessageSquare } from "lucide-react";
@@ -30,6 +30,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
   const [isAvailable, setIsAvailable] = useState(true);
   const [userZipcode, setUserZipcode] = useState(null);
   const [isVendorBanned, setIsVendorBanned] = useState(false);
+  const modalRef = useRef(null);
 
   const fetchVendorDetails = useCallback(async (vendorId) => {
     if (!vendorId) return;
@@ -153,7 +154,12 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       setIsAvailable(dishInfo.available);
       setDishDetails(enhancedDishInfo);
 
-      setSelectedSpiceLevel(enhancedDishInfo.spiciness?.[0]);
+      // Set initial spiciness level if available
+      if (enhancedDishInfo.spiciness && enhancedDishInfo.spiciness.length > 0) {
+        setSelectedSpiceLevel(enhancedDishInfo.spiciness[0]);
+      } else {
+        setSelectedSpiceLevel(null);
+      }
 
       const initialToppings = {};
       enhancedDishInfo.toppings?.forEach((topping) => {
@@ -198,6 +204,8 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       setUserZipcode(zipcode);
     }
   }, [isOpen, dishId, fetchDishDetails, onClose]);
+
+
 
   const calculateTotalPrice = () => {
     if (!dishDetails) return 0;
@@ -255,7 +263,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
         image: { id: dishDetails.image?.id, url: dishDetails.image?.url },
         basePrice: dishDetails.price,
         quantity: orderQuantity,
-        selectedSpiciness: selectedSpiceLevel,
+        selectedSpiciness: selectedSpiceLevel || "Not specified",
         toppings: activeToppings,
         extras: activeExtras,
         total: calculateTotalPrice().toFixed(2),
@@ -265,7 +273,9 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
         const existingDishIndex = cart[vendorGroupIndex].dishes.findIndex(
           (dish) =>
             dish.id === dishDetails.documentId &&
-            dish.selectedSpiciness === selectedSpiceLevel &&
+            (dish.selectedSpiciness === selectedSpiceLevel ||
+              (dish.selectedSpiciness === "Not specified" && !selectedSpiceLevel) ||
+              (!dish.selectedSpiciness && !selectedSpiceLevel)) &&
             JSON.stringify(dish.toppings) === JSON.stringify(activeToppings) &&
             JSON.stringify(dish.extras) === JSON.stringify(activeExtras)
         );
@@ -294,6 +304,9 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       toast.success(
         `Successfully added ${orderQuantity} ${dishDetails.name} to your cart!`
       );
+      setTimeout(() => {
+        onClose();
+      }, 1000);
     } catch (error) {
       toast.error(API_ERROR_MESSAGES.CART_ERROR);
       console.error("Error adding to cart:", error);
@@ -332,28 +345,25 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative hide-scrollbar pt-3">
+      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col relative" ref={modalRef}>
         <button
           onClick={onClose}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors absolute top-2 right-2 z-10"
+          className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors absolute top-2 right-2 z-10"
         >
           <X size={24} />
         </button>
 
         {loading ? (
-          <div className="p-8 text-center">
+          <div className="p-10 text-center flex-1 flex items-center justify-center">
             <div className="relative">
               <div className="w-16 h-16 border-4 border-gray-200 border-t-red-500 rounded-full animate-spin mx-auto"></div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-8 h-8 bg-red-500 rounded-full animate-pulse"></div>
               </div>
             </div>
-            <p className="mt-4 text-gray-600 font-medium">
-              Loading dish details...
-            </p>
           </div>
         ) : isDishNotFound || !dishDetails ? (
-          <div className="p-8 text-center">
+          <div className="p-8 text-center flex-1 flex items-center justify-center">
             <div className="text-3xl text-gray-600 mb-4">Dish not found</div>
             <p className="text-gray-500 mb-4">
               The dish you&apos;re looking for doesn&apos;t exist or has been
@@ -367,354 +377,411 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
             </button>
           </div>
         ) : (
-          <div className="p-4 sm:p-6 hide-scrollbar">
-            <div className="space-y-2 mb-4">
-              {!isAvailable && (
-                <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
-                  <AlertCircle className="w-5 h-5" />
-                  This dish is currently unavailable
-                </div>
-              )}
-              {!(userZipcode == dishDetails.zipcode) && (
-                <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
-                  <AlertCircle className="w-5 h-5" />
-                  This dish is unavailable in your city
-                </div>
-              )}
-              {isVendorBanned && (
-                <div className="bg-red-600 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
-                  <X className="w-5 h-5" />
-                  This vendor has been banned
-                </div>
-              )}
-              {isPreview && (
-                <div className="bg-yellow-300 text-yellow-800 px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
-                  <Eye className="w-5 h-5" />
-                  You are viewing this dish in preview mode
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <img
-                  src={dishDetails.image?.url || "/fallback.png"}
-                  width={400}
-                  height={300}
-                  alt={dishDetails.name}
-                  className="rounded-xl w-full object-cover aspect-video"
-                />
-                <div className="mt-4">
-                  <div className="text-sm text-gray-600">
-                    <h3 className="font-bold text-lg mb-1">Description</h3>
-                    <p>{dishDetails.description}</p>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-start gap-2 sm:gap-4 mt-4">
-                      <p className="font-bold text-md flex items-center gap-x-1">
-                        <Timer className="w-5 h-5" /> {dishDetails.preparation_time} Minutes
-                      </p>
+          <>
+            {/* Scrollable content area */}
+            <div className="flex-1 overflow-y-auto scrollbar-hide">
+              <div className="p-4 sm:p-6">
+                <div className="space-y-2 mb-4">
+                  {!isAvailable && (
+                    <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+                      <AlertCircle className="w-5 h-5" />
+                      This dish is currently unavailable
                     </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-xl sm:text-2xl font-bold capitalize">
-                    {dishDetails.name}
-                  </h1>
-                  <div className="text-xl sm:text-2xl font-bold text-red-600">
-                    ${calculateTotalPrice().toFixed(2)}
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-start gap-2 sm:gap-4 text-sm text-gray-500">
-                  <div>
-                    {dishDetails.category
-                      .replace("-", " ")
-                      .replace(/\b\w/g, (c) => c.toUpperCase())}{" "}
-                    ·{" "}
-                    <span className="text-green-500 font-bold truncate capitalize">
-                      {dishDetails.subcategory.replace("-", " ")}
-                    </span>
-                  </div>
-                  <div className="flex items-center text-yellow-400">
-                    <FaStar /> {dishDetails.rating}
-                    <span className="text-gray-600 text-sm">
-                      ({dishDetails.reviews.length})
-                    </span>
-                  </div>
-                  <div className="bg-slate-200 rounded px-2 py-1 flex items-center gap-1 w-fit">
-                    <span className="font-bold flex items-center gap-1">
-                      Servings <FaUser />
-                    </span>{" "}
-                    {dishDetails.servings}
-                  </div>
-                </div>
-
-                {dishDetails.spiciness?.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-700">
-                      <h3>Spiciness</h3>
+                  )}
+                  {!(userZipcode == dishDetails.zipcode) && (
+                    <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+                      <AlertCircle className="w-5 h-5" />
+                      This dish is unavailable in your city
                     </div>
-                    <div className="flex items-center justify-end space-x-2 flex-wrap">
-                      {dishDetails.spiciness?.map((level, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setSelectedSpiceLevel(level)}
-                          className={`px-4 py-1 rounded-full border text-xs font-medium transition-all
-                          ${selectedSpiceLevel === level
-                              ? "bg-red-500 text-white border-red-500"
-                              : "bg-white text-red-500 border-red-500"
-                            }`}
-                        >
-                          {level}
-                        </button>
-                      ))}
+                  )}
+                  {isVendorBanned && (
+                    <div className="bg-red-600 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+                      <X className="w-5 h-5" />
+                      This vendor has been banned
                     </div>
-                  </div>
-                )}
-
-                {dishDetails.toppings?.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 flex items-center justify-between">
-                      <h3>Toppings</h3>
-                      <p className="text-gray-400 text-xs">
-                        Additional Charges Apply
-                      </p>
-                    </div>
-
-                    {dishDetails.toppings.map((topping, index) => (
-                      <div
-                        key={index}
-                        className="flex flex-col flex-row justify-between items-center gap-2"
-                      >
-                        <span className="text-gray-800 capitalize text-sm">
-                          {topping.name}
-                        </span>
-                        <div className="flex gap-2 flex-wrap">
-                          {topping.options.map((option, i) => (
-                            <button
-                              key={i}
-                              onClick={() =>
-                                handleOptionSelect(
-                                  "topping",
-                                  topping.name,
-                                  option.label,
-                                  option.price
-                                )
-                              }
-                              className={`px-1.5 py-0.5 rounded-full border text-xs font-medium transition-all capitalize
-                                ${selectedToppings[topping.name]?.selected ===
-                                  option.label
-                                  ? "bg-red-500 text-white"
-                                  : "bg-white text-red-500 border-red-500"
-                                }`}
-                            >
-                              {option.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {dishDetails.extras?.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 flex items-center justify-between">
-                      <h3>Extras</h3>
-                      <p className="text-gray-400 text-xs">
-                        Additional Charges Apply
-                      </p>
-                    </div>
-
-                    {dishDetails.extras.map((extra, index) => (
-                      <div
-                        key={index}
-                        className="flex flex-col flex-row justify-between items-center gap-2"
-                      >
-                        <span className="text-gray-800 capitalize text-sm">
-                          {extra.name}
-                        </span>
-                        <div className="flex gap-2 flex-wrap">
-                          {extra.options.map((option, i) => (
-                            <button
-                              key={i}
-                              onClick={() =>
-                                handleOptionSelect(
-                                  "extra",
-                                  extra.name,
-                                  option.label,
-                                  option.price
-                                )
-                              }
-                              className={`px-1.5 py-0.5 rounded-full border text-xs font-medium transition-all capitalize 
-                                ${selectedExtras[extra.name]?.selected ===
-                                  option.label
-                                  ? "bg-red-500 text-white"
-                                  : "bg-white text-red-500 border-red-500"
-                                }`}
-                            >
-                              {option.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="my-6 sm:my-8">
-                  <div className="text-sm text-rose-500 font-bold mb-3 flex items-center gap-2">
-                    <span className="bg-rose-50 p-1 rounded-full">
-                      <FaStar className="text-rose-500" size={12} />
-                    </span>
-                    Prepared by
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <img
-                          src={vendorDetails?.avatar?.url || "/fallback.png"}
-                          alt={vendorDetails?.storeName || "Chef"}
-                          width={64}
-                          height={64}
-                          className="rounded-full w-16 h-16 object-cover shadow-md"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-md font-semibold text-gray-800">
-                          {vendorDetails?.storeName || "Unknown Chef"}
-                        </span>
-                        {vendorDetails?.username && (
-                          <Link
-                            href={`/vendors/@${vendorDetails?.username}`}
-                            className="text-gray-500 text-xs hover:text-rose-500 hover:underline flex items-center gap-1"
-                          >
-                            <span className="bg-gray-100 p-1 rounded-full">
-                              <FaUser size={10} />
-                            </span>
-                            @{vendorDetails?.username}
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex flex-col justify-center items-start sm:items-end gap-2">
-                      <VerificationBadge
-                        status={vendorDetails?.verificationStatus}
-                      />
-                      <div className="text-sm text-yellow-500 flex items-center gap-1.5 bg-yellow-50 py-0.5 px-3 rounded-full w-fit">
-                        <FaStar size={14} />
-                        <span className="font-medium">
-                          {vendorDetails?.rating || 0}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <div className="bg-rose-500 text-white rounded-full flex items-center gap-2 p-2">
-                    <button
-                      onClick={() =>
-                        setOrderQuantity((q) => Math.max(1, q - 1))
-                      }
-                      className="hover:bg-rose-400 rounded-full p-1"
-                    >
-                      <LuMinus size={16} />
-                    </button>
-                    <span className="w-7 text-center">{orderQuantity}</span>
-                    <button
-                      onClick={() => setOrderQuantity((q) => q + 1)}
-                      className="hover:bg-rose-400 rounded-full p-1"
-                    >
-                      <LuPlus size={16} />
-                    </button>
-                  </div>
-                  <button
-                    onClick={handleAddToCart}
-                    className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={
-                      isPreview ||
-                      !isAvailable ||
-                      !(userZipcode == dishDetails.zipcode) ||
-                      isVendorBanned
-                    }
-                  >
-                    Add to cart
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 sm:mt-8">
-              <div className="flex gap-4 sm:gap-6 border-b pb-2 overflow-x-auto scrollbar-hide">
-                {["ingredients", "reviews"].map((section) => (
-                  <button
-                    key={section}
-                    onClick={() => setActiveSection(section)}
-                    className={`pb-1 border-b-2 whitespace-nowrap ${activeSection === section
-                        ? "text-red-600 border-red-600 font-semibold"
-                        : "text-gray-500 border-transparent"
-                      }`}
-                  >
-                    {section === "ingredients" ? "Ingredients" : "Reviews"}
-                  </button>
-                ))}
-              </div>
-
-              {activeSection === "ingredients" && (
-                <div className="flex items-center justify-center sm:justify-start gap-4 mt-6 flex-wrap">
-                  {dishDetails.ingredients?.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-col py-4 border bg-slate-50 rounded-lg w-20 h-20 sm:w-24 sm:h-24 shadow-sm hover:shadow-md transition-shadow duration-200 text-center"
-                    >
-                      <img
-                        src="/ingredients.png"
-                        width={30}
-                        height={30}
-                        alt={item}
-                        className="mx-auto"
-                      />
-                      <span className="mt-2 text-xs font-medium text-center capitalize truncate">
-                        {item}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Description tab removed; content moved under the image */}
-
-              {activeSection === "reviews" && (
-                <div className="mt-6 space-y-4">
-                  {dishDetails.reviews?.length > 0 ? (
-                    dishDetails.reviews.map((review, idx) => (
-                      <div key={idx} className="border p-4 rounded-lg">
-                        <p className="text-sm font-semibold">{review.name}</p>
-                        <div className="flex gap-1 mt-1">
-                          {renderRatingStars(review.rating)}
-                        </div>
-                        <p className="text-sm mt-2">{review.text}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-12">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                          <MessageSquare className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <div className="space-y-1">
-                          <h3 className="text-lg font-semibold text-gray-700">No reviews yet</h3>
-                        </div>
-                      </div>
+                  )}
+                  {isPreview && (
+                    <div className="bg-yellow-300 text-yellow-800 px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+                      <Eye className="w-5 h-5" />
+                      You are viewing this dish in preview mode
                     </div>
                   )}
                 </div>
-              )}
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <img
+                      src={dishDetails.image?.url || "/fallback.png"}
+                      width={400}
+                      height={300}
+                      alt={dishDetails.name}
+                      className="rounded-xl w-full object-cover aspect-video"
+                    />
+                    <div className="mt-4">
+                      <div className="text-sm text-gray-600">
+                        <h3 className="font-bold text-lg mb-2">Description</h3>
+                        {dishDetails.description ? (
+                          <p className="text-gray-700 leading-relaxed">{dishDetails.description}</p>
+                        ) : (
+                          <p className="text-gray-400 italic">No description available for this dish.</p>
+                        )}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-start gap-2 sm:gap-4 mt-4">
+                          <p className="font-bold text-md flex items-center gap-x-1 text-gray-700">
+                            <Timer className="w-5 h-5" />
+                            {dishDetails.preparation_time ? `${dishDetails.preparation_time} Minutes` : "Preparation time not specified"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h1 className="text-xl sm:text-2xl font-bold capitalize">
+                        {dishDetails.name}
+                      </h1>
+                      <div className="text-xl sm:text-2xl font-bold text-red-600">
+                        ${calculateTotalPrice().toFixed(2)}
+                      </div>
+                    </div>
+
+                    {/* Prepared by section moved to header */}
+                    <div className="bg-gray-50 p-4 rounded-lg border">
+                      <div className="text-sm text-rose-500 font-bold mb-3 flex items-center gap-2">
+                        <span className="bg-rose-50 p-1 rounded-full">
+                          <FaStar className="text-rose-500" size={12} />
+                        </span>
+                        Prepared by
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <img
+                            src={vendorDetails?.avatar?.url || "/fallback.png"}
+                            alt={vendorDetails?.storeName || "Chef"}
+                            width={48}
+                            height={48}
+                            className="rounded-full w-12 h-12 object-cover shadow-md"
+                          />
+                        </div>
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="text-md font-semibold text-gray-800 truncate">
+                            {vendorDetails?.storeName || "Unknown Chef"}
+                          </span>
+                          {vendorDetails?.username ? (
+                            <Link
+                              href={`/vendors/@${vendorDetails.username}`}
+                              className="text-gray-500 text-xs hover:text-rose-500 hover:underline flex items-center gap-1 w-fit"
+                            >
+                              <span className="bg-gray-100 p-1 rounded-full">
+                                <FaUser size={10} />
+                              </span>
+                              @{vendorDetails.username}
+                            </Link>
+                          ) : (
+                            <span className="text-gray-400 text-xs">Username not available</span>
+                          )}
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <VerificationBadge
+                            status={vendorDetails?.verificationStatus}
+                          />
+                          <div className="text-sm text-yellow-500 flex items-center gap-1.5 bg-yellow-50 py-0.5 px-3 rounded-full w-fit">
+                            <FaStar size={14} />
+                            <span className="font-medium">
+                              {vendorDetails?.rating || 0}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-row items-center gap-4 text-sm text-gray-500">
+                      <div>
+                        {dishDetails.category ? (
+                          <span className="capitalize">
+                            {dishDetails.category.replace(/-/g, " ")}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">No category</span>
+                        )}
+                        {" · "}
+                        {dishDetails.subcategory ? (
+                          <span className="text-green-500 font-bold capitalize">
+                            {dishDetails.subcategory.replace(/-/g, " ")}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">No subcategory</span>
+                        )}
+                      </div>
+                      <div className="flex items-center text-yellow-400">
+                        <FaStar /> {dishDetails.rating || 0}
+                        <span className="text-gray-600 text-sm ml-1">
+                          ({dishDetails.reviews?.length || 0})
+                        </span>
+                      </div>
+                      <div className="bg-slate-200 rounded px-2 py-1 flex items-center gap-1 w-fit">
+                        <span className="font-bold flex items-center gap-1">
+                          Servings <FaUser />
+                        </span>{" "}
+                        {dishDetails.servings || "N/A"}
+                      </div>
+                    </div>
+
+                    {dishDetails.spiciness && dishDetails.spiciness.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-700">
+                          <h3>Spiciness</h3>
+                        </div>
+                        <div className="flex items-center justify-end space-x-2 flex-wrap gap-2">
+                          {dishDetails.spiciness.map((level, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setSelectedSpiceLevel(level)}
+                              className={`px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 hover:scale-105 min-w-fit
+                              ${selectedSpiceLevel === level
+                                  ? "bg-red-500 text-white border-red-500 shadow-md"
+                                  : "bg-white text-red-500 border-red-500 hover:bg-red-50 hover:border-red-600"
+                                }`}
+                            >
+                              {level}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {dishDetails.toppings?.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 flex items-center justify-between">
+                          <h3>Toppings</h3>
+                          <p className="text-gray-400 text-xs">
+                            Additional Charges Apply
+                          </p>
+                        </div>
+
+                        {dishDetails.toppings.map((topping, index) => (
+                          <div
+                            key={index}
+                            className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                          >
+                            <span className="text-gray-800 capitalize text-sm font-medium min-w-0">
+                              {topping.name}
+                            </span>
+                            <div className="flex gap-2 flex-wrap w-full sm:justify-end">
+                              {topping.options.map((option, i) => (
+                                <button
+                                  key={i}
+                                  onClick={() =>
+                                    handleOptionSelect(
+                                      "topping",
+                                      topping.name,
+                                      option.label,
+                                      option.price
+                                    )
+                                  }
+                                  className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
+                                    ${selectedToppings[topping.name]?.selected ===
+                                      option.label
+                                      ? "bg-red-500 text-white border-red-500"
+                                      : "bg-white text-red-500 border-red-500 hover:bg-red-50"
+                                    }`}
+                                >
+                                  {option.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {dishDetails.extras?.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 flex items-center justify-between">
+                          <h3>Extras</h3>
+                          <p className="text-gray-400 text-xs">
+                            Additional Charges Apply
+                          </p>
+                        </div>
+
+                        {dishDetails.extras.map((extra, index) => (
+                          <div
+                            key={index}
+                            className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                          >
+                            <span className="text-gray-800 capitalize text-sm font-medium min-w-0">
+                              {extra.name}
+                            </span>
+                            <div className="flex gap-2 flex-wrap w-full sm:justify-end">
+                              {extra.options.map((option, i) => (
+                                <button
+                                  key={i}
+                                  onClick={() =>
+                                    handleOptionSelect(
+                                      "extra",
+                                      extra.name,
+                                      option.label,
+                                      option.price
+                                    )
+                                  }
+                                  className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
+                                    ${selectedExtras[extra.name]?.selected ===
+                                      option.label
+                                        ? "bg-red-500 text-white border-red-500"
+                                        : "bg-white text-red-500 border-red-500 hover:bg-red-50"
+                                      }`}
+                                >
+                                  {option.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+
+                  </div>
+                </div>
+
+                <div className="mt-6 sm:mt-8">
+                  <div className="flex gap-4 sm:gap-6 border-b pb-2 overflow-x-auto scrollbar-hide">
+                    {["ingredients", "reviews"].map((section) => (
+                      <button
+                        key={section}
+                        onClick={() => setActiveSection(section)}
+                        className={`pb-1 border-b-2 whitespace-nowrap ${activeSection === section
+                          ? "text-red-600 border-red-600 font-semibold"
+                          : "text-gray-500 border-transparent"
+                          }`}
+                      >
+                        {section === "ingredients" ? "Ingredients" : "Reviews"}
+                      </button>
+                    ))}
+                  </div>
+
+                  {activeSection === "ingredients" && (
+                    <div className="mt-6">
+                      {dishDetails.ingredients && dishDetails.ingredients.length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                          {dishDetails.ingredients.map((item, index) => (
+                            <div
+                              key={index}
+                              className="flex flex-col items-center p-4 border border-gray-200 bg-slate-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-center min-h-[100px] gap-2"
+                            >
+                              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-2">
+                                <img
+                                  src="/ingredients.png"
+                                  width={40}
+                                  height={40}
+                                  alt={item}
+                                  className="object-contain"
+                                />
+                              </div>
+                              <span className="text-xs font-medium text-gray-700 text-center capitalize leading-tight px-2 break-words">
+                                {item}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12">
+                          <div className="flex flex-col items-center gap-3">
+                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                              <img
+                                src="/ingredients.png"
+                                width={32}
+                                height={32}
+                                alt="No ingredients"
+                                className="opacity-50"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <h3 className="text-lg font-semibold text-gray-700">No ingredients listed</h3>
+                              <p className="text-sm text-gray-500">This dish doesn&apos;t have ingredients information available.</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {activeSection === "reviews" && (
+                    <div className="mt-6">
+                      {dishDetails.reviews && dishDetails.reviews.length > 0 ? (
+                        <div className="space-y-4">
+                          {dishDetails.reviews.map((review, idx) => (
+                            <div key={idx} className="border border-gray-200 p-4 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+                              <div className="flex items-start justify-between mb-2">
+                                <p className="text-sm font-semibold text-gray-800 capitalize">
+                                  {review.name || "Anonymous"}
+                                </p>
+                                <div className="flex gap-1">
+                                  {renderRatingStars(review.rating || 0)}
+                                </div>
+                              </div>
+                              {review.text && (
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                  {review.text}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12">
+                          <div className="flex flex-col items-center gap-3">
+                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                              <MessageSquare className="w-8 h-8 text-gray-400" />
+                            </div>
+                            <div className="space-y-1">
+                              <h3 className="text-lg font-semibold text-gray-700">No reviews yet</h3>
+                              <p className="text-sm text-gray-500">Be the first to review this dish!</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+
+            {/* Fixed bottom section with quantity selector and Add to Cart button */}
+            <div className="border-t bg-white sm:px-4 px-1 py-2 rounded-b-2xl">
+              <div className="flex flex-row items-center gap-2">
+                <div className="bg-rose-600 text-white rounded-full flex items-center gap-2 p-2">
+                  <button
+                    onClick={() =>
+                      setOrderQuantity((q) => Math.max(1, q - 1))
+                    }
+                    className="hover:bg-rose-400 rounded-full p-1"
+                  >
+                    <LuMinus size={16} />
+                  </button>
+                  <span className="w-7 text-center">{orderQuantity}</span>
+                  <button
+                    onClick={() => setOrderQuantity((q) => q + 1)}
+                    className="hover:bg-rose-400 rounded-full p-1"
+                  >
+                    <LuPlus size={16} />
+                  </button>
+                </div>
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full bg-rose-600 text-white py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={
+                    isPreview ||
+                    !isAvailable ||
+                    !(userZipcode == dishDetails.zipcode) ||
+                    isVendorBanned
+                  }
+                >
+                  Add to cart
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

@@ -590,7 +590,7 @@ export default function AddDishPage() {
 
           <label className="text-sm text-slate-400 ml-2">Spice Level</label>
         <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
-          {["Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map((level) => (
+          {["None","Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map((level) => (
             <div
               key={level}
               onClick={() => handleSpicinessChange(level)}

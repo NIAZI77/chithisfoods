@@ -83,6 +83,91 @@ textarea::selection,
 ::-webkit-scrollbar-thumb:hover {
   background: gray;
 }
+
+/* Utility class to hide scrollbars */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* Sticky button animations */
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.slide-in-from-bottom-2 {
+  animation: slideInFromBottom 0.3s ease-out;
+}
+
+/* Smooth transitions for sticky button */
+.sticky-button-enter {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.sticky-button-enter-active {
+  transform: translateY(0);
+  opacity: 1;
+  transition: all 0.3s ease-out;
+}
+
+.sticky-button-exit {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.sticky-button-exit-active {
+  transform: translateY(100%);
+  opacity: 0;
+  transition: all 0.3s ease-in;
+}
+
+/* Enhanced sticky button animations */
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(100%) translateX(-50%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) translateX(-50%);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToBottom {
+  from {
+    transform: translateY(0) translateX(-50%);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%) translateX(-50%);
+    opacity: 0;
+  }
+}
+
+.sticky-button-sticky {
+  animation: slideInFromBottom 0.5s ease-out;
+}
+
+.sticky-button-normal {
+  animation: slideOutToBottom 0.5s ease-in;
+}
+
 a,
 Link,
 button {

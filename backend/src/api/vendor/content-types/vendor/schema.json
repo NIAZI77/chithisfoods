@@ -64,8 +64,7 @@
       "unique": true
     },
     "bio": {
-      "type": "text",
-      "maxLength": 200
+      "type": "text"
     },
     "vendorDeliveryFee": {
       "type": "decimal",

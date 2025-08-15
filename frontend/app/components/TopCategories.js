@@ -39,40 +39,44 @@ export default function TopCategories() {
     };
     fetchCategories();
   }, []);
-
+  const breakpoints = {
+    320: {
+      slidesPerView: 2,
+      spaceBetween: 10,
+    },
+    420: {
+      slidesPerView: 3,
+      spaceBetween: 12,
+    },
+    640: {
+      slidesPerView: 4,
+      spaceBetween: 16,
+    },
+    768: {
+      slidesPerView: 5,
+      spaceBetween: 20,
+    },
+    1024: {
+      slidesPerView: 6,
+      spaceBetween: 24,
+    },
+    1280: {
+      slidesPerView: 7,
+      spaceBetween: 28,
+    },
+  }
   if (isLoading) return <Loading />;
   if (categories.length === 0) return;
   return (
-    <div className="md:w-[80%] w-full mx-auto p-2">
-      <h2 className="md:text-2xl text-xl font-bold mb-4">Top Categories</h2>
+    <div className="md:w-[90%] w-full mx-auto p-2">
+      <h2 className="md:text-xl text-lg font-bold mb-3 md:ml-[5%]">Top Categories</h2>
       <div className={styles.sliderWrapper}>
         <Swiper
           modules={[Navigation]}
-          spaceBetween={16}
-          slidesPerView={2}
+          spaceBetween={12}
+          slidesPerView={3}
           navigation
-          breakpoints={{
-            480: {
-              slidesPerView: 2,
-              spaceBetween: 16,
-            },
-            640: {
-              slidesPerView: 3,
-              spaceBetween: 20,
-            },
-            768: {
-              slidesPerView: 4,
-              spaceBetween: 24,
-            },
-            1024: {
-              slidesPerView: 5,
-              spaceBetween: 28,
-            },
-            1280: {
-              slidesPerView: 6,
-              spaceBetween: 32,
-            },
-          }}
+          breakpoints={breakpoints}
           className={styles.swiper}
         >
           {categories.map((category) => (
@@ -85,6 +89,9 @@ export default function TopCategories() {
                   src={category.image?.url || "/fallback.png"}
                   alt={category.name}
                   className={styles.categoryImage}
+                  style={{
+                    objectFit: "contain",
+                  }}
                 />
                 <p className={styles.categoryName}>
                   {category.name.replace(/-/g, " ")}

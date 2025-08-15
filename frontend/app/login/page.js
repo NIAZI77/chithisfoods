@@ -62,7 +62,7 @@ export default function LoginPage() {
         
         // Check if user is blocked
         if (data.user.blocked) {
-          setShowBlockedMessage(true);
+          toast.error("Your account has been blocked. Please contact support.");
           return;
         }
         

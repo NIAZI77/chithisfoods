@@ -452,7 +452,7 @@ export interface ApiDishDish extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.String;
+    description: Schema.Attribute.Text;
     email: Schema.Attribute.Email & Schema.Attribute.Required;
     extras: Schema.Attribute.JSON;
     image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
@@ -555,10 +555,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
   };
   attributes: {
     avatar: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
-    bio: Schema.Attribute.Text &
-      Schema.Attribute.SetMinMaxLength<{
-        maxLength: 200;
-      }>;
+    bio: Schema.Attribute.Text;
     businessAddress: Schema.Attribute.String & Schema.Attribute.Required;
     city: Schema.Attribute.String & Schema.Attribute.Required;
     coverImage: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;

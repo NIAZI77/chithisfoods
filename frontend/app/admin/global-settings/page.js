@@ -360,32 +360,64 @@ const Page = () => {
             Add Category
           </Button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {categories.map((category, index) => (
             <div
               key={category.documentId || index}
-              className="border border-pink-100 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-pink-200 animate-in fade-in-50 slide-in-from-bottom-4"
+              className="relative bg-white border border-gray-100 rounded-2xl p-6 animate-in fade-in-50 slide-in-from-bottom-4"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="flex flex-col items-center justify-center text-center">
-                <div className="relative w-32 h-32 bg-pink-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 group">
-                  <img
-                    src={category.image?.url || '/fallback.png'}
-                    alt={`${category.name || 'category'} image`}
-                    className="w-full h-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors rounded-lg" />
+              {/* Category Image Container */}
+              <div className="relative w-full aspect-square rounded-2xl p-4 shadow-sm mb-4 overflow-hidden">
+                <img
+                  src={category.image?.url || '/fallback.png'}
+                  alt={`${category.name || 'category'} image`}
+                  className="w-full h-full object-cover rounded-xl"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 rounded-xl" />
+                
+                {/* Category Badge */}
+                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+                  <span className="text-xs font-semibold text-gray-700">
+                    {category.subcategories?.length || 0} sub
+                  </span>
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-800 capitalize">{category.name?.replace(/-/g, ' ')}</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  {category.subcategories?.length || 0} subcategories
-                </p>
               </div>
 
-              <div className="mt-6 flex gap-2">
+              {/* Category Info */}
+              <div className="text-center space-y-3">
+                <h3 className="text-lg font-bold text-gray-800 capitalize leading-tight">
+                  {category.name?.replace(/-/g, ' ')}
+                </h3>
+                <p className="text-sm text-gray-500 font-medium">
+                  {category.subcategories?.length || 0} subcategories
+                </p>
+                
+                {/* Subcategory Preview */}
+                {category.subcategories && category.subcategories.length > 0 && (
+                  <div className="flex flex-wrap gap-1 justify-center">
+                    {category.subcategories.slice(0, 3).map((sub, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-block px-2 py-1 bg-pink-50 text-pink-600 text-xs font-medium rounded-full border border-pink-100"
+                      >
+                        {sub.name?.replace(/-/g, ' ')}
+                      </span>
+                    ))}
+                    {category.subcategories.length > 3 && (
+                      <span className="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                        +{category.subcategories.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-6 flex gap-3">
                 <Button
                   variant="outline"
-                  className="flex-1 border-pink-200 text-pink-600 hover:bg-pink-50 hover:text-pink-700 transition-colors"
+                  className="flex-1 border-pink-200 text-pink-600 hover:bg-pink-50 hover:text-pink-700 hover:border-pink-300 transition-all duration-200 font-medium"
                   onClick={() => handleEdit(category)}
                   disabled={isSaving}
                 >
@@ -394,7 +426,7 @@ const Page = () => {
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                  className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all duration-200 font-medium"
                   onClick={() => handleDelete(category.documentId)}
                   disabled={isSaving}
                 >
@@ -402,6 +434,8 @@ const Page = () => {
                   Delete
                 </Button>
               </div>
+
+
             </div>
           ))}
         </div>

@@ -2,6 +2,7 @@ export const STATUS_STYLES = {
   paid: "bg-green-100 text-green-700",
   unpaid: "bg-yellow-100 text-yellow-700",
   pending: "bg-yellow-100 text-yellow-700",
+  refunded: "bg-orange-100 text-orange-700",
   "in-process": "bg-indigo-100 text-indigo-700",
   ready: "bg-green-100 text-green-700",
   delivered: "bg-gray-100 text-gray-700",

@@ -541,31 +541,41 @@ const Page = () => {
             </Link>
           </div>
           <div className="space-y-5">
-            {dashboardData.orders.map((order) => (
-              <div key={order.id} className="flex items-center gap-2">
-                <div className="w-16 h-fit rounded overflow-hidden">
-                  <img
-                    src={order.dishes?.[0]?.image?.url || "/food.png"}
-                    alt={order.dishes?.[0]?.name || "Food"}
-                    className="w-full h-fit object-cover aspect-video"
-                  />
+            {dashboardData.orders.length > 0 ? (
+              dashboardData.orders.map((order) => (
+                <div key={order.id} className="flex items-center gap-2">
+                  <div className="w-16 h-fit rounded overflow-hidden">
+                    <img
+                      src={order.dishes?.[0]?.image?.url || "/food.png"}
+                      alt={order.dishes?.[0]?.name || "Food"}
+                      className="w-full h-fit object-cover aspect-video"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm truncate">
+                      Order #{order.customerOrderId}
+                    </h4>
+                    <p className="text-gray-600">
+                      ${parseFloat(order.subtotal).toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-sm text-gray-500">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </p>
+                    <StatusBadge status={order.orderStatus} />
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-sm truncate">
-                    Order #{order.customerOrderId}
-                  </h4>
-                  <p className="text-gray-600">
-                    ${parseFloat(order.subtotal).toFixed(2)}
-                  </p>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                  <ShoppingCart className="w-8 h-8 text-gray-400" />
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="text-sm text-gray-500">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </p>
-                  <StatusBadge status={order.orderStatus} />
-                </div>
+                <p className="text-gray-500 font-medium mb-1">No Recent Orders</p>
+                <p className="text-sm text-gray-400">Orders will appear here once you receive</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

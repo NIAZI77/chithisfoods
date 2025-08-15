@@ -11,9 +11,9 @@ const defaultFormData = {
   subcategories: []
 };
 
-// Function to validate if string contains only letters and spaces
+// Function to validate if string contains only letters, spaces, and ampersands
 const isValidInput = (value) => {
-  return /^[A-Za-z\s]*$/.test(value);
+  return /^[A-Za-z\s&]*$/.test(value);
 };
 
 const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving }) => {
@@ -130,7 +130,7 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
 
   const updateSubcategory = (index, value) => {
     if (!isValidInput(value)) {
-      toast.error('Only letters and spaces are allowed');
+      toast.error('Only letters, spaces, and ampersands (&) are allowed');
       return;
     }
     setFormData(prev => ({
@@ -176,7 +176,7 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
 
   const updateSubSubcategory = (subcategoryIndex, subSubcategoryIndex, value) => {
     if (!isValidInput(value)) {
-      toast.error('Only letters and spaces are allowed');
+      toast.error('Only letters, spaces, and ampersands (&) are allowed');
       return;
     }
     setFormData(prev => ({

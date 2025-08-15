@@ -10,6 +10,93 @@ export const metadata = {
   title: "ChithisFoods",
   description:
     "ChithisFoods is a multi-vendor food delivery platform that connects local chefs and home cooks with food lovers. Explore a diverse range of homemade, authentic meals, snacks, and desserts, delivered fresh to your door. Discover unique flavors while supporting local culinary talent, all with a simple and convenient ordering experience.",
+  keywords: "food delivery, multi-vendor, local chefs, home cooks, homemade food, authentic meals, food platform, local cuisine, food ordering, fresh food delivery",
+  authors: [{ name: "ChithisFoods Team" }],
+  creator: "ChithisFoods",
+  publisher: "ChithisFoods",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://chithisfoods.com'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: "ChithisFoods",
+    description: "ChithisFoods is a multi-vendor food delivery platform that connects local chefs and home cooks with food lovers. Explore a diverse range of homemade, authentic meals, snacks, and desserts, delivered fresh to your door.",
+    url: 'https://chithisfoods.com',
+    siteName: 'ChithisFoods',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'ChithisFoods',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ChithisFoods',
+    description: 'ChithisFoods is a multi-vendor food delivery platform that connects local chefs and home cooks with food lovers.',
+    images: ['/logo.png'],
+    creator: '@chithisfoods',
+    site: '@chithisfoods',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+    yandex: 'your-yandex-verification-code',
+    yahoo: 'your-yahoo-verification-code',
+  },
+  category: 'food delivery',
+  classification: 'food service',
+  referrer: 'origin-when-cross-origin',
+  themeColor: '#ffffff',
+  colorScheme: 'light',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'ChithisFoods',
+  },
+  applicationName: 'ChithisFoods',
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/logo.png' },
+      { url: '/logo.png', sizes: '16x16', type: 'image/png' },
+      { url: '/logo.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/logo.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { rel: 'mask-icon', url: '/safari-pinned-tab.svg', color: '#000000' },
+    ],
+  },
+  other: {
+    'msapplication-TileColor': '#ffffff',
+    'msapplication-config': '/browserconfig.xml',
+  },
 };
 
 export default function RootLayout({ children }) {

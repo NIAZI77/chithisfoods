@@ -44,7 +44,7 @@
       "required": true
     },
     "description": {
-      "type": "string"
+      "type": "text"
     },
     "available": {
       "type": "boolean",
