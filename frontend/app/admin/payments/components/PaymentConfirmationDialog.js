@@ -62,6 +62,10 @@ const PaymentConfirmationDialog = ({
     : "This will mark the order as refunded. This action cannot be reversed.";
   const confirmText = isPayment ? "Mark as Paid" : "Mark as Refunded";
   const confirmColor = isPayment ? "bg-emerald-500 hover:bg-emerald-600" : "bg-rose-500 hover:bg-rose-600";
+  
+  // Check if refund details are available for refund type
+  const hasRefundDetails = order?.refundDetails?.email;
+  const isRefundDisabled = type === "refund" && !hasRefundDetails;
 
   if (!order) return null;
 
@@ -96,7 +100,22 @@ const PaymentConfirmationDialog = ({
                 )}
               </p>
             ) : (
-              <p><span className="font-medium">Refund Email</span> {order.refundEmail || "N/A"}</p>
+              <p>
+                <span className="font-medium">Refund Email</span>{" "}
+                {hasRefundDetails ? (
+                  order.refundDetails.email
+                ) : (
+                  <span className="text-red-600 font-medium">Not provided - Refund cannot be processed</span>
+                )}
+              </p>
+            )}
+            {type === "refund" && !hasRefundDetails && (
+              <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                <p className="text-sm text-yellow-800">
+                  <strong>Note:</strong> Customer has not provided refund details. 
+                  The refund button is disabled until the customer adds their refund information.
+                </p>
+              </div>
             )}
           </div>
         </AlertDialogHeader>
@@ -107,8 +126,10 @@ const PaymentConfirmationDialog = ({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            disabled={isProcessing || (type === "payment" && loadingVendor)}
-            className={`${confirmColor} text-white shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2`}
+            disabled={isProcessing || (type === "payment" && loadingVendor) || isRefundDisabled}
+            className={`${confirmColor} text-white shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 ${
+              isRefundDisabled ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
             {isProcessing ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

@@ -129,13 +129,13 @@ const PaymentOrdersTable = ({
                     {order.orderStatus === "cancelled" && order.paymentStatus !== "refunded" && order.vendor_payment !== "refunded" && (
                       <button
                         onClick={() => onProcessRefund(order.documentId)}
-                        disabled={processingRefunds[order.documentId] || !order.refundEmail}
+                        disabled={processingRefunds[order.documentId]}
                         className={`${BUTTON_STYLES.processRefund} ${
-                          (processingRefunds[order.documentId] || !order.refundEmail) 
+                          processingRefunds[order.documentId] 
                           ? 'opacity-50 cursor-not-allowed' 
                           : ''
                         }`}
-                        title={!order.refundEmail ? "Refund email not provided" : ""}
+                        title={!order.refundDetails?.email ? "Click to view refund details (refund cannot be processed without customer details)" : "Process refund for this order"}
                       >
                         {processingRefunds[order.documentId] ? (
                           <span className="flex items-center justify-center gap-2">
@@ -148,6 +148,12 @@ const PaymentOrdersTable = ({
                           </div>
                         )}
                       </button>
+                    )}
+                    {order.orderStatus === "cancelled" && order.paymentStatus !== "refunded" && order.vendor_payment !== "refunded" && !order.refundDetails?.email && (
+                      <div className="text-xs text-amber-600 flex items-center gap-1 mt-1">
+                        <Info className="w-3 h-3" />
+                        No refund details
+                      </div>
                     )}
                     {!((order.orderStatus === "delivered" && order.vendor_payment === "unpaid") ||
                        (order.orderStatus === "cancelled" && order.paymentStatus !== "refunded" && order.vendor_payment !== "refunded")) && (

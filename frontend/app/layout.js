@@ -58,45 +58,22 @@ export const metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'your-google-verification-code',
-    yandex: 'your-yandex-verification-code',
-    yahoo: 'your-yahoo-verification-code',
-  },
-  category: 'food delivery',
-  classification: 'food service',
-  referrer: 'origin-when-cross-origin',
   themeColor: '#ffffff',
-  colorScheme: 'light',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'ChithisFoods',
-  },
-  applicationName: 'ChithisFoods',
-  manifest: '/manifest.json',
   icons: {
     icon: [
       { url: '/logo.png' },
-      { url: '/logo.png', sizes: '16x16', type: 'image/png' },
-      { url: '/logo.png', sizes: '32x32', type: 'image/png' },
     ],
     apple: [
       { url: '/logo.png', sizes: '180x180', type: 'image/png' },
     ],
-    other: [
-      { rel: 'mask-icon', url: '/safari-pinned-tab.svg', color: '#000000' },
-    ],
   },
-  other: {
-    'msapplication-TileColor': '#ffffff',
-    'msapplication-config': '/browserconfig.xml',
-  },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  colorScheme: 'light',
 };
 
 export default function RootLayout({ children }) {

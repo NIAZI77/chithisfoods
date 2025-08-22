@@ -354,7 +354,8 @@ const PaymentsPage = () => {
       const order = orders.find(o => o.documentId === orderId);
       if (!order) return;
       if (order.orderStatus !== "cancelled") return;
-      if (!order.refundEmail) return;
+      // Check for refund email in refundDetails object
+      if (!order.refundDetails?.email) return;
 
       setProcessingRefunds(prev => ({ ...prev, [orderId]: true }));
 

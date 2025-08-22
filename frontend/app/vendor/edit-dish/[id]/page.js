@@ -17,6 +17,7 @@ import { getCookie } from "cookies-next";
 import Loading from "@/app/loading";
 import { useParams, useRouter } from "next/navigation";
 import Spinner from "@/app/components/Spinner";
+import IngredientInput from "@/components/IngredientInput";
 
 export default function EditDishPage() {
   const { id } = useParams();
@@ -91,7 +92,16 @@ export default function EditDishPage() {
       }
 
       const data = await response.json();
-      setDishData(data.data);
+      const dishData = data.data;
+      
+      // Convert ingredients from string to array if needed
+      if (typeof dishData.ingredients === 'string' && dishData.ingredients.trim()) {
+        dishData.ingredients = dishData.ingredients.split(",").map(item => item.trim());
+      } else if (!Array.isArray(dishData.ingredients)) {
+        dishData.ingredients = [];
+      }
+      
+      setDishData(dishData);
     } catch (error) {
       console.error("Error fetching Dish:", error);
       toast.error("Failed to load Dish");
@@ -298,6 +308,10 @@ export default function EditDishPage() {
       toast.warning("Please upload image for the dish.");
       return;
     }
+    if (!dishData.ingredients || dishData.ingredients.length === 0) {
+      toast.warning("Please add at least one ingredient.");
+      return;
+    }
     setSubmitting(true);
 
     try {
@@ -338,7 +352,7 @@ export default function EditDishPage() {
         toppings: cleanToppings,
         extras: cleanExtras,
         image: cleanImage,
-        ingredients: typeof dishData.ingredients === 'string' ? dishData.ingredients.split(",").map((item) => item.trim()) : Array.isArray(dishData.ingredients) ? dishData.ingredients : [],
+        ingredients: Array.isArray(dishData.ingredients) ? dishData.ingredients : [],
       };
       
       console.log('Payload being sent:', payload);
@@ -610,13 +624,11 @@ export default function EditDishPage() {
             >
               Ingredients
             </label>
-            <input
-              required
-              name="ingredients"
-              placeholder="i.e Chicken breast, Olive oil, Garlic"
-              value={dishData.ingredients}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md outline-orange-400 bg-slate-100"
+            <IngredientInput
+              value={Array.isArray(dishData.ingredients) ? dishData.ingredients : []}
+              onChange={(ingredients) => setDishData(prev => ({ ...prev, ingredients }))}
+              placeholder="Type ingredient and press Enter..."
+              maxIngredients={20}
             />
           </div>
         </div>
@@ -653,11 +665,11 @@ export default function EditDishPage() {
 
         <section className="space-y-6 mt-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-orange-500">Toppings</h2>
+            <h2 className="text-lg font-semibold text-orange-500">Toppings</h2>
             <button
               type="button"
               onClick={() => addGroup("toppings")}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-orange-100 sm:text-base text-xs text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
             >
               <PlusCircle size={20} /> Add Topping
             </button>
@@ -735,7 +747,7 @@ export default function EditDishPage() {
                             : "text-slate-700 hover:bg-slate-200"
                         }`}
                       >
-                        Multiple Options
+                        Custom Options
                       </span>
                     </label>
                   </div>
@@ -832,11 +844,11 @@ export default function EditDishPage() {
 
         <section className="space-y-6 mt-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-orange-500">Extras</h2>
+            <h2 className="text-lg font-semibold text-orange-500">Extras</h2>
             <button
               type="button"
               onClick={() => addGroup("extras")}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-orange-100 sm:text-base text-xs text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
             >
               <PlusCircle size={20} /> Add Extra
             </button>
@@ -914,7 +926,7 @@ export default function EditDishPage() {
                             : "text-slate-700 hover:bg-slate-200"
                         }`}
                       >
-                        Multiple Options
+                        Custom Options
                       </span>
                     </label>
                   </div>

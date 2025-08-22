@@ -190,8 +190,8 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       setOrderQuantity(1);
       setActiveSection("ingredients");
       setSelectedSpiceLevel(null);
-      setSelectedExtras({});
       setSelectedToppings({});
+      setSelectedExtras({});
       setVendorDetails(null);
       fetchDishDetails();
 
@@ -203,21 +203,21 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       }
       setUserZipcode(zipcode);
     }
-  }, [isOpen, dishId, fetchDishDetails, onClose]);
+  }, [dishId, fetchDishDetails, onClose]); // Removed isOpen dependency to prevent unnecessary resets
 
 
 
   const calculateTotalPrice = () => {
     if (!dishDetails) return 0;
 
-    const extrasTotal = Object.values(selectedExtras).reduce(
-      (sum, item) => sum + Number(item.price),
-      0
-    );
-    const toppingsTotal = Object.values(selectedToppings).reduce(
-      (sum, item) => sum + Number(item.price),
-      0
-    );
+    const extrasTotal = Object.values(selectedExtras)
+      .filter(item => item.selected !== "None")
+      .reduce((sum, item) => sum + Number(item.price), 0);
+    
+    const toppingsTotal = Object.values(selectedToppings)
+      .filter(item => item.selected !== "None")
+      .reduce((sum, item) => sum + Number(item.price), 0);
+    
     return (
       (Number(dishDetails.price) + extrasTotal + toppingsTotal) * orderQuantity
     );
@@ -225,16 +225,18 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
   const handleAddToCart = () => {
     try {
-      const activeExtras = Object.entries(selectedExtras)
-        .filter(([, item]) => item.price > 0)
+      // Get all extras (excluding "None" selections)
+      const allExtras = Object.entries(selectedExtras)
+        .filter(([name, item]) => item.selected !== "None")
         .map(([name, item]) => ({
           name,
           option: item.selected,
           price: Number(item.price),
         }));
 
-      const activeToppings = Object.entries(selectedToppings)
-        .filter(([, item]) => item.price > 0)
+      // Get all toppings (excluding "None" selections)
+      const allToppings = Object.entries(selectedToppings)
+        .filter(([name, item]) => item.selected !== "None")
         .map(([name, item]) => ({
           name,
           option: item.selected,
@@ -264,27 +266,47 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
         basePrice: dishDetails.price,
         quantity: orderQuantity,
         selectedSpiciness: selectedSpiceLevel || "Not specified",
-        toppings: activeToppings,
-        extras: activeExtras,
+        toppings: allToppings,
+        extras: allExtras,
         total: calculateTotalPrice().toFixed(2),
       };
 
       if (vendorGroupIndex > -1) {
         const existingDishIndex = cart[vendorGroupIndex].dishes.findIndex(
-          (dish) =>
-            dish.id === dishDetails.documentId &&
-            (dish.selectedSpiciness === selectedSpiceLevel ||
-              (dish.selectedSpiciness === "Not specified" && !selectedSpiceLevel) ||
-              (!dish.selectedSpiciness && !selectedSpiceLevel)) &&
-            JSON.stringify(dish.toppings) === JSON.stringify(activeToppings) &&
-            JSON.stringify(dish.extras) === JSON.stringify(activeExtras)
+          (dish) => {
+            // Check if it's the same dish
+            if (dish.id !== dishDetails.documentId) return false;
+            
+            // Check if spiciness matches
+            if (dish.selectedSpiciness !== (selectedSpiceLevel || "Not specified")) return false;
+            
+            // Check if toppings match exactly
+            if (dish.toppings.length !== allToppings.length) return false;
+            const toppingsMatch = allToppings.every((topping, index) => 
+              dish.toppings[index]?.name === topping.name && 
+              dish.toppings[index]?.option === topping.option
+            );
+            if (!toppingsMatch) return false;
+            
+            // Check if extras match exactly
+            if (dish.extras.length !== allExtras.length) return false;
+            const extrasMatch = allExtras.every((extra, index) => 
+              dish.extras[index]?.name === extra.name && 
+              dish.extras[index]?.option === extra.option
+            );
+            if (!extrasMatch) return false;
+            
+            return true;
+          }
         );
 
         if (existingDishIndex > -1) {
-          cart[vendorGroupIndex].dishes[existingDishIndex].quantity +=
-            orderQuantity;
+          // Update quantity of existing item
+          cart[vendorGroupIndex].dishes[existingDishIndex].quantity += orderQuantity;
           cart[vendorGroupIndex].dishes[existingDishIndex].total = (
-            Number(cart[vendorGroupIndex].dishes[existingDishIndex].basePrice) *
+            (Number(cart[vendorGroupIndex].dishes[existingDishIndex].basePrice) + 
+             allToppings.reduce((sum, t) => sum + t.price, 0) + 
+             allExtras.reduce((sum, e) => sum + e.price, 0)) * 
             cart[vendorGroupIndex].dishes[existingDishIndex].quantity
           ).toFixed(2);
         } else {
@@ -564,7 +586,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                             key={index}
                             className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-3 bg-gray-50 rounded-lg"
                           >
-                            <span className="text-gray-800 capitalize text-sm font-medium min-w-0">
+                            <span className="text-gray-800 capitalize text-sm font-medium flex-shrink-0 whitespace-nowrap">
                               {topping.name}
                             </span>
                             <div className="flex gap-2 flex-wrap w-full sm:justify-end">
@@ -609,7 +631,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                             key={index}
                             className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-3 bg-gray-50 rounded-lg"
                           >
-                            <span className="text-gray-800 capitalize text-sm font-medium min-w-0">
+                            <span className="text-gray-800 capitalize text-sm font-medium flex-shrink-0 whitespace-nowrap">
                               {extra.name}
                             </span>
                             <div className="flex gap-2 flex-wrap w-full sm:justify-end">

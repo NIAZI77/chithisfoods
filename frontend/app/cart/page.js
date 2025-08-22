@@ -384,7 +384,7 @@ export default function CartPage() {
                                       className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs md:text-sm"
                                     >
                                       <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3 scale-175" />
-                                      {topping.name}
+                                      {topping.name}{topping.option=="included" ? "" : ` (${topping.option})`}
                                     </span>
                                   ))}
                                 </div>
@@ -399,7 +399,7 @@ export default function CartPage() {
                                       className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs md:text-sm"
                                     >
                                       <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3 scale-125" />
-                                      {extra.name}
+                                      {extra.name}{extra.option=="included" ? "" : ` (${extra.option})`}
                                     </span>
                                   ))}
                                 </div>

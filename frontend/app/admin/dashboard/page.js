@@ -54,6 +54,30 @@ const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("week");
 
+  // Utility function to safely format dates
+  const safeDateFormat = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString();
+    } catch (error) {
+      return "Error";
+    }
+  };
+
+  // Utility function to safely get date string for filtering
+  const safeDateString = (dateString) => {
+    if (!dateString) return null;
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return null;
+      return date.toISOString().split("T")[0];
+    } catch (error) {
+      return null;
+    }
+  };
+
   useEffect(() => {
     const AdminJWT = getCookie("AdminJWT");
     const AdminUser = getCookie("AdminUser");
@@ -149,13 +173,13 @@ const DashboardPage = () => {
     }, {});
 
     orderData.forEach((order) => {
-      const orderDate = new Date(order.createdAt).toISOString().split("T")[0];
-      if (dailyData[orderDate]) {
-        dailyData[orderDate].orders += 1;
-        dailyData[orderDate].totalMoney += parseFloat(order.totalAmount || 0);
-        if (order.orderStatus === "delivered") {
-          dailyData[orderDate].taxRevenue += parseFloat(order.tax || 0);
-        }
+      const dateString = safeDateString(order.createdAt);
+      if (!dateString || !dailyData[dateString]) return;
+      
+      dailyData[dateString].orders += 1;
+      dailyData[dateString].totalMoney += parseFloat(order.totalAmount || 0);
+      if (order.orderStatus === "delivered") {
+        dailyData[dateString].taxRevenue += parseFloat(order.tax || 0);
       }
     });
 
@@ -166,25 +190,116 @@ const DashboardPage = () => {
     () =>
       orderData
         .filter((order) => order.orderStatus === "delivered")
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .filter((order) => safeDateString(order.createdAt) !== null)
+        .sort((a, b) => {
+          try {
+            return new Date(b.createdAt) - new Date(a.createdAt);
+          } catch (error) {
+            return 0;
+          }
+        })
         .slice(0, 5),
     [orderData]
   );
+  
   const recentCancelledOrders = useMemo(
     () =>
       orderData
         .filter((order) => order.orderStatus === "cancelled")
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .filter((order) => safeDateString(order.createdAt) !== null)
+        .sort((a, b) => {
+          try {
+            return new Date(b.createdAt) - new Date(a.createdAt);
+          } catch (error) {
+            return 0;
+          }
+        })
         .slice(0, 5),
     [orderData]
   );
+
+  const fetchFullOrders = async (timeFilter = "week") => {
+    try {
+      const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`;
+      const sort = "sort[0]=createdAt:desc";
+
+      let filters = [];
+
+      if (timeFilter !== "all") {
+        const currentDate = new Date();
+        let startDate;
+
+        if (timeFilter === "week") {
+          startDate = new Date(currentDate);
+          startDate.setDate(currentDate.getDate() - 7);
+        } else if (timeFilter === "month") {
+          startDate = new Date(currentDate);
+          startDate.setMonth(currentDate.getMonth() - 1);
+        }
+
+        if (startDate) {
+          filters.push(`filters[createdAt][$gte]=${startDate.toISOString()}`);
+          filters.push(`filters[createdAt][$lte]=${currentDate.toISOString()}`);
+        }
+      }
+      // For "all" time period, no date filters are added, so all orders are fetched
+
+      const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
+      const apiUrl = `${baseUrl}?fields[0]=orderStatus&fields[1]=totalAmount&${sort}${filtersString}&pagination[limit]=9999999999`;
+
+      const response = await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch orders");
+      }
+
+      const data = await response.json();
+
+      if (!data.data || !Array.isArray(data.data)) {
+        throw new Error('Invalid data format received from API');
+      }
+
+      // Validate and filter out orders with invalid dates
+      const validOrders = data.data.filter(order => {
+        if (!order.createdAt) {
+          console.warn(`Order ${order.id} has no createdAt date`);
+          return false;
+        }
+        
+        try {
+          const date = new Date(order.createdAt);
+          if (isNaN(date.getTime())) {
+            console.warn(`Order ${order.id} has invalid createdAt date:`, order.createdAt);
+            return false;
+          }
+          return true;
+        } catch (error) {
+          console.warn(`Order ${order.id} has invalid createdAt date:`, order.createdAt, error);
+          return false;
+        }
+      });
+
+      setOrderData(validOrders);
+      console.log(`Dashboard: Fetched ${validOrders.length} valid orders out of ${data.data?.length || 0} total for metrics calculation (${timeFilter} period)`);
+
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+      setOrderData([]);
+    }
+  };
 
   useEffect(() => {
     const fetchOrderData = async () => {
       try {
         setIsLoading(true);
+        // Fetch all orders without pagination limits like the orders page
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?sort[0]=createdAt:desc${getDateRangeFilter}`,
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?sort[0]=createdAt:desc${getDateRangeFilter}&pagination[limit]=9999999999`,
           {
             method: "GET",
             headers: {
@@ -201,7 +316,29 @@ const DashboardPage = () => {
         }
 
         const { data } = await response.json();
-        setOrderData(data || []);
+        
+        // Validate and filter out orders with invalid dates
+        const validOrders = (data || []).filter(order => {
+          if (!order.createdAt) {
+            console.warn(`Order ${order.id} has no createdAt date`);
+            return false;
+          }
+          
+          try {
+            const date = new Date(order.createdAt);
+            if (isNaN(date.getTime())) {
+              console.warn(`Order ${order.id} has invalid createdAt date:`, order.createdAt);
+              return false;
+            }
+            return true;
+          } catch (error) {
+            console.warn(`Order ${order.id} has invalid createdAt date:`, order.createdAt, error);
+            return false;
+          }
+        });
+        
+        setOrderData(validOrders);
+        console.log(`Dashboard: Fetched ${validOrders.length} valid orders out of ${data?.length || 0} total for ${selectedTimePeriod} period`);
       } catch (error) {
         console.error("Error fetching order data:", error);
         toast.error(
@@ -214,15 +351,18 @@ const DashboardPage = () => {
     };
 
     fetchOrderData();
-  }, [getDateRangeFilter]);
+    // Also fetch full orders for complete metrics
+    fetchFullOrders(selectedTimePeriod);
+  }, [getDateRangeFilter, selectedTimePeriod]);
 
   const ChartTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
 
     const data = payload[0].payload;
-    const ordersForDate = orderData.filter(
-      (order) => new Date(order.createdAt).toISOString().split("T")[0] === label
-    );
+    const ordersForDate = orderData.filter((order) => {
+      const dateString = safeDateString(order.createdAt);
+      return dateString === label;
+    });
 
     const deliveredCount = ordersForDate.filter(
       (order) => order.orderStatus === "delivered"
@@ -326,6 +466,9 @@ const DashboardPage = () => {
                   {dashboardMetrics.orderCounts.total}
                 </h3>
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Showing {orderData.length} orders for {selectedTimePeriod === "week" ? "this week" : selectedTimePeriod === "month" ? "this month" : "all time"}
+              </p>
             </div>
             <div className="p-2 sm:p-3 bg-pink-100 rounded-full flex-shrink-0 ml-2">
               <FaShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-pink-600" />
@@ -521,7 +664,7 @@ const DashboardPage = () => {
                         {order.customerName}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {safeDateFormat(order.createdAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         ${parseFloat(order.totalAmount || 0).toFixed(2)}
@@ -579,7 +722,7 @@ const DashboardPage = () => {
                         {order.customerName}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {safeDateFormat(order.createdAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         ${parseFloat(order.totalAmount || 0).toFixed(2)}

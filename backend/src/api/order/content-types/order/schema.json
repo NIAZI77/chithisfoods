@@ -13,15 +13,11 @@
   "attributes": {
     "customerName": {
       "type": "string",
-      "required": true
-    },
-    "phone": {
-      "type": "biginteger",
-      "required": true
+      "required": false
     },
     "address": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "note": {
       "type": "text",
@@ -129,8 +125,11 @@
       "type": "time",
       "required": true
     },
-    "refundEmail": {
-      "type": "email"
+    "phone": {
+      "type": "string"
+    },
+    "refundDetails": {
+      "type": "json"
     }
   }
 }

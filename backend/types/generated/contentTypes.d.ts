@@ -492,11 +492,11 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    address: Schema.Attribute.String & Schema.Attribute.Required;
+    address: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    customerName: Schema.Attribute.String & Schema.Attribute.Required;
+    customerName: Schema.Attribute.String;
     customerOrderId: Schema.Attribute.BigInteger & Schema.Attribute.Required;
     deliveryDate: Schema.Attribute.Date;
     deliveryFee: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
@@ -517,9 +517,9 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       ['paid', 'unpaid', 'refunded']
     > &
       Schema.Attribute.DefaultTo<'unpaid'>;
-    phone: Schema.Attribute.BigInteger & Schema.Attribute.Required;
+    phone: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
-    refundEmail: Schema.Attribute.Email;
+    refundDetails: Schema.Attribute.JSON;
     subtotal: Schema.Attribute.Decimal &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<0>;
@@ -1053,6 +1053,7 @@ export interface PluginUsersPermissionsUser
     draftAndPublish: false;
   };
   attributes: {
+    addresses: Schema.Attribute.JSON;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -1078,6 +1079,7 @@ export interface PluginUsersPermissionsUser
       }>;
     provider: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
+    refundDetails: Schema.Attribute.JSON;
     resetPasswordToken: Schema.Attribute.String & Schema.Attribute.Private;
     role: Schema.Attribute.Relation<
       'manyToOne',

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaEnvelope } from "react-icons/fa";
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaEnvelope, FaInfo } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { setCookie, getCookie } from "cookies-next";
 import Loading from "@/app/loading";
 import Spinner from "@/app/components/Spinner";
+import AddressManager from "./components/AddressManager";
+import RefundDetailsManager from "./components/RefundDetailsManager";
 
 export default function AccountSettings() {
   const router = useRouter();
@@ -26,6 +28,9 @@ export default function AccountSettings() {
   const [jwt, setJwt] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
+  
+  // Refund details state
+  const [refundDetails, setRefundDetails] = useState({});
 
   const usernameRegex = /^[a-z0-9_]{3,15}$/;
 
@@ -49,6 +54,10 @@ export default function AccountSettings() {
         setEmail(data.email);
         setProvider(data.provider);
         setUserId(data.id);
+        // Extract refund details from user data
+        if (data.refundDetails) {
+          setRefundDetails(data.refundDetails);
+        }
       }
     } catch (error) {
       console.error("Error:", error);
@@ -177,6 +186,11 @@ export default function AccountSettings() {
     }
   };
 
+  const handleRefundDetailsUpdate = (updatedRefundDetails) => {
+    setRefundDetails(updatedRefundDetails);
+    
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -276,13 +290,46 @@ export default function AccountSettings() {
             <button
               type="submit"
               disabled={savingPassword}
-              className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:opacity-50"
+              className="w-full bg-rose-600 text-white py-3 rounded-full shadow-md hover:bg-rose-700 transition-all disabled:opacity-50"
             >
               {savingPassword ? <Spinner /> : "Save"}
             </button>
           </form>
         </section>
       )}
+
+      <section className="border p-6 rounded-lg shadow-sm">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <FaEnvelope className="w-5 h-5 text-rose-600" />
+          Refund Details Management
+        </h2>
+        
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <FaInfo className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-blue-800">
+              <p className="font-medium">
+                Auto-sync with canceled orders
+              </p>
+              <p className="mt-1 text-blue-700">
+                Updates all canceled orders when you change refund details
+              </p>
+            </div>
+          </div>
+        </div>
+        
+
+        
+        <RefundDetailsManager
+          key={`refund-manager-${JSON.stringify(refundDetails)}`}
+          userId={userId}
+          initialRefundDetails={refundDetails}
+          onRefundDetailsUpdate={handleRefundDetailsUpdate}
+          jwt={jwt}
+        />
+      </section>
+
+      <AddressManager />
     </div>
   );
 }

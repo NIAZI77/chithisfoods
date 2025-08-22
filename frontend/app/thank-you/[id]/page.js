@@ -45,12 +45,14 @@ const VendorOrderGroup = ({ order }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-        <div className="flex items-center gap-2">
-          <FaStore className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
-            @{order.vendorUsername}
-          </h3>
-        </div>
+        {order.vendorUsername && order.vendorUsername.trim() !== "" && (
+          <div className="flex items-center gap-2">
+            <FaStore className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
+              @{order.vendorUsername}
+            </h3>
+          </div>
+        )}
         <OrderStatusBadge status={order.orderStatus} />
       </div>
 
@@ -60,62 +62,74 @@ const VendorOrderGroup = ({ order }) => {
             key={index}
             className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-gray-50 rounded-lg"
           >
-            <div className="relative h-fit w-16 aspect-video flex-shrink-0">
-              <img
-                src={dish.image?.url}
-                alt={dish.name}
-                className="object-cover rounded-md h-fit w-16 aspect-video"
-              />
-            </div>
+            {dish.image?.url && dish.image.url.trim() !== "" && (
+              <div className="relative h-fit w-16 aspect-video flex-shrink-0">
+                <img
+                  src={dish.image.url}
+                  alt={dish.name}
+                  className="object-cover rounded-md h-fit w-16 aspect-video"
+                />
+              </div>
+            )}
             <div className="flex-grow space-y-2">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1">
-                <h4 className="font-medium text-gray-800 capitalize text-base sm:text-lg">
-                  {dish.name}
-                </h4>
-                <p className="text-rose-600 font-semibold text-base sm:text-lg">
-                  ${dish.total}
-                </p>
+                {dish.name && dish.name.trim() !== "" && (
+                  <h4 className="font-medium text-gray-800 capitalize text-base sm:text-lg">
+                    {dish.name}
+                  </h4>
+                )}
+                {dish.total && Number(dish.total) > 0 && (
+                  <p className="text-rose-600 font-semibold text-base sm:text-lg">
+                    ${dish.total}
+                  </p>
+                )}
               </div>
               <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
-                <span className="bg-gray-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <FaShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" /> Qty: {dish.quantity}
-                </span>
-                {dish.selectedSpiciness && (
+                {dish.quantity && Number(dish.quantity) > 0 && (
+                  <span className="bg-gray-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <FaShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" /> Qty: {dish.quantity}
+                  </span>
+                )}
+                {dish.selectedSpiciness && dish.selectedSpiciness.trim() !== "" && (
                   <span className="bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full flex items-center gap-1">
                     <Flame className="w-3 h-3 sm:w-4 sm:h-4" /> {dish.selectedSpiciness}
                   </span>
                 )}
               </div>
-              {(dish.toppings?.length > 0 || dish.extras?.length > 0) && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {dish.toppings?.map((topping, idx) => (
-                    <span
-                      key={idx}
-                      className="bg-pink-100 px-2 py-0.5 rounded-full text-pink-700 text-xs sm:text-sm flex items-center gap-1"
-                    >
-                      <img
-                        src={"/toppings.png"}
-                        alt="Topping"
-                        className="w-3 h-3 sm:w-4 sm:h-4"
-                      />
-                      {topping.name} (${topping.price})
-                    </span>
-                  ))}
-                  {dish.extras?.map((extra, idx) => (
-                    <span
-                      key={idx}
-                      className="bg-emerald-100 px-2 py-0.5 rounded-full text-emerald-700 text-xs sm:text-sm flex items-center gap-1"
-                    >
-                      <img
-                        src={"/extras.png"}
-                        alt="Extra"
-                        className="w-3 h-3 sm:w-4 sm:h-4"
-                      />
-                      {extra.name} (${extra.price})
-                    </span>
-                  ))}
-                </div>
-              )}
+              {(() => {
+                const validToppings = dish.toppings?.filter(topping => topping.name && topping.price) || [];
+                const validExtras = dish.extras?.filter(extra => extra.name && extra.price) || [];
+                return (validToppings.length > 0 || validExtras.length > 0) ? (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {validToppings.map((topping, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-pink-100 px-2 py-0.5 rounded-full text-pink-700 text-xs sm:text-sm flex items-center gap-1"
+                      >
+                        <img
+                          src={"/toppings.png"}
+                          alt="Topping"
+                          className="w-3 h-3 sm:w-4 sm:h-4"
+                        />
+                        {topping.name} ({topping.option}) (${topping.price})
+                      </span>
+                    ))}
+                    {validExtras.map((extra, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-emerald-100 px-2 py-0.5 rounded-full text-emerald-700 text-xs sm:text-sm flex items-center gap-1"
+                      >
+                        <img
+                          src={"/extras.png"}
+                          alt="Extra"
+                          className="w-3 h-3 sm:w-4 sm:h-4"
+                        />
+                        {extra.name} ({extra.option}) (${extra.price})
+                      </span>
+                    ))}
+                  </div>
+                ) : null;
+              })()}
             </div>
           </div>
         ))}
@@ -311,25 +325,29 @@ export default function ThankYouPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mt-8 sm:mt-10 px-4 sm:px-6 md:px-12">
         <div className="space-y-3 bg-white p-4 sm:p-6 rounded-xl shadow-sm">
-          <div className="flex items-center gap-2">
-            <Receipt className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-            <div>
-              <span className="text-gray-500 text-sm sm:text-base">Order Number</span>
-              <p className="text-black font-medium text-sm sm:text-base">
-                {currentOrder.customerOrderId}
-              </p>
+          {currentOrder.customerOrderId && currentOrder.customerOrderId.trim() !== "" && (
+            <div className="flex items-center gap-2">
+              <Receipt className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+              <div>
+                <span className="text-gray-500 text-sm sm:text-base">Order Number</span>
+                <p className="text-black font-medium text-sm sm:text-base">
+                  {currentOrder.customerOrderId}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-            <div>
-              <span className="text-gray-500 text-sm sm:text-base">Date of Order</span>
-              <p className="text-black font-medium text-sm sm:text-base">
-                {new Date(currentOrder.createdAt).toLocaleDateString()}
-              </p>
+          )}
+          {currentOrder.createdAt && (
+            <div className="flex items-center gap-2">
+              <Calendar className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+              <div>
+                <span className="text-gray-500 text-sm sm:text-base">Date of Order</span>
+                <p className="text-black font-medium text-sm sm:text-base">
+                  {new Date(currentOrder.createdAt).toLocaleDateString()}
+                </p>
+              </div>
             </div>
-          </div>
-          {currentOrder.deliveryDate && (
+          )}
+          {currentOrder.deliveryDate && currentOrder.deliveryDate.trim() !== "" && (
             <div className="flex items-center gap-2">
               <Calendar className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
               <div>
@@ -340,7 +358,7 @@ export default function ThankYouPage() {
               </div>
             </div>
           )}
-          {currentOrder.deliveryTime && (
+          {currentOrder.deliveryTime && currentOrder.deliveryTime.trim() !== "" && (
             <div className="flex items-center gap-2">
               <Clock className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
               <div>
@@ -354,30 +372,36 @@ export default function ThankYouPage() {
               </div>
             </div>
           )}
-          <div className="flex items-center gap-2">
-            <User className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-            <div>
-              <span className="text-gray-500 text-sm sm:text-base">Recipient&apos;s Name</span>
-              <p className="text-black font-medium text-sm sm:text-base">
-                {currentOrder.customerName}
-              </p>
+          {currentOrder.customerName && currentOrder.customerName.trim() !== "" && (
+            <div className="flex items-center gap-2">
+              <User className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+              <div>
+                <span className="text-gray-500 text-sm sm:text-base">Recipient&apos;s Name</span>
+                <p className="text-black font-medium text-sm sm:text-base">
+                  {currentOrder.customerName}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-            <div>
-              <span className="text-gray-500 text-sm sm:text-base">Delivery Address</span>
-              <p className="text-black font-medium text-sm sm:text-base">{currentOrder.address}</p>
+          )}
+          {currentOrder.address && currentOrder.address.trim() !== "" && (
+            <div className="flex items-center gap-2">
+              <MapPin className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+              <div>
+                <span className="text-gray-500 text-sm sm:text-base">Delivery Address</span>
+                <p className="text-black font-medium text-sm sm:text-base">{currentOrder.address}</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Phone className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-            <div>
-              <span className="text-gray-500 text-sm sm:text-base">Phone Number</span>
-              <p className="text-black font-medium text-sm sm:text-base">{currentOrder.phone}</p>
+          )}
+          {currentOrder.phone && currentOrder.phone.trim() !== "" && (
+            <div className="flex items-center gap-2">
+              <Phone className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+              <div>
+                <span className="text-gray-500 text-sm sm:text-base">Phone Number</span>
+                <p className="text-black font-medium text-sm sm:text-base">{currentOrder.phone}</p>
+              </div>
             </div>
-          </div>
-          {currentOrder.note.length > 0 && (
+          )}
+          {currentOrder.note && currentOrder.note.trim().length > 0 && (
             <div className="flex items-center gap-2">
               <FileText className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
               <div>
@@ -389,26 +413,30 @@ export default function ThankYouPage() {
         </div>
 
         <div className="bg-gray-100 p-4 sm:p-6 rounded-xl shadow-sm h-fit">
-          <div className="flex justify-between py-2">
-            <div className="flex items-center gap-2">
-              <FaShoppingBag className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-              <span className="text-sm sm:text-base">Sub Total</span>
+          {orderSubtotal > 0 && (
+            <div className="flex justify-between py-2">
+              <div className="flex items-center gap-2">
+                <FaShoppingBag className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="text-sm sm:text-base">Sub Total</span>
+              </div>
+              <span className="font-semibold text-sm sm:text-base">${orderSubtotal.toFixed(2)}</span>
             </div>
-            <span className="font-semibold text-sm sm:text-base">${orderSubtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between py-2">
-            <div className="flex items-center gap-2">
-              <HiOutlineReceiptTax className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-              <span className="text-sm sm:text-base">Tax</span>
+          )}
+          {currentOrder.totalTax && Number(currentOrder.totalTax) > 0 && (
+            <div className="flex justify-between py-2">
+              <div className="flex items-center gap-2">
+                <HiOutlineReceiptTax className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="text-sm sm:text-base">Tax</span>
+              </div>
+              <span className="font-semibold text-sm sm:text-base">
+                ${currentOrder.totalTax.toFixed(2)}
+              </span>
             </div>
-            <span className="font-semibold text-sm sm:text-base">
-              ${currentOrder.totalTax.toFixed(2)}
-            </span>
-          </div>
-          {orderData.some(order => order.vendorDeliveryFee && order.vendorUsername) && (
+          )}
+          {orderData.some(order => order.vendorDeliveryFee && Number(order.vendorDeliveryFee) > 0 && order.vendorUsername) && (
             <div className="mb-2">
               {orderData.map((order, idx) =>
-                order.vendorDeliveryFee && order.vendorUsername ? (
+                order.vendorDeliveryFee && Number(order.vendorDeliveryFee) > 0 && order.vendorUsername ? (
                   <div
                     key={order.vendorId || idx}
                     className="flex justify-between text-sm text-gray-700 py-1"
@@ -423,22 +451,26 @@ export default function ThankYouPage() {
               )}
             </div>
           )}
-          <div className="flex justify-between py-2">
-            <div className="flex items-center gap-2">
-              <Truck className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-              <span className="text-sm sm:text-base">Delivery</span>
+          {totalDeliveryFee > 0 && (
+            <div className="flex justify-between py-2">
+              <div className="flex items-center gap-2">
+                <Truck className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="text-sm sm:text-base">Delivery</span>
+              </div>
+              <span className="font-semibold text-sm sm:text-base">
+                ${totalDeliveryFee.toFixed(2)}
+              </span>
             </div>
-            <span className="font-semibold text-sm sm:text-base">
-              ${totalDeliveryFee.toFixed(2)}
-            </span>
-          </div>
-          <div className="flex justify-between border-t mt-2 pt-3 text-base sm:text-lg font-bold">
-            <div className="flex items-center gap-2">
-              <LuSquareSigma className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-              <span>Total</span>
+          )}
+          {currentOrder.orderTotal && Number(currentOrder.orderTotal) > 0 && (
+            <div className="flex justify-between border-t mt-2 pt-3 text-base sm:text-lg font-bold">
+              <div className="flex items-center gap-2">
+                <LuSquareSigma className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+                <span>Total</span>
+              </div>
+              <span>${currentOrder.orderTotal.toFixed(2)}</span>
             </div>
-            <span>${currentOrder.orderTotal.toFixed(2)}</span>
-          </div>
+          )}
         </div>
       </div>
 

@@ -17,6 +17,7 @@ import { getCookie } from "cookies-next";
 import Loading from "@/app/loading";
 import { useRouter } from "next/navigation";
 import Spinner from "@/app/components/Spinner";
+import IngredientInput from "@/components/IngredientInput";
 
 export default function AddDishPage() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function AddDishPage() {
     subcategory: "",
     preparation_time: "",
     vendorId: "",
-    ingredients: "",
+    ingredients: [],
     toppings: [],
     extras: [],
     spiciness: [],
@@ -290,6 +291,10 @@ export default function AddDishPage() {
       toast.warning("Please upload image for the dish.");
       return;
     }
+    if (!dishData.ingredients || dishData.ingredients.length === 0) {
+      toast.warning("Please add at least one ingredient.");
+      return;
+    }
     setSubmitting(true);
 
     try {
@@ -298,7 +303,7 @@ export default function AddDishPage() {
         price: parseFloat(dishData.price),
         servings: parseInt(dishData.servings),
         preparation_time: parseInt(dishData.preparation_time),
-        ingredients: dishData.ingredients.split(",").map((item) => item.trim()),
+        ingredients: dishData.ingredients,
       };
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes`,
@@ -564,13 +569,11 @@ export default function AddDishPage() {
             >
               Ingredients
             </label>
-            <input
-              required
-              name="ingredients"
-              placeholder="i.e Chicken breast, Olive oil, Garlic"
+            <IngredientInput
               value={dishData.ingredients}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md outline-orange-400 bg-slate-100"
+              onChange={(ingredients) => setDishData(prev => ({ ...prev, ingredients }))}
+                placeholder="i.e Chicken breast, Olive oil, Garlic"
+              maxIngredients={20}
             />
           </div>
         </div>
@@ -607,11 +610,11 @@ export default function AddDishPage() {
 
         <section className="space-y-6 mt-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-orange-500">Toppings</h2>
+            <h2 className="text-lg font-semibold text-orange-500">Toppings</h2>
             <button
               type="button"
               onClick={() => addGroup("toppings")}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-orange-100 sm:text-base text-xs text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
             >
               <PlusCircle size={20} /> Add Topping
             </button>
@@ -626,7 +629,7 @@ export default function AddDishPage() {
                 <div className="flex justify-between items-center gap-4">
                   <input
                     type="text"
-                    placeholder="Topping Group Name"
+                    placeholder="i.e Toppings"
                     value={group.name}
                     onChange={(e) =>
                       handleArrayChange(
@@ -682,7 +685,7 @@ export default function AddDishPage() {
                             : "text-slate-700 hover:bg-slate-200"
                         }`}
                       >
-                        Multiple Options
+                        Custom Options
                       </span>
                     </label>
                   </div>
@@ -776,11 +779,11 @@ export default function AddDishPage() {
 
         <section className="space-y-6 mt-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-orange-500">Extras</h2>
+            <h2 className="text-lg font-semibold text-orange-500">Extras</h2>
             <button
               type="button"
               onClick={() => addGroup("extras")}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-orange-100 sm:text-base text-xs text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
             >
               <PlusCircle size={20} /> Add Extra
             </button>
@@ -851,7 +854,7 @@ export default function AddDishPage() {
                             : "text-slate-700 hover:bg-slate-200"
                         }`}
                       >
-                        Multiple Options
+                        Custom Options
                       </span>
                     </label>
                   </div>

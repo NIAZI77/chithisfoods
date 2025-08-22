@@ -123,80 +123,94 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
               Customer Details
             </h3>
             <div className="space-y-3 md:space-y-4">
-              <div className="flex items-start gap-2">
-                <User className="w-4 h-4 text-gray-500 mt-0.5" />
-                <div>
-                  <p className="text-gray-500 text-xs mb-0.5">Customer Name</p>
-                  <p className="text-xs text-gray-800 font-medium">
-                    {order.customerName}
-                  </p>
+              {order.customerName && (
+                <div className="flex items-start gap-2">
+                  <User className="w-4 h-4 text-gray-500 mt-0.5" />
+                  <div>
+                    <p className="text-gray-500 text-xs mb-0.5">Customer Name</p>
+                    <p className="text-xs text-gray-800 font-medium">
+                      {order.customerName}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <Phone className="w-4 h-4 text-gray-500 mt-0.5" />
-                <div>
-                  <p className="text-gray-500 text-xs mb-0.5">Phone Number</p>
-                  <p className="text-xs text-gray-800 font-medium">
-                    {order.phone}
-                  </p>
+              )}
+              {order.phone && (
+                <div className="flex items-start gap-2">
+                  <Phone className="w-4 h-4 text-gray-500 mt-0.5" />
+                  <div>
+                    <p className="text-gray-500 text-xs mb-0.5">Phone Number</p>
+                    <p className="text-xs text-gray-800 font-medium">
+                      {order.phone}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
-                <div>
-                  <p className="text-gray-500 text-xs mb-0.5">
-                    Delivery Address
-                  </p>
-                  <p className="text-xs text-gray-800 font-medium">
-                    {order.address}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2 md:gap-3">
-                <div className="flex-1 flex items-start gap-2">
-                  <CreditCard className="w-4 h-4 text-gray-500 mt-0.5" />
+              )}
+              {order.address && (
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
                   <div>
                     <p className="text-gray-500 text-xs mb-0.5">
-                      Payment Status
+                      Delivery Address
                     </p>
-                    <p className="text-xs text-gray-800 font-medium capitalize">
-                      {order.paymentStatus || "-"}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex-1 flex items-start gap-2">
-                  <Truck className="w-4 h-4 text-gray-500 mt-0.5" />
-                  <div>
-                    <p className="text-gray-500 text-xs mb-0.5">Order Type</p>
-                    <p className="text-xs text-gray-800 font-medium capitalize">
-                      {order.deliveryType || "-"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex gap-2 md:gap-3">
-                <div className="flex-1 flex items-start gap-2">
-                  <Calendar className="w-4 h-4 text-gray-500 mt-0.5" />
-                  <div>
-                    <p className="text-gray-500 text-xs mb-0.5">Order Date</p>
                     <p className="text-xs text-gray-800 font-medium">
-                      {new Date(order.createdAt).toLocaleDateString()}
+                      {order.address}
                     </p>
                   </div>
                 </div>
-                <div className="flex-1 flex items-start gap-2">
-                  <ClockIcon className="w-4 h-4 text-gray-500 mt-0.5" />
-                  <div>
-                    <p className="text-gray-500 text-xs mb-0.5">Order Time</p>
-                    <p className="text-xs text-gray-800 font-medium">
-                      {new Date(order.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+              )}
+              {(order.paymentStatus || order.deliveryType) && (
+                <div className="flex gap-2 md:gap-3">
+                  {order.paymentStatus && (
+                    <div className="flex-1 flex items-start gap-2">
+                      <CreditCard className="w-4 h-4 text-gray-500 mt-0.5" />
+                      <div>
+                        <p className="text-gray-500 text-xs mb-0.5">
+                          Payment Status
+                        </p>
+                        <p className="text-xs text-gray-800 font-medium capitalize">
+                          {order.paymentStatus}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {order.deliveryType && (
+                    <div className="flex-1 flex items-start gap-2">
+                      <Truck className="w-4 h-4 text-gray-500 mt-0.5" />
+                      <div>
+                        <p className="text-gray-500 text-xs mb-0.5">Order Type</p>
+                        <p className="text-xs text-gray-800 font-medium capitalize">
+                          {order.deliveryType}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {order.createdAt && (
+                <div className="flex gap-2 md:gap-3">
+                  <div className="flex-1 flex items-start gap-2">
+                    <Calendar className="w-4 h-4 text-gray-500 mt-0.5" />
+                    <div>
+                      <p className="text-gray-500 text-xs mb-0.5">Order Date</p>
+                      <p className="text-xs text-gray-800 font-medium">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex-1 flex items-start gap-2">
+                    <ClockIcon className="w-4 h-4 text-gray-500 mt-0.5" />
+                    <div>
+                      <p className="text-gray-500 text-xs mb-0.5">Order Time</p>
+                      <p className="text-xs text-gray-800 font-medium">
+                        {new Date(order.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
               {order.deliveryDate && (
                 <div className="flex gap-2 md:gap-3">
                   <div className="flex-1 flex items-start gap-2">
@@ -271,7 +285,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <img src={"/toppings.png"} alt="Topping" className="w-3 h-3 scale-175" /> {topping.name} (${topping.price})
+                                  <img src={"/toppings.png"} alt="Topping" className="w-3 h-3 scale-175" />  {topping.name}{topping.option=="included" ? "" : ` (${topping.option})`}
                                 </span>
                               ))}
                             </div>
@@ -285,7 +299,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <img src={"/extras.png"} alt="Extra" className="w-3 h-3 scale-125" /> {extra.name} (${extra.price})
+                                  <img src={"/extras.png"} alt="Extra" className="w-3 h-3 scale-125" /> {extra.name} {extra.option=="included" ? "" : ` (${extra.option})`}
                                 </span>
                               ))}
                             </div>
@@ -298,7 +312,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                     <div className="text-xs font-semibold text-orange-600">
                       ${parseFloat(dish.total).toFixed(2)}
                     </div>
-                    <div className="text-xs text-gray-500 mt-0.5"> {dish.selectedSpiciness && (
+                    {dish.selectedSpiciness && (
                       <div className="mt-1.5 flex items-center gap-1.5">
                         <Flame className="w-3 h-3 text-orange-500" />
                         <span className="text-xs text-gray-700">
@@ -306,7 +320,6 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                         </span>
                       </div>
                     )}
-                    </div>
                   </div>
                 </div>
               ))}
@@ -330,22 +343,22 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                   ${order.subtotal.toFixed(2)}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
+             {order.deliveryType === "delivery" && <div className="flex justify-between items-center">
                 <span className="text-xs font-medium text-gray-700 flex items-center gap-1">
                   <Truck className="w-3 h-3" />
                   Delivery Fee
                 </span>
                 <span className="text-xs font-semibold text-orange-600">
-                  ${order.vendorDeliveryFee.toFixed(2)}
+                  ${(order.deliveryFee || 0).toFixed(2)}
                 </span>
-              </div>
+              </div>}
               <div className="flex justify-between items-center">
                 <span className="text-xs font-medium text-gray-700 flex items-center gap-1">
                   <Sigma className="w-3 h-3" />
                   Total
                 </span>
                 <span className="text-xs font-semibold text-orange-600">
-                  ${(order.subtotal + order.vendorDeliveryFee).toFixed(2)}
+                  ${(order.subtotal + order.deliveryFee || 0).toFixed(2)}
                 </span>
               </div>
             </div>

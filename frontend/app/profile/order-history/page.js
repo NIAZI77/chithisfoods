@@ -15,6 +15,8 @@ import {
   Calendar,
   ShoppingBag,
   Search,
+  Eye,
+  Settings,
 } from "lucide-react";
 import {
   Select,
@@ -24,6 +26,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import Pagination from "@/app/components/pagination";
+import OrderDetailsDialog from "./components/OrderDetailsDialog";
 
 export default function OrderHistoryPage() {
   const router = useRouter();
@@ -36,6 +39,8 @@ export default function OrderHistoryPage() {
   const [pageSize] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [statusCountsAll, setStatusCountsAll] = useState({
     pending: 0,
     "in-process": 0,
@@ -58,7 +63,117 @@ export default function OrderHistoryPage() {
     cancelled: 0,
   });
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState({});
 
+  // Utility function to get current user ID consistently
+  const getCurrentUserId = () => {
+    const userId = userData?.id || userData?.email || userData?.username || user || getCookie("user");
+    
+    // Log for debugging
+    if (!userId) {
+      console.warn("No user ID found:", { 
+        userDataId: userData?.id, 
+        userDataEmail: userData?.email, 
+        userDataUsername: userData?.username, 
+        user: user, 
+        cookieUser: getCookie("user") 
+      });
+    }
+    
+    return userId;
+  };
+
+  // Utility function to check if user has reviewed a dish
+  const hasUserReviewedDish = (dish) => {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId || !dish.reviews) return false;
+    
+    const hasReviewed = dish.reviews.some(review => 
+      review.userId === currentUserId || 
+      review.userId === userData?.id ||
+      review.userId === userData?.email ||
+      review.userId === userData?.username ||
+      review.userId === user ||
+      review.userId === getCookie("user")
+    );
+    
+    // Log for debugging
+    if (hasReviewed) {
+      console.log("User has already reviewed dish:", { 
+        dishId: dish.id, 
+        dishName: dish.name, 
+        userId: currentUserId,
+        reviewCount: dish.reviews.length 
+      });
+    }
+    
+    return hasReviewed;
+  };
+
+  // Utility function to validate review data
+  const validateReviewData = (dish) => {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) {
+      return { isValid: false, error: "Unable to identify user. Please refresh the page and try again." };
+    }
+    
+    if (!dish || !dish.id) {
+      return { isValid: false, error: "Invalid dish data. Please try again." };
+    }
+    
+    if (hasUserReviewedDish(dish)) {
+      return { isValid: false, error: "You have already reviewed this dish! Each dish can only be reviewed once." };
+    }
+    
+    return { isValid: true, error: null };
+  };
+
+  // Utility function to get review status for a dish
+  const getDishReviewStatus = (dish) => {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId || !dish.reviews) return { hasReviewed: false, review: null };
+    
+    const userReview = dish.reviews.find(review => 
+      review.userId === currentUserId || 
+      review.userId === userData?.id ||
+      review.userId === userData?.email ||
+      review.userId === userData?.username ||
+      review.userId === user ||
+      review.userId === getCookie("user")
+    );
+    
+    return { 
+      hasReviewed: !!userReview, 
+      review: userReview 
+    };
+  };
+
+  const fetchUserData = async () => {
+    try {
+      const jwt = getCookie("jwt");
+      if (!jwt) {
+        console.error("No JWT token found");
+        return;
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwt}`,
+        },
+      });
+      
+      if (response.ok) {
+        const userDataJson = await response.json();
+        setUserData(userDataJson);
+      } else {
+        console.error("Failed to fetch user data:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
   useEffect(() => {
     setMounted(true);
     const userCookie = getCookie("user");
@@ -74,6 +189,7 @@ export default function OrderHistoryPage() {
       return;
     }
 
+    fetchUserData();
     fetchStatusCounts();
   }, [mounted, user, router]);
 
@@ -97,6 +213,24 @@ export default function OrderHistoryPage() {
         }
       );
 
+      if (allTimeRes.ok) {
+        const allTimeData = await allTimeRes.json();
+        const allTimeOrders = allTimeData.data || [];
+        
+        // Count statuses for all time
+        const allTimeCounts = allTimeOrders.reduce((counts, order) => {
+          const status = order.orderStatus?.toLowerCase();
+          if (status && counts.hasOwnProperty(status)) {
+            counts[status]++;
+          }
+          return counts;
+        }, { pending: 0, "in-process": 0, ready: 0, delivered: 0, cancelled: 0 });
+        
+        setStatusCountsAll(allTimeCounts);
+      } else {
+        console.error("Failed to fetch all-time status counts:", allTimeRes.status);
+      }
+
       // Fetch week counts
       const weekRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
@@ -108,6 +242,24 @@ export default function OrderHistoryPage() {
           },
         }
       );
+
+      if (weekRes.ok) {
+        const weekData = await weekRes.json();
+        const weekOrders = weekData.data || [];
+        
+        // Count statuses for week
+        const weekCounts = weekOrders.reduce((counts, order) => {
+          const status = order.orderStatus?.toLowerCase();
+          if (status && counts.hasOwnProperty(status)) {
+            counts[status]++;
+          }
+          return counts;
+        }, { pending: 0, "in-process": 0, ready: 0, delivered: 0, cancelled: 0 });
+        
+        setStatusCountsWeek(weekCounts);
+      } else {
+        console.error("Failed to fetch week status counts:", weekRes.status);
+      }
 
       // Fetch month counts
       const monthRes = await fetch(
@@ -121,34 +273,26 @@ export default function OrderHistoryPage() {
         }
       );
 
-      if (allTimeRes.ok && weekRes.ok && monthRes.ok) {
-        const allTimeData = await allTimeRes.json();
-        const weekData = await weekRes.json();
+      if (monthRes.ok) {
         const monthData = await monthRes.json();
-
-        const processCounts = (data) => {
-          const counts = {
-            pending: 0,
-            "in-process": 0,
-            ready: 0,
-            delivered: 0,
-            cancelled: 0,
-          };
-          data.data.forEach((order) => {
-            if (counts.hasOwnProperty(order.orderStatus)) {
-              counts[order.orderStatus]++;
-            }
-          });
+        const monthOrders = monthData.data || [];
+        
+        // Count statuses for month
+        const monthCounts = monthOrders.reduce((counts, order) => {
+          const status = order.orderStatus?.toLowerCase();
+          if (status && counts.hasOwnProperty(status)) {
+            counts[status]++;
+          }
           return counts;
-        };
-
-        setStatusCountsAll(processCounts(allTimeData));
-        setStatusCountsWeek(processCounts(weekData));
-        setStatusCountsMonth(processCounts(monthData));
+        }, { pending: 0, "in-process": 0, ready: 0, delivered: 0, cancelled: 0 });
+        
+        setStatusCountsMonth(monthCounts);
+      } else {
+        console.error("Failed to fetch month status counts:", monthRes.status);
       }
     } catch (error) {
       console.error("Error fetching status counts:", error);
-      toast.error("Failed to load order status counts");
+      toast.error("Failed to load order statistics");
     }
   };
 
@@ -177,112 +321,79 @@ export default function OrderHistoryPage() {
         timeFilterQuery = `&filters[createdAt][$gte]=${monthAgo.toISOString()}`;
       }
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}${statusFilterQuery}${timeFilterQuery}&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}&sort=createdAt:desc`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-        }
-      );
+      const apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}${statusFilterQuery}${timeFilterQuery}&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}&sort=createdAt:desc`;
+      
+      console.log("Fetching orders from:", apiUrl);
+
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+        },
+      });
 
       if (!response.ok) {
         const errorData = await response.text();
-        console.error("API Error Response:", errorData);
-        throw new Error(
-          `Failed to fetch orders: ${response.status} ${response.statusText}`
-        );
+        console.error("API Error Response:", response.status, response.statusText, errorData);
+        
+        if (response.status === 401) {
+          throw new Error("Authentication failed. Please log in again.");
+        } else if (response.status === 403) {
+          throw new Error("Access denied. You don't have permission to view these orders.");
+        } else if (response.status === 404) {
+          throw new Error("Orders not found. Please check your account.");
+        } else if (response.status >= 500) {
+          throw new Error("Server error. Please try again later.");
+        } else {
+          throw new Error(`Failed to fetch orders: ${response.status} ${response.statusText}`);
+        }
       }
 
       const data = await response.json();
+
+      if (!data) {
+        console.error("No response data received");
+        throw new Error("No data received from server");
+      }
 
       if (!data.data) {
         console.error("No data field in response:", data);
         return { data: [], meta: { pagination: { total: 0, pageCount: 0 } } };
       }
 
-      setTotalPages(data.meta.pagination.pageCount);
-      setTotalOrders(data.meta.pagination.total);
+      // Debug: Log the first order to see its structure
+      if (data.data.length > 0) {
+        console.log("First order data structure:", data.data[0]);
+        console.log("First order dishes:", data.data[0].dishes);
+        console.log("First order items:", data.data[0].items);
+      }
+
+      setTotalPages(data.meta?.pagination?.pageCount || 1);
+      setTotalOrders(data.meta?.pagination?.total || 0);
       return data;
     } catch (error) {
       console.error("Error in getAllOrders:", error);
-      toast.error(error.message || "Unable to load orders. Please try again.");
+      
+      // Provide user-friendly error messages
+      let errorMessage = "Unable to load orders. Please try again.";
+      
+      if (error.message.includes("Authentication failed")) {
+        errorMessage = "Please log in again to view your orders.";
+        router.push("/login");
+      } else if (error.message.includes("Access denied")) {
+        errorMessage = "You don't have permission to view these orders.";
+      } else if (error.message.includes("Server error")) {
+        errorMessage = "Server is temporarily unavailable. Please try again later.";
+      } else if (error.message.includes("Network")) {
+        errorMessage = "Network error. Please check your internet connection.";
+      }
+      
+      toast.error(errorMessage);
       return { data: [], meta: { pagination: { total: 0, pageCount: 0 } } };
     } finally {
       setLoading(false);
     }
-  };
-
-  const groupOrdersByCustomerOrderId = (orders) => {
-    if (!Array.isArray(orders)) {
-      console.error("Invalid orders data:", orders);
-      return [];
-    }
-    return Object.values(
-      orders.reduce((grouped, order) => {
-        if (!order.customerOrderId) {
-          console.error("Order missing customerOrderId:", order);
-          return grouped;
-        }
-        const id = order.customerOrderId;
-        if (!grouped[id]) grouped[id] = [];
-        grouped[id].push(order);
-        return grouped;
-      }, {})
-    );
-  };
-
-  const formatGroupedOrders = (groupedOrders) => {
-    if (!Array.isArray(groupedOrders)) {
-      console.error("Invalid grouped orders:", groupedOrders);
-      return [];
-    }
-    return groupedOrders
-      .map((orders) => {
-        if (!orders || !orders.length) {
-          console.error("Invalid order group:", orders);
-          return null;
-        }
-        const firstOrder = orders[0];
-        const allDishes = orders.flatMap((order) => order.dishes || []);
-
-        // Determine the status based on priority
-        let finalStatus = firstOrder.orderStatus;
-        const hasPending = orders.some(order => order.orderStatus === 'pending');
-        const hasInProcess = orders.some(order => order.orderStatus === 'in-process');
-
-        if (hasPending) {
-          finalStatus = 'pending';
-        } else if (hasInProcess) {
-          finalStatus = 'in-process';
-        }
-
-        return {
-          id: firstOrder.customerOrderId,
-          date: new Date(firstOrder.createdAt).toLocaleString("en-US", {
-            timeZone: "UTC",
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-            hour12: true,
-          }),
-          deliveryDate: firstOrder.deliveryDate,
-          deliveryTime: firstOrder.deliveryTime,
-          status: finalStatus,
-          items: allDishes.map((dish) => ({
-            name: dish.name,
-            price: parseFloat(dish.total),
-            qty: dish.quantity,
-            image: dish.image,
-          })),
-          orderTotal: firstOrder.orderTotal,
-        };
-      })
-      .filter(Boolean);
   };
 
   useEffect(() => {
@@ -291,21 +402,82 @@ export default function OrderHistoryPage() {
     const fetchOrders = async () => {
       try {
         const orders = await getAllOrders();
-        const groupedOrders = groupOrdersByCustomerOrderId(orders.data);
-        const formattedOrders = formatGroupedOrders(groupedOrders);
-        setOrderData(formattedOrders);
+        // Use orders directly without formatting
+        setOrderData(orders.data || []);
       } catch (error) {
-        toast.error("Failed to load order history");
+        console.error("Error fetching orders:", error);
+        toast.error("Failed to load orders");
+        
+        setOrderData([]);
+        setTotalPages(1);
+        setTotalOrders(0);
       }
     };
 
     fetchOrders();
   }, [mounted, user, statusFilter, timeFilter, currentPage, pageSize]);
 
+  const handleViewDetails = (order) => {
+    if (!order) {
+      console.error("handleViewDetails: order is undefined");
+      return;
+    }
+    
+    if (!order.documentId) {
+      console.error("handleViewDetails: order.documentId is missing:", order);
+      return;
+    }
+    
+    console.log("handleViewDetails - Order data:", order);
+    console.log("handleViewDetails - Order dishes:", order.dishes);
+    console.log("handleViewDetails - Order items:", order.items);
+    console.log("handleViewDetails - Dishes count:", order.dishes ? order.dishes.length : 'undefined');
+    console.log("handleViewDetails - Items count:", order.items ? order.items.length : 'undefined');
+    
+    setSelectedOrder(order);
+    setIsDialogOpen(true);
+  };
+
+  const handleStatusUpdate = () => {
+    // Refresh orders after status update
+    const fetchOrders = async () => {
+      try {
+        const orders = await getAllOrders();
+        setOrderData(orders.data || []);
+      } catch (error) {
+        console.error("Error refreshing orders:", error);
+        // Don't show toast as getAllOrders already handles it
+        // Just set empty data to prevent UI errors
+        setOrderData([]);
+        setTotalPages(1);
+        setTotalOrders(0);
+      }
+    };
+    fetchOrders();
+  };
+
+  const getStatusClasses = (status) => {
+    if (!status) return "bg-gray-100 text-gray-800";
+    
+    const STATUS_STYLES = {
+      pending: "bg-yellow-100 text-yellow-700",
+      "in-process": "bg-indigo-100 text-indigo-700",
+      ready: "bg-green-100 text-green-700",
+      delivered: "bg-gray-100 text-gray-700",
+      cancelled: "bg-red-100 text-red-700",
+      default: "bg-gray-100 text-gray-800",
+    };
+    return STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.default;
+  };
+
+
+
   const countByStatus = (status) =>
-    orderData.filter((order) => order.status === status).length;
+    orderData.filter((order) => order.orderStatus === status).length;
 
   const StatusBadge = ({ status }) => {
+    if (!status) return null;
+    
     const statusMap = {
       pending: "bg-amber-200 text-amber-900 font-bold w-24 text-center",
       "in-process": "bg-sky-200 text-sky-900 font-bold w-24 text-center",
@@ -323,10 +495,10 @@ export default function OrderHistoryPage() {
     return (
       <span
         className={
-          "text-xs font-medium px-2 py-1 rounded-full " + statusMap[status]
+          "text-xs font-medium px-2 py-1 rounded-full " + (statusMap[status] || statusMap.default)
         }
       >
-        {labelMap[status]}
+        {labelMap[status] || status.toUpperCase()}
       </span>
     );
   };
@@ -341,7 +513,10 @@ export default function OrderHistoryPage() {
 
   return (
     <div className="w-[90%] mx-auto">
-      <h2 className="text-lg md:text-xl font-semibold mb-4">ORDER STATUS</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg md:text-xl font-semibold">ORDER STATUS</h2>
+      </div>
+      
       <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
@@ -370,7 +545,7 @@ export default function OrderHistoryPage() {
                     : statusCountsAll["in-process"]}
               </p>
             </div>
-            <Package className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
+            <Package className="w-6 h-6 md:w-8 md:h-8 text-rose-500" />
           </div>
         </div>
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
@@ -452,119 +627,122 @@ export default function OrderHistoryPage() {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 place-items-center">
-        {orderData.length === 0 ? (
-          <div className="col-span-full text-center py-16 px-4">
-            <div className="max-w-md mx-auto">
-              <div className="flex justify-center mb-6">
-                <div className="relative">
-                  <div className="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center">
-                    <ShoppingBag className="w-12 h-12 text-rose-500" />
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-rose-200 rounded-full flex items-center justify-center">
-                    <Search className="w-4 h-4 text-rose-600" />
-                  </div>
-                </div>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3 capitalize text-rose-600">
-                {statusFilter !== "all" || timeFilter !== "all"
-                  ? "No orders match your filters"
-                  : "No orders found"}
-              </h3>
-              <p className="text-gray-500 mb-6 leading-relaxed">
-                {statusFilter !== "all" || timeFilter !== "all"
-                  ? "Try adjusting your status or time filters to see more results."
-                  : "You haven't placed any orders yet. Start exploring our delicious menu and place your first order!"}
-              </p>
-              {statusFilter !== "all" || timeFilter !== "all" ? (
-                <button
-                  onClick={() => {
-                    setStatusFilter("all");
-                    setTimeFilter("all");
-                  }}
-                  className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
-                >
-                  <Search className="w-4 h-4" />
-                  Clear Filters
-                </button>
-              ) : (
-                <Link
-                  href="/explore"
-                  className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  Explore Menu
-                </Link>
-              )}
+            {/* Table Layout */}
+      {orderData.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-orange-50">
+            <svg className="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            No Orders Found
+          </h3>
+          <p className="text-gray-500 text-sm max-w-sm mx-auto">
+            You haven&apos;t placed any orders yet. Orders will appear here once you start shopping.
+          </p>
+        </div>
+      ) : (
+        <>
+          <style>{`
+            .custom-scrollbar::-webkit-scrollbar {
+              width: 6px;
+              height: 6px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+              background: #f1f1f1;
+              border-radius: 3px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+              background: #888;
+              border-radius: 3px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+              background: #666;
+            }
+          `}</style>
+          <div className="overflow-x-auto rounded-md -mx-4 sm:mx-0 custom-scrollbar">
+            <div className="min-w-[800px] sm:min-w-full">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">S.No</th>
+                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Date</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Vendor</th>
+                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Items</th>
+                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Status</th>
+                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Type</th>
+                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Total</th>
+                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {orderData.map((order, index) => {
+                    // Calculate proper values with fallbacks
+                    const subtotal = parseFloat(order.subtotal) || parseFloat(order.totalAmount) || 0;
+                    const deliveryFee = parseFloat(order.deliveryFee) || parseFloat(order.vendorDeliveryFee) || 0;
+                    const tax = parseFloat(order.tax) || parseFloat(order.totalTax) || 0;
+                    const totalAmount = parseFloat(order.totalAmount) || parseFloat(order.orderTotal) || (subtotal + deliveryFee + tax);
+                    
+                    return (
+                      <tr key={`${order.documentId}-${index}`} className="bg-white hover:bg-gray-50 border-b border-gray-100">
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-medium">
+                          {((currentPage - 1) * pageSize) + index + 1}
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
+                          <div className="flex flex-col items-center">
+                            <div className="w-8 h-8 rounded-full overflow-hidden mb-1">
+                              <img 
+                                src={order.vendorAvatar || "/fallback.png"} 
+                                alt={order.vendorName || "Vendor"}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.src = "/fallback.png";
+                                }}
+                              />
+                            </div>
+                            <span className="text-xs text-gray-700 font-medium truncate max-w-[80px]">
+                              {order.vendorName || "Unknown Vendor"}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
+                          {Array.isArray(order.dishes) ? order.dishes.length : 0} items
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
+                          <span className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize mx-auto ${getStatusClasses(order.orderStatus)}`}>
+                            {order.orderStatus || 'Unknown'}
+                          </span>
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
+                          <span className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize`}>
+                            {order.deliveryType || "-"}
+                          </span>
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-semibold">
+                          ${totalAmount.toFixed(2)}
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
+                          <button
+                            onClick={() => handleViewDetails(order)}
+                            className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                          >
+                            <Eye className="w-3 h-3 mr-1" />
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
-        ) : (
-          orderData.map((order, idx) => (
-            <div
-              key={idx}
-              className="bg-white p-4 rounded-lg shadow w-full h-72 flex flex-col"
-            >
-              <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-gray-800 text-xs">
-                  Order #{order.id}
-                </h3>
-                <StatusBadge status={order.status} />
-              </div>
-              <p className="text-sm text-gray-500 mb-2">{order.date}</p>
-              {order.deliveryDate && order.deliveryTime && (
-                <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
-                  <Calendar className="w-3 h-3" />
-                  <span>
-                    Delivery: {new Date(order.deliveryDate).toLocaleDateString()} at{" "}
-                    {new Date(`2000-01-01T${order.deliveryTime}`).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              )}
-              <div className="space-y-3 flex-1">
-                {order.items.slice(0, 2).map((item, i) => (
-                  <div key={i} className="flex gap-4 items-center">
-                    <div className="w-20 md:w-24 relative rounded overflow-hidden flex-shrink-0 aspect-video">
-                      <img
-                        src={item.image?.url || "/fallback.png"}
-                        alt={item.name}
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-xs text-gray-800 truncate capitalize">
-                        {item.name}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-orange-600 font-bold text-xs">
-                        ${item.price.toFixed(2)}
-                      </p>
-                      <p className="text-xs text-gray-600">Qty: {item.qty}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="pt-2 border-t border-gray-100 mt-auto">
-                <button
-                  onClick={() => router.push(`/orders/${order.id}`)}
-                  className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
-                >
-                  View Details
-                </button>
-                <div className="text-sm font-semibold mt-1 flex items-center justify-between">
-                  <span>x{order.items.length} Items </span>
-                  <span className="text-orange-600">
-                    ${order.orderTotal.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+        </>
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && orderData.length >= pageSize && (
@@ -572,6 +750,24 @@ export default function OrderHistoryPage() {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
+        />
+      )}
+
+      {/* Order Details Dialog - Only render when dialog is open */}
+      {isDialogOpen && (
+        <OrderDetailsDialog
+          order={selectedOrder}
+          userData={userData}
+          isOpen={isDialogOpen}
+          onClose={() => {
+            setIsDialogOpen(false);
+            setSelectedOrder(null);
+          }}
+          onStatusUpdate={handleStatusUpdate}
+          getCurrentUserId={getCurrentUserId}
+          hasUserReviewedDish={hasUserReviewedDish}
+          validateReviewData={validateReviewData}
+          getDishReviewStatus={getDishReviewStatus}
         />
       )}
     </div>
