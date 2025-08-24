@@ -381,7 +381,7 @@ export default function CartPage() {
                                   {dish.toppings.map((topping, idx) => (
                                     <span
                                       key={idx}
-                                      className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs md:text-sm"
+                                      className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs md:text-sm truncate"
                                     >
                                       <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3 scale-175" />
                                       {topping.name}{topping.option=="included" ? "" : ` (${topping.option})`}
@@ -396,7 +396,7 @@ export default function CartPage() {
                                   {dish.extras.map((extra, idx) => (
                                     <span
                                       key={idx}
-                                      className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs md:text-sm"
+                                      className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs md:text-sm truncate"
                                     >
                                       <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3 scale-125" />
                                       {extra.name}{extra.option=="included" ? "" : ` (${extra.option})`}

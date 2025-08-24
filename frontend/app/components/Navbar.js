@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { deleteCookie, getCookie } from "cookies-next";
-import Image from "next/image";
+
 import { FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import { FaGear, FaShop } from "react-icons/fa6";
 import { RiFileList2Fill } from "react-icons/ri";
@@ -24,6 +24,7 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [vendorStatus, setVendorStatus] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -57,6 +58,8 @@ export default function Navbar() {
     }
   };
 
+
+
   useEffect(() => {
     const jwt = getCookie("jwt");
     const user = getCookie("user");
@@ -65,6 +68,42 @@ export default function Navbar() {
       setIsLoggedIn(true);
       checkIfVendor(user);
     }
+  }, []);
+
+  useEffect(() => {
+    const loadCartData = () => {
+      const cartData = localStorage.getItem('cart');
+      if (cartData) {
+        try {
+          setCartItems(JSON.parse(cartData));
+        } catch (error) {
+          console.error('Error parsing cart data:', error);
+          setCartItems([]);
+        }
+      }
+    };
+
+    loadCartData();
+    
+    // Listen for cart updates
+    const handleStorageChange = (e) => {
+      if (e.key === 'cart') {
+        loadCartData();
+      }
+    };
+
+    // Listen for zipcode changes to clear cart
+    const handleZipcodeChange = () => {
+      setCartItems([]);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('zipcodeChange', handleZipcodeChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('zipcodeChange', handleZipcodeChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -106,9 +145,14 @@ export default function Navbar() {
         <div className="flex items-center md:order-2 space-x-1 md:space-x-0">
           <Link
             href="/cart"
-            className="h-10 w-10 text-xl flex items-center justify-center rounded-full text-rose-500 hover:text-rose-600 hover:scale-125 transition-all"
+            className="h-10 w-10 text-xl flex items-center justify-center rounded-full text-rose-500 hover:text-rose-600 hover:scale-125 transition-all relative"
           >
             <ShoppingCart />
+            {cartItems.length > 0 && (
+              <span className="absolute bottom-0 right-0 bg-rose-600 text-white text-[8px] rounded-full h-3 w-3 flex items-center justify-center font-bold">
+                {cartItems.length}
+              </span>
+            )}
           </Link>
 
           {isLoggedIn ? (

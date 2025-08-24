@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Mail, Edit, Trash2, RefreshCw, Plus } from 'lucide-react';
+import { MapPin, Phone, Edit, Trash2, RefreshCw, Plus } from 'lucide-react';
 import Spinner from '../../components/Spinner';
 
 const SavedAddressesList = ({
@@ -25,7 +25,7 @@ const SavedAddressesList = ({
             <button
               type="button"
               onClick={onAddNewAddress}
-              className="px-3 sm:px-4 py-2 bg-blue-600 text-white text-xs sm:text-sm rounded-lg sm:rounded-xl hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+              className="px-3 sm:px-4 py-1 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Add New</span>
@@ -36,7 +36,7 @@ const SavedAddressesList = ({
             type="button"
             onClick={onRefreshAddresses}
             disabled={addressesLoading}
-            className="px-3 sm:px-4 py-2 bg-rose-600 text-white text-xs sm:text-sm rounded-lg sm:rounded-xl hover:bg-rose-700 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md disabled:bg-rose-400 disabled:cursor-not-allowed"
+            className="px-3 sm:px-4 py-1 bg-slate-600 text-white rounded-full shadow-slate-300 shadow-md hover:bg-slate-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-slate-400 disabled:cursor-not-allowed"
           >
             {addressesLoading ? (
               <Spinner />
@@ -82,10 +82,6 @@ const SavedAddressesList = ({
                   <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 mb-1">
                     <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
                     {address.phone}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 mb-1">
-                    <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
-                    {address.email}
                   </div>
                   <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-800">
                     <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mt-0.5 flex-shrink-0" />

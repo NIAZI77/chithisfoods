@@ -20,7 +20,7 @@ const DeliveryForm = ({
     onFormChange(name, sanitizedValue);
   };
 
-  const canSave = formData.name && formData.phone && formData.address && formData.email;
+  const canSave = formData.name && formData.phone && formData.address;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">
@@ -34,8 +34,8 @@ const DeliveryForm = ({
           value={formData.name}
           onChange={handleChange}
           placeholder={savingAddress ? "Saving..." : "Full Name"}
-          className={`w-full px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm sm:text-base ${
-            savingAddress ? "bg-gray-50" : ""
+          className={`w-full px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm sm:text-base bg-slate-100 ${
+            savingAddress ? "bg-slate-200" : ""
           }`}
           minLength="2"
           title="Please enter your full name"
@@ -53,28 +53,12 @@ const DeliveryForm = ({
           value={formData.phone}
           onChange={handleChange}
           placeholder={savingAddress ? "Saving..." : "Phone Number"}
-          className={`w-full px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm sm:text-base ${
-            savingAddress ? "bg-gray-50" : ""
+          className={`w-full px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm sm:text-base bg-slate-100 ${
+            savingAddress ? "bg-slate-200" : ""
           }`}
           pattern="[0-9 +-]+"
           title="Please enter a valid phone number"
           disabled={savingAddress}
-        />
-      </div>
-      
-      <div>
-        <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-3 mb-1 sm:mb-2">
-          Email
-        </label>
-        <input
-          required
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="Email"
-          type="email"
-          className="w-full px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm sm:text-base"
-          title="Please enter a valid email address"
         />
       </div>
       
@@ -89,8 +73,8 @@ const DeliveryForm = ({
             value={formData.address}
             onChange={handleChange}
             placeholder={savingAddress ? "Saving address..." : "Street Address"}
-            className={`flex-1 px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm sm:text-base ${
-              savingAddress ? "bg-gray-50" : ""
+            className={`flex-1 px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm sm:text-base bg-slate-100 ${
+              savingAddress ? "bg-slate-200" : ""
             }`}
             minLength="5"
             title="Please enter your complete street address"
@@ -125,7 +109,7 @@ const DeliveryForm = ({
             <button
               type="button"
               onClick={onCancelEdit}
-              className="px-3 sm:px-4 py-2 my-1 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-all flex items-center justify-center gap-2 whitespace-nowrap text-sm sm:text-base"
+              className="px-3 sm:px-4 py-2 my-1 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
               title="Cancel editing"
             >
               <X className="w-4 h-4" />
@@ -134,16 +118,15 @@ const DeliveryForm = ({
             </button>
           )}
           
-          {!editingAddress && (formData.name || formData.phone || formData.email || formData.address) && (
+          {!editingAddress && (formData.name || formData.phone || formData.address) && (
             <button
               type="button"
               onClick={() => {
                 onFormChange('name', '');
                 onFormChange('phone', '');
-                onFormChange('email', '');
                 onFormChange('address', '');
               }}
-              className="px-3 sm:px-4 py-2 my-1 bg-gray-400 text-white rounded-full hover:bg-gray-500 transition-all flex items-center justify-center gap-2 whitespace-nowrap text-sm sm:text-base"
+              className="px-3 sm:px-4 py-2 my-1 bg-rose-400 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-500 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
               title="Clear form fields and enter new address"
             >
               <RotateCcw className="w-4 h-4" />

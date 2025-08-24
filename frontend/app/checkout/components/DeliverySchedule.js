@@ -79,6 +79,7 @@ const DeliverySchedule = ({
                 },
                 '& .MuiInputBase-root': {
                   fontSize: '14px',
+                  backgroundColor: '#f1f5f9', // slate-100
                   '@media (min-width: 640px)': {
                     fontSize: '16px',
                   }
@@ -117,6 +118,7 @@ const DeliverySchedule = ({
                 },
                 '& .MuiInputBase-root': {
                   fontSize: '14px',
+                  backgroundColor: '#f1f5f9', // slate-100
                   '@media (min-width: 640px)': {
                     fontSize: '16px',
                   }

@@ -5,6 +5,7 @@ import { MapPin, Plus, Edit, Trash2, Check, X } from "lucide-react";
 import { toast } from "react-toastify";
 import { getCookie } from "cookies-next";
 import Spinner from "@/app/components/Spinner";
+import Loading from "@/app/loading";
 
 const AddressManager = () => {
   const [addresses, setAddresses] = useState([]);
@@ -15,21 +16,16 @@ const AddressManager = () => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    email: "",
     address: "",
   });
 
   const userCookie = getCookie("user");
   const jwt = getCookie("jwt");
-  
-  // User cookie contains the email address
-  const userEmail = userCookie || null;
 
   const initializeAddressesField = useCallback(async (userId) => {
     if (!userId) return;
-    
+
     try {
-      // Initialize the addresses field
       const initResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userId}`,
         {
@@ -43,7 +39,7 @@ const AddressManager = () => {
           }),
         }
       );
-      
+
       if (initResponse.ok) {
         console.log("Addresses field initialized successfully");
         setAddresses([]);
@@ -57,13 +53,12 @@ const AddressManager = () => {
     }
   }, []);
 
-    const fetchAddresses = useCallback(async () => {
+  const fetchAddresses = useCallback(async () => {
     if (!jwt) return;
-    
+
     try {
       setLoading(true);
-      
-      // First, get the current user data from the API
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
         {
@@ -72,18 +67,17 @@ const AddressManager = () => {
           },
         }
       );
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch user data");
       }
-      
+
       const userData = await response.json();
       console.log("User data from API:", userData);
-      
+
       // Check if addresses field exists and is not null, if not initialize it
       if (!userData.addresses || userData.addresses === null) {
         console.log("Addresses field is null or missing, initializing...");
-        // Initialize the addresses field
         await initializeAddressesField(userData.id);
       } else {
         const userAddresses = Array.isArray(userData.addresses) ? userData.addresses : [];
@@ -96,21 +90,19 @@ const AddressManager = () => {
     } finally {
       setLoading(false);
     }
-  }, [jwt]);
+  }, [jwt, initializeAddressesField]);
 
   useEffect(() => {
-    console.log("AddressManager: User email:", userEmail);
-    console.log("AddressManager: JWT:", jwt);
     if (jwt) {
       fetchAddresses();
     }
-  }, [jwt]); // Only depend on jwt, not on fetchAddresses to prevent infinite loops
+  }, [jwt, fetchAddresses]);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: value
     }));
   };
 
@@ -118,7 +110,6 @@ const AddressManager = () => {
     setFormData({
       name: "",
       phone: "",
-      email: "",
       address: "",
     });
     setEditingId(null);
@@ -127,36 +118,31 @@ const AddressManager = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!jwt) {
       toast.error("Please log in to save addresses.");
       return;
     }
-    
+
+    // Validation matching checkout page logic
     if (!formData.name || formData.name.trim().length < 2) {
       toast.error("Please enter a valid name (at least 2 characters)");
       return;
     }
-    
+
     if (!formData.phone || formData.phone.trim().length < 10) {
       toast.error("Please enter a valid phone number (at least 10 digits)");
       return;
     }
-    
+
     if (!formData.address || formData.address.trim().length < 5) {
       toast.error("Please enter a valid address (at least 5 characters)");
       return;
     }
 
-    if (!formData.email || !formData.email.includes('@')) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
-
     setSaving(true);
-    
+
     try {
-      // First, get the current user data to ensure we have the user ID
       const userResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
         {
@@ -165,38 +151,51 @@ const AddressManager = () => {
           },
         }
       );
-      
+
       if (!userResponse.ok) {
         throw new Error("Failed to fetch user data");
       }
-      
+
       const userData = await userResponse.json();
       if (!userData.id) {
         throw new Error("User ID not found");
       }
-      
+
       const newAddress = {
         id: editingId || Date.now(),
         name: formData.name.trim(),
         phone: formData.phone.trim(),
-        email: formData.email.trim(),
         address: formData.address.trim(),
       };
 
+      // Check for duplicate addresses (matching checkout logic)
+      const existingAddresses = Array.isArray(addresses) ? addresses : [];
+      const isDuplicate = existingAddresses.some(addr =>
+        addr.name.toLowerCase() === newAddress.name.toLowerCase() &&
+        addr.phone === newAddress.phone &&
+        addr.address.toLowerCase() === newAddress.address.toLowerCase()
+      );
+
+      if (isDuplicate && !editingId) {
+        toast.error("This address is already saved");
+        setSaving(false);
+        return;
+      }
+
       let updatedAddresses;
-      
+
       if (editingId) {
-        updatedAddresses = (addresses || []).map(addr => 
+        updatedAddresses = existingAddresses.map(addr =>
           addr.id === editingId ? newAddress : addr
         );
       } else {
-        updatedAddresses = [...(addresses || []), newAddress];
+        updatedAddresses = [...existingAddresses, newAddress];
       }
 
       console.log("Saving address for user:", userData.id);
       console.log("Address data:", updatedAddresses);
-      
-      // Try using the user's JWT token first
+
+      // Try using the user's JWT token first (matching checkout logic)
       let response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userData.id}`,
         {
@@ -211,7 +210,7 @@ const AddressManager = () => {
         }
       );
 
-      // If user JWT fails, try with admin token
+      // If user JWT fails, try with admin token (matching checkout logic)
       if (!response.ok) {
         console.log("User JWT failed, trying admin token...");
         response = await fetch(
@@ -238,12 +237,12 @@ const AddressManager = () => {
       setAddresses(updatedAddresses);
       toast.success(editingId ? "Address updated successfully" : "Address saved successfully");
       resetForm();
-      
+
       // Refresh addresses to ensure consistency
-      fetchAddresses();
+      await fetchAddresses();
     } catch (error) {
       console.error("Error saving address:", error);
-      
+
       // Provide more specific error messages
       if (error.message.includes("403") || error.message.includes("Forbidden")) {
         toast.error("Permission denied. Please contact support.");
@@ -263,7 +262,6 @@ const AddressManager = () => {
     setFormData({
       name: address.name,
       phone: address.phone,
-      email: address.email || "",
       address: address.address,
     });
     setEditingId(address.id);
@@ -275,11 +273,10 @@ const AddressManager = () => {
       toast.error("Please log in to manage addresses.");
       return;
     }
-    
+
     if (!confirm("Are you sure you want to delete this address?")) return;
 
     try {
-      // First, get the current user data to ensure we have the user ID
       const userResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
         {
@@ -288,31 +285,48 @@ const AddressManager = () => {
           },
         }
       );
-      
+
       if (!userResponse.ok) {
         throw new Error("Failed to fetch user data");
       }
-      
+
       const userData = await userResponse.json();
       if (!userData.id) {
         throw new Error("User ID not found");
       }
-      
+
       const updatedAddresses = (addresses || []).filter(addr => addr.id !== addressId);
-      
-      const response = await fetch(
+
+      // Try user JWT first, then admin token (matching checkout logic)
+      let response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userData.id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            Authorization: `Bearer ${jwt}`,
           },
           body: JSON.stringify({
             addresses: updatedAddresses
           }),
         }
       );
+
+      if (!response.ok) {
+        response = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userData.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+            body: JSON.stringify({
+              addresses: updatedAddresses
+            }),
+          }
+        );
+      }
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -322,9 +336,9 @@ const AddressManager = () => {
 
       setAddresses(updatedAddresses);
       toast.success("Address deleted successfully");
-      
+
       // Refresh addresses to ensure consistency
-      fetchAddresses();
+      await fetchAddresses();
     } catch (error) {
       console.error("Error deleting address:", error);
       toast.error("Failed to delete address");
@@ -332,11 +346,7 @@ const AddressManager = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center py-8">
-        <Spinner />
-      </div>
-    );
+    return <Loading />
   }
 
   return (
@@ -348,7 +358,7 @@ const AddressManager = () => {
         </h2>
         <button
           onClick={() => setShowForm(true)}
-          className="bg-rose-600 text-white px-4 py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all flex items-center gap-2"
+          className="bg-rose-600 text-white px-4 py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Add Address
@@ -374,7 +384,8 @@ const AddressManager = () => {
                   placeholder="Full Name"
                   className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
                   minLength="2"
-                  title="Please enter your full name"
+                  title="Please enter your full name (at least 2 characters)"
+                  required
                 />
               </div>
               <div>
@@ -389,26 +400,13 @@ const AddressManager = () => {
                   placeholder="Phone Number"
                   className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
                   pattern="[0-9 +-]+"
-                  title="Please enter a valid phone number"
+                  title="Please enter a valid phone number (at least 10 digits)"
+                  minLength="10"
+                  required
                 />
               </div>
             </div>
-            
-            <div>
-              <label className="block font-semibold text-sm text-slate-500 pl-3">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Email Address"
-                className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
-                title="Please enter a valid email address"
-              />
-            </div>
-            
+
             <div>
               <label className="block font-semibold text-sm text-slate-500 pl-3">
                 Address
@@ -421,15 +419,16 @@ const AddressManager = () => {
                 placeholder="Street Address"
                 className="w-full px-4 py-2 my-1 border rounded-full outline-rose-400"
                 minLength="5"
-                title="Please enter your complete street address"
+                title="Please enter your complete street address (at least 5 characters)"
+                required
               />
             </div>
-            
+
             <div className="flex gap-3">
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-rose-600 text-white px-6 py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:opacity-50 flex items-center gap-2"
+                className="bg-rose-600 text-white px-6 py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {saving ? <Spinner /> : <Check className="w-4 h-4" />}
                 {saving ? "Saving..." : (editingId ? "Update" : "Save")}
@@ -437,7 +436,7 @@ const AddressManager = () => {
               <button
                 type="button"
                 onClick={resetForm}
-                className="bg-gray-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-gray-600 transition-all flex items-center gap-2"
+                className="bg-gray-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-gray-600 transition-all flex items-center gap-2"
               >
                 <X className="w-4 h-4" />
                 Cancel
@@ -453,7 +452,7 @@ const AddressManager = () => {
           <p className="text-lg font-medium mb-2">No saved addresses yet</p>
           <p className="text-sm text-gray-400">Add your first address to get started</p>
           <p className="text-xs text-gray-400 mt-2">
-            If you're having trouble saving addresses, please contact support.
+            Your saved addresses will be available during checkout for quick delivery setup.
           </p>
         </div>
       ) : (
@@ -461,9 +460,7 @@ const AddressManager = () => {
           {(addresses || []).map((address) => (
             <div
               key={address.id}
-              className={`p-4 border rounded-xl cursor-pointer transition-all ${
-                address.isDefault ? "border-rose-500 bg-rose-50 shadow-md" : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
-              }`}
+              className="p-4 border rounded-xl cursor-pointer transition-all border-gray-200 hover:border-gray-300 hover:shadow-sm"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -471,10 +468,9 @@ const AddressManager = () => {
                     <h4 className="font-semibold">{address.name}</h4>
                   </div>
                   <p className="text-gray-600 text-sm mb-1">{address.phone}</p>
-                  <p className="text-gray-600 text-sm mb-1">{address.email}</p>
                   <p className="text-gray-800">{address.address}</p>
                 </div>
-                
+
                 <div className="flex gap-2 ml-4">
                   <button
                     onClick={() => handleEdit(address)}

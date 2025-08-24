@@ -57,6 +57,10 @@ export default function ZipcodeDialogue() {
     }
 
     try {
+      // Clear cart when zipcode changes
+      localStorage.removeItem("cart");
+      
+      // Clear all localStorage and set new zipcode
       localStorage.clear();
       localStorage.setItem("zipcode", zipcode);
       window.dispatchEvent(new CustomEvent("zipcodeChange", {
