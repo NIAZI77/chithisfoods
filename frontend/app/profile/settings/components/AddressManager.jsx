@@ -41,7 +41,7 @@ const AddressManager = () => {
       );
 
       if (initResponse.ok) {
-        console.log("Addresses field initialized successfully");
+
         setAddresses([]);
       } else {
         console.error("Failed to initialize addresses field");
@@ -73,15 +73,15 @@ const AddressManager = () => {
       }
 
       const userData = await response.json();
-      console.log("User data from API:", userData);
+      
 
       // Check if addresses field exists and is not null, if not initialize it
       if (!userData.addresses || userData.addresses === null) {
-        console.log("Addresses field is null or missing, initializing...");
+        
         await initializeAddressesField(userData.id);
       } else {
         const userAddresses = Array.isArray(userData.addresses) ? userData.addresses : [];
-        console.log("User addresses:", userAddresses);
+        
         setAddresses(userAddresses);
       }
     } catch (error) {
@@ -192,8 +192,7 @@ const AddressManager = () => {
         updatedAddresses = [...existingAddresses, newAddress];
       }
 
-      console.log("Saving address for user:", userData.id);
-      console.log("Address data:", updatedAddresses);
+      
 
       // Try using the user's JWT token first (matching checkout logic)
       let response = await fetch(
@@ -212,7 +211,7 @@ const AddressManager = () => {
 
       // If user JWT fails, try with admin token (matching checkout logic)
       if (!response.ok) {
-        console.log("User JWT failed, trying admin token...");
+        
         response = await fetch(
           `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userData.id}`,
           {

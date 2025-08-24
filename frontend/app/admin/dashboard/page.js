@@ -285,7 +285,7 @@ const DashboardPage = () => {
       });
 
       setOrderData(validOrders);
-      console.log(`Dashboard: Fetched ${validOrders.length} valid orders out of ${data.data?.length || 0} total for metrics calculation (${timeFilter} period)`);
+      
 
     } catch (err) {
       console.error("Error fetching orders:", err);
@@ -338,7 +338,7 @@ const DashboardPage = () => {
         });
         
         setOrderData(validOrders);
-        console.log(`Dashboard: Fetched ${validOrders.length} valid orders out of ${data?.length || 0} total for ${selectedTimePeriod} period`);
+
       } catch (error) {
         console.error("Error fetching order data:", error);
         toast.error(

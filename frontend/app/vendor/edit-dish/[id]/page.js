@@ -355,7 +355,7 @@ export default function EditDishPage() {
         ingredients: Array.isArray(dishData.ingredients) ? dishData.ingredients : [],
       };
       
-      console.log('Payload being sent:', payload);
+
       
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${id}`,

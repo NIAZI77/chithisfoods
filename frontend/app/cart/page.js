@@ -17,6 +17,7 @@ import Loading from "../loading";
 import { FaCreditCard } from "react-icons/fa";
 import { PiBowlFood } from "react-icons/pi";
 import { useRouter } from "next/navigation";
+import { updateCartAndNotify, getCartItemCount } from "../lib/utils";
 
 export default function CartPage() {
   const [cart, setCart] = useState([]);
@@ -144,13 +145,16 @@ export default function CartPage() {
 
   useEffect(() => {
     if (!isLoading) {
-      localStorage.setItem("cart", JSON.stringify(cart));
+      // Defer the cart update to prevent setState during render error
+      setTimeout(() => {
+        updateCartAndNotify(cart);
+      }, 0);
     }
   }, [cart, isLoading]);
 
   const updateQty = (vendorId, dish, delta) => {
-    setCart((prevCart) =>
-      prevCart.map((vendorGroup) => {
+    setCart((prevCart) => {
+      const updatedCart = prevCart.map((vendorGroup) => {
         if (vendorGroup.vendorId === vendorId) {
           return {
             ...vendorGroup,
@@ -185,13 +189,20 @@ export default function CartPage() {
           };
         }
         return vendorGroup;
-      })
-    );
+      });
+      
+      // Update localStorage and notify navbar immediately
+      setTimeout(() => {
+        updateCartAndNotify(updatedCart);
+      }, 0);
+      
+      return updatedCart;
+    });
   };
 
   const removeItem = (vendorId, dish) => {
-    setCart((prevCart) =>
-      prevCart
+    setCart((prevCart) => {
+      const updatedCart = prevCart
         .map((vendorGroup) => {
           if (vendorGroup.vendorId === vendorId) {
             const updatedDishes = vendorGroup.dishes.filter(
@@ -211,14 +222,24 @@ export default function CartPage() {
           }
           return vendorGroup;
         })
-        .filter(Boolean)
-    );
+        .filter(Boolean);
+      
+      // Update localStorage and notify navbar immediately
+      setTimeout(() => {
+        updateCartAndNotify(updatedCart);
+      }, 0);
+      
+      return updatedCart;
+    });
     toast.success(`${dish.name} has been removed from your cart`);
   };
 
   const clearAll = () => {
     if (cart.length > 0) {
       setCart([]);
+      setTimeout(() => {
+        updateCartAndNotify([]);
+      }, 0);
       toast.success("All items have been removed from your cart");
     } else {
       toast.info("Your cart is already empty");

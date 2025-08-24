@@ -99,12 +99,7 @@ export default function OrderHistoryPage() {
     
     // Log for debugging
     if (hasReviewed) {
-      console.log("User has already reviewed dish:", { 
-        dishId: dish.id, 
-        dishName: dish.name, 
-        userId: currentUserId,
-        reviewCount: dish.reviews.length 
-      });
+      // User has already reviewed this dish
     }
     
     return hasReviewed;
@@ -323,7 +318,7 @@ export default function OrderHistoryPage() {
 
       const apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}${statusFilterQuery}${timeFilterQuery}&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}&sort=createdAt:desc`;
       
-      console.log("Fetching orders from:", apiUrl);
+
 
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -364,9 +359,7 @@ export default function OrderHistoryPage() {
 
       // Debug: Log the first order to see its structure
       if (data.data.length > 0) {
-        console.log("First order data structure:", data.data[0]);
-        console.log("First order dishes:", data.data[0].dishes);
-        console.log("First order items:", data.data[0].items);
+
       }
 
       setTotalPages(data.meta?.pagination?.pageCount || 1);
@@ -428,11 +421,7 @@ export default function OrderHistoryPage() {
       return;
     }
     
-    console.log("handleViewDetails - Order data:", order);
-    console.log("handleViewDetails - Order dishes:", order.dishes);
-    console.log("handleViewDetails - Order items:", order.items);
-    console.log("handleViewDetails - Dishes count:", order.dishes ? order.dishes.length : 'undefined');
-    console.log("handleViewDetails - Items count:", order.items ? order.items.length : 'undefined');
+
     
     setSelectedOrder(order);
     setIsDialogOpen(true);

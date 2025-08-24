@@ -36,6 +36,43 @@ function OrderDetailsDialog({
   const [selectedDish, setSelectedDish] = useState(null);
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
 
+  // Rating calculation utility functions
+  const calculateAverageRating = (reviews) => {
+    if (!reviews || !Array.isArray(reviews) || reviews.length === 0) {
+      return 0;
+    }
+    
+    const totalRating = reviews.reduce((sum, review) => {
+      const rating = parseFloat(review.rating) || 0;
+      return sum + rating;
+    }, 0);
+    
+    const averageRating = totalRating / reviews.length;
+    return Math.round(averageRating * 10) / 10; // Round to 1 decimal place
+  };
+
+  const calculateVendorRating = (dishes) => {
+    if (!dishes || !Array.isArray(dishes) || dishes.length === 0) {
+      return 0;
+    }
+    
+    const dishesWithRatings = dishes.filter(dish => 
+      dish.rating !== undefined && dish.rating !== null && dish.rating > 0
+    );
+    
+    if (dishesWithRatings.length === 0) {
+      return 0;
+    }
+    
+    const totalRating = dishesWithRatings.reduce((sum, dish) => {
+      const rating = parseFloat(dish.rating) || 0;
+      return sum + rating;
+    }, 0);
+    
+    const averageRating = totalRating / dishesWithRatings.length;
+    return Math.round(averageRating * 10) / 10; // Round to 1 decimal place
+  };
+
   useEffect(() => {
     if (order) {
       // Component initialization logic can go here if needed
@@ -43,7 +80,7 @@ function OrderDetailsDialog({
   }, [order]);
 
   if (!order) {
-    console.log("OrderDetailsDialog - No order provided");
+
     return (
       <div className="p-8 text-center">
         <div className="text-gray-500 mb-4">
@@ -64,11 +101,7 @@ function OrderDetailsDialog({
   const hasItems = order.items && Array.isArray(order.items) && order.items.length > 0;
   
   if (!hasDishes && !hasItems) {
-    console.log("OrderDetailsDialog - Order data:", order);
-    console.log("OrderDetailsDialog - Order dishes:", order.dishes);
-    console.log("OrderDetailsDialog - Order items:", order.items);
-    console.log("OrderDetailsDialog - Has dishes:", hasDishes);
-    console.log("OrderDetailsDialog - Has items:", hasItems);
+
     
     return (
       <div className="p-8 text-center">
@@ -98,7 +131,7 @@ function OrderDetailsDialog({
 
   const updateWeeklySalesCount = async () => {
     if (!orderItems || orderItems.length === 0) {
-      console.log("No dishes to update weekly sales count for");
+      
       return;
     }
 
@@ -161,7 +194,7 @@ function OrderDetailsDialog({
             throw new Error(`Failed to update weekly sales count for ${dish.name}`);
           }
 
-          console.log(`Successfully updated weekly sales count for dish: ${dish.name} (${currentWeeklySalesCount} → ${newWeeklySalesCount})`);
+  
           return updateResponse.json();
         } catch (dishError) {
           console.error(`Error updating dish ${dish.id}:`, dishError);
@@ -175,7 +208,7 @@ function OrderDetailsDialog({
       const successfulUpdates = results.filter(result => result !== null).length;
       const totalDishes = orderItems.length;
       
-      console.log(`Successfully updated weekly sales count for ${successfulUpdates}/${totalDishes} dishes in the order`);
+      
       
       if (successfulUpdates < totalDishes) {
         toast.warning(`Order marked as received, but ${totalDishes - successfulUpdates} dish sales counts could not be updated.`);
@@ -444,7 +477,10 @@ function OrderDetailsDialog({
       
       const updatedReviews = [...cleanedReviews, newReview];
 
-      // Update the dish with the new review
+      // Calculate new dish rating
+      const newDishRating = calculateAverageRating(updatedReviews);
+      
+      // Update the dish with the new review and rating
       const updateResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${reviewData.dishId}`,
         {
@@ -455,7 +491,8 @@ function OrderDetailsDialog({
           },
           body: JSON.stringify({
             data: {
-              reviews: updatedReviews
+              reviews: updatedReviews,
+              rating: newDishRating
             }
           }),
         }
@@ -467,28 +504,80 @@ function OrderDetailsDialog({
         throw new Error("Failed to submit review. Please try again.");
       }
 
-      // Update the local dish data to reflect the new review
+      // Now update the vendor rating by fetching all vendor dishes and recalculating
+      try {
+        const vendorId = currentDish.vendorId;
+        if (vendorId) {
+          // Fetch all dishes from this vendor
+          const vendorDishesResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[vendorId][$eq]=${vendorId}&fields[0]=rating&pagination[pageSize]=1000`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+              },
+            }
+          );
+
+          if (vendorDishesResponse.ok) {
+            const vendorDishesData = await vendorDishesResponse.json();
+            const vendorDishes = vendorDishesData.data || [];
+            
+            // Calculate new vendor rating
+            const newVendorRating = calculateVendorRating(vendorDishes);
+            
+            // Update vendor with new rating
+            const vendorUpdateResponse = await fetch(
+              `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+                },
+                body: JSON.stringify({
+                  data: {
+                    rating: newVendorRating
+                  }
+                }),
+              }
+            );
+
+            if (!vendorUpdateResponse.ok) {
+              console.warn("Failed to update vendor rating:", await vendorUpdateResponse.text());
+              // Don't throw error as this is not critical for review submission
+            }
+          }
+        }
+      } catch (vendorError) {
+        console.warn("Error updating vendor rating:", vendorError);
+        // Don't throw error as this is not critical for review submission
+      }
+
+      // Update the local dish data to reflect the new review and rating
       if (selectedDish) {
         const updatedDish = {
           ...selectedDish,
           reviews: [
             ...(selectedDish.reviews || []),
             newReview
-          ]
+          ],
+          rating: newDishRating
         };
         setSelectedDish(updatedDish);
         
-        // Also update the order dishes to reflect the new review
+        // Also update the order dishes to reflect the new review and rating
         if (order.dishes) {
           const updatedOrderDishes = order.dishes.map(dish => 
             dish.id === selectedDish.id ? updatedDish : dish
           );
           // You might need to update the order state here if you have it in local state
-          console.log("Updated order dishes with new review:", updatedOrderDishes);
+  
         }
       }
 
-      toast.success("Review submitted successfully! Thank you for your feedback.");
+      toast.success("Thank you for your feedback.");
       setIsReviewDialogOpen(false);
       
       // Refresh the order data to show the updated review status

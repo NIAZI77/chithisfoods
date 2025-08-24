@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "react-toastify";
 import Loading from "../loading";
+import { getCartItemCount } from "../lib/utils";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -27,6 +28,13 @@ export default function Navbar() {
   const [cartItems, setCartItems] = useState([]);
   const pathname = usePathname();
   const router = useRouter();
+
+  // Function to count total dishes across all vendor groups
+  const getTotalDishCount = () => {
+    return cartItems.reduce((total, vendorGroup) => {
+      return total + vendorGroup.dishes.length;
+    }, 0);
+  };
 
   const checkIfVendor = async (email) => {
     setLoading(true);
@@ -75,7 +83,8 @@ export default function Navbar() {
       const cartData = localStorage.getItem('cart');
       if (cartData) {
         try {
-          setCartItems(JSON.parse(cartData));
+          const parsedCart = JSON.parse(cartData);
+          setCartItems(parsedCart);
         } catch (error) {
           console.error('Error parsing cart data:', error);
           setCartItems([]);
@@ -85,11 +94,16 @@ export default function Navbar() {
 
     loadCartData();
     
-    // Listen for cart updates
+    // Listen for cart updates from other tabs
     const handleStorageChange = (e) => {
       if (e.key === 'cart') {
         loadCartData();
       }
+    };
+
+    // Listen for cart updates from the same tab
+    const handleCartUpdate = () => {
+      loadCartData();
     };
 
     // Listen for zipcode changes to clear cart
@@ -98,10 +112,12 @@ export default function Navbar() {
     };
 
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('cartUpdate', handleCartUpdate);
     window.addEventListener('zipcodeChange', handleZipcodeChange);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('cartUpdate', handleCartUpdate);
       window.removeEventListener('zipcodeChange', handleZipcodeChange);
     };
   }, []);
@@ -148,9 +164,9 @@ export default function Navbar() {
             className="h-10 w-10 text-xl flex items-center justify-center rounded-full text-rose-500 hover:text-rose-600 hover:scale-125 transition-all relative"
           >
             <ShoppingCart />
-            {cartItems.length > 0 && (
+            {getTotalDishCount() > 0 && (
               <span className="absolute bottom-0 right-0 bg-rose-600 text-white text-[8px] rounded-full h-3 w-3 flex items-center justify-center font-bold">
-                {cartItems.length}
+                {getTotalDishCount()}
               </span>
             )}
           </Link>

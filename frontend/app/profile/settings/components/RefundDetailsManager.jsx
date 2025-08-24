@@ -45,7 +45,7 @@ const RefundDetailsManager = ({
         return false;
       }
       
-      console.log("Starting automatic update of canceled orders for user:", userEmail);
+      
       
       // Fetch all canceled orders for this user using email
       const response = await fetch(
@@ -67,17 +67,16 @@ const RefundDetailsManager = ({
       const canceledOrders = data.data || [];
 
       if (canceledOrders.length === 0) {
-        console.log("No canceled orders found for user:", userEmail);
+        
         return true;
       }
 
-      console.log(`Found ${canceledOrders.length} canceled orders to update for user:`, userEmail);
-      console.log("Orders to update:", canceledOrders.map(o => ({ id: o.documentId, status: o.orderStatus })));
+      
 
       // Update each canceled order with the new refund details
       const updatePromises = canceledOrders.map(async (order) => {
         try {
-          console.log(`Updating order ${order.documentId} with refund details:`, newRefundDetails);
+
           
           const updateResponse = await fetch(
             `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders/${order.documentId}`,
@@ -104,7 +103,7 @@ const RefundDetailsManager = ({
             return false;
           }
 
-          console.log(`Successfully updated order ${order.documentId}`);
+          
           return true;
         } catch (error) {
           console.error(`Error updating order ${order.documentId}:`, error);
@@ -119,7 +118,7 @@ const RefundDetailsManager = ({
       if (failedCount > 0) {
         console.warn(`${failedCount} orders failed to update out of ${results.length} total`);
       } else {
-        console.log(`Successfully updated all ${successCount} canceled orders`);
+
       }
 
       return successCount > 0;
@@ -150,7 +149,7 @@ const RefundDetailsManager = ({
         updatedAt: new Date().toISOString()
       };
 
-      console.log("Sending request with:", {
+      
         userId,
         jwt: jwt ? `${jwt.substring(0, 20)}...` : "No JWT",
         refundDetails: updatedRefundDetails
@@ -171,11 +170,10 @@ const RefundDetailsManager = ({
         }
       );
 
-      console.log("Response status:", response.status);
-      console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+      
 
       const data = await response.json();
-      console.log("Response data:", data);
+      
 
       if (response.ok) {
         // Update user's refund details in local state
@@ -185,7 +183,7 @@ const RefundDetailsManager = ({
         setShowAddForm(false);
 
         // Automatically update canceled orders with new refund details
-        console.log("Triggering automatic update of canceled orders...");
+
         await updateCanceledOrdersRefundDetails(updatedRefundDetails);
       } else {
         console.error("API Error:", data);

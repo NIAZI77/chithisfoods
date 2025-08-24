@@ -25,9 +25,7 @@ function OrderItems({
   }
 
   // Debug logging to see order structure
-  console.log("OrderItems - Order data:", order);
-  console.log("OrderItems - Order user:", order.user);
-  console.log("OrderItems - Order userId:", order.userId);
+  
 
   return (
     <div className="flex-1 min-w-0 max-w-full">

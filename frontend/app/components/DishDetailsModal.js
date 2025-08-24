@@ -4,6 +4,7 @@ import { LuPlus, LuMinus } from "react-icons/lu";
 import { FaStar, FaUser } from "react-icons/fa";
 import { Timer, AlertCircle, Eye, BadgeCheck, X, MessageSquare } from "lucide-react";
 import { toast } from "react-toastify";
+import { updateCartAndNotify } from "@/app/lib/utils";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
 import VerificationBadge from "@/app/components/VerificationBadge";
@@ -322,7 +323,8 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
         });
       }
 
-      localStorage.setItem("cart", JSON.stringify(cart));
+      updateCartAndNotify(cart);
+      
       toast.success(
         `Successfully added ${orderQuantity} ${dishDetails.name} to your cart!`
       );

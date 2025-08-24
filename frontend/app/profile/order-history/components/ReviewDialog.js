@@ -47,8 +47,7 @@ function ReviewDialog({
     
     try {
       setError("");
-      console.log("Submitting review for dish:", selectedDish);
-      console.log("Review data:", { rating, reviewText });
+
       
       // Validate that we have the required dish information
       if (!selectedDish.name) {
@@ -72,7 +71,7 @@ function ReviewDialog({
         userId: currentUserId
       };
       
-      console.log("Final review data being sent:", reviewData);
+      
       
       await onSubmit(reviewData);
       
@@ -221,13 +220,8 @@ function ReviewDialog({
                 }}
               />
             </div>
-            <div>
+            <div className="flex-1">
               <h4 className="font-medium text-gray-900">{selectedDish.name}</h4>
-              {selectedDish.quantity && selectedDish.quantity > 1 && (
-                <p className="text-sm text-gray-500">
-                  Quantity: {selectedDish.quantity}
-                </p>
-              )}
             </div>
           </div>
 
