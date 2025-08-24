@@ -58,7 +58,6 @@ export const metadata = {
       'max-snippet': -1,
     },
   },
-  themeColor: '#ffffff',
   icons: {
     icon: [
       { url: '/logo.png' },
@@ -67,13 +66,6 @@ export const metadata = {
       { url: '/logo.png', sizes: '180x180', type: 'image/png' },
     ],
   },
-};
-
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  colorScheme: 'light',
 };
 
 export default function RootLayout({ children }) {

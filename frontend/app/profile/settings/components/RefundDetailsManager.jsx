@@ -148,13 +148,6 @@ const RefundDetailsManager = ({
         additionalInfo: refundDetails.additionalInfo || "",
         updatedAt: new Date().toISOString()
       };
-
-      
-        userId,
-        jwt: jwt ? `${jwt.substring(0, 20)}...` : "No JWT",
-        refundDetails: updatedRefundDetails
-      });
-
       // First, update the user's refund details
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userId}`,
