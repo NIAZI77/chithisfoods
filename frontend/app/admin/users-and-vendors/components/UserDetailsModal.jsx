@@ -140,7 +140,7 @@ const UserDetailsModal = ({ user, isOpen, onClose, onBlockUser, isLoading, onVer
                             {vendorData && (
                                 <button
                                     onClick={() => setIsVendorModalOpen(true)}
-                                    className="px-6 py-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600 transition-colors font-semibold mt-2"
+                                    className="text-center block text-red-600 px-4 py-2 rounded-full border-2 border-red-600 hover:bg-red-600 hover:text-white transition-all font-medium mt-2"
                                 >
                                     Vendor View
                                 </button>
@@ -150,7 +150,11 @@ const UserDetailsModal = ({ user, isOpen, onClose, onBlockUser, isLoading, onVer
                         <div className="flex justify-end mt-10">
                             <button
                                 onClick={() => onBlockUser(user.id, user.blocked)}
-                                className={`px-8 py-2 rounded-lg ${user.blocked ? "bg-green-500 text-white hover:bg-green-600" : "bg-red-500 text-white hover:bg-red-600"}`}
+                                className={`px-6 py-2 rounded-full font-semibold transition-all ${
+                                    user.blocked 
+                                        ? "bg-green-600 text-white shadow-green-300 shadow-md hover:bg-green-700" 
+                                        : "bg-red-600 text-white shadow-red-300 shadow-md hover:bg-red-700"
+                                } disabled:opacity-50 disabled:cursor-not-allowed`}
                                 style={{ minWidth: 100 }}
                             >
                                 {user.blocked ? "Unblock" : "Block"}

@@ -43,7 +43,7 @@ const OrdersPage = () => {
         if (data.isAdmin) {
           return;
         } else {
-          toast.error("You are not authorized to access this page.");
+          toast.error("Sorry, you don't have permission to access this page.");
           deleteCookie("AdminJWT");
           deleteCookie("AdminUser");
           router.push("/admin/login");
@@ -52,7 +52,7 @@ const OrdersPage = () => {
       };
       isAdmin();
     } else {
-      toast.error("Please login to continue.");
+      toast.error("Please sign in to continue.");
       router.push("/admin/login");
     }
   }, [router]);

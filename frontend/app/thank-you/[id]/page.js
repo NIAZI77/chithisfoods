@@ -29,7 +29,7 @@ const OrderStatusBadge = ({ status }) => {
   return (
     <p
       className={`w-24 rounded-full py-1 flex items-center justify-center capitalize
-        ${status === "delivered" && "bg-gray-100 text-gray-700"}
+        ${status === "delivered" && "bg-slate-100 text-slate-700"}
         ${status === "ready" && "bg-green-100 text-green-700"}
         ${status === "pending" && "bg-yellow-100 text-yellow-700"}
         ${status === "in-process" && "bg-indigo-100 text-indigo-700"}
@@ -117,7 +117,7 @@ const VendorOrderGroup = ({ order }) => {
                     {validExtras.map((extra, idx) => (
                       <span
                         key={idx}
-                        className="bg-emerald-100 px-2 py-0.5 rounded-full text-emerald-700 text-xs sm:text-sm flex items-center gap-1"
+                        className="bg-green-100 px-2 py-0.5 rounded-full text-green-700 text-xs sm:text-sm flex items-center gap-1"
                       >
                         <img
                           src={"/extras.png"}
@@ -207,7 +207,7 @@ export default function ThankYouPage() {
           <div className="space-y-3">
             <Link
               href="/profile/order-history"
-              className="inline-block px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+              className="inline-block px-6 py-2 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               View My Orders
             </Link>
@@ -241,14 +241,14 @@ export default function ThankYouPage() {
           <div className="space-y-3">
             <button
               onClick={() => fetchOrderDetails(orderId)}
-              className="px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+              className="px-6 py-2 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Try Again
             </button>
             <div>
               <Link
                 href="/profile/order-history"
-                className="text-rose-600 hover:text-rose-700 underline"
+                className="inline-block px-6 py-2 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 View My Orders
               </Link>
@@ -275,7 +275,7 @@ export default function ThankYouPage() {
           <div className="space-y-3">
             <Link
               href="/profile/order-history"
-              className="inline-block px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+              className="inline-block px-6 py-2 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               View My Orders
             </Link>

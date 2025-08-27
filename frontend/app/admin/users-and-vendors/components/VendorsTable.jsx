@@ -91,7 +91,7 @@ const VendorsTable = ({
                         onFilterChange('all');
                         onDocFilterChange('all');
                     }}
-                    className="inline-flex items-center px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors duration-200"
+                    className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <Search className="w-4 h-4 mr-2" />
                     Clear filters

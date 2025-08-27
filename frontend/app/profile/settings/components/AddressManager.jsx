@@ -86,7 +86,7 @@ const AddressManager = () => {
       }
     } catch (error) {
       console.error("Error fetching addresses:", error);
-      toast.error("Failed to load addresses");
+      toast.error("We're having trouble loading your saved addresses. Please refresh and try again.");
     } finally {
       setLoading(false);
     }
@@ -120,23 +120,23 @@ const AddressManager = () => {
     e.preventDefault();
 
     if (!jwt) {
-      toast.error("Please log in to save addresses.");
+      toast.error("Please sign in to save your addresses.");
       return;
     }
 
     // Validation matching checkout page logic
     if (!formData.name || formData.name.trim().length < 2) {
-      toast.error("Please enter a valid name (at least 2 characters)");
+      toast.error("Please enter a valid name (at least 2 characters) for your address.");
       return;
     }
 
     if (!formData.phone || formData.phone.trim().length < 10) {
-      toast.error("Please enter a valid phone number (at least 10 digits)");
+      toast.error("Please enter a valid phone number (at least 10 digits) for your address.");
       return;
     }
 
     if (!formData.address || formData.address.trim().length < 5) {
-      toast.error("Please enter a valid address (at least 5 characters)");
+      toast.error("Please enter a valid address (at least 5 characters) for your location.");
       return;
     }
 
@@ -177,7 +177,7 @@ const AddressManager = () => {
       );
 
       if (isDuplicate && !editingId) {
-        toast.error("This address is already saved");
+        toast.error("This address is already saved in your profile.");
         setSaving(false);
         return;
       }
@@ -234,7 +234,7 @@ const AddressManager = () => {
       }
 
       setAddresses(updatedAddresses);
-      toast.success(editingId ? "Address updated successfully" : "Address saved successfully");
+      toast.success(editingId ? "Great! Your address has been updated successfully." : "Perfect! Your address has been saved successfully.");
       resetForm();
 
       // Refresh addresses to ensure consistency
@@ -244,13 +244,13 @@ const AddressManager = () => {
 
       // Provide more specific error messages
       if (error.message.includes("403") || error.message.includes("Forbidden")) {
-        toast.error("Permission denied. Please contact support.");
+        toast.error("Permission denied. Please contact our support team for assistance.");
       } else if (error.message.includes("404")) {
-        toast.error("User not found. Please log in again.");
+        toast.error("User not found. Please log in again to continue.");
       } else if (error.message.includes("500")) {
-        toast.error("Server error. Please try again later.");
+        toast.error("We're experiencing server issues. Please try again later.");
       } else {
-        toast.error(error.message || `Failed to save address`);
+        toast.error(error.message || `We couldn't save your address right now. Please try again.`);
       }
     } finally {
       setSaving(false);
@@ -269,7 +269,7 @@ const AddressManager = () => {
 
   const handleDelete = async (addressId) => {
     if (!jwt) {
-      toast.error("Please log in to manage addresses.");
+      toast.error("Please sign in to manage your addresses.");
       return;
     }
 
@@ -334,13 +334,13 @@ const AddressManager = () => {
       }
 
       setAddresses(updatedAddresses);
-      toast.success("Address deleted successfully");
+      toast.success("Your address has been removed successfully.");
 
       // Refresh addresses to ensure consistency
       await fetchAddresses();
     } catch (error) {
       console.error("Error deleting address:", error);
-      toast.error("Failed to delete address");
+      toast.error("We couldn't delete your address right now. Please try again.");
     }
   };
 

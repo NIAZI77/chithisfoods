@@ -63,11 +63,17 @@ export default function CartPage() {
           if (!vendorGroup.vendorAvatar || !vendorGroup.vendorUsername || !vendorGroup.vendorName) {
             const vendorData = await fetchVendorData(vendorGroup.vendorId);
             if (vendorData) {
+              // Construct vendor address from vendor data
+              const vendorAddress = vendorData.businessAddress && vendorData.city && vendorData.zipcode 
+                ? `${vendorData.businessAddress}, ${vendorData.city}, ${vendorData.zipcode}`
+                : vendorData.businessAddress || "Address not available";
+              
               return {
                 ...vendorGroup,
                 vendorName: vendorData.storeName || vendorData.fullName || "Unknown Vendor",
                 vendorUsername: vendorData.username || vendorGroup.vendorUsername || "",
                 vendorAvatar: vendorData.avatar?.url || vendorGroup.vendorAvatar || "/fallback.png",
+                vendorAddress: vendorAddress,
               };
             } else {
               // If we can't fetch vendor data, use fallbacks
@@ -76,6 +82,7 @@ export default function CartPage() {
                 vendorName: vendorGroup.vendorName || "Unknown Vendor",
                 vendorUsername: vendorGroup.vendorUsername || "",
                 vendorAvatar: vendorGroup.vendorAvatar || "/fallback.png",
+                vendorAddress: vendorGroup.vendorAddress || "Address not available",
               };
             }
           }
@@ -240,7 +247,7 @@ export default function CartPage() {
       setTimeout(() => {
         updateCartAndNotify([]);
       }, 0);
-      toast.success("All items have been removed from your cart");
+      toast.success("Your cart has been cleared successfully");
     } else {
       toast.info("Your cart is already empty");
     }
@@ -248,7 +255,7 @@ export default function CartPage() {
 
   const handleCheckout = () => {
     if (cart.length === 0) {
-      toast.error("Please add items to your cart before checkout");
+      toast.error("Please add some delicious items to your cart before checkout");
       return;
     }
     router.push("/checkout");
@@ -417,7 +424,7 @@ export default function CartPage() {
                                   {dish.extras.map((extra, idx) => (
                                     <span
                                       key={idx}
-                                      className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs md:text-sm truncate"
+                                      className="bg-green-100 px-2 py-1 rounded-full text-green-700 flex items-center justify-center gap-1 text-xs md:text-sm truncate"
                                     >
                                       <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3 scale-125" />
                                       {extra.name}{extra.option=="included" ? "" : ` (${extra.option})`}

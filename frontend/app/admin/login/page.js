@@ -42,17 +42,17 @@ const LoginPage = () => {
                     toast.error("Access denied. This is an admin-only area.");
                     return;
                 }
-                toast.success("Welcome To Admin Panel!");
+                toast.success("Welcome to the Admin Panel! You're all set.");
                 const expires = new Date();
                 expires.setHours(expires.getHours() + 3);
                 setCookie("AdminJWT", data.jwt, { expires });
                 setCookie("AdminUser", data.user.email, { expires });
                 setTimeout(() => router.push("/admin/dashboard"), 1000);
             } else {
-                toast.error(data.error.message || "Invalid credentials.");
+                toast.error(data.error.message || "Those credentials don't match our records.");
             }
         } catch (error) {
-            toast.error("An error occurred during login.");
+            toast.error("We're having trouble connecting right now. Please try again in a moment.");
         } finally {
             setLoading(false);
         }

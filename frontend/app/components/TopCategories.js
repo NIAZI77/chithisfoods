@@ -32,7 +32,7 @@ export default function TopCategories() {
         setCategories(data.data || []);
       } catch (error) {
         console.error("Error fetching categories:", error);
-        toast.error("Failed to load categories");
+        toast.error("We're having trouble loading categories right now. Please try again.");
       } finally {
         setIsLoading(false);
       }

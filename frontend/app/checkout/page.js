@@ -275,7 +275,7 @@ const Page = () => {
         }
       }
     } catch (error) {
-      toast.error("Failed to load saved addresses");
+      toast.error("We're having trouble loading your saved addresses. Please try again.");
     } finally {
       setAddressesLoading(false);
     }
@@ -302,7 +302,7 @@ const Page = () => {
 
   const handleAddressDeletion = useCallback(async (addressId) => {
     if (!user || !jwt) {
-      toast.error("Please log in to manage addresses");
+      toast.error("Please sign in to manage your addresses");
       return;
     }
 
@@ -361,9 +361,9 @@ const Page = () => {
         }));
         setSelectedAddressId(null);
       }
-      toast.success("Address deleted successfully!");
+      toast.success("Great! Your address has been removed successfully.");
     } catch (error) {
-      toast.error("Failed to delete address");
+      toast.error("We couldn't delete your address right now. Please try again.");
     }
   }, [user, jwt, savedAddresses, selectedAddressId]);
   const handleEditAddress = useCallback((address) => {
@@ -392,17 +392,17 @@ const Page = () => {
     if (!editingAddress) return;
     
     if (!formData.name || formData.name.trim().length < 2) {
-      toast.error("Please enter a valid name (at least 2 characters)");
+      toast.error("Please enter a valid name (at least 2 characters) for your address.");
       return;
     }
     
     if (!formData.phone || formData.phone.trim().length < 10) {
-      toast.error("Please enter a valid phone number (at least 10 digits)");
+      toast.error("Please enter a valid phone number (at least 10 digits) for your address.");
       return;
     }
     
     if (!formData.address || formData.address.trim().length < 5) {
-      toast.error("Please enter a valid address (at least 5 characters)");
+      toast.error("Please enter a valid address (at least 5 characters) for your location.");
       return;
     }
 
@@ -461,9 +461,9 @@ const Page = () => {
       setEditingAddress(null);
       // Auto-close the address form after successful update
       setShowAddressForm(false);
-      toast.success("Address updated successfully!");
+      toast.success("Perfect! Your address has been updated successfully.");
     } catch (error) {
-      toast.error(error.message || "Failed to update address");
+      toast.error(error.message || "We couldn't update your address right now. Please try again.");
     } finally {
       setSavingAddress(false);
     }
@@ -471,22 +471,22 @@ const Page = () => {
 
   const saveCurrentAddress = useCallback(async () => {
     if (!formData.name) {
-      toast.error("Please enter your name before saving");
+      toast.error("Please enter your name before saving your address.");
       return;
     }
     
     if (!formData.phone) {
-      toast.error("Please enter your phone number before saving");
+      toast.error("Please enter your phone number before saving your address.");
       return;
     }
     
     if (!formData.address) {
-      toast.error("Please enter your address before saving");
+      toast.error("Please enter your address before saving your location.");
       return;
     }
 
     if (!user || !jwt) {
-      toast.error("Please log in to save addresses");
+      toast.error("Please sign in to save your addresses");
       return;
     }
 
@@ -591,10 +591,10 @@ const Page = () => {
       setShowAddressForm(false);
       setEditingAddress(null);
       
-      toast.success("Address saved successfully!");
+      toast.success("Excellent! Your address has been saved successfully.");
       
     } catch (error) {
-      toast.error(error.message || "Failed to save address");
+      toast.error(error.message || "We couldn't save your address right now. Please try again.");
     } finally {
       setSavingAddress(false);
     }
@@ -677,7 +677,7 @@ const Page = () => {
     
     // Check if selected date is in the past
     if (selectedDate < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
-      toast.error("Cannot select a past date for delivery");
+      toast.error("Sorry, you cannot select a past date for delivery.");
       return;
     }
     
@@ -687,7 +687,7 @@ const Page = () => {
       const minValidTime = new Date(currentTime.getTime() + 30 * 60000);
       
       if (selectedDate < minValidTime) {
-        toast.error("Delivery must be scheduled at least 30 minutes in advance");
+        toast.error("Please schedule your delivery at least 30 minutes from now.");
         return;
       }
     }
@@ -711,7 +711,7 @@ const Page = () => {
     
     if (date) {
       const formattedDate = format(date, "EEEE, MMMM do, yyyy");
-      toast.success(`Delivery scheduled for ${formattedDate}`);
+      toast.success(`Perfect! Your delivery is scheduled for ${formattedDate}`);
     }
   }, []);
 
@@ -720,7 +720,7 @@ const Page = () => {
     
     // Use the validation function
     if (!isTimeValidForDate(time, formData.deliveryDate)) {
-      toast.error("Delivery time must be at least 30 minutes in advance");
+      toast.error("Please schedule your delivery at least 30 minutes from now.");
       return;
     }
     
@@ -810,7 +810,7 @@ const Page = () => {
       );
       setDeliveryFees(vendorDeliveryFees);
     } catch (error) {
-      toast.error("Failed to load delivery fees. Please try again.");
+      toast.error("We're having trouble loading delivery fees. Please try again.");
     } finally {
       setDeliveryFeeLoading(false);
     }
@@ -858,24 +858,24 @@ const Page = () => {
             if (isValidCart) {
               setCartItems(cartData);
             } else {
-              toast.error("Invalid cart data. Please refresh and try again.");
+              toast.error("Your cart data seems to be invalid. Please refresh and try again.");
               localStorage.removeItem("cart");
               router.push("/cart");
               return;
             }
           } else {
-            toast.error("Your cart is empty. Please add items before checkout.");
+            toast.error("Your cart is empty. Please add some delicious items before checkout.");
             router.push("/cart");
             return;
           }
         } catch (error) {
-          toast.error("Error loading cart data. Please refresh and try again.");
+          toast.error("We're having trouble loading your cart. Please refresh and try again.");
           localStorage.removeItem("cart");
           router.push("/cart");
           return;
         }
       } else {
-        toast.error("No cart data found. Please add items to your cart.");
+        toast.error("No cart data found. Please add some items to your cart.");
         router.push("/cart");
         return;
       }
@@ -976,7 +976,7 @@ const Page = () => {
         }));
       } else {
         // If no username available for pickup, show error and redirect
-        toast.error("User information not available for pickup. Please contact support.");
+        toast.error("We need your information for pickup orders. Please contact our support team.");
         router.push("/profile");
       }
     }
@@ -1052,7 +1052,7 @@ const Page = () => {
       return result;
     } catch (error) {
       throw new Error(
-        error.message || "Failed to place order. Please try again."
+        error.message || "We're having trouble placing your order right now. Please try again."
       );
     }
   }, []);
@@ -1065,7 +1065,7 @@ const Page = () => {
     try {
       // Validate cart has items
       if (!cartItems || cartItems.length === 0) {
-        toast.error("Your cart is empty. Please add items before placing an order.");
+        toast.error("Your cart is empty. Please add some delicious items before placing an order.");
         setSubmitting(false);
         return;
       }
@@ -1073,14 +1073,14 @@ const Page = () => {
       // Validate cart items have required data
       for (const vendor of cartItems) {
         if (!vendor.dishes || vendor.dishes.length === 0) {
-          toast.error("Invalid cart data. Please refresh and try again.");
+          toast.error("Your cart data seems to be invalid. Please refresh and try again.");
           setSubmitting(false);
           return;
         }
         
         for (const dish of vendor.dishes) {
           if (!dish.basePrice || !dish.quantity || dish.quantity <= 0) {
-            toast.error("Invalid dish data in cart. Please refresh and try again.");
+            toast.error("Some dish information in your cart is invalid. Please refresh and try again.");
             setSubmitting(false);
             return;
           }
@@ -1097,7 +1097,7 @@ const Page = () => {
       // Validate delivery time before proceeding
       if (formData.deliveryDate && formData.deliveryTime) {
         if (!isTimeValidForDate(formData.deliveryTime, formData.deliveryDate)) {
-          toast.error("Selected delivery time is no longer valid. Please select a new time.");
+          toast.error("The selected delivery time is no longer available. Please choose a new time.");
           setSubmitting(false);
           return;
         }
@@ -1107,40 +1107,40 @@ const Page = () => {
       if (formData.deliveryMode === 'pickup') {
         // For pickup, validate user data exists
         if (!userData || !userData.username) {
-          toast.error("User information not available. Please refresh the page and try again.");
+          toast.error("We couldn't find your information. Please refresh the page and try again.");
           setSubmitting(false);
           return;
         }
         
         // Ensure name is set for pickup
         if (!formData.name || !formData.name.trim()) {
-          toast.error("Name is required for pickup orders");
+          toast.error("Please provide your name for pickup orders");
           setSubmitting(false);
           return;
         }
       } else {
         // For delivery modes, validate required fields
         if (!formData.name || !formData.name.trim()) {
-          toast.error("Please fill in your name");
+          toast.error("Please fill in your name to continue");
           setSubmitting(false);
           return;
         }
         
         if (!formData.phone || !formData.phone.trim()) {
-          toast.error("Please fill in your phone number");
+          toast.error("Please fill in your phone number to continue");
           setSubmitting(false);
           return;
         }
         
         if (formData.deliveryMode === 'address') {
           if (!formData.address || !formData.address.trim()) {
-            toast.error("Please fill in your delivery address");
+            toast.error("Please fill in your delivery address to continue");
             setSubmitting(false);
             return;
           }
         } else if (formData.deliveryMode === 'saved-address') {
           if (!selectedAddressId && (!formData.address || !formData.address.trim())) {
-            toast.error("Please select a delivery address");
+            toast.error("Please select a delivery address to continue");
             setSubmitting(false);
             return;
           }
@@ -1149,7 +1149,7 @@ const Page = () => {
 
       // Final validation: ensure all required data is present
       if (!formData.deliveryDate || !formData.deliveryTime) {
-        toast.error("Please select delivery date and time");
+        toast.error("Please select your preferred delivery date and time to continue");
         setSubmitting(false);
         return;
       }
@@ -1215,6 +1215,7 @@ const Page = () => {
           vendorName: vendor.storeName || vendor.vendorName || "Unknown Vendor",
           ...(vendor.vendorUsername && { vendorUsername: vendor.vendorUsername }),
           ...(vendor.vendorAvatar && { vendorAvatar: vendor.vendorAvatar }),
+          ...(vendor.vendorAddress && { vendorAddress: vendor.vendorAddress }),
           dishes: vendor.dishes,
           deliveryDate: formData.deliveryDate
             ? format(formData.deliveryDate, "yyyy-MM-dd")
@@ -1249,11 +1250,11 @@ const Page = () => {
         }
       }
       
-      toast.success("Your order has been placed successfully!");
+      toast.success("Excellent! Your order has been placed successfully!");
       localStorage.removeItem("cart");
       router.push(`/thank-you/${customerOrderId}`);
     } catch (error) {
-      toast.error(error.message || "Unable to place order. Please try again.");
+      toast.error(error.message || "We're having trouble placing your order right now. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -1269,19 +1270,7 @@ const Page = () => {
           <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 text-center transform hover:scale-105 transition-all duration-300">
             {/* Icon */}
             <div className="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg 
-                className="w-10 h-10 text-rose-500" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m6 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" 
-                />
-              </svg>
+              <ShoppingCart className="w-10 h-10 text-rose-500" />
             </div>
             
             {/* Title */}
@@ -1299,14 +1288,14 @@ const Page = () => {
             <div className="space-y-4">
               <button
                 onClick={() => router.push("/cart")}
-                className="w-full bg-gradient-to-r from-rose-500 to-rose-600 text-white px-8 py-4 rounded-2xl hover:from-rose-600 hover:to-rose-700 transition-all duration-300 transform hover:scale-105 font-semibold text-lg shadow-lg hover:shadow-xl"
+                className="w-full bg-rose-600 text-white px-6 py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-lg"
               >
                 🛒 Go to Cart
               </button>
               
               <button
                 onClick={() => router.push("/explore")}
-                className="w-full bg-white text-rose-600 px-8 py-4 rounded-2xl border-2 border-rose-200 hover:border-rose-300 hover:bg-rose-50 transition-all duration-300 font-semibold text-lg"
+                className="w-full text-center block text-rose-600 px-6 py-3 rounded-full border-2 border-rose-600 hover:bg-rose-600 hover:text-white transition-all font-medium text-lg"
               >
                 🍽️ Explore Menu
               </button>
@@ -1405,7 +1394,7 @@ const Page = () => {
               
               <div className="mt-4 sm:mt-6">
                 <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-3 mb-2">
-                  Note
+                  Delivery Instructions
                 </label>
                 <textarea
                   name="note"

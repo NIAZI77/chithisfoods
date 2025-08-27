@@ -5,7 +5,6 @@ import Link from "next/link";
 function OrderActions({ 
   order, 
   loadingStates, 
-  onMarkAsReceived, 
   onCancelOrder,
   userData
 }) {
@@ -28,18 +27,6 @@ function OrderActions({
           </div>
           
           <div className="flex gap-2">
-            {order.orderStatus === "ready" && (
-              <button
-                onClick={onMarkAsReceived}
-                disabled={loadingStates.received}
-                className="px-6 py-1.5 text-sm bg-green-500 text-white rounded-md transition-colors hover:bg-green-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                type="button"
-              >
-                {loadingStates.received ? <Spinner /> : <CheckCircle className="w-4 h-4" />}
-                Mark as Received
-              </button>
-            )}
-            
             {canCancel && (
               <div className="flex flex-col gap-2">
                 {!hasRefundDetails && (
@@ -48,7 +35,7 @@ function OrderActions({
                     <span>Add refund details to cancel orders</span>
                     <Link
                       href="/profile/settings"
-                      className="ml-auto px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs rounded-md transition-colors flex items-center gap-1"
+                      className="ml-auto px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs rounded-full transition-all font-medium flex items-center gap-1"
                     >
                       <Settings className="w-3 h-3" />
                       Settings
@@ -59,9 +46,9 @@ function OrderActions({
                 <button
                   onClick={onCancelOrder}
                   disabled={loadingStates.cancel || !hasRefundDetails}
-                  className={`px-6 py-1.5 text-sm rounded-md transition-colors font-semibold flex items-center gap-2 ${
+                  className={`px-6 py-2 text-sm rounded-full transition-all font-semibold flex items-center gap-2 ${
                     hasRefundDetails
-                      ? "bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                      ? "bg-red-600 text-white shadow-red-300 shadow-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
                   type="button"

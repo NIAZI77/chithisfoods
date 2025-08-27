@@ -56,27 +56,27 @@ export default function LoginPage() {
 
       if (response.ok) {
         if (data.user.isAdmin) {
-          toast.error("Admin access denied");
+          toast.error("Sorry, this area is for customers only");
           return;
         }
         
         // Check if user is blocked
         if (data.user.blocked) {
-          toast.error("Your account has been blocked. Please contact support.");
+          toast.error("Your account has been temporarily suspended. Please contact our support team for assistance.");
           return;
         }
         
-        toast.success("Welcome to Chithi's Foods!");
+        toast.success("Welcome back! We're glad to see you again.");
         const expires = new Date();
         expires.setDate(expires.getDate() + 7);
         setCookie("jwt", data.jwt, { expires });
         setCookie("user", data.user.email, { expires });
         setTimeout(() => router.push("/"), 1000);
       } else {
-        toast.error(data.error.message || "Invalid credentials.");
+        toast.error(data.error.message || "Oops! Those credentials don't match our records.");
       }
     } catch (error) {
-      toast.error("An error occurred during login.");
+      toast.error("We're having trouble connecting right now. Please try again in a moment.");
     } finally {
       setLoading(false);
     }

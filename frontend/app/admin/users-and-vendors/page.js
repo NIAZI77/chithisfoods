@@ -60,7 +60,7 @@ const UsersAndVendorsPage = () => {
                 if (data.isAdmin) {
                     return;
                 } else {
-                    toast.error("You are not authorized to access this page.");
+                    toast.error("Sorry, you don't have permission to access this page.");
                     deleteCookie("AdminJWT");
                     deleteCookie("AdminUser");
                     router.push("/admin/login");
@@ -69,7 +69,7 @@ const UsersAndVendorsPage = () => {
             };
             isAdmin();
         } else {
-            toast.error("Please login to continue.");
+            toast.error("Please sign in to continue.");
             router.push("/admin/login");
         }
     }, [router]);
@@ -121,7 +121,7 @@ const UsersAndVendorsPage = () => {
             }
         } catch (error) {
             console.error('Error fetching users:', error);
-            toast.error(error.message || 'Failed to fetch users');
+            toast.error(error.message || 'We\'re having trouble loading user data right now. Please try again.');
             setUsersList([]);
             setTotalUsersPages(1);
         } finally {
@@ -172,7 +172,7 @@ const UsersAndVendorsPage = () => {
                 message: error.message,
                 stack: error.stack
             });
-            toast.error(error.message || 'Failed to fetch users chart data');
+            toast.error(error.message || 'We\'re having trouble loading user chart data right now. Please try again.');
             setUsersForChart([]);
         } finally {
             setIsUsersChartLoading(false);
@@ -241,7 +241,7 @@ const UsersAndVendorsPage = () => {
             }
         } catch (error) {
             console.error('Error fetching vendors:', error);
-            toast.error(error.message || 'Failed to fetch vendors');
+            toast.error(error.message || 'We\'re having trouble loading vendor data right now. Please try again.');
             setVendorsList([]);
             setTotalVendorsPages(1);
         } finally {
@@ -284,7 +284,7 @@ const UsersAndVendorsPage = () => {
                 message: error.message,
                 stack: error.stack
             });
-            toast.error(error.message || 'Failed to fetch vendors chart data');
+            toast.error(error.message || 'We\'re having trouble loading vendor chart data right now. Please try again.');
             setVendorsForChart([]);
         } finally {
             setIsVendorsChartLoading(false);
@@ -308,7 +308,7 @@ const UsersAndVendorsPage = () => {
                 ]);
             } catch (error) {
                 console.error('Error in fetchAllData:', error);
-                toast.error(error.message || 'Failed to fetch data');
+                toast.error(error.message || 'We\'re having trouble loading data right now. Please try again.');
             } finally {
                 setIsInitialLoading(false);
             }
@@ -411,30 +411,30 @@ const UsersAndVendorsPage = () => {
         };
         
         if (!documentId) {
-            toast.error('Invalid vendor ID');
+            toast.error('Please provide a valid vendor ID to continue.');
             return;
         }
 
         if (!newStatus) {
-            toast.error('Please select a verification status');
+            toast.error('Please select a verification status to continue.');
             return;
         }
 
         if (!validStatuses.includes(newStatus)) {
-            toast.error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+            toast.error(`Please select a valid status: ${validStatuses.join(', ')}`);
             return;
         }
 
         const currentVendor = vendorsList.find(v => v.documentId === documentId);
         if (!currentVendor) {
-            toast.error('Vendor not found');
+            toast.error('We couldn\'t find that vendor. Please try again.');
             return;
         }
 
         const currentStatus = currentVendor.verificationStatus || 'new-chef';
         
         if (!statusTransitions[currentStatus]?.includes(newStatus)) {
-            toast.error(`Cannot change status from ${currentStatus} to ${newStatus}`);
+            toast.error(`Sorry, you cannot change the status from ${currentStatus} to ${newStatus}.`);
             return;
         }
 
@@ -508,14 +508,14 @@ const UsersAndVendorsPage = () => {
                 )
             );
 
-            toast.success(`Vendor ${newStatus} successfully`);
+            toast.success(`Excellent! Vendor has been ${newStatus} successfully`);
         } catch (error) {
             console.error('Error updating vendor status:', {
                 error,
                 message: error.message,
                 stack: error.stack
             });
-            toast.error(error.message || 'Failed to update vendor status');
+            toast.error(error.message || 'We couldn\'t update the vendor status right now. Please try again.');
         } finally {
             setIsStatusUpdating(false);
         }
@@ -675,10 +675,10 @@ const UsersAndVendorsPage = () => {
                 )
             );
 
-            toast.success(`User ${currentBlockedStatus ? 'unblocked' : 'blocked'} successfully${vendorBanResult ? ' (Vendor account also banned)' : ''}${vendorUnverifyResult ? ' (Vendor account set to unverified)' : ''}`);
+            toast.success(`Great! User has been ${currentBlockedStatus ? 'unblocked' : 'blocked'} successfully${vendorBanResult ? ' (Vendor account also banned)' : ''}${vendorUnverifyResult ? ' (Vendor account set to unverified)' : ''}`);
         } catch (error) {
             console.error('Error updating user status:', error);
-            toast.error(error.message || 'Failed to update user status');
+            toast.error(error.message || 'We couldn\'t update the user status right now. Please try again.');
         } finally {
             setIsStatusUpdating(false);
         }

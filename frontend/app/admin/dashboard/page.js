@@ -99,7 +99,7 @@ const DashboardPage = () => {
           return;
         }
         else {
-          toast.error("You are not authorized to access this page.");
+          toast.error("Sorry, you don't have permission to access this page.");
           deleteCookie("AdminJWT");
           deleteCookie("AdminUser");
           router.push("/admin/login");
@@ -109,7 +109,7 @@ const DashboardPage = () => {
       isAdmin();
     } 
     else {
-      toast.error("Please login to continue.");
+      toast.error("Please sign in to continue.");
       router.push("/admin/login");
     }
   }, [router]);
@@ -311,7 +311,7 @@ const DashboardPage = () => {
 
         if (!response.ok) {
           throw new Error(
-            "Unable to retrieve order data. Please try again later."
+            "We're having trouble loading your dashboard data right now. Please try again."
           );
         }
 
@@ -342,8 +342,7 @@ const DashboardPage = () => {
       } catch (error) {
         console.error("Error fetching order data:", error);
         toast.error(
-          error.message ||
-          "Failed to load dashboard data. Please refresh the page."
+          "We're having trouble loading your dashboard data right now. Please try again."
         );
       } finally {
         setIsLoading(false);
@@ -421,10 +420,10 @@ const DashboardPage = () => {
         )
       );
 
-      toast.success("Order cancelled successfully");
+      toast.success("Great! The order has been cancelled successfully");
     } catch (error) {
       console.error("Error cancelling order:", error);
-      toast.error("Failed to cancel order. Please try again.");
+      toast.error("We couldn't cancel the order right now. Please try again.");
     }
   };
 
@@ -445,7 +444,7 @@ const DashboardPage = () => {
         <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-sm sm:text-base text-gray-600 truncate">Total Money Received</p>
+              <p className="text-sm sm:text-base text-slate-600 truncate">Total Money Received</p>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
                   ${dashboardMetrics.totalMoneyReceived}
@@ -460,15 +459,12 @@ const DashboardPage = () => {
         <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-sm sm:text-base text-gray-600 truncate">Total Orders</p>
+              <p className="text-sm sm:text-base text-slate-600 truncate">Total Orders</p>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
                   {dashboardMetrics.orderCounts.total}
                 </h3>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Showing {orderData.length} orders for {selectedTimePeriod === "week" ? "this week" : selectedTimePeriod === "month" ? "this month" : "all time"}
-              </p>
             </div>
             <div className="p-2 sm:p-3 bg-pink-100 rounded-full flex-shrink-0 ml-2">
               <FaShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-pink-600" />
@@ -478,7 +474,7 @@ const DashboardPage = () => {
         <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-sm sm:text-base text-gray-600 truncate">Delivered Orders</p>
+              <p className="text-sm sm:text-base text-slate-600 truncate">Delivered Orders</p>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
                   {dashboardMetrics.orderCounts.delivered}
@@ -493,7 +489,7 @@ const DashboardPage = () => {
         <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-sm sm:text-base text-gray-600 truncate">Refunded/Cancelled</p>
+              <p className="text-sm sm:text-base text-slate-600 truncate">Refunded/Cancelled</p>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
                   {dashboardMetrics.orderCounts.refunded}
@@ -616,7 +612,7 @@ const DashboardPage = () => {
                         <p className="font-medium">{label}</p>
                         <p className="text-pink-600">Total: ${data.totalMoney.toFixed(2)}</p>
                         <p className="text-green-600">Tax Revenue: ${data.taxRevenue.toFixed(2)}</p>
-                        <p className="text-gray-600">{data.orders} Orders</p>
+                        <p className="text-slate-600">{data.orders} Orders</p>
                       </div>
                     );
                   }}

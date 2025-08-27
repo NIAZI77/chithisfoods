@@ -22,7 +22,7 @@ const StatusSummary = ({ totalStatusCounts }) => {
               {totalStatusCounts["in-process"]}
             </p>
           </div>
-          <Package className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
+          <Package className="w-6 h-6 md:w-8 md:h-8 text-indigo-500" />
         </div>
       </div>
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
@@ -44,7 +44,7 @@ const StatusSummary = ({ totalStatusCounts }) => {
               {totalStatusCounts.delivered}
             </p>
           </div>
-          <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8 text-gray-500" />
+          <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8 text-slate-500" />
         </div>
       </div>
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">

@@ -138,7 +138,7 @@ export default function AdminSidebar() {
           onClick={() => {
               deleteCookie("AdminJWT");
               deleteCookie("AdminUser");
-              toast.success("You've been successfully logged out.");
+              toast.success("You've been successfully logged out. See you soon!");
               localStorage.clear();
               router.push("/");
             }}

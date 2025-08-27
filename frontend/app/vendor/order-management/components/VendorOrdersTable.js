@@ -1,6 +1,7 @@
-import { Eye } from "lucide-react";
+import { Eye, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { STATUS_STYLES, customScrollbarStyles } from "../constants";
+import DeliveryTypeBadge from "@/components/DeliveryTypeBadge";
 
 const getStatusClasses = (status) => {
   return STATUS_STYLES[status?.toLowerCase()] || STATUS_STYLES.default;
@@ -33,9 +34,7 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
                   <td colSpan="10" className="px-4 py-16">
                     <div className="text-center">
                       <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-orange-50">
-                        <svg className="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                        </svg>
+                        <ClipboardList className="w-8 h-8 text-orange-400" />
                       </div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
                         No Orders Found
@@ -96,13 +95,7 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
                     </span>
                   </td>
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
-                    <span className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize ${
-                      order.deliveryType?.toLowerCase() === 'pickup' 
-                        ? 'bg-slate-100 text-slate-800 border border-slate-200' 
-                        : 'bg-violet-100 text-violet-800 border border-violet-200'
-                    }`}>
-                      {order.deliveryType}
-                    </span>
+                    <DeliveryTypeBadge deliveryType={order.deliveryType} />
                   </td>
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
                     ${(order.subtotal || 0).toFixed(2)}
@@ -118,7 +111,7 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
                       onClick={() => onViewDetails(order)}
                       variant="outline"
                       size="sm"
-                      className="h-8 px-3 text-xs hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
+                      className="h-8 px-3 text-xs hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300"
                     >
                       <Eye className="w-3 h-3 mr-1" />
                       View

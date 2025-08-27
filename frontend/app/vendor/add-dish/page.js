@@ -280,19 +280,19 @@ export default function AddDishPage() {
     e.preventDefault();
 
     if (!isValid()) {
-      toast.error("Please complete all topping and extra fields.");
+      toast.error("Please complete all topping and extra fields to continue.");
       return;
     }
     if (dishData.spiciness.length === 0) {
-      toast.warning("Please select at least one spiciness level.");
+      toast.warning("Please select at least one spiciness level for your dish.");
       return;
     }
     if (dishData.image.url.length === 0) {
-      toast.warning("Please upload image for the dish.");
+      toast.warning("Please upload an image for your dish to continue.");
       return;
     }
     if (!dishData.ingredients || dishData.ingredients.length === 0) {
-      toast.warning("Please add at least one ingredient.");
+      toast.warning("Please add at least one ingredient to your dish.");
       return;
     }
     setSubmitting(true);
@@ -321,10 +321,10 @@ export default function AddDishPage() {
         throw new Error("Failed to save dish");
       }
 
-      toast.success("Dish saved successfully!");
+      toast.success("Excellent! Your dish has been saved successfully.");
       setTimeout(() => router.push("/vendor/manage-inventory"), 1000);
     } catch (error) {
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Something went wrong while saving your dish. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -614,7 +614,7 @@ export default function AddDishPage() {
             <button
               type="button"
               onClick={() => addGroup("toppings")}
-              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-orange-100 sm:text-base text-xs text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-rose-100 sm:text-base text-xs text-rose-600 rounded-full hover:bg-rose-200 transition-all"
             >
               <PlusCircle size={20} /> Add Topping
             </button>
@@ -783,7 +783,7 @@ export default function AddDishPage() {
             <button
               type="button"
               onClick={() => addGroup("extras")}
-              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-orange-100 sm:text-base text-xs text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-rose-100 sm:text-base text-xs text-rose-600 rounded-full hover:bg-rose-200 transition-all"
             >
               <PlusCircle size={20} /> Add Extra
             </button>

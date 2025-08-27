@@ -23,7 +23,7 @@ const FoodPromo = () => {
           and a small group, packed with care and delivered straight to your
           door.
         </p>
-        <button className="mt-6 px-6 py-3 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all">
+        <button className="mt-6 px-6 py-3 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
           Order Now
         </button>
       </div>

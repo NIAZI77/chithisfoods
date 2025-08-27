@@ -10,11 +10,11 @@ import { getCookie } from "cookies-next";
 import VerificationBadge from "@/app/components/VerificationBadge";
 
 const API_ERROR_MESSAGES = {
-  CONFIG_MISSING: "API configuration is missing. Please contact support.",
-  FETCH_ERROR: "Unable to fetch dish details. Please try again later.",
-  NOT_FOUND: "The requested dish could not be found.",
-  CART_ERROR: "Failed to add item to cart. Please try again.",
-  SELECTION_ERROR: "Failed to update selection. Please try again.",
+  CONFIG_MISSING: "We're having trouble with our configuration. Please contact our support team.",
+  FETCH_ERROR: "We're having trouble loading dish details right now. Please try again later.",
+  NOT_FOUND: "Sorry, we couldn't find the dish you're looking for.",
+  CART_ERROR: "We couldn't add this item to your cart right now. Please try again.",
+  SELECTION_ERROR: "We couldn't update your selection right now. Please try again.",
 };
 
 export default function DishDetailsModal({ isOpen, onClose, dishId }) {
@@ -31,7 +31,16 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
   const [isAvailable, setIsAvailable] = useState(true);
   const [userZipcode, setUserZipcode] = useState(null);
   const [isVendorBanned, setIsVendorBanned] = useState(false);
+  const [fullScreenImage, setFullScreenImage] = useState(null);
   const modalRef = useRef(null);
+
+  const handleImageClick = (imageUrl) => {
+    setFullScreenImage(imageUrl);
+  };
+
+  const closeFullScreenImage = () => {
+    setFullScreenImage(null);
+  };
 
   const fetchVendorDetails = useCallback(async (vendorId) => {
     if (!vendorId) return;
@@ -198,7 +207,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
       const zipcode = localStorage.getItem("zipcode");
       if (!zipcode) {
-        toast.error("Please set your zipcode");
+        toast.error("Please set your delivery location to continue");
         onClose();
         return;
       }
@@ -314,11 +323,17 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
           cart[vendorGroupIndex].dishes.push(newDishItem);
         }
       } else {
+        // Construct vendor address from vendor details
+        const vendorAddress = vendorDetails?.businessAddress && vendorDetails?.city && vendorDetails?.zipcode 
+          ? `${vendorDetails.businessAddress}, ${vendorDetails.city}, ${vendorDetails.zipcode}`
+          : vendorDetails?.businessAddress || "Address not available";
+        
         cart.push({
           vendorId: dishDetails.vendorId,
           vendorName: vendorDetails?.storeName || "Unknown Chef",
           vendorUsername: vendorDetails?.username || "",
           vendorAvatar: vendorDetails?.avatar?.url || "/fallback.png",
+          vendorAddress: vendorAddress,
           dishes: [newDishItem],
         });
       }
@@ -326,7 +341,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       updateCartAndNotify(cart);
       
       toast.success(
-        `Successfully added ${orderQuantity} ${dishDetails.name} to your cart!`
+        `Great! ${orderQuantity} ${dishDetails.name} has been added to your cart!`
       );
       setTimeout(() => {
         onClose();
@@ -395,7 +410,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
             </p>
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition-colors"
+              className="bg-rose-600 text-white px-4 py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Close
             </button>
@@ -466,56 +481,6 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                       </h1>
                       <div className="text-xl sm:text-2xl font-bold text-red-600">
                         ${calculateTotalPrice().toFixed(2)}
-                      </div>
-                    </div>
-
-                    {/* Prepared by section moved to header */}
-                    <div className="bg-gray-50 p-4 rounded-lg border">
-                      <div className="text-sm text-rose-500 font-bold mb-3 flex items-center gap-2">
-                        <span className="bg-rose-50 p-1 rounded-full">
-                          <FaStar className="text-rose-500" size={12} />
-                        </span>
-                        Prepared by
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <img
-                            src={vendorDetails?.avatar?.url || "/fallback.png"}
-                            alt={vendorDetails?.storeName || "Chef"}
-                            width={48}
-                            height={48}
-                            className="rounded-full w-12 h-12 object-cover shadow-md"
-                          />
-                        </div>
-                        <div className="flex flex-col min-w-0 flex-1">
-                          <span className="text-md font-semibold text-gray-800 truncate">
-                            {vendorDetails?.storeName || "Unknown Chef"}
-                          </span>
-                          {vendorDetails?.username ? (
-                            <Link
-                              href={`/vendors/@${vendorDetails.username}`}
-                              className="text-gray-500 text-xs hover:text-rose-500 hover:underline flex items-center gap-1 w-fit"
-                            >
-                              <span className="bg-gray-100 p-1 rounded-full">
-                                <FaUser size={10} />
-                              </span>
-                              @{vendorDetails.username}
-                            </Link>
-                          ) : (
-                            <span className="text-gray-400 text-xs">Username not available</span>
-                          )}
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <VerificationBadge
-                            status={vendorDetails?.verificationStatus}
-                          />
-                          <div className="text-sm text-yellow-500 flex items-center gap-1.5 bg-yellow-50 py-0.5 px-3 rounded-full w-fit">
-                            <FaStar size={14} />
-                            <span className="font-medium">
-                              {vendorDetails?.rating || 0}
-                            </span>
-                          </div>
-                        </div>
                       </div>
                     </div>
 
@@ -745,9 +710,22 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                                 </div>
                               </div>
                               {review.text && (
-                                <p className="text-sm text-gray-600 leading-relaxed">
+                                <p className="text-sm text-gray-600 leading-relaxed mb-3">
                                   {review.text}
                                 </p>
+                              )}
+                              {review.image && (
+                                <div className="mt-3">
+                                  <img
+                                    src={review.image.url || review.image}
+                                    alt="Review image"
+                                    className="w-10 bg max-w-xs h-auto rounded-lg border border-gray-200 object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => handleImageClick(review.image.url || review.image)}
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                    }}
+                                  />
+                                </div>
                               )}
                             </div>
                           ))}
@@ -808,6 +786,29 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
           </>
         )}
       </div>
+
+      {/* Full Screen Image Modal */}
+      {fullScreenImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          onClick={closeFullScreenImage}
+        >
+          <div className="relative w-full h-full flex items-center justify-center">
+            <button
+              onClick={closeFullScreenImage}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10 bg-black bg-opacity-50 rounded-full p-2"
+            >
+              <X size={24} />
+            </button>
+            <img
+              src={fullScreenImage}
+              alt="Full screen review image"
+              className="max-w-full max-h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

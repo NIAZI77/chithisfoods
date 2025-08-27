@@ -28,7 +28,7 @@ const GoogleAuth = () => {
 
         if (response.ok) {
           if (data.user.isAdmin) {
-            toast.error("Admin access denied");
+            toast.error("Sorry, this area is for customers only");
             setTimeout(() => router.push("/login"), 1000);
             return;
           }
@@ -40,18 +40,18 @@ const GoogleAuth = () => {
             return;
           }
           
-          toast.success("Welcome to Chithi's Foods!");
+          toast.success("Welcome back! We're glad to see you again.");
           const expires = new Date();
           expires.setDate(expires.getDate() + 7);
           setCookie("jwt", data.jwt, { expires });
           setCookie("user", data.user.email, { expires });
           setTimeout(() => router.push("/"), 1000);
         } else {
-          toast.error(data.error.message || "An error occurred during login.");
+          toast.error(data.error.message || "We're having trouble connecting right now. Please try again in a moment.");
           setTimeout(() => router.push("/login"), 1000);
         }
       } catch (err) {
-        toast.error("An error occurred during login.");
+        toast.error("We're experiencing some technical difficulties. Please try again in a moment.");
         setTimeout(() => router.push("/login"), 1000);
       }
     };

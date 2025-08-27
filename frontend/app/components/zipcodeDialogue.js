@@ -46,13 +46,13 @@ export default function ZipcodeDialogue() {
   const handleSaveZipcode = useCallback(() => {
     if (!zipcode) {
       setError("Please enter a zipcode");
-      toast.error("Enter zipcode to continue");
+      toast.error("Please enter your zipcode to continue");
       return;
     }
 
     if (!validateZipcode(zipcode)) {
       setError("Please enter a valid 5-digit zipcode");
-      toast.error("Invalid zipcode format");
+      toast.error("Please enter a valid 5-digit zipcode format");
       return;
     }
 
@@ -69,15 +69,15 @@ export default function ZipcodeDialogue() {
       setIsOpen(false);
       router.push("/explore");
     } catch (error) {
-      toast.error("Update failed");
+      toast.error("We couldn't update your location right now. Please try again.");
       console.error("Error saving zipcode:", error);
     }
   }, [zipcode, validateZipcode, router]);
 
   const buttonText = pathname === "/" ? "Explore Chef Services" : "Change Location";
   const buttonClass = pathname === "/" 
-    ? "uppercase w-full mt-8 px-8 py-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-semibold transition-all block"
-    : "bg-green-400 text-white px-4 md:py-3 py-1.5 rounded-full shadow-md hover:bg-green-500 transition-all font-semibold";
+    ? "uppercase w-full mt-8 px-6 py-3 rounded-lg bg-rose-600 text-white shadow-rose-300 hover:bg-rose-700 transition-all font-semibold"
+    : "text-center block text-green-400 px-4 py-2 rounded-full border-2 border-green-400 hover:bg-green-400 hover:text-black transition-all font-bold";
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -117,11 +117,11 @@ export default function ZipcodeDialogue() {
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel asChild>
-            <button className="hover:bg-gray-100">Cancel</button>
+            <button className="text-center block text-gray-600 px-4 py-2 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium">Cancel</button>
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleSaveZipcode}
-            className="px-6 bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold"
+            className="px-6 bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={zipcode.length < ZIPCODE_MAX_LENGTH}
           >
             Find Chefs

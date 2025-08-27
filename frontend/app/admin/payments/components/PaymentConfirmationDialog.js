@@ -61,7 +61,7 @@ const PaymentConfirmationDialog = ({
     ? "This will mark the vendor payment as paid. This action cannot be reversed."
     : "This will mark the order as refunded. This action cannot be reversed.";
   const confirmText = isPayment ? "Mark as Paid" : "Mark as Refunded";
-  const confirmColor = isPayment ? "bg-emerald-500 hover:bg-emerald-600" : "bg-rose-500 hover:bg-rose-600";
+  const confirmColor = isPayment ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600";
   
   // Check if refund details are available for refund type
   const hasRefundDetails = order?.refundDetails?.email;

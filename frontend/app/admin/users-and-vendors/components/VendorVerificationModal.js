@@ -359,7 +359,7 @@ const VendorVerificationModal = ({
                           href={vendor.verificationDocument.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow flex-shrink-0"
+                          className="text-center block text-rose-600 px-4 py-2 rounded-full border-2 border-rose-600 hover:bg-rose-600 hover:text-white transition-all font-medium flex items-center gap-2"
                         >
                           <Eye className="w-4 h-4" />
                           View Document
@@ -392,7 +392,7 @@ const VendorVerificationModal = ({
               <button
                 onClick={handleUnban}
                 disabled={isLoading || isUnbanning}
-                className="px-5 py-2.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-sm hover:shadow text-sm"
+                className="bg-green-600 text-white px-4 py-2 rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isUnbanning ? (
                   <Spinner size={20} color="white" />
@@ -405,7 +405,7 @@ const VendorVerificationModal = ({
                 <button
                   onClick={handleBan}
                   disabled={isLoading || isBanning}
-                  className="px-5 py-2.5 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-sm hover:shadow text-sm"
+                  className="bg-red-600 text-white px-4 py-2 rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isBanning ? (
                     <Spinner size={20} color="white" />
@@ -422,7 +422,7 @@ const VendorVerificationModal = ({
                         isRejecting ||
                         vendor.verificationStatus === "rejected"
                       }
-                      className="px-5 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-sm hover:shadow text-sm"
+                      className="bg-amber-600 text-white px-4 py-2 rounded-full shadow-amber-300 shadow-md hover:bg-amber-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {isRejecting ? (
                         <Spinner size={20} color="white" />
@@ -437,7 +437,7 @@ const VendorVerificationModal = ({
                         isVerifying ||
                         vendor.verificationStatus === "verified"
                       }
-                      className="px-5 py-2.5 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-sm hover:shadow text-sm"
+                      className="bg-rose-600 text-white px-4 py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {isVerifying ? (
                         <Spinner size={20} color="white" />

@@ -88,7 +88,7 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
       );
 
       if (!res.ok) {
-        toast.error("Failed to upload image. Please try again.");
+        toast.error("We couldn't upload your image right now. Please try again.");
         return null;
       }
 
@@ -96,10 +96,10 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
       const { id, url } = data[0];
       const fullUrl = url.startsWith('http') ? url : `${process.env.NEXT_PUBLIC_STRAPI_HOST}${url}`;
 
-      toast.success("Image uploaded successfully.");
+      toast.success("Perfect! Your image has been uploaded successfully.");
       return { id, url: fullUrl };
     } catch (err) {
-      toast.error("Failed to upload image. Please try again.");
+      toast.error("We couldn't upload your image right now. Please try again.");
       return null;
     }
   };
@@ -130,7 +130,7 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
 
   const updateSubcategory = (index, value) => {
     if (!isValidInput(value)) {
-      toast.error('Only letters, spaces, and ampersands (&) are allowed');
+      toast.error('Only letters, spaces, and ampersands (&) are allowed in category names');
       return;
     }
     setFormData(prev => ({
@@ -146,7 +146,7 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
     const hasEmptySubSubcategories = currentSubcategory.subSubcategories.some(ss => !ss.trim());
 
     if (hasEmptySubSubcategories) {
-      toast.error('Please fill in all existing sub-subcategories first');
+      toast.error('Please fill in all existing sub-subcategories first before adding new ones');
       return;
     }
 
@@ -176,7 +176,7 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
 
   const updateSubSubcategory = (subcategoryIndex, subSubcategoryIndex, value) => {
     if (!isValidInput(value)) {
-      toast.error('Only letters, spaces, and ampersands (&) are allowed');
+      toast.error('Only letters, spaces, and ampersands (&) are allowed in subcategory names');
       return;
     }
     setFormData(prev => ({
@@ -202,7 +202,7 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
       // If not the last sub-subcategory, move to the next input
       if (subSubcategoryIndex < currentSubcategory.subSubcategories.length - 1) {
         if (!currentValue) {
-          toast.error('Please enter a valid sub-subcategory name');
+          toast.error('Please enter a valid sub-subcategory name to continue');
           return;
         }
         setTimeout(() => {
@@ -231,12 +231,12 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
     // Validate form
     const trimmedName = formData.name.trim();
     if (!trimmedName) {
-      toast.error('Category name is required');
+      toast.error('Category name is required to continue');
       return;
     }
 
     if (!formData.image?.url) {
-      toast.error('Category image is required');
+      toast.error('Category image is required to continue');
       return;
     }
 
@@ -246,7 +246,7 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
     );
 
     if (hasEmptySubcategories) {
-      toast.error('Please fill in all subcategory and sub-subcategory fields');
+      toast.error('Please fill in all subcategory and sub-subcategory fields to continue');
       return;
     }
 

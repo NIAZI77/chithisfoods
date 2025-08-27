@@ -35,7 +35,7 @@ const VendorVerificationDropdown = ({ vendor, onStatusChange }) => {
             );
 
             if (response.ok) {
-                toast.success(`Vendor status updated to ${newStatus}`);
+                toast.success(`Great! Vendor status has been updated to ${newStatus}`);
                 if (onStatusChange) {
                     onStatusChange(newStatus);
                 }
@@ -44,7 +44,7 @@ const VendorVerificationDropdown = ({ vendor, onStatusChange }) => {
             }
         } catch (error) {
             console.error("Error updating vendor status:", error);
-            toast.error("Failed to update vendor status");
+            toast.error("We couldn't update the vendor status right now. Please try again.");
         } finally {
             setIsLoading(false);
         }

@@ -32,17 +32,17 @@ export default function ResetPasswordPage() {
     e.preventDefault();
 
     if (password.length < 6 || password.length > 15) {
-      toast.error("Password must be between 6 and 15 characters.");
+      toast.error("Your password should be between 6 and 15 characters long.");
       return;
     }
 
     if (!code) {
-      toast.error("Reset code is missing or invalid.");
+      toast.error("The reset code is missing or has expired. Please request a new one.");
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toast.error("Your passwords don't match. Please double-check and try again.");
       return;
     }
 
@@ -68,13 +68,13 @@ export default function ResetPasswordPage() {
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("Password reset successful!");
+        toast.success("Perfect! Your password has been reset successfully.");
         setTimeout(() => router.push("/login"), 2000);
       } else {
-        toast.error(data.error?.message || "Failed to reset password.");
+        toast.error(data.error?.message || "We couldn't reset your password right now. Please try again.");
       }
     } catch {
-      toast.error("Something went wrong. Try again.");
+      toast.error("Something went wrong. Please try again in a moment.");
     } finally {
       setLoading(false);
     }

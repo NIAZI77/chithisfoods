@@ -275,7 +275,7 @@ export default function ManageInventory() {
         </h1>
         <button
           onClick={handleAddDish}
-          className="bg-orange-500 text-white md:px-4 md:py-2 px-2 py-1 rounded-md font-medium flex items-center jusctrify-center gap-2 hover:bg-orange-600 transition-all"
+          className="bg-rose-600 text-white px-4 py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           <Plus /> Add Dish
         </button>
@@ -283,17 +283,17 @@ export default function ManageInventory() {
       <div className="flex gap-2 my-2 items-center justify-end">
         <button
           onClick={setAllAvailable}
-          className="bg-emerald-500 text-white px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm rounded-md font-medium flex items-center justify-center gap-1 md:gap-2 hover:bg-emerald-600 transition-all"
+          className="bg-green-600 text-white px-4 py-2 rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           disabled={changingAvailability}
         >
-          <ChefHat className="h-3 w-3 md:h-4 md:w-4" /> Set All Available
+          <ChefHat className="h-4 w-4" /> Set All Available
         </button>
         <button
           onClick={setAllUnavailable}
-          className="bg-rose-500 text-white px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm rounded-md font-medium flex items-center justify-center gap-1 md:gap-2 hover:bg-rose-600 transition-all"
+          className="bg-red-600 text-white px-4 py-2 rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           disabled={changingAvailability}
         >
-          <AlertTriangle className="h-3 w-3 md:h-4 md:w-4" /> Set All Unavailable
+          <AlertTriangle className="h-4 w-4" /> Set All Unavailable
         </button>
       </div>
       <section className="flex items-center justify-between gap-2 md:flex-row flex-col mb-4">
@@ -373,7 +373,7 @@ export default function ManageInventory() {
                     {!searchTerm && filterStatus === "All" && (
                       <button
                         onClick={handleAddDish}
-                        className="bg-orange-500 text-white px-4 py-2 rounded-md font-medium flex items-center gap-2 hover:bg-orange-600 transition-all"
+                        className="bg-rose-600 text-white px-4 py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         <Plus className="w-4 h-4" />
                         Add Your First Dish
@@ -386,7 +386,7 @@ export default function ManageInventory() {
               filteredDishes.map((dish) => (
                 <tr key={dish.id} className="border-b hover:bg-gray-50 h-12">
                   <td className="pl-3 capitalize hover:text-orange-400 hover:underline transition-all">
-                    <Link href={`/dish/${dish.documentId}`}>{dish.name}</Link>
+                    {dish.name}
                   </td>
                   <td>
                     <img

@@ -669,7 +669,7 @@ export default function EditDishPage() {
             <button
               type="button"
               onClick={() => addGroup("toppings")}
-              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-orange-100 sm:text-base text-xs text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-rose-100 sm:text-base text-xs text-rose-600 rounded-full hover:bg-rose-200 transition-all"
             >
               <PlusCircle size={20} /> Add Topping
             </button>
@@ -848,7 +848,7 @@ export default function EditDishPage() {
             <button
               type="button"
               onClick={() => addGroup("extras")}
-              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-orange-100 sm:text-base text-xs text-orange-600 rounded-full hover:bg-orange-200 transition-colors"
+              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-rose-100 sm:text-base text-xs text-rose-600 rounded-full hover:bg-rose-200 transition-all"
             >
               <PlusCircle size={20} /> Add Extra
             </button>

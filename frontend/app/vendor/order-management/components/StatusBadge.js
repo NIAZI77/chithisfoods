@@ -1,10 +1,10 @@
 const StatusBadge = ({ status }) => {
   const statusMap = {
-    pending: "bg-amber-200 text-amber-900 font-bold w-24 text-center",
-    "in-process": "bg-sky-200 text-sky-900 font-bold w-24 text-center",
-    ready: "bg-emerald-200 text-emerald-900 font-bold w-24 text-center",
-    delivered: "bg-gray-200 text-gray-900 font-bold w-24 text-center",
-    cancelled: "bg-rose-200 text-rose-900 font-bold w-24 text-center",
+    pending: "bg-yellow-200 text-yellow-900 font-bold w-24 text-center",
+    "in-process": "bg-indigo-200 text-indigo-900 font-bold w-24 text-center",
+    ready: "bg-green-200 text-green-900 font-bold w-24 text-center",
+    delivered: "bg-slate-200 text-slate-900 font-bold w-24 text-center",
+    cancelled: "bg-red-200 text-red-900 font-bold w-24 text-center",
   };
   const labelMap = {
     pending: "PENDING",

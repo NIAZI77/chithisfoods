@@ -39,20 +39,20 @@ const STATUS_STYLES = {
   pending: "bg-yellow-100 text-yellow-700",
   refunded: "bg-red-100 text-red-700",
   cancelled: "bg-red-100 text-red-700",
-  delivered: "bg-green-100 text-green-700",
-  default: "bg-gray-100 text-gray-800",
+  delivered: "bg-slate-100 text-slate-700",
+  default: "bg-slate-100 text-slate-800",
 };
 
 const PAYMENT_STATUS_STYLES = {
   paid: "bg-green-100 text-green-700",
   pending: "bg-yellow-100 text-yellow-700",
   failed: "bg-red-100 text-red-700",
-  default: "bg-gray-100 text-gray-800",
+  default: "bg-slate-100 text-slate-800",
 };
 
 const BUTTON_STYLES = {
-  payVendor: "w-40 px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 font-medium shadow-sm",
-  processRefund: "w-40 px-4 py-2.5 bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 font-medium shadow-sm",
+  payVendor: "w-40 px-4 py-2 bg-green-600 text-white rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
+  processRefund: "w-40 px-4 py-2 bg-red-600 text-white rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
 };
 
 const TIME_FILTERS = {
@@ -104,7 +104,7 @@ const PaymentsPage = () => {
         if (data.isAdmin) {
           return;
         } else {
-          toast.error("You are not authorized to access this page.");
+          toast.error("Sorry, you don't have permission to access this page.");
           deleteCookie("AdminJWT");
           deleteCookie("AdminUser");
           router.push("/admin/login");
@@ -113,7 +113,7 @@ const PaymentsPage = () => {
       };
       isAdmin();
     } else {
-      toast.error("Please login to continue.");
+      toast.error("Please sign in to continue.");
       router.push("/admin/login");
     }
   }, [router]);
@@ -337,12 +337,12 @@ const PaymentsPage = () => {
         )
       );
 
-      toast.success("Vendor payment processed successfully!");
+      toast.success("Excellent! Vendor payment has been processed successfully!");
 
       await fetchOrders(currentPage, timeFilter, orderStatusFilter, paymentStatusFilter);
       await fetchFullOrders(timeFilter, orderStatusFilter, paymentStatusFilter);
     } catch (err) {
-      toast.error(err.message || "Failed to process vendor payment");
+      toast.error(err.message || "We couldn't process the vendor payment right now. Please try again.");
       console.error("Error processing vendor payment:", err);
     } finally {
       setProcessingPayments(prev => ({ ...prev, [orderId]: false }));
@@ -386,12 +386,12 @@ const PaymentsPage = () => {
         )
       );
 
-      toast.success("Refund processed successfully!");
+      toast.success("Great! The refund has been processed successfully!");
 
       await fetchOrders(currentPage, timeFilter, orderStatusFilter, paymentStatusFilter);
       await fetchFullOrders(timeFilter, orderStatusFilter, paymentStatusFilter);
     } catch (err) {
-      toast.error(err.message || "Failed to process refund");
+      toast.error(err.message || "We couldn't process the refund right now. Please try again.");
       console.error("Error processing refund:", err);
     } finally {
       setProcessingRefunds(prev => ({ ...prev, [orderId]: false }));
@@ -401,11 +401,11 @@ const PaymentsPage = () => {
   const handleVendorPaymentClick = (orderId) => {
     const order = orders.find(o => o.documentId === orderId);
     if (!order) {
-      toast.error("Order not found");
+      toast.error("We couldn't find that order. Please try again.");
       return;
     }
     if (order.orderStatus !== "delivered" || order.vendor_payment !== "unpaid") {
-      toast.error("Order is not in a valid state for vendor payment");
+      toast.error("This order is not in a valid state for vendor payment.");
       return;
     }
     setSelectedOrder(order);
@@ -416,11 +416,11 @@ const PaymentsPage = () => {
   const handleRefundClick = (orderId) => {
     const order = orders.find(o => o.documentId === orderId);
     if (!order) {
-      toast.error("Order not found");
+      toast.error("We couldn't find that order. Please try again.");
       return;
     }
     if (order.orderStatus !== "cancelled") {
-      toast.error("Order is not in a valid state for refund");
+      toast.error("This order is not in a valid state for refund.");
       return;
     }
     setSelectedOrder(order);

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import DeliveryTypeBadge from "@/components/DeliveryTypeBadge";
 import {
   User,
   Phone,
@@ -36,9 +37,9 @@ const ORDER_STATUS = {
 };
 
 const TOAST_MESSAGES = {
-  ORDER_UPDATE_SUCCESS: "Order status updated successfully.",
-  ORDER_UPDATE_ERROR: "Failed to update order status.",
-  CANCEL_NOT_ALLOWED: "Cannot cancel an order that is ready for delivery.",
+  ORDER_UPDATE_SUCCESS: "Great! Your order status has been updated successfully.",
+  ORDER_UPDATE_ERROR: "We couldn't update the order status right now. Please try again.",
+  CANCEL_NOT_ALLOWED: "Sorry, you cannot cancel an order that is ready for delivery.",
 };
 
 function OrderDetailsDialog({ order, isOpen, onClose }) {
@@ -46,10 +47,101 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
   const [loadingStates, setLoadingStates] = useState({
     processing: false,
     ready: false,
+    delivered: false,
     cancel: false,
   });
 
   if (!order) return null;
+
+  // Use items if dishes is not available (for backward compatibility)
+  const orderItems = order.dishes || order.items || [];
+
+  const updateWeeklySalesCount = async () => {
+    if (!orderItems || orderItems.length === 0) {
+      return;
+    }
+
+    try {
+      // Update weekly sales count for each dish in the order
+      const updatePromises = orderItems.map(async (dish) => {
+        if (!dish.id) {
+          console.warn("Dish missing ID, skipping weekly sales update:", dish);
+          return;
+        }
+
+        try {
+          // First, fetch the current dish data to get the current weeklySalesCount
+          const fetchResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dish.id}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+              },
+            }
+          );
+
+          if (!fetchResponse.ok) {
+            throw new Error(`Failed to fetch dish with documentId: ${dish.id}`);
+          }
+
+          const dishData = await fetchResponse.json();
+          
+          if (!dishData.data || dishData.data.length === 0) {
+            console.warn(`No dish found with documentId: ${dish.id}`);
+            return;
+          }
+
+          const currentDish = dishData.data[0];
+          const currentWeeklySalesCount = currentDish?.weeklySalesCount || 0;
+          const newWeeklySalesCount = currentWeeklySalesCount + 1;
+
+          // Update the dish with the new weekly sales count
+          const updateResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dish.id}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+              },
+              body: JSON.stringify({
+                data: {
+                  weeklySalesCount: newWeeklySalesCount,
+                },
+              }),
+            }
+          );
+
+          if (!updateResponse.ok) {
+            const errorText = await updateResponse.text();
+            console.error(`Failed to update weekly sales count for dish ${dish.id}:`, errorText);
+            throw new Error(`Failed to update weekly sales count for ${dish.name}`);
+          }
+
+          return updateResponse.json();
+        } catch (dishError) {
+          console.error(`Error updating dish ${dish.id}:`, dishError);
+          // Continue with other dishes even if one fails
+          return null;
+        }
+      });
+
+      // Wait for all dish updates to complete
+      const results = await Promise.all(updatePromises);
+      const successfulUpdates = results.filter(result => result !== null).length;
+      const totalDishes = orderItems.length;
+      
+      if (successfulUpdates < totalDishes) {
+        toast.warning(`${totalDishes - successfulUpdates} dish sales counts could not be updated.`);
+      }
+    } catch (error) {
+      console.error("Error updating weekly sales count:", error);
+      // Don't throw error here as it shouldn't prevent the order from being processed
+      toast.warning("There was an issue updating dish sales counts.");
+    }
+  };
 
   const handleStatusUpdate = async (newStatus) => {
     if (
@@ -65,7 +157,9 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
         ? "processing"
         : newStatus === ORDER_STATUS.READY
           ? "ready"
-          : "cancel";
+          : newStatus === ORDER_STATUS.DELIVERED
+            ? "delivered"
+            : "cancel";
 
     setLoadingStates((prev) => ({ ...prev, [loadingKey]: true }));
 
@@ -88,6 +182,11 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
 
       if (!response.ok) {
         throw new Error(TOAST_MESSAGES.ORDER_UPDATE_ERROR);
+      }
+
+      // Update weekly sales count when marking as delivered
+      if (newStatus === ORDER_STATUS.DELIVERED) {
+        await updateWeeklySalesCount();
       }
 
       toast.success(TOAST_MESSAGES.ORDER_UPDATE_SUCCESS);
@@ -149,11 +248,20 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                 <div className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
                   <div>
-                    <p className="text-gray-500 text-xs mb-0.5">
-                      Delivery Address
-                    </p>
+                    <p className="text-gray-500 text-xs mb-0.5">Delivery Address</p>
                     <p className="text-xs text-gray-800 font-medium">
-                      {order.address}
+                      {order.address || "-"}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {order.deliveryType === "pickup" && order.vendorAddress && (
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-4 h-4 text-blue-500 mt-0.5" />
+                  <div>
+                    <p className="text-blue-500 text-xs mb-0.5">Pickup Location</p>
+                    <p className="text-xs text-blue-800 font-medium">
+                      {order.vendorAddress}
                     </p>
                   </div>
                 </div>
@@ -178,9 +286,9 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                       <Truck className="w-4 h-4 text-gray-500 mt-0.5" />
                       <div>
                         <p className="text-gray-500 text-xs mb-0.5">Order Type</p>
-                        <p className="text-xs text-gray-800 font-medium capitalize">
-                          {order.deliveryType}
-                        </p>
+                        <div className="mt-1">
+                          <DeliveryTypeBadge deliveryType={order.deliveryType} variant="soft" />
+                        </div>
                       </div>
                     </div>
                   )}
@@ -365,7 +473,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
           </div>
         </div>
         <div className="flex flex-col md:flex-row justify-end p-3 gap-4 border-t border-gray-100">
-          <AlertDialogCancel className="px-6 py-1.5 text-sm border-orange-500 text-orange-500 hover:text-orange-600 rounded-md transition-colors hover:border-orange-600 font-semibold">
+          <AlertDialogCancel className="px-6 py-2 text-sm text-gray-600 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium">
             Close
           </AlertDialogCancel>
           {order.orderStatus === "pending" && (
@@ -374,9 +482,10 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
               disabled={
                 loadingStates.processing ||
                 loadingStates.ready ||
+                loadingStates.delivered ||
                 loadingStates.cancel
               }
-              className="px-6 py-1.5 text-sm bg-indigo-600 text-white rounded-md transition-colors hover:bg-indigo-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 text-sm bg-indigo-600 text-white rounded-full shadow-indigo-300 shadow-md hover:bg-indigo-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               type="button"
             >
               {loadingStates.processing ? <Spinner /> : "Mark as Processing"}
@@ -388,12 +497,28 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
               disabled={
                 loadingStates.processing ||
                 loadingStates.ready ||
+                loadingStates.delivered ||
                 loadingStates.cancel
               }
-              className="px-6 py-1.5 text-sm bg-green-500 text-white rounded-md transition-colors hover:bg-green-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 text-sm bg-green-600 text-white rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               type="button"
             >
               {loadingStates.ready ? <Spinner /> : "Mark as Ready"}
+            </button>
+          )}
+          {order.orderStatus === "ready" && (
+            <button
+              onClick={() => handleStatusUpdate("delivered")}
+              disabled={
+                loadingStates.processing ||
+                loadingStates.ready ||
+                loadingStates.delivered ||
+                loadingStates.cancel
+              }
+              className="px-6 py-2 text-sm bg-slate-600 text-white rounded-full shadow-slate-300 shadow-md hover:bg-slate-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+            >
+              {loadingStates.delivered ? <Spinner /> : "Mark as Delivered"}
             </button>
           )}
           {order.orderStatus !== "cancelled" &&
@@ -404,9 +529,10 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                 disabled={
                   loadingStates.processing ||
                   loadingStates.ready ||
+                  loadingStates.delivered ||
                   loadingStates.cancel
                 }
-                className="px-6 py-1.5 text-sm bg-red-500 text-white rounded-md transition-colors hover:bg-red-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 text-sm bg-red-600 text-white rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 type="button"
               >
                 {loadingStates.cancel ? <Spinner /> : "Cancel Order"}

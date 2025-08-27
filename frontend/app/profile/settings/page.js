@@ -47,7 +47,7 @@ export default function AccountSettings() {
 
       if (!res.ok) {
         console.error(data?.error?.message || "Error fetching user");
-        toast.error(data?.error?.message || "Failed to load user");
+        toast.error(data?.error?.message || "We couldn't load your profile information right now.");
         router.push("/login");
       } else {
         setUsername(data.username);
@@ -61,7 +61,7 @@ export default function AccountSettings() {
       }
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Error fetching user data");
+      toast.error("We're having trouble loading your profile data. Please refresh and try again.");
       router.push("/login");
     } finally {
       setLoading(false);
@@ -90,13 +90,13 @@ export default function AccountSettings() {
   const handleProfileSave = async (e) => {
     e.preventDefault();
     if (!username) {
-      toast.error("Username cannot be empty.");
+      toast.error("Username cannot be empty. Please enter a username.");
       return;
     }
 
     if (!usernameRegex.test(username)) {
       toast.error(
-        "Username must be 3–15 characters, lowercase, numbers, or underscores."
+        "Username can contain lowercase letters, numbers, and underscores (3-15 chars)."
       );
       return;
     }
@@ -119,14 +119,14 @@ export default function AccountSettings() {
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("Username Changed Successfully");
+        toast.success("Great! Your username has been updated successfully.");
         setUsername(data.username);
         setCookie("user", JSON.stringify(data), { path: "/" });
       } else {
-        toast.error(data?.error?.message || "Update failed");
+        toast.error(data?.error?.message || "We couldn't update your username right now. Please try again.");
       }
     } catch (err) {
-      toast.error("Error updating profile");
+      toast.error("We're having trouble updating your profile. Please try again in a moment.");
     } finally {
       setSavingProfile(false);
     }
@@ -136,17 +136,17 @@ export default function AccountSettings() {
     e.preventDefault();
 
     if (!currentPassword || !newPassword || !confirmNewPassword) {
-      toast.error("Fill out all password fields.");
+      toast.error("Please fill out all password fields to continue.");
       return;
     }
 
     if (newPassword.length < 6 || newPassword.length > 15) {
-      toast.error("Password must be 6–15 characters.");
+      toast.error("Your password should be between 6 and 15 characters long.");
       return;
     }
 
     if (newPassword !== confirmNewPassword) {
-      toast.error("Passwords do not match.");
+      toast.error("Your passwords don't match. Please double-check and try again.");
       return;
     }
 
@@ -172,15 +172,15 @@ export default function AccountSettings() {
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("Password Changed Successfully");
+        toast.success("Excellent! Your password has been changed successfully.");
         setCurrentPassword("");
         setNewPassword("");
         setConfirmNewPassword("");
       } else {
-        toast.error(data?.error?.message || "Password change failed");
+        toast.error(data?.error?.message || "We couldn't change your password right now. Please try again.");
       }
     } catch (err) {
-      toast.error("Error changing password");
+      toast.error("We're having trouble changing your password. Please try again in a moment.");
     } finally {
       setSavingPassword(false);
     }

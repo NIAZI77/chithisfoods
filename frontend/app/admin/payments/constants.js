@@ -4,20 +4,20 @@ export const STATUS_STYLES = {
   pending: "bg-yellow-100 text-yellow-700",
   refunded: "bg-red-100 text-red-700",
   cancelled: "bg-red-100 text-red-700",
-  delivered: "bg-green-100 text-green-700",
-  default: "bg-gray-100 text-gray-800",
+  delivered: "bg-slate-100 text-slate-700",
+  default: "bg-slate-100 text-slate-800",
 };
 
 export const PAYMENT_STATUS_STYLES = {
   paid: "bg-green-100 text-green-700",
   pending: "bg-yellow-100 text-yellow-700",
   failed: "bg-red-100 text-red-700",
-  default: "bg-gray-100 text-gray-800",
+  default: "bg-slate-100 text-slate-800",
 };
 
 export const BUTTON_STYLES = {
-  payVendor: "w-40 px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 font-medium shadow-sm",
-  processRefund: "w-40 px-4 py-2.5 bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 font-medium shadow-sm",
+  payVendor: "w-40 px-4 py-2 bg-green-600 text-white rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
+  processRefund: "w-40 px-4 py-2 bg-red-600 text-white rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
 };
 
 export const TIME_FILTERS = {

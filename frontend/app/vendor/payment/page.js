@@ -32,10 +32,10 @@ const formatDateTime = (dateString) => {
 
 const TransactionStats = ({ stats }) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-    <div className="bg-emerald-50 p-6 rounded-lg shadow-md">
+    <div className="bg-green-50 p-6 rounded-lg shadow-md">
       <div className="flex items-center mb-4">
-        <div className="bg-emerald-100 p-3 rounded-full mr-4">
-          <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+        <div className="bg-green-100 p-3 rounded-full mr-4">
+          <CheckCircle2 className="h-8 w-8 text-green-600" />
         </div>
         <div>
           <p className="text-emerald-700 font-medium">Paid Orders</p>
@@ -52,10 +52,10 @@ const TransactionStats = ({ stats }) => (
       </div>
     </div>
 
-    <div className="bg-amber-50 p-6 rounded-lg shadow-md">
+    <div className="bg-yellow-50 p-6 rounded-lg shadow-md">
       <div className="flex items-center mb-4">
-        <div className="bg-amber-100 p-3 rounded-full mr-4">
-          <Clock className="h-8 w-8 text-amber-600" />
+        <div className="bg-yellow-100 p-3 rounded-full mr-4">
+          <Clock className="h-8 w-8 text-yellow-600" />
         </div>
         <div>
           <p className="text-amber-700 font-medium">Unpaid Orders</p>
@@ -75,19 +75,7 @@ const TransactionStats = ({ stats }) => (
     <div className="bg-slate-50 p-6 rounded-lg shadow-md">
       <div className="flex items-center mb-4">
         <div className="bg-slate-100 p-3 rounded-full mr-4">
-          <svg
-            className="h-8 w-8 text-slate-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-            />
-          </svg>
+          <Calendar className="h-8 w-8 text-slate-600" />
         </div>
         <div>
           <p className="text-slate-700 font-medium">Total Orders</p>
@@ -190,8 +178,8 @@ const TransactionListByDate = ({ transactions, isLoading }) => {
                       <span
                         className={`w-24 flex items-center justify-center px-2 py-1 rounded-full text-xs font-medium ${
                           transaction.vendorPaymentStatus === "PAID"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-amber-100 text-amber-800"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
                         {transaction.vendorPaymentStatus}
@@ -199,8 +187,8 @@ const TransactionListByDate = ({ transactions, isLoading }) => {
                       <p
                         className={`font-semibold ${
                           transaction.vendorPaymentStatus === "PAID"
-                            ? "text-emerald-600"
-                            : "text-amber-600"
+                            ? "text-green-600"
+                            : "text-yellow-600"
                         }`}
                       >
                         ${total.toFixed(2)}
@@ -283,12 +271,12 @@ const PayPalConnectForm = ({
         <p className="text-gray-500">Receive payments securely and instantly</p>
       </div>
       <div className="flex items-center justify-center space-x-4 text-sm">
-        <div className="flex items-center space-x-2 bg-emerald-50 px-4 py-2 rounded-full">
-          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-          <span className="text-emerald-700">Secure payments</span>
+        <div className="flex items-center space-x-2 bg-green-50 px-4 py-2 rounded-full">
+          <CheckCircle2 className="h-4 w-4 text-green-600" />
+          <span className="text-green-700">Secure payments</span>
         </div>
         <div className="flex items-center space-x-2 bg-indigo-50 px-4 py-2 rounded-full">
-          <Zap className="h-4 w-4 text-indigo-600" />
+          <Clock className="h-4 w-4 text-indigo-600" />
           <span className="text-indigo-700">Instant transfers</span>
         </div>
       </div>
@@ -326,7 +314,7 @@ const PayPalConnectForm = ({
     <button
       onClick={onConnect}
       disabled={!email || !!emailError || isSaving}
-      className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-3.5 rounded-full shadow-emerald-300 shadow-md hover:from-emerald-600 hover:to-emerald-700 transition-all font-semibold disabled:opacity-50 disabled:bg-gray-300 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+      className="w-full bg-rose-600 text-white py-3.5 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:bg-gray-300 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2"
     >
       {!isSaving && <CheckCircle2 className="h-5 w-5" />}
       <span>{isSaving ? <Spinner /> : "CONNECT PAYPAL"}</span>
@@ -408,7 +396,7 @@ const PayPalConnectedView = ({
           <button
             onClick={onUpdateEmail}
             disabled={isSaving || !!emailError}
-            className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-2.5 px-4 rounded-full font-medium hover:from-emerald-600 hover:to-emerald-700 transition-colors shadow-emerald-300 shadow-sm flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-rose-600 text-white py-2.5 px-4 rounded-full font-medium hover:bg-rose-700 transition-all shadow-rose-300 shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {!isSaving && <CheckCircle2 className="h-4 w-4" />}
             <span>{isSaving ? <Spinner /> : "Save Changes"}</span>
@@ -416,7 +404,7 @@ const PayPalConnectedView = ({
           <button
             onClick={onCancelEditing}
             disabled={isSaving}
-            className="flex-1 bg-white text-gray-700 py-2.5 px-4 rounded-full font-medium hover:bg-gray-50 transition-colors border border-gray-200 shadow-sm flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 text-gray-600 py-2.5 px-4 rounded-full font-medium hover:bg-gray-600 hover:text-white transition-all border-2 border-gray-600 shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="h-4 w-4" />
             <span>Cancel</span>
@@ -429,7 +417,7 @@ const PayPalConnectedView = ({
       <button
         onClick={onDisconnect}
         disabled={isSaving}
-        className="w-full bg-gradient-to-r from-rose-500 to-rose-600 text-white py-3.5 rounded-full font-semibold hover:from-rose-600 hover:to-rose-700 transition-colors shadow-rose-300 shadow-sm flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-red-600 text-white py-3.5 rounded-full font-semibold hover:bg-red-700 transition-all shadow-red-300 shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {!isSaving && <X className="h-5 w-5" />}
         <span>{isSaving ? <Spinner /> : "DISCONNECT PAYPAL"}</span>

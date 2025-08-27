@@ -27,9 +27,7 @@ function OrderDetailsDialog({
   getDishReviewStatus
 }) {
   const [loadingStates, setLoadingStates] = useState({
-    received: false,
     cancel: false,
-    review: false,
   });
 
   // Review system state
@@ -126,147 +124,7 @@ function OrderDetailsDialog({
     );
   }
 
-  // Use items if dishes is not available (for backward compatibility)
-  const orderItems = order.dishes || order.items || [];
 
-  const updateWeeklySalesCount = async () => {
-    if (!orderItems || orderItems.length === 0) {
-      
-      return;
-    }
-
-    try {
-      // Update weekly sales count for each dish in the order
-      const updatePromises = orderItems.map(async (dish) => {
-        if (!dish.id) {
-          console.warn("Dish missing ID, skipping weekly sales update:", dish);
-          return;
-        }
-
-        try {
-          // First, fetch the current dish data to get the current weeklySalesCount
-          const fetchResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dish.id}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-              },
-            }
-          );
-
-          if (!fetchResponse.ok) {
-            throw new Error(`Failed to fetch dish with documentId: ${dish.id}`);
-          }
-
-          const dishData = await fetchResponse.json();
-          
-          if (!dishData.data || dishData.data.length === 0) {
-            console.warn(`No dish found with documentId: ${dish.id}`);
-            return;
-          }
-
-          const currentDish = dishData.data[0];
-          const currentWeeklySalesCount = currentDish?.weeklySalesCount || 0;
-          const newWeeklySalesCount = currentWeeklySalesCount + 1;
-
-          // Update the dish with the new weekly sales count
-          const updateResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dish.id}`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-              },
-              body: JSON.stringify({
-                data: {
-                  weeklySalesCount: newWeeklySalesCount,
-                },
-              }),
-            }
-          );
-
-          if (!updateResponse.ok) {
-            const errorText = await updateResponse.text();
-            console.error(`Failed to update weekly sales count for dish ${dish.id}:`, errorText);
-            throw new Error(`Failed to update weekly sales count for ${dish.name}`);
-          }
-
-  
-          return updateResponse.json();
-        } catch (dishError) {
-          console.error(`Error updating dish ${dish.id}:`, dishError);
-          // Continue with other dishes even if one fails
-          return null;
-        }
-      });
-
-      // Wait for all dish updates to complete
-      const results = await Promise.all(updatePromises);
-      const successfulUpdates = results.filter(result => result !== null).length;
-      const totalDishes = orderItems.length;
-      
-      
-      
-      if (successfulUpdates < totalDishes) {
-        toast.warning(`Order marked as received, but ${totalDishes - successfulUpdates} dish sales counts could not be updated.`);
-      }
-    } catch (error) {
-      console.error("Error updating weekly sales count:", error);
-      // Don't throw error here as it shouldn't prevent the order from being marked as received
-      toast.warning("Order marked as received, but there was an issue updating dish sales counts.");
-    }
-  };
-
-  const handleMarkAsReceived = async () => {
-    if (order.orderStatus !== "ready") {
-      toast.error(TOAST_MESSAGES.RECEIVE_NOT_ALLOWED);
-      return;
-    }
-
-    if (!order.documentId) {
-      console.error("handleMarkAsReceived: order.documentId is missing:", order);
-      toast.error("Order ID is missing. Please try refreshing the page.");
-      return;
-    }
-
-    setLoadingStates((prev) => ({ ...prev, received: true }));
-
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders/${order.documentId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-          body: JSON.stringify({
-            data: {
-              orderStatus: "delivered",
-            },
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("API Error Response:", errorText);
-        throw new Error(TOAST_MESSAGES.ORDER_UPDATE_ERROR);
-      }
-      updateWeeklySalesCount();
-      toast.success(TOAST_MESSAGES.ORDER_UPDATE_SUCCESS);
-      onStatusUpdate();
-      onClose();
-    } catch (error) {
-      console.error("Error marking order as received:", error);
-      toast.error(error.message || TOAST_MESSAGES.ORDER_UPDATE_ERROR);
-    } finally {
-      setLoadingStates((prev) => ({ ...prev, received: false }));
-    }
-  };
 
   const handleCancelOrder = async () => {
     if (order.orderStatus !== "pending") {
@@ -372,6 +230,8 @@ function OrderDetailsDialog({
   };
 
   const handleReviewSubmit = async (reviewData) => {
+    console.log("Review data received:", reviewData); // Debug log
+    
     if (!order.documentId) {
       console.error("handleReviewSubmit: order.documentId is missing:", order);
       toast.error("Order ID is missing. Please try refreshing the page.");
@@ -426,7 +286,8 @@ function OrderDetailsDialog({
         );
       
       if (userHasAlreadyReviewed) {
-        throw new Error("You have already reviewed this dish! Each dish can only be reviewed once.");
+        toast.error("You have already reviewed this dish! Each dish can only be reviewed once.");
+        return;
       }
       
       // Additional safety check: verify the review doesn't already exist in the database
@@ -443,6 +304,18 @@ function OrderDetailsDialog({
         throw new Error("A review from you already exists for this dish. Please refresh the page.");
       }
       
+      // Handle image data if provided (image is already uploaded from ReviewDialog)
+      let reviewImage = null;
+      if (reviewData.image && reviewData.image.id && reviewData.image.url) {
+        // Image was already uploaded in ReviewDialog, use the existing data
+        reviewImage = {
+          id: reviewData.image.id,
+          url: reviewData.image.url,
+          name: reviewData.image.name || 'review-image'
+        };
+        console.log("Using uploaded image data:", reviewImage);
+      }
+
       // Create the new review object with multiple userId identifiers for better tracking
       const newReview = {
         rating: reviewData.rating,
@@ -453,7 +326,8 @@ function OrderDetailsDialog({
         userEmail: userData?.email || getCookie("user"),
         userUsername: userData?.username,
         orderId: order.documentId, // Track which order this review came from
-        reviewDate: new Date().toISOString()
+        reviewDate: new Date().toISOString(),
+        image: reviewImage // Include the uploaded image data
       };
 
       // Get existing reviews and add the new one
@@ -662,7 +536,7 @@ function OrderDetailsDialog({
           <div className="flex-1 overflow-y-auto flex flex-col md:flex-row p-4 gap-4">
             <CustomerDetails order={order} />
             <OrderItems 
-              order={{...order, dishes: orderItems}} 
+              order={order} 
               onReviewClick={openReviewDialog} 
               userData={userData}
               getCurrentUserId={getCurrentUserId}
@@ -675,7 +549,6 @@ function OrderDetailsDialog({
           <OrderActions
             order={order}
             loadingStates={loadingStates}
-            onMarkAsReceived={handleMarkAsReceived}
             onCancelOrder={handleCancelOrder}
             userData={userData}
           />

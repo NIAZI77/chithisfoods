@@ -25,11 +25,11 @@ import {
 import { useRouter } from "next/navigation";
 
 const STATUS_STYLES = {
-  pending: "bg-amber-200 text-amber-900 font-bold text-center",
-  "in-process": "bg-sky-200 text-sky-900 font-bold text-center",
-  ready: "bg-emerald-200 text-emerald-900 font-bold text-center",
-  delivered: "bg-gray-200 text-gray-900 font-bold text-center",
-  cancelled: "bg-rose-200 text-rose-900 font-bold text-center",
+  pending: "bg-yellow-200 text-yellow-900 font-bold text-center",
+  "in-process": "bg-indigo-200 text-indigo-900 font-bold text-center",
+  ready: "bg-green-200 text-green-900 font-bold text-center",
+  delivered: "bg-slate-200 text-slate-900 font-bold text-center",
+  cancelled: "bg-red-200 text-red-900 font-bold text-center",
 };
 
 const STATUS_LABELS = {
@@ -227,7 +227,7 @@ const Page = () => {
         setStatusCountsMonth(processCounts(monthData));
       }
     } catch (error) {
-      toast.error("An unexpected error occurred");
+      toast.error("We're experiencing some technical difficulties. Please try again in a moment.");
     }
   };
 
@@ -256,7 +256,7 @@ const Page = () => {
 
       setDashboardData(processOrdersData(orders));
     } catch (error) {
-      toast.error(error.message || "An unexpected error occurred");
+      toast.error(error.message || "We're experiencing some technical difficulties. Please try again in a moment.");
     } finally {
       setLoading(false);
     }
@@ -286,7 +286,7 @@ const Page = () => {
         );
 
         if (!vendorRes.ok) {
-          toast.error("Unable to retrieve vendor information");
+          toast.error("We're having trouble loading your vendor information right now. Please try again.");
           router.push("/become-a-vendor");
           return;
         }
@@ -294,7 +294,7 @@ const Page = () => {
         const vendorData = await vendorRes.json();
         setVendorInfo(vendorData);
         if (!vendorData.data?.[0]?.documentId) {
-          toast.error("Please complete your vendor registration");
+          toast.error("Please complete your vendor registration to continue");
           router.push("/become-a-vendor");
           return;
         }
@@ -305,7 +305,7 @@ const Page = () => {
           fetchDashboardData(vendorId)
         ]);
       } catch (error) {
-        toast.error("An unexpected error occurred");
+        toast.error("We're experiencing some technical difficulties. Please try again in a moment.");
         router.push("/become-a-vendor");
       }
     };

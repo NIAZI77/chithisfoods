@@ -50,7 +50,7 @@ const TaxPercentage = () => {
       setAdminId(data.data.id);
     } catch (error) {
       console.error('Error fetching tax percentage:', error);
-      toast.error('Failed to fetch tax percentage. Using default value.');
+      toast.error('We\'re having trouble loading the tax percentage. Using default value.');
       setTaxPercentage(10);
       setOriginalValue(10);
     } finally {
@@ -84,10 +84,10 @@ const TaxPercentage = () => {
       setTaxPercentage(10);
       setOriginalValue(10);
       setAdminId(data.data.id);
-      toast.success('Default tax percentage created successfully');
+      toast.success('Great! Default tax percentage has been created successfully');
     } catch (error) {
       console.error('Error creating default tax percentage:', error);
-      toast.error('Failed to create default tax percentage');
+      toast.error('We couldn\'t create the default tax percentage right now. Please try again.');
       setTaxPercentage(10);
       setOriginalValue(10);
     }
@@ -160,10 +160,10 @@ const TaxPercentage = () => {
       }
 
       setOriginalValue(taxPercentage);
-      toast.success('Tax percentage updated successfully');
+      toast.success('Perfect! Tax percentage has been updated successfully');
     } catch (error) {
       console.error('Error updating tax percentage:', error);
-      toast.error('Failed to update tax percentage. Please try again.');
+      toast.error('We couldn\'t update the tax percentage right now. Please try again.');
       setTaxPercentage(originalValue); // Revert to original value
     } finally {
       setIsSaving(false);
@@ -245,7 +245,7 @@ const TaxPercentage = () => {
         </Button>
 
         {hasChanges && (
-          <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded">
+          <p className="text-xs text-yellow-600 bg-yellow-50 p-2 rounded">
             ⚠️ Changes will affect all future orders. Current orders will not be affected.
           </p>
         )}

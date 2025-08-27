@@ -19,6 +19,10 @@
       "type": "string",
       "required": false
     },
+    "vendorAddress": {
+      "type": "string",
+      "required": false
+    },
     "note": {
       "type": "text",
       "required": false

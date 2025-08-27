@@ -59,7 +59,7 @@ export default function Navbar() {
       }
     } catch (err) {
       toast.error(
-        "We couldn't verify your vendor status. Please try again shortly."
+        "We're having trouble loading your profile information right now. Please try again."
       );
     } finally {
       setLoading(false);
@@ -137,7 +137,7 @@ export default function Navbar() {
     deleteCookie("jwt");
     deleteCookie("user");
     setIsLoggedIn(false);
-    toast.success("You've been successfully logged out.");
+    toast.success("You've been successfully logged out. See you soon!");
     localStorage.clear();
     router.push("/");
   };

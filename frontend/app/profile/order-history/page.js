@@ -17,6 +17,7 @@ import {
   Search,
   Eye,
   Settings,
+  ClipboardList,
 } from "lucide-react";
 import {
   Select,
@@ -27,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import Pagination from "@/app/components/pagination";
 import OrderDetailsDialog from "./components/OrderDetailsDialog";
+import DeliveryTypeBadge from "@/components/DeliveryTypeBadge";
 
 export default function OrderHistoryPage() {
   const router = useRouter();
@@ -179,7 +181,7 @@ export default function OrderHistoryPage() {
     if (!mounted) return;
     
     if (!user) {
-      toast.error("Please sign in to view orders");
+      toast.error("Please sign in to view your order history");
       router.push("/login");
       return;
     }
@@ -287,7 +289,7 @@ export default function OrderHistoryPage() {
       }
     } catch (error) {
       console.error("Error fetching status counts:", error);
-      toast.error("Failed to load order statistics");
+      toast.error("We're having trouble loading your order statistics right now. Please try again.");
     }
   };
 
@@ -399,7 +401,7 @@ export default function OrderHistoryPage() {
         setOrderData(orders.data || []);
       } catch (error) {
         console.error("Error fetching orders:", error);
-        toast.error("Failed to load orders");
+        toast.error("We're having trouble loading your orders right now. Please try again.");
         
         setOrderData([]);
         setTotalPages(1);
@@ -468,11 +470,11 @@ export default function OrderHistoryPage() {
     if (!status) return null;
     
     const statusMap = {
-      pending: "bg-amber-200 text-amber-900 font-bold w-24 text-center",
-      "in-process": "bg-sky-200 text-sky-900 font-bold w-24 text-center",
+      pending: "bg-yellow-200 text-yellow-900 font-bold w-24 text-center",
+      "in-process": "bg-indigo-200 text-indigo-900 font-bold w-24 text-center",
       ready: "bg-green-200 text-green-900 font-bold w-24 text-center",
-      delivered: "bg-emerald-200 text-emerald-900 font-bold w-24 text-center",
-      cancelled: "bg-rose-200 text-rose-900 font-bold w-24 text-center",
+      delivered: "bg-slate-200 text-slate-900 font-bold w-24 text-center",
+      cancelled: "bg-red-200 text-red-900 font-bold w-24 text-center",
     };
     const labelMap = {
       pending: "PENDING",
@@ -534,7 +536,7 @@ export default function OrderHistoryPage() {
                     : statusCountsAll["in-process"]}
               </p>
             </div>
-            <Package className="w-6 h-6 md:w-8 md:h-8 text-rose-500" />
+            <Package className="w-6 h-6 md:w-8 md:h-8 text-indigo-500" />
           </div>
         </div>
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
@@ -564,7 +566,7 @@ export default function OrderHistoryPage() {
                     : statusCountsAll.delivered}
               </p>
             </div>
-            <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-emerald-500" />
+            <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-slate-500" />
           </div>
         </div>
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
@@ -579,7 +581,7 @@ export default function OrderHistoryPage() {
                     : statusCountsAll.cancelled}
               </p>
             </div>
-            <XCircle className="w-6 h-6 md:w-8 md:h-8 text-rose-500" />
+            <XCircle className="w-6 h-6 md:w-8 md:h-8 text-red-500" />
           </div>
         </div>
       </div>
@@ -620,9 +622,7 @@ export default function OrderHistoryPage() {
       {orderData.length === 0 ? (
         <div className="text-center py-16">
           <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-orange-50">
-            <svg className="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
+            <ClipboardList className="w-8 h-8 text-orange-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             No Orders Found
@@ -707,9 +707,7 @@ export default function OrderHistoryPage() {
                           </span>
                         </td>
                         <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
-                          <span className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize`}>
-                            {order.deliveryType || "-"}
-                          </span>
+                          <DeliveryTypeBadge deliveryType={order.deliveryType || "delivery"} />
                         </td>
                         <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-semibold">
                           ${totalAmount.toFixed(2)}

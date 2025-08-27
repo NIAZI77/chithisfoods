@@ -172,7 +172,7 @@ const RefundDetailsManager = ({
         // Update user's refund details in local state
         onRefundDetailsUpdate(updatedRefundDetails);
         
-        toast.success("Refund Details Updated Successfully");
+        toast.success("Perfect! Your refund details have been updated successfully.");
         setShowAddForm(false);
 
         // Automatically update canceled orders with new refund details
@@ -180,11 +180,11 @@ const RefundDetailsManager = ({
         await updateCanceledOrdersRefundDetails(updatedRefundDetails);
       } else {
         console.error("API Error:", data);
-        toast.error(data?.error?.message || `Update failed (${response.status})`);
+        toast.error(data?.error?.message || `We couldn't update your refund details (${response.status})`);
       }
     } catch (err) {
       console.error("Network Error:", err);
-      toast.error("Error updating refund details");
+      toast.error("We're having trouble updating your refund details. Please try again in a moment.");
     } finally {
       setSaving(false);
     }
@@ -273,9 +273,9 @@ const RefundDetailsManager = ({
                 </div>
                 <button
                   onClick={() => setShowAddForm(true)}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-lg transition-colors"
+                  className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-medium rounded-full shadow-rose-300 shadow-md transition-all flex items-center gap-2"
                 >
-                  <Plus className="w-4 h-4 mr-2 inline" />
+                  <Plus className="w-4 h-4" />
                   Add Details
                 </button>
               </div>
@@ -349,7 +349,7 @@ const RefundDetailsManager = ({
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 px-6 py-3 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-medium rounded-lg shadow-lg transition-colors flex items-center justify-center"
+              className="flex-1 px-6 py-3 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-medium rounded-full shadow-rose-300 shadow-md transition-all flex items-center justify-center gap-2"
             >
               {saving ? (
                 <>
@@ -358,7 +358,7 @@ const RefundDetailsManager = ({
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4 mr-2" />
+                  <Save className="w-4 h-4" />
                   Save
                 </>
               )}
@@ -367,9 +367,9 @@ const RefundDetailsManager = ({
             <button
               type="button"
               onClick={handleCancel}
-              className="px-8 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-lg transition-colors"
+              className="px-8 py-3 text-gray-600 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium flex items-center gap-2"
             >
-              <X className="w-4 h-4 mr-2 inline" />
+              <X className="w-4 h-4" />
               Cancel
             </button>
           </div>

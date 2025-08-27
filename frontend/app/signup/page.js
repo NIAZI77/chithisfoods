@@ -46,13 +46,13 @@ export default function SignupPage() {
     setLoading(true);
 
     if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email.");
+      toast.error("Please enter a valid email address to continue.");
       setLoading(false);
       return;
     }
 
     if (password.length < 6 || password.length > 15) {
-      toast.error("Password must be between 6 and 15 characters.");
+      toast.error("Your password should be between 6 and 15 characters long.");
       setLoading(false);
       return;
     }
@@ -66,7 +66,7 @@ export default function SignupPage() {
     }
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toast.error("Your passwords don't match. Please double-check and try again.");
       setLoading(false);
       return;
     }
@@ -88,10 +88,10 @@ export default function SignupPage() {
 
       if (response.ok) {
         if (data.user.isAdmin) {
-          toast.error("Admin access denied");
+          toast.error("Sorry, this area is for customers only");
           return;
         }
-        toast.success("Welcome!");
+        toast.success("Welcome aboard! Your account is ready to go.");
         const expires = new Date();
         expires.setDate(expires.getDate() + 7);
         setCookie("jwt", data.jwt, { expires });
@@ -100,10 +100,10 @@ export default function SignupPage() {
           router.push("/");
         }, 1000);
       } else {
-        toast.error(data?.error?.message || "Failed to create account.");
+        toast.error(data?.error?.message || "We couldn't create your account right now. Please try again.");
       }
     } catch (error) {
-      toast.error("An error occurred during signup.");
+      toast.error("We're experiencing some technical difficulties. Please try again in a moment.");
     } finally {
       setLoading(false);
     }

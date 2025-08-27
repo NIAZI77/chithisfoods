@@ -18,12 +18,12 @@ import OrderDetailsDialog from "./components/OrderDetailsDialog";
 import { useRouter } from "next/navigation";
 
 const TOAST_MESSAGES = {
-  AUTH_REQUIRED: "Authentication required. Please log in as a vendor.",
-  VENDOR_INFO_ERROR: "Unable to fetch vendor information.",
-  VENDOR_NOT_FOUND: "Vendor profile not found. Please contact support.",
-  UNEXPECTED_ERROR: "An unexpected error occurred.",
-  FETCH_ORDERS_ERROR: "Unable to fetch orders.",
-  NO_ORDERS: "No orders found for your store.",
+  AUTH_REQUIRED: "Please sign in as a vendor to access this page.",
+  VENDOR_INFO_ERROR: "We're having trouble loading your vendor information.",
+  VENDOR_NOT_FOUND: "Vendor profile not found. Please contact our support team for assistance.",
+  UNEXPECTED_ERROR: "Something unexpected happened. Please try again in a moment.",
+  FETCH_ORDERS_ERROR: "We're having trouble loading your orders right now.",
+  NO_ORDERS: "No orders found for your store at the moment.",
 };
 
 // Returns an object with counts for each order status

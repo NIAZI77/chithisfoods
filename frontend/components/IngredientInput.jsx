@@ -88,10 +88,10 @@ const IngredientInput = ({
                   e.stopPropagation();
                   handleRemoveIngredient(index);
                 }}
-                className="ml-1 rounded-full p-0.5 hover:bg-orange-300 transition-colors"
+                className="ml-1 rounded-full p-0.5 text-rose-600 border-2 border-rose-600 hover:bg-rose-600 hover:text-white transition-all flex items-center justify-center"
                 aria-label={`Remove ${ingredient}`}
               >
-                <X className="h-3 w-3 text-orange-600" />
+                <X className="h-3 w-3" />
               </button>
             </Badge>
           ))}

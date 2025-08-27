@@ -51,7 +51,7 @@ export default function BecomeVendor() {
         router.push("/vendor/dashboard");
       }
     } catch (error) {
-      toast.error("Could not verify your vendor status. Please try again.");
+      toast.error("We couldn't verify your vendor status right now. Give it another try!");
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,7 @@ export default function BecomeVendor() {
     });
 
     if (!allFilled && step !== totalSteps) {
-      toast.error("Please complete all required fields before continuing.");
+      toast.error("Oops! Please fill in all the required fields to continue.");
       return;
     }
 
@@ -128,7 +128,7 @@ export default function BecomeVendor() {
       );
 
       if (!res.ok) {
-        toast.error("Failed to upload image. Please try again.");
+        toast.error("Image upload didn't work. Let's try again!");
         return;
       }
 
@@ -140,9 +140,9 @@ export default function BecomeVendor() {
         ...prevData,
         [name]: { id, url: fullUrl },
       }));
-      toast.success("Image uploaded successfully.");
+      toast.success("Perfect! Your image is now uploaded.");
     } catch (err) {
-      toast.error("Failed to upload image. Please try again.");
+      toast.error("Image upload failed. Let's try again!");
     }
   };
 
@@ -170,20 +170,18 @@ export default function BecomeVendor() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Congratulations! You're now registered as a vendor.");
+        toast.success("🎉 Congratulations! You're now a vendor!");
         setTimeout(() => {
           router.push("/vendor/dashboard");
         }, 1000);
       } else {
         toast.error(
-          `Unable to create vendor profile: ${
-            data?.error?.message || "Unknown error."
-          }`
+          data?.error?.message || "Something unexpected happened. Please try again."
         );
       }
     } catch (error) {
       toast.error(
-        "Something went wrong while submitting your information. Please try again later."
+        "We ran into an issue while processing your information. Please try again later."
       );
     } finally {
       setSubmitting(false);
@@ -195,7 +193,7 @@ export default function BecomeVendor() {
     const phoneRegex =
       /^\+?(\d{1,3})?[-. (]*\d{1,4}[-. )]*\d{1,4}[-. ]*\d{1,9}$/;
     if (formData.zipcode.length !== 5) {
-      toast.error("ZIP Code must be 5 digits.");
+      toast.error("Please enter a valid 5-digit ZIP code to continue.");
       return;
     }
 
@@ -206,14 +204,16 @@ export default function BecomeVendor() {
       return;
     }
     if (!phoneRegex.test(formData.phoneNumber)) {
-      toast.error("Invalid Phone Number Format");
+      toast.error(
+        "Please enter a valid phone number format to continue."
+      );
       return;
     }
     if (
       formData.avatar.url.length === 0 ||
       formData.coverImage.url.length === 0
     ) {
-      toast.error("Please upload both profile and cover images");
+      toast.error("Please upload both profile and cover images to complete your application");
       return;
     }
     await createVendor();

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, MessageSquare, Send, X, AlertCircle, ChefHat } from "lucide-react";
+import { Star, MessageSquare, Send, X, AlertCircle, ChefHat, Image, Upload } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -9,11 +9,11 @@ import Spinner from "@/app/components/Spinner";
 import { toast } from "react-toastify";
 import { getCookie } from "cookies-next";
 
-function ReviewDialog({ 
-  isOpen, 
-  onClose, 
-  selectedDish, 
-  onSubmit, 
+function ReviewDialog({
+  isOpen,
+  onClose,
+  selectedDish,
+  onSubmit,
   isLoading,
   userData,
   getCurrentUserId,
@@ -22,6 +22,9 @@ function ReviewDialog({
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [error, setError] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const validateForm = () => {
     if (rating === 0) {
@@ -40,49 +43,117 @@ function ReviewDialog({
     return true;
   };
 
+  const uploadImage = async (file) => {
+    const form = new FormData();
+    form.append("files", file);
+
+    try {
+      setUploadingImage(true);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: form,
+        }
+      );
+
+      if (!res.ok) {
+        toast.error("Image upload didn't work. Let's try again!");
+        return null;
+      }
+
+      const data = await res.json();
+      const { id, url, name } = data[0];
+      const fullUrl = new URL(url, process.env.NEXT_PUBLIC_STRAPI_HOST).href;
+
+      toast.success("Perfect! Your image is now uploaded.");
+      return { id, url: fullUrl, name };
+    } catch (err) {
+      toast.error("Image upload failed. Let's try again!");
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleImageSelect = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError("Please select a valid image file");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image size must be less than 5MB");
+        return;
+      }
+
+      setError("");
+      
+      // Upload the image immediately
+      const uploadedImage = await uploadImage(file);
+      if (uploadedImage) {
+        console.log("Image uploaded successfully:", uploadedImage); // Debug log
+        setSelectedImage(uploadedImage);
+        setImagePreview(uploadedImage.url);
+      }
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
-    
+
     try {
       setError("");
 
-      
       // Validate that we have the required dish information
       if (!selectedDish.name) {
         throw new Error("Dish name is missing");
       }
-      
+
       // Use utility function for consistent userId check
       const currentUserId = getCurrentUserId ? getCurrentUserId() : (userData?.id || userData?.email || userData?.username || getCookie("user"));
-      
+
       if (!currentUserId) {
         throw new Error("Unable to identify user. Please refresh the page and try again.");
       }
-      
-      // Create the review data structure with userId
+
+      // Create the review data structure with userId and optional image
       const reviewData = {
         dishId: selectedDish.id, // Use the numeric ID from the dish data
         dishName: selectedDish.name,
         rating: rating,
         text: reviewText.trim(),
         createdAt: new Date().toISOString(),
-        userId: currentUserId
+        userId: currentUserId,
+        image: selectedImage // Include the uploaded image data with id and url
       };
-      
-      
-      
+
+      console.log("ReviewDialog sending review data:", reviewData); // Debug log
       await onSubmit(reviewData);
-      
+
       // Reset form on successful submission
       setRating(0);
       setReviewText("");
       setError("");
-      
+      removeImage();
+
       // Don't show success message here - parent component handles it
       // toast.success("Review submitted successfully!");
-      
+
     } catch (error) {
       console.error("Review submission error:", error);
       const errorMessage = error.message || "Failed to submit review. Please try again.";
@@ -96,6 +167,7 @@ function ReviewDialog({
     setRating(0);
     setReviewText("");
     setError("");
+    removeImage();
     onClose();
   };
 
@@ -124,11 +196,10 @@ function ReviewDialog({
         aria-label={`Rate ${index + 1} stars`}
       >
         <Star
-          className={`w-6 h-6 ${
-            index < rating 
-              ? "text-amber-400 fill-current" 
-              : "text-gray-300 group-hover:text-amber-200"
-          } transition-all duration-300`}
+          className={`w-6 h-6 ${index < rating
+            ? "text-amber-400 fill-current"
+            : "text-gray-300 group-hover:text-amber-200"
+            } transition-all duration-300`}
         />
       </button>
     ));
@@ -138,9 +209,9 @@ function ReviewDialog({
 
   // Use utility function for consistent check
   const currentUserId = getCurrentUserId ? getCurrentUserId() : (userData?.id || userData?.email || userData?.username || getCookie("user"));
-  const userHasReviewed = hasUserReviewedDish ? hasUserReviewedDish(selectedDish) : 
-    selectedDish.reviews?.some(review => 
-      review.userId === currentUserId || 
+  const userHasReviewed = hasUserReviewedDish ? hasUserReviewedDish(selectedDish) :
+    selectedDish.reviews?.some(review =>
+      review.userId === currentUserId ||
       review.userId === userData?.id ||
       review.userId === userData?.email ||
       review.userId === userData?.username ||
@@ -155,17 +226,17 @@ function ReviewDialog({
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
               <Star className="w-6 h-6 text-green-600" />
             </div>
-            
+
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Already Reviewed
             </h3>
             <p className="text-gray-600 text-sm mb-4">
               Thank you for your feedback! You can only review each dish once.
             </p>
-            
+
             <button
               onClick={handleClose}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+              className="px-6 py-2 bg-gray-600 text-white rounded-full shadow-gray-300 shadow-md hover:bg-gray-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               type="button"
             >
               Close
@@ -178,14 +249,14 @@ function ReviewDialog({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={handleClose}>
-      <AlertDialogContent className="max-w-md w-[90vw] p-0 bg-white rounded-xl shadow-lg border border-gray-200">
+      <AlertDialogContent className="max-w-md w-[90vw] max-h-[90vh] p-0 bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col">
         {/* Header */}
-        <div className="bg-rose-500 p-4 text-white rounded-t-xl">
+        <div className="bg-rose-500 p-4 text-white rounded-t-xl flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Star className="w-5 h-5 text-white" />
               <AlertDialogTitle className="text-lg font-semibold">
-                Review 
+                Review
               </AlertDialogTitle>
             </div>
             <button
@@ -198,8 +269,9 @@ function ReviewDialog({
             </button>
           </div>
         </div>
-        
-        <div className="p-4 space-y-4">
+
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide max-h-[50vh] sm:max-h-[60vh]">
           {/* Error Message */}
           {error && (
             <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -209,7 +281,7 @@ function ReviewDialog({
           )}
 
           {/* Dish Info */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
             <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
               <img
                 src={selectedDish.image?.url || selectedDish.image || "/fallback.png"}
@@ -225,6 +297,59 @@ function ReviewDialog({
             </div>
           </div>
 
+          {/* Image Upload (Optional) */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <Image className="w-4 h-4 text-green-500" />
+              Add Photo (Optional)
+            </label>
+
+            {!imagePreview ? (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-rose-300 transition-colors">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="hidden"
+                  id="review-image-upload"
+                  disabled={isLoading || uploadingImage}
+                />
+                <label
+                  htmlFor="review-image-upload"
+                  className="cursor-pointer flex flex-col items-center gap-2"
+                >
+                  {uploadingImage ? (
+                    <Spinner />
+                  ) : (
+                    <Upload className="w-8 h-8 text-gray-400" />
+                  )}
+                  <span className="text-sm text-gray-600">
+                    {uploadingImage ? "Uploading..." : "Click to upload an image"}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    Max size: 5MB • JPG, PNG, GIF
+                  </span>
+                </label>
+              </div>
+            ) : (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Review image preview"
+                  className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                />
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                  disabled={isLoading}
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Rating */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
@@ -234,9 +359,8 @@ function ReviewDialog({
             <div className="flex gap-1 p-3 items-center justify-center">
               {renderRatingStars()}
             </div>
-     
           </div>
-          
+
           {/* Review Text */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
@@ -258,12 +382,12 @@ function ReviewDialog({
             </div>
           </div>
         </div>
-        
+
         {/* Footer Actions */}
-        <div className="flex justify-end gap-3 p-4 border-t border-gray-200">
+        <div className="flex justify-end gap-3 p-4 border-t border-gray-200 flex-shrink-0">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+            className="px-4 py-2 text-gray-600 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium"
             disabled={isLoading}
             type="button"
           >
@@ -272,7 +396,7 @@ function ReviewDialog({
           <button
             onClick={handleSubmit}
             disabled={isLoading || rating === 0 || reviewText.trim().length < 10}
-            className="px-6 py-2 bg-rose-500 text-white rounded-lg transition-colors hover:bg-rose-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             type="button"
           >
             {isLoading ? (

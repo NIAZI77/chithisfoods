@@ -59,7 +59,7 @@ const Page = () => {
           fetchCategories();
           return;
         } else {
-          toast.error("You are not authorized to access this page.");
+          toast.error("Sorry, you don't have permission to access this page.");
           deleteCookie("AdminJWT");
           deleteCookie("AdminUser");
           router.push("/admin/login");
@@ -68,7 +68,7 @@ const Page = () => {
       };
       isAdmin();
     } else {
-      toast.error("Please login to continue.");
+      toast.error("Please sign in to continue.");
       router.push("/admin/login");
     }
   }, [router]);
@@ -94,7 +94,7 @@ const Page = () => {
       setCategories(data.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      toast.error('Failed to fetch categories. Please try again.');
+      toast.error('We\'re having trouble loading categories right now. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -138,10 +138,10 @@ const Page = () => {
       setCategories(prev => prev.filter(cat => cat.documentId !== categoryToDelete));
       setDeleteDialogOpen(false);
       setCategoryToDelete(null);
-      toast.success('Category deleted successfully');
+      toast.success('Great! The category has been deleted successfully');
     } catch (error) {
       console.error('Error deleting category:', error);
-      toast.error('Failed to delete category. Please try again.');
+      toast.error('We couldn\'t delete the category right now. Please try again.');
     } finally {
       setIsDeleting(false);
     }
@@ -236,10 +236,10 @@ const Page = () => {
       }
 
       handleFormClose();
-      toast.success(formData.documentId ? 'Category updated successfully' : 'Category created successfully');
+      toast.success(formData.documentId ? 'Excellent! Category has been updated successfully' : 'Perfect! New category has been created successfully');
     } catch (error) {
       console.error('Error saving category:', error);
-      toast.error('Failed to save category. Please try again.');
+      toast.error('We couldn\'t save the category right now. Please try again.');
     } finally {
       setIsSaving(false);
     }

@@ -72,7 +72,7 @@ const Page = () => {
     const jwt = getCookie("jwt");
     const user = getCookie("user");
     if (!jwt || !user) {
-      toast.error("You must be logged in to access your account settings. Please log in.");
+      toast.error("Please sign in to access your account settings.");
       router.push("/login");
       return;
     }
@@ -115,7 +115,7 @@ const Page = () => {
         verificationStatus: vendorData.verificationStatus || "unverified",
       });
     } catch (error) {
-      toast.error(error.message || "Failed to load your vendor information. Please refresh the page or try again later.");
+      toast.error("We're having trouble loading your vendor information. Please refresh the page or try again later.");
     } finally {
       setLoading(false);
     }
@@ -134,7 +134,7 @@ const Page = () => {
     const formDataUpload = new FormData();
     formDataUpload.append("files", file);
     if (!file.type.startsWith("image/")) {
-      toast.error("Only image files are allowed. Please select a valid image.");
+      toast.error("Only image files are allowed. Please select a valid image file.");
       return;
     }
     try {
@@ -149,12 +149,12 @@ const Page = () => {
         }
       );
       if (!response.ok) {
-        toast.error("Image upload failed. Please try again.");
+        toast.error("We couldn't upload your image right now. Please try again.");
         return;
       }
       const data = await response.json();
       if (!data || !data[0]) {
-        toast.error("Unexpected server response during image upload. Please try again.");
+        toast.error("We received an unexpected response while uploading your image. Please try again.");
         return;
       }
       const { id, url } = data[0];
@@ -165,9 +165,9 @@ const Page = () => {
         ...prevData,
         [name]: { id, url: fullUrl },
       }));
-      toast.success("Image uploaded successfully.");
+      toast.success("Great! Your image has been uploaded successfully.");
     } catch (error) {
-      toast.error("An error occurred while uploading the image. Please try again.");
+      toast.error("We're having trouble uploading your image right now. Please try again.");
     }
   };
 
@@ -181,7 +181,7 @@ const Page = () => {
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("File size must be less than 10MB.");
+      toast.error("File size must be less than 10MB to continue.");
       return;
     }
 
@@ -199,13 +199,13 @@ const Page = () => {
       );
 
       if (!response.ok) {
-        toast.error("Document upload failed. Please try again.");
+        toast.error("We couldn't upload your document right now. Please try again.");
         return;
       }
 
       const data = await response.json();
       if (!data || !data[0]) {
-        toast.error("Unexpected server response during document upload. Please try again.");
+        toast.error("We received an unexpected response while uploading your document. Please try again.");
         return;
       }
 
@@ -231,7 +231,7 @@ const Page = () => {
       );
 
       if (!updateResponse.ok) {
-        toast.error("Failed to update vendor with verification document.");
+        toast.error("We couldn't update your vendor profile with the verification document right now. Please try again.");
         return;
       }
 
@@ -244,9 +244,9 @@ const Page = () => {
         },
       }));
 
-      toast.success("Verification document uploaded successfully!");
+      toast.success("Excellent! Your verification document has been uploaded successfully!");
     } catch (error) {
-      toast.error("An error occurred while uploading the document. Please try again.");
+      toast.error("We're having trouble uploading your document right now. Please try again.");
     } finally {
       setUploadingDocument(false);
     }
@@ -344,11 +344,11 @@ const Page = () => {
     if (!validateForm()) return;
     const jwt = getCookie("jwt");
     if (formData.zipcode.length !== 5) {
-      toast.error("ZIP Code must be exactly 5 digits.");
+      toast.error("Please enter a valid 5-digit ZIP code to continue.");
       return;
     }
     if (!jwt) {
-      toast.error("Your session has expired. Please log in again to continue.");
+      toast.error("Your session has expired. Please sign in again to continue.");
       router.push("/login");
       return;
     }
@@ -358,7 +358,7 @@ const Page = () => {
     } else {
       let num = parseFloat(deliveryFee);
       if (isNaN(num) || num < 0) {
-        toast.error("Delivery fee must be a non-negative number with up to two decimal places.");
+        toast.error("Please enter a valid delivery fee (non-negative number with up to two decimal places).");
         return;
       } else if (num === 0) {
         deliveryFee = "0.00";
@@ -431,10 +431,10 @@ const Page = () => {
         );
         await Promise.all(updatePromises);
       }
-      toast.success("Your settings have been updated successfully.");
+      toast.success("Perfect! Your settings have been updated successfully.");
       setTimeout(() => router.push("/vendor/dashboard"), 1000);
     } catch (error) {
-      toast.error(error.message || "An error occurred while updating your settings. Please try again.");
+      toast.error(error.message || "We're having trouble updating your settings right now. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -684,7 +684,7 @@ const Page = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="md:w-auto w-full px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:bg-orange-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="md:w-auto w-full px-4 py-2 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:bg-rose-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Save className="h-5 w-5" />
             {submitting ? <Spinner /> : "Save Changes"}
@@ -754,7 +754,7 @@ const Page = () => {
                       passHref
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full sm:w-auto px-3 py-1.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all duration-200 text-xs font-medium shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto px-3 py-1.5 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-xs font-medium flex items-center justify-center gap-2"
                     >
                       <FileText className="w-4 h-4" />
                       View Document
@@ -768,7 +768,7 @@ const Page = () => {
                         input.click();
                       }}
                       disabled={uploadingDocument}
-                      className="w-full sm:w-auto px-3 py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all duration-200 text-xs font-medium shadow-sm hover:shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full sm:w-auto px-3 py-1.5 bg-gray-600 text-white rounded-full shadow-gray-300 shadow-md hover:bg-gray-700 transition-all text-xs font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {uploadingDocument ? (
                         <>
@@ -811,7 +811,7 @@ const Page = () => {
                       input.click();
                     }}
                     disabled={uploadingDocument}
-                    className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all duration-200 font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {uploadingDocument ? (
                       <>

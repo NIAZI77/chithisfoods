@@ -8,7 +8,9 @@ import {
   Clock as ClockIcon,
   FileText,
   Store,
+  Building2,
 } from "lucide-react";
+import DeliveryTypeBadge from "@/components/DeliveryTypeBadge";
 
 function CustomerDetails({ order }) {
   return (
@@ -18,11 +20,10 @@ function CustomerDetails({ order }) {
         Order Information
       </h3>
       <div className="space-y-3 md:space-y-4">
-        {/* Vendor Information */}
-        <div className="flex items-start gap-2">
-          <Store className="w-4 h-4 text-gray-500 mt-0.5" />
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full overflow-hidden">
+        {/* Vendor Information - Compact & Clean */}
+        <div className="bg-gradient-to-r from-rose-50 to-rose-50 rounded-lg p-3 border border-rose-100">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm">
               <img 
                 src={order.vendorAvatar || "/fallback.png"} 
                 alt={order.vendorName || "Vendor"}
@@ -32,90 +33,126 @@ function CustomerDetails({ order }) {
                 }}
               />
             </div>
-            <div>
-              <p className="text-gray-500 text-xs mb-0.5">Vendor</p>
-              <p className="text-xs text-gray-800 font-medium">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <Store className="w-4 h-4 text-rose-600" />
+                <p className="text-rose-600 text-xs font-medium">Vendor</p>
+              </div>
+              <p className="text-sm text-gray-800 font-semibold mb-0.5">
                 {order.vendorName || "Unknown Vendor"}
               </p>
               {order.vendorUsername && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 mb-2">
                   @{order.vendorUsername}
                 </p>
               )}
             </div>
           </div>
+          
+          {/* Vendor Address - Inline compact design */}
+          {order.vendorAddress && (
+            <div className="mt-2 flex items-center gap-2 bg-white rounded-md px-3 py-2 border border-rose-200">
+              <Building2 className="w-4 h-4 text-rose-500 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-rose-600 font-medium">
+                    {order.deliveryType === "pickup" ? "Pickup Location" : "Vendor Location"}
+                  </span>
+                  {order.deliveryType === "pickup" && (
+                    <DeliveryTypeBadge deliveryType="pickup" variant="soft" />
+                  )}
+                </div>
+                <p className="text-xs text-gray-700 mt-1 leading-tight break-words">
+                  {order.vendorAddress}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
         
-        <div className="flex items-start gap-2">
-          <User className="w-4 h-4 text-gray-500 mt-0.5" />
-          <div>
-            <p className="text-gray-500 text-xs mb-0.5">Customer Name</p>
-            <p className="text-xs text-gray-800 font-medium">
-              {order.customerName || "-"}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-2">
-          <Phone className="w-4 h-4 text-gray-500 mt-0.5" />
-          <div>
-            <p className="text-gray-500 text-xs mb-0.5">Phone Number</p>
-            <p className="text-xs text-gray-800 font-medium">
-              {order.phone || "-"}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-2">
-          <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
-          <div>
-            <p className="text-gray-500 text-xs mb-0.5">Delivery Address</p>
-            <p className="text-xs text-gray-800 font-medium">
-              {order.address || "-"}
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2 md:gap-3">
-          <div className="flex-1 flex items-start gap-2">
-            <CreditCard className="w-4 h-4 text-gray-500 mt-0.5" />
+        {order.customerName && (
+          <div className="flex items-start gap-2">
+            <User className="w-4 h-4 text-gray-500 mt-0.5" />
             <div>
-              <p className="text-gray-500 text-xs mb-0.5">Payment Status</p>
-              <p className="text-xs text-gray-800 font-medium capitalize">
-                {order.paymentStatus || "-"}
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 flex items-start gap-2">
-            <Truck className="w-4 h-4 text-gray-500 mt-0.5" />
-            <div>
-              <p className="text-gray-500 text-xs mb-0.5">Order Type</p>
-              <p className="text-xs text-gray-800 font-medium capitalize">
-                {order.deliveryType || "-"}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-2 md:gap-3">
-          <div className="flex-1 flex items-start gap-2">
-            <Calendar className="w-4 h-4 text-gray-500 mt-0.5" />
-            <div>
-              <p className="text-gray-500 text-xs mb-0.5">Order Date</p>
+              <p className="text-gray-500 text-xs mb-0.5">Customer Name</p>
               <p className="text-xs text-gray-800 font-medium">
-                {new Date(order.createdAt || Date.now()).toLocaleDateString()}
+                {order.customerName}
               </p>
             </div>
           </div>
-          <div className="flex-1 flex items-start gap-2">
-            <ClockIcon className="w-4 h-4 text-gray-500 mt-0.5" />
+        )}
+        {order.phone && (
+          <div className="flex items-start gap-2">
+            <Phone className="w-4 h-4 text-gray-500 mt-0.5" />
             <div>
-              <p className="text-gray-500 text-xs mb-0.5">Order Time</p>
+              <p className="text-gray-500 text-xs mb-0.5">Phone Number</p>
               <p className="text-xs text-gray-800 font-medium">
-                {new Date(order.createdAt || Date.now()).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {order.phone}
               </p>
             </div>
           </div>
+        )}
+        {order.address && (
+          <div className="flex items-start gap-2">
+            <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
+            <div>
+              <p className="text-gray-500 text-xs mb-0.5">Delivery Address</p>
+              <p className="text-xs text-gray-800 font-medium">
+                {order.address}
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-2 md:gap-3">
+          {order.paymentStatus && (
+            <div className="flex-1 flex items-start gap-2">
+              <CreditCard className="w-4 h-4 text-gray-500 mt-0.5" />
+              <div>
+                <p className="text-gray-500 text-xs mb-0.5">Payment Status</p>
+                <p className="text-xs text-gray-800 font-medium capitalize">
+                  {order.paymentStatus}
+                </p>
+              </div>
+            </div>
+          )}
+          {order.deliveryType && (
+            <div className="flex-1 flex items-start gap-2">
+              <Truck className="w-4 h-4 text-gray-500 mt-0.5" />
+              <div>
+                <p className="text-gray-500 text-xs mb-0.5">Order Type</p>
+                <div className="mt-1">
+                  <DeliveryTypeBadge deliveryType={order.deliveryType} variant="soft" />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+        {order.createdAt && (
+          <div className="flex gap-2 md:gap-3">
+            <div className="flex-1 flex items-start gap-2">
+              <Calendar className="w-4 h-4 text-gray-500 mt-0.5" />
+              <div>
+                <p className="text-gray-500 text-xs mb-0.5">Order Date</p>
+                <p className="text-xs text-gray-800 font-medium">
+                  {new Date(order.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+            <div className="flex-1 flex items-start gap-2">
+              <ClockIcon className="w-4 h-4 text-gray-500 mt-0.5" />
+              <div>
+                <p className="text-gray-500 text-xs mb-0.5">Order Time</p>
+                <p className="text-xs text-gray-800 font-medium">
+                  {new Date(order.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         {order.deliveryDate && (
           <div className="flex gap-2 md:gap-3">
             <div className="flex-1 flex items-start gap-2">

@@ -152,13 +152,13 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
         <div className="flex gap-4 p-5 border-t border-gray-200 sticky bottom-0 bg-white">
           <button
             onClick={handleReset}
-            className="flex-1 px-4 py-3 text-gray-800 bg-white rounded-lg font-semibold border border-gray-300 hover:bg-gray-50 transition-colors"
+            className="flex-1 text-center block text-gray-600 px-4 py-3 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium"
           >
             Reset
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-sm"
+            className="flex-1 bg-rose-600 text-white px-4 py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Apply Filters
           </button>

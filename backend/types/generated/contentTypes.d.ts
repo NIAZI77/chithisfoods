@@ -534,6 +534,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       ['paid', 'unpaid', 'refunded']
     > &
       Schema.Attribute.DefaultTo<'unpaid'>;
+    vendorAddress: Schema.Attribute.String;
     vendorAvatar: Schema.Attribute.String & Schema.Attribute.Required;
     vendorDeliveryFee: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
     vendorId: Schema.Attribute.String & Schema.Attribute.Required;

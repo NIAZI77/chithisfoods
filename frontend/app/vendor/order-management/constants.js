@@ -5,9 +5,9 @@ export const STATUS_STYLES = {
   refunded: "bg-orange-100 text-orange-700",
   "in-process": "bg-indigo-100 text-indigo-700",
   ready: "bg-green-100 text-green-700",
-  delivered: "bg-gray-100 text-gray-700",
+  delivered: "bg-slate-100 text-slate-700",
   cancelled: "bg-red-100 text-red-700",
-  default: "bg-gray-100 text-gray-800",
+  default: "bg-slate-100 text-slate-800",
 };
 
 export const customScrollbarStyles = `

@@ -86,9 +86,7 @@ const DeliverySchedule = ({
                 }
               }}
             />
-            <div className="mt-2 text-slate-500 text-xs sm:text-sm">
-              Delivery must be scheduled at least 30 minutes in advance
-            </div>
+
           </div>
         </div>
         
@@ -125,11 +123,7 @@ const DeliverySchedule = ({
                 }
               }}
             />
-            {timeWarning && (
-              <div className="mt-2 text-amber-600 text-xs sm:text-sm font-medium">
-                ⚠️ Delivery time is approaching the minimum required time. Consider selecting a later time.
-              </div>
-            )}
+
           </div>
         </div>
       </div>

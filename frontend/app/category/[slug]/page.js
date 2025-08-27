@@ -39,7 +39,7 @@ const Page = () => {
       const zipcode = localStorage.getItem("zipcode");
       if (!zipcode) {
         toast.error(
-          "Please set your delivery location to view available dishes"
+          "We're having trouble loading your profile information right now. Please try again."
         );
         setLoading(false);
         return;
@@ -82,7 +82,7 @@ const Page = () => {
         setTotalPages(result.meta.pagination.pageCount);
       } catch (error) {
         console.error("Error fetching dishes:", error);
-        toast.error("Unable to load dishes. Please try again later");
+        toast.error("We're having trouble loading dishes right now. Please try again later");
         setAllDishes([]);
       } finally {
         setLoading(false);
@@ -94,7 +94,7 @@ const Page = () => {
   const getSubcategories = useCallback(async () => {
     const zipcode = localStorage.getItem("zipcode");
     if (!zipcode) {
-      toast.error("Please set your delivery location to view available dishes");
+      toast.error("Please set your delivery location to view available dishes in your area");
       return;
     }
 
@@ -123,7 +123,7 @@ const Page = () => {
       setSubcategories(uniqueSubcategories);
     } catch (error) {
       console.error("Error fetching subcategories:", error);
-      toast.error("Unable to load subcategories. Please try again later");
+      toast.error("We're having trouble loading subcategories right now. Please try again later");
       setSubcategories([]);
     }
   }, [slug]);
@@ -371,7 +371,7 @@ const Page = () => {
               </div>
               <button
                 type="submit"
-                className="bg-red-600 text-white px-3 py-2 rounded-r-full border-none outline-none hover:bg-red-700 transition duration-200"
+                className="bg-rose-600 text-white px-3 py-2 rounded-r-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Search className="w-5 h-5" />
               </button>
@@ -419,7 +419,7 @@ const Page = () => {
                       });
                       setCurrentPage(1);
                     }}
-                    className="px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+                    className="px-6 py-2 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Clear Filters
                   </button>
