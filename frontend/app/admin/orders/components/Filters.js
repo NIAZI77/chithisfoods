@@ -5,13 +5,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import SearchComponent from "@/components/SearchComponent";
 
-const Filters = ({ timeFilter, filterStatus, vendorPaymentStatus, onTimeFilterChange, onFilterStatusChange, onVendorPaymentChange }) => {
+const Filters = ({ timeFilter, filterStatus, vendorPaymentStatus, searchQuery, onTimeFilterChange, onFilterStatusChange, onVendorPaymentChange, onSearchChange, onSearchSubmit }) => {
+
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-      <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+        <SearchComponent
+          searchQuery={searchQuery}
+          onSearchChange={onSearchChange}
+          onSearchSubmit={onSearchSubmit}
+          placeholder="Search order"
+          buttonColor="bg-pink-600 hover:bg-pink-700"
+          shadowColor="shadow-pink-300"
+        />
         <Select value={timeFilter} onValueChange={onTimeFilterChange}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Time Period" />
           </SelectTrigger>
           <SelectContent>
@@ -22,7 +32,7 @@ const Filters = ({ timeFilter, filterStatus, vendorPaymentStatus, onTimeFilterCh
         </Select>
 
         <Select value={filterStatus} onValueChange={onFilterStatusChange}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Order Status" />
           </SelectTrigger>
           <SelectContent>
@@ -36,7 +46,7 @@ const Filters = ({ timeFilter, filterStatus, vendorPaymentStatus, onTimeFilterCh
         </Select>
 
         <Select value={vendorPaymentStatus} onValueChange={onVendorPaymentChange}>
-          <SelectTrigger className="w-[210px]">
+          <SelectTrigger className="w-full sm:w-[210px]">
             <SelectValue placeholder="Vendor Payment" />
           </SelectTrigger>
           <SelectContent>

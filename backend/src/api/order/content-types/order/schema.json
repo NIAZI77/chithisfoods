@@ -93,6 +93,11 @@
       "required": true,
       "unique": false
     },
+    "searchableOrderId": {
+      "type": "biginteger",
+      "required": true,
+      "unique": true
+    },
     "user": {
       "type": "email",
       "required": true

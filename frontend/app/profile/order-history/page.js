@@ -1,6 +1,5 @@
 "use client";
 
-import Loading from "@/app/loading";
 import { getCookie } from "cookies-next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,11 +13,13 @@ import {
   AlertCircle,
   Calendar,
   ShoppingBag,
-  Search,
   Eye,
   Settings,
   ClipboardList,
 } from "lucide-react";
+import Loading from "@/app/loading";
+import SearchComponent from "@/components/SearchComponent";
+import TableLoading from "@/components/TableLoading";
 import {
   Select,
   SelectTrigger,
@@ -37,6 +38,8 @@ export default function OrderHistoryPage() {
   const [mounted, setMounted] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentSearchQuery, setCurrentSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
@@ -318,7 +321,12 @@ export default function OrderHistoryPage() {
         timeFilterQuery = `&filters[createdAt][$gte]=${monthAgo.toISOString()}`;
       }
 
-      const apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}${statusFilterQuery}${timeFilterQuery}&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}&sort=createdAt:desc`;
+      let searchQueryParam = "";
+      if (currentSearchQuery) {
+        searchQueryParam = `&search=${encodeURIComponent(currentSearchQuery)}`;
+      }
+
+      const apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}${statusFilterQuery}${timeFilterQuery}${searchQueryParam}&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}&sort=createdAt:desc`;
       
 
 
@@ -410,7 +418,7 @@ export default function OrderHistoryPage() {
     };
 
     fetchOrders();
-  }, [mounted, user, statusFilter, timeFilter, currentPage, pageSize]);
+  }, [mounted, user, statusFilter, timeFilter, currentSearchQuery, currentPage, pageSize]);
 
   const handleViewDetails = (order) => {
     if (!order) {
@@ -498,7 +506,7 @@ export default function OrderHistoryPage() {
     return null;
   }
 
-  if (loading || !user) {
+  if (loading && orderData.length === 0) {
     return <Loading />;
   }
 
@@ -586,9 +594,20 @@ export default function OrderHistoryPage() {
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
         <h2 className="text-lg md:text-xl font-semibold">ORDER HISTORY</h2>
-        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full lg:w-auto">
+          <SearchComponent
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSearchSubmit={(e) => {
+              e.preventDefault();
+              setCurrentSearchQuery(searchQuery);
+            }}
+            placeholder="Search order"
+            buttonColor="bg-rose-600 hover:bg-rose-700"
+            shadowColor="shadow-rose-300"
+          />
           <div className="w-full sm:w-48">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full">
@@ -650,84 +669,88 @@ export default function OrderHistoryPage() {
               background: #666;
             }
           `}</style>
-          <div className="overflow-x-auto rounded-md -mx-4 sm:mx-0 custom-scrollbar">
-            <div className="min-w-[800px] sm:min-w-full">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">S.No</th>
-                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Date</th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Vendor</th>
-                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Items</th>
-                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Status</th>
-                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Type</th>
-                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Total</th>
-                    <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {orderData.map((order, index) => {
-                    // Calculate proper values with fallbacks
-                    const subtotal = parseFloat(order.subtotal) || parseFloat(order.totalAmount) || 0;
-                    const deliveryFee = parseFloat(order.deliveryFee) || parseFloat(order.vendorDeliveryFee) || 0;
-                    const tax = parseFloat(order.tax) || parseFloat(order.totalTax) || 0;
-                    const totalAmount = parseFloat(order.totalAmount) || parseFloat(order.orderTotal) || (subtotal + deliveryFee + tax);
-                    
-                    return (
-                      <tr key={`${order.documentId}-${index}`} className="bg-white hover:bg-gray-50 border-b border-gray-100">
-                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-medium">
-                          {((currentPage - 1) * pageSize) + index + 1}
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
-                          {new Date(order.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
-                          <div className="flex flex-col items-center">
-                            <div className="w-8 h-8 rounded-full overflow-hidden mb-1">
-                              <img 
-                                src={order.vendorAvatar || "/fallback.png"} 
-                                alt={order.vendorName || "Vendor"}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  e.target.src = "/fallback.png";
-                                }}
-                              />
+          {loading ? (
+            <TableLoading rows={10} columns={8} />
+          ) : (
+            <div className="overflow-x-auto rounded-md -mx-4 sm:mx-0 custom-scrollbar">
+              <div className="min-w-[800px] sm:min-w-full">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order ID</th>
+                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Date</th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Vendor</th>
+                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Items</th>
+                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Status</th>
+                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Type</th>
+                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Total</th>
+                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {orderData.map((order, index) => {
+                      // Calculate proper values with fallbacks
+                      const subtotal = parseFloat(order.subtotal) || parseFloat(order.totalAmount) || 0;
+                      const deliveryFee = parseFloat(order.deliveryFee) || parseFloat(order.vendorDeliveryFee) || 0;
+                      const tax = parseFloat(order.tax) || parseFloat(order.totalTax) || 0;
+                      const totalAmount = parseFloat(order.totalAmount) || parseFloat(order.orderTotal) || (subtotal + deliveryFee + tax);
+                      
+                      return (
+                        <tr key={`${order.searchableOrderId || order.id}-${index}`} className="bg-white hover:bg-gray-50 border-b border-gray-100">
+                          <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-medium">
+                            {order.searchableOrderId || order.customerOrderId || 'N/A'}
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
+                            <div className="flex flex-col items-center">
+                              <div className="w-8 h-8 rounded-full overflow-hidden mb-1">
+                                <img 
+                                  src={order.vendorAvatar || "/fallback.png"} 
+                                  alt={order.vendorName || "Vendor"}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.target.src = "/fallback.png";
+                                  }}
+                                />
+                              </div>
+                              <span className="text-xs text-gray-700 font-medium truncate max-w-[80px]">
+                                {order.vendorName || "Unknown Vendor"}
+                              </span>
                             </div>
-                            <span className="text-xs text-gray-700 font-medium truncate max-w-[80px]">
-                              {order.vendorName || "Unknown Vendor"}
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
+                            {Array.isArray(order.dishes) ? order.dishes.length : 0} items
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
+                            <span className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize mx-auto ${getStatusClasses(order.orderStatus)}`}>
+                              {order.orderStatus || 'Unknown'}
                             </span>
-                          </div>
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
-                          {Array.isArray(order.dishes) ? order.dishes.length : 0} items
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
-                          <span className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize mx-auto ${getStatusClasses(order.orderStatus)}`}>
-                            {order.orderStatus || 'Unknown'}
-                          </span>
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
-                          <DeliveryTypeBadge deliveryType={order.deliveryType || "delivery"} />
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-semibold">
-                          ${totalAmount.toFixed(2)}
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
-                          <button
-                            onClick={() => handleViewDetails(order)}
-                            className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                          >
-                            <Eye className="w-3 h-3 mr-1" />
-                            View
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
+                            <DeliveryTypeBadge deliveryType={order.deliveryType || "delivery"} />
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-semibold">
+                            ${totalAmount.toFixed(2)}
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
+                            <button
+                              onClick={() => handleViewDetails(order)}
+                              className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                            >
+                              <Eye className="w-3 h-3 mr-1" />
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          )}
         </>
       )}
 

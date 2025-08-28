@@ -10,6 +10,7 @@ import { customScrollbarStyles } from "./constants";
 import MetricsCards from "./components/MetricsCards";
 import Filters from "./components/Filters";
 import OrdersTable from "./components/OrdersTable";
+import TableLoading from "@/components/TableLoading";
 
 const OrdersPage = () => {
   const router = useRouter();
@@ -21,6 +22,8 @@ const OrdersPage = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [vendorPaymentStatus, setVendorPaymentStatus] = useState("all");
   const [timeFilter, setTimeFilter] = useState("this-week");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentSearchQuery, setCurrentSearchQuery] = useState("");
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -73,7 +76,7 @@ const OrdersPage = () => {
       ).length,
   }), [fullOrders]);
 
-  const fetchOrders = async (page = 1, orderStatus = "all", vendorPayment = "all", timeFilter = "all-time") => {
+  const fetchOrders = async (page = 1, orderStatus = "all", vendorPayment = "all", timeFilter = "all-time", search = "") => {
     try {
       setLoading(true);
       setError(null);
@@ -112,7 +115,8 @@ const OrdersPage = () => {
       }
 
       const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
-      const apiUrl = `${baseUrl}?${sort}&${pagination}${filtersString}`;
+      const searchString = search ? `&search=${encodeURIComponent(search)}` : '';
+      const apiUrl = `${baseUrl}?${sort}&${pagination}${filtersString}${searchString}`;
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -204,33 +208,44 @@ const OrdersPage = () => {
   const handleFilterStatusChange = (newStatus) => {
     setFilterStatus(newStatus);
     setCurrentPage(1);
-    fetchOrders(1, newStatus, vendorPaymentStatus, timeFilter);
+    fetchOrders(1, newStatus, vendorPaymentStatus, timeFilter, searchQuery);
   };
 
   const handleVendorPaymentChange = (newStatus) => {
     setVendorPaymentStatus(newStatus);
     setCurrentPage(1);
-    fetchOrders(1, filterStatus, newStatus, timeFilter);
+    fetchOrders(1, filterStatus, newStatus, timeFilter, searchQuery);
   };
 
   const handleTimeFilterChange = (newFilter) => {
     setTimeFilter(newFilter);
     setCurrentPage(1);
-    fetchOrders(1, filterStatus, vendorPaymentStatus, newFilter);
+    fetchOrders(1, filterStatus, vendorPaymentStatus, newFilter, searchQuery);
     fetchFullOrders(newFilter);
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchQuery(value);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setCurrentSearchQuery(searchQuery);
+    setCurrentPage(1);
+    fetchOrders(1, filterStatus, vendorPaymentStatus, timeFilter, searchQuery);
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    fetchOrders(page, filterStatus, vendorPaymentStatus, timeFilter);
+    fetchOrders(page, filterStatus, vendorPaymentStatus, timeFilter, searchQuery);
   };
 
   useEffect(() => {
-    fetchOrders(currentPage, filterStatus, vendorPaymentStatus, timeFilter);
+    fetchOrders(currentPage, filterStatus, vendorPaymentStatus, timeFilter, currentSearchQuery);
     fetchFullOrders(timeFilter);
-  }, [currentPage, timeFilter, filterStatus, vendorPaymentStatus]);
+  }, [currentPage, timeFilter, filterStatus, vendorPaymentStatus, currentSearchQuery]);
 
-  if (loading) return <Loading />;
+  if (loading && orders.length === 0) return <Loading />;
 
   if (error) {
     return (
@@ -252,12 +267,19 @@ const OrdersPage = () => {
           timeFilter={timeFilter}
           filterStatus={filterStatus}
           vendorPaymentStatus={vendorPaymentStatus}
+          searchQuery={searchQuery}
           onTimeFilterChange={handleTimeFilterChange}
           onFilterStatusChange={handleFilterStatusChange}
           onVendorPaymentChange={handleVendorPaymentChange}
+          onSearchChange={handleSearchChange}
+          onSearchSubmit={handleSearchSubmit}
         />
 
-        <OrdersTable orders={orders} />
+        {loading ? (
+          <TableLoading rows={10} columns={12} />
+        ) : (
+          <OrdersTable orders={orders} />
+        )}
 
         {totalPages > 1 && (
           <div className="mt-4 flex justify-center">

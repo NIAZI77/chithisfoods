@@ -14,6 +14,7 @@ const OrdersTable = ({ orders }) => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200">
+                <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order ID</th>
                 <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Date</th>
                 <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Customer</th>
                 <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Vendor</th>
@@ -29,7 +30,7 @@ const OrdersTable = ({ orders }) => {
             </thead>
             <tbody>
               <tr>
-                <td colSpan="11" className="px-4 py-16">
+                <td colSpan="12" className="px-4 py-16">
                   <div className="text-center">
                     {/* Empty State Icon */}
                     <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-pink-50">
@@ -76,7 +77,10 @@ const OrdersTable = ({ orders }) => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {orders.map((order, index) => (
-              <tr key={`${order.documentId}-${index}`} className="bg-white hover:bg-gray-50 border-b border-gray-100">
+              <tr key={`${order.searchableOrderId || order.id}-${index}`} className="bg-white hover:bg-gray-50 border-b border-gray-100">
+                <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-medium">
+                  {order.searchableOrderId || order.customerOrderId || 'N/A'}
+                </td>
                 <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
                   {new Date(order.createdAt).toLocaleDateString()}
                 </td>

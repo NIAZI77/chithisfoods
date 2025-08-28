@@ -4,6 +4,7 @@ import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import { Package, Filter } from "lucide-react";
+import TableLoading from "@/components/TableLoading";
 import {
   Select,
   SelectTrigger,
@@ -11,6 +12,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import SearchComponent from "@/components/SearchComponent";
 import Pagination from "./components/Pagination";
 import StatusSummary from "./components/StatusSummary";
 import VendorOrdersTable from "./components/VendorOrdersTable";
@@ -48,6 +50,8 @@ export default function VendorOrderManagement() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("week");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentSearchQuery, setCurrentSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
@@ -227,6 +231,11 @@ export default function VendorOrderManagement() {
         timeFilterQuery = `&filters[createdAt][$gte]=${monthAgo.toISOString()}`;
       }
 
+             let searchQueryParam = "";
+       if (currentSearchQuery) {
+         searchQueryParam = `&search=${encodeURIComponent(currentSearchQuery)}`;
+       }
+
       const totalCountsRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&pagination[pageSize]=9999999999`,
         {
@@ -255,7 +264,7 @@ export default function VendorOrderManagement() {
         setTotalStatusCounts(counts);
       }
       const ordersRes = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}${statusFilterQuery}${timeFilterQuery}&sort[0]=createdAt:desc&pagination[page]=${page}&pagination[pageSize]=${pageSize}&populate=*`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}${statusFilterQuery}${timeFilterQuery}${searchQueryParam}&sort[0]=createdAt:desc&pagination[page]=${page}&pagination[pageSize]=${pageSize}&populate=*`,
         {
           method: "GET",
           headers: {
@@ -299,7 +308,7 @@ export default function VendorOrderManagement() {
 
   useEffect(() => {
     fetchOrders();
-  }, [page, statusFilter, timeFilter, vendorId]);
+  }, [page, statusFilter, timeFilter, currentSearchQuery, vendorId]);
 
   const getStatusCounts = (orders) => {
     const counts = {
@@ -319,13 +328,11 @@ export default function VendorOrderManagement() {
 
   const filteredStatusCounts = getStatusCounts(orders);
 
-  if (loading) return <Loading />;
+  if (loading && orders.length === 0) return <Loading />;
 
   return (
-    <div className="py-6 pl-20 px-4 mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl md:text-2xl font-semibold">Order Management</h1>
-      </div>
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 rounded-xl !pl-20">
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">Order Management</h1>
 
       <StatusSummary 
         totalStatusCounts={
@@ -337,9 +344,19 @@ export default function VendorOrderManagement() {
         } 
       />
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h2 className="text-lg md:text-xl font-semibold">Order History</h2>
-        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full lg:w-auto">
+          <SearchComponent
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSearchSubmit={(e) => {
+              e.preventDefault();
+              setCurrentSearchQuery(searchQuery);
+            }}
+            placeholder="Search order"
+            buttonColor="bg-orange-600 hover:bg-orange-700"
+            shadowColor="shadow-orange-300"
+          />
           <div className="w-full sm:w-48">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full">
@@ -370,13 +387,17 @@ export default function VendorOrderManagement() {
         </div>
       </div>
 
-      <VendorOrdersTable 
-        orders={orders}
-        onViewDetails={(order) => {
-          setSelectedOrder(order);
-          setIsDialogOpen(true);
-        }}
-      />
+        {loading ? (
+          <TableLoading rows={10} columns={12} />
+        ) : (
+          <VendorOrdersTable 
+            orders={orders}
+            onViewDetails={(order) => {
+              setSelectedOrder(order);
+              setIsDialogOpen(true);
+            }}
+          />
+        )}
 
       {totalPages > 1 && (
         <div className="mt-4 flex justify-center">

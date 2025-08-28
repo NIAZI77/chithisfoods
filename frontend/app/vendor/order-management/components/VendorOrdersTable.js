@@ -13,11 +13,11 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
       <>
         <style>{customScrollbarStyles}</style>
         <div className="overflow-x-auto rounded-md -mx-4 sm:mx-0 custom-scrollbar">
-          <div className="min-w-[1000px] sm:min-w-full">
+          <div className="min-w-[800px] sm:min-w-full">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Serial No</th>
+                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order ID</th>
                   <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Date</th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Buyer Name</th>
                   <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Items</th>
@@ -57,11 +57,11 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
     <>
       <style>{customScrollbarStyles}</style>
       <div className="overflow-x-auto rounded-md -mx-4 sm:mx-0 custom-scrollbar">
-        <div className="min-w-[1000px] sm:min-w-full">
+        <div className="min-w-[800px] sm:min-w-full">
           <table className="w-full">
                           <thead>
                 <tr className="border-b border-gray-200">
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Serial No</th>
+                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order ID</th>
                   <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Date</th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Buyer Name</th>
                   <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Items</th>
@@ -75,9 +75,9 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
               </thead>
             <tbody className="divide-y divide-gray-200">
               {orders.map((order, index) => (
-                <tr key={`${order.documentId}-${index}`} className="bg-white hover:bg-gray-50 border-b border-gray-100">
+                <tr key={`${order.searchableOrderId || order.id}-${index}`} className="bg-white hover:bg-gray-50 border-b border-gray-100">
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-medium">
-                    {index + 1}
+                    {order.searchableOrderId || order.customerOrderId || 'N/A'}
                   </td>
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
                     {new Date(order.createdAt).toLocaleDateString()}
