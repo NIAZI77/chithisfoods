@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FaCamera } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
@@ -25,6 +24,7 @@ import {
 import Spinner from "@/app/components/Spinner";
 import Link from "next/link";
 import VerificationBadge from "@/app/components/VerificationBadge";
+import VendorProfileLayout from "@/components/VendorProfileLayout";
 
 const INITIAL_FORM_STATE = {
   storeName: "",
@@ -130,46 +130,7 @@ const Page = () => {
     }
   };
 
-  const uploadImage = async (file, name) => {
-    const formDataUpload = new FormData();
-    formDataUpload.append("files", file);
-    if (!file.type.startsWith("image/")) {
-      toast.error("Only image files are allowed. Please select a valid image file.");
-      return;
-    }
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-          body: formDataUpload,
-        }
-      );
-      if (!response.ok) {
-        toast.error("We couldn't upload your image right now. Please try again.");
-        return;
-      }
-      const data = await response.json();
-      if (!data || !data[0]) {
-        toast.error("We received an unexpected response while uploading your image. Please try again.");
-        return;
-      }
-      const { id, url } = data[0];
-      const fullUrl = url.startsWith("http")
-        ? url
-        : `${process.env.NEXT_PUBLIC_STRAPI_HOST}${url}`;
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: { id, url: fullUrl },
-      }));
-      toast.success("Great! Your image has been uploaded successfully.");
-    } catch (error) {
-      toast.error("We're having trouble uploading your image right now. Please try again.");
-    }
-  };
+
 
   const uploadVerificationDocument = async (file) => {
     const formDataUpload = new FormData();
@@ -321,11 +282,7 @@ const Page = () => {
     return statusConfig[status] || statusConfig.unverified;
   };
 
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    const file = files[0];
-    if (file) uploadImage(file, name);
-  };
+
 
   const validateForm = () => {
     const missingFields = REQUIRED_FIELDS.filter((field) => !formData[field]);
@@ -538,58 +495,42 @@ const Page = () => {
             />
           </div>
         </section>
-        <section className="bg-white rounded-xl shadow p-6 space-y-4">
-          <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
-            <ImageIcon className="h-5 w-5" />
-            Media
-          </h2>
-          <div className="relative w-full mb-16">
-            <div
-              className="bg-cover bg-center w-full aspect-video rounded-lg"
-              style={{
-                backgroundImage: formData.coverImage?.url
-                  ? `url('${formData.coverImage.url}')`
-                  : "url('/fallback.png')",
-              }}
-            >
-              <input
-                type="file"
-                id="coverImage"
-                name="coverImage"
-                onChange={handleFileChange}
-                className="hidden"
-                accept="image/*"
-              />
-              <label
-                htmlFor="coverImage"
-                className="w-8 h-8 overflow-hidden absolute right-2 bottom-2 cursor-pointer bg-white rounded-full flex items-center justify-center shadow-md"
-              >
-                <FaCamera />
-              </label>
-            </div>
-            <div className="absolute bottom-[-50px] left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white">
-              <img
-                src={formData.avatar?.url || "/fallback.png"}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <input
-              type="file"
-              id="avatar"
-              name="avatar"
-              onChange={handleFileChange}
-              className="hidden"
-              accept="image/*"
-            />
-            <label
-              htmlFor="avatar"
-              className="absolute bottom-[-40px] cursor-pointer left-1/2 transform -translate-x-1/2 w-8 h-8 overflow-hidden bg-white rounded-full flex items-center justify-center shadow-md"
-            >
-              <FaCamera />
-            </label>
-          </div>
-        </section>
+                 <section className="bg-white rounded-xl shadow p-6 space-y-4">
+           <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
+             <ImageIcon className="h-5 w-5" />
+             Media
+           </h2>
+           <div className="mb-12">
+             <VendorProfileLayout
+               onCoverImageUpload={(imageData) => {
+                 setFormData(prev => ({
+                   ...prev,
+                   coverImage: imageData
+                 }));
+               }}
+               onCoverImageRemove={() => {
+                 setFormData(prev => ({
+                   ...prev,
+                   coverImage: { id: 0, url: "" }
+                 }));
+               }}
+               onAvatarUpload={(imageData) => {
+                 setFormData(prev => ({
+                   ...prev,
+                   avatar: imageData
+                 }));
+               }}
+               onAvatarRemove={() => {
+                 setFormData(prev => ({
+                   ...prev,
+                   avatar: { id: 0, url: "" }
+                 }));
+               }}
+               currentCoverImageUrl={formData.coverImage?.url || null}
+               currentAvatarUrl={formData.avatar?.url || null}
+             />
+           </div>
+         </section>
         <section className="bg-white rounded-xl shadow p-6 space-y-4">
           <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
             <User className="h-5 w-5" />

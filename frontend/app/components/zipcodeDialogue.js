@@ -66,6 +66,8 @@ export default function ZipcodeDialogue() {
       window.dispatchEvent(new CustomEvent("zipcodeChange", {
         detail: { zipcode }
       }));
+      // Notify navbar about cart update
+      window.dispatchEvent(new CustomEvent('cartUpdate'));
       setIsOpen(false);
       router.push("/explore");
     } catch (error) {

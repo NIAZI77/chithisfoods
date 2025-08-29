@@ -107,57 +107,7 @@ const VendorVerificationModal = ({
     }
   };
 
-  const getStatusBadge = () => {
-    const statusConfig = {
-      verified: {
-        bg: "bg-emerald-50",
-        text: "text-emerald-700",
-        border: "border-emerald-200",
-        icon: <BadgeCheck className="w-4 h-4 inline mr-1" />,
-        label: "Verified",
-      },
-      "new-chef": {
-        bg: "bg-slate-50",
-        text: "text-slate-700",
-        border: "border-slate-200",
-        icon: null,
-        label: "New Chef",
-      },
-      banned: {
-        bg: "bg-rose-50",
-        text: "text-rose-700",
-        border: "border-rose-200",
-        icon: null,
-        label: "Banned",
-      },
-      unverified: {
-        bg: "bg-amber-50",
-        text: "text-amber-700",
-        border: "border-amber-200",
-        icon: null,
-        label: "Unverified",
-      },
-      rejected: {
-        bg: "bg-orange-50",
-        text: "text-orange-700",
-        border: "border-orange-200",
-        icon: <XCircle className="w-4 h-4 inline mr-1" />,
-        label: "Rejected",
-      },
-    };
 
-    const status = vendor.verificationStatus || "unverified";
-    const config = statusConfig[status];
-
-    return (
-      <span
-        className={`px-4 py-2 rounded-lg text-sm font-medium ${config.bg} ${config.text} border ${config.border}`}
-      >
-        {config.icon}
-        {config.label}
-      </span>
-    );
-  };
 
   return (
     <div 

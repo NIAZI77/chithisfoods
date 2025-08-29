@@ -8,6 +8,7 @@ import {
 import Spinner from "@/app/components/Spinner";
 import { toast } from "react-toastify";
 import { getCookie } from "cookies-next";
+import ReviewImageUpload from "@/components/ReviewImageUpload";
 
 function ReviewDialog({
   isOpen,
@@ -43,73 +44,7 @@ function ReviewDialog({
     return true;
   };
 
-  const uploadImage = async (file) => {
-    const form = new FormData();
-    form.append("files", file);
 
-    try {
-      setUploadingImage(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-          body: form,
-        }
-      );
-
-      if (!res.ok) {
-        toast.error("Image upload didn't work. Let's try again!");
-        return null;
-      }
-
-      const data = await res.json();
-      const { id, url, name } = data[0];
-      const fullUrl = new URL(url, process.env.NEXT_PUBLIC_STRAPI_HOST).href;
-
-      toast.success("Perfect! Your image is now uploaded.");
-      return { id, url: fullUrl, name };
-    } catch (err) {
-      toast.error("Image upload failed. Let's try again!");
-      return null;
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  const handleImageSelect = async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError("Please select a valid image file");
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError("Image size must be less than 5MB");
-        return;
-      }
-
-      setError("");
-      
-      // Upload the image immediately
-      const uploadedImage = await uploadImage(file);
-      if (uploadedImage) {
-        console.log("Image uploaded successfully:", uploadedImage); // Debug log
-        setSelectedImage(uploadedImage);
-        setImagePreview(uploadedImage.url);
-      }
-    }
-  };
-
-  const removeImage = () => {
-    setSelectedImage(null);
-    setImagePreview(null);
-  };
 
   const handleSubmit = async () => {
     if (!validateForm()) {
@@ -298,57 +233,18 @@ function ReviewDialog({
           </div>
 
           {/* Image Upload (Optional) */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <Image className="w-4 h-4 text-green-500" />
-              Add Photo (Optional)
-            </label>
-
-            {!imagePreview ? (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-rose-300 transition-colors">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageSelect}
-                  className="hidden"
-                  id="review-image-upload"
-                  disabled={isLoading || uploadingImage}
-                />
-                <label
-                  htmlFor="review-image-upload"
-                  className="cursor-pointer flex flex-col items-center gap-2"
-                >
-                  {uploadingImage ? (
-                    <Spinner />
-                  ) : (
-                    <Upload className="w-8 h-8 text-gray-400" />
-                  )}
-                  <span className="text-sm text-gray-600">
-                    {uploadingImage ? "Uploading..." : "Click to upload an image"}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    Max size: 5MB • JPG, PNG, GIF
-                  </span>
-                </label>
-              </div>
-            ) : (
-              <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="Review image preview"
-                  className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                />
-                <button
-                  type="button"
-                  onClick={removeImage}
-                  className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-                  disabled={isLoading}
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            )}
-          </div>
+          <ReviewImageUpload
+            onImageUpload={(imageData) => {
+              setSelectedImage(imageData);
+              setImagePreview(imageData.url);
+            }}
+            onImageRemove={() => {
+              setSelectedImage(null);
+              setImagePreview(null);
+            }}
+            currentImageUrl={imagePreview}
+            disabled={isLoading || uploadingImage}
+          />
 
           {/* Rating */}
           <div className="space-y-2">

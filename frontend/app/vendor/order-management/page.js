@@ -289,7 +289,6 @@ export default function VendorOrderManagement() {
       setOrders(
         ordersData.data.map((order) => ({
           ...order,
-          customerOrderId: order.customerOrderId,
           orderStatus: order.orderStatus,
           createdAt: order.createdAt,
           dishes: order.dishes,

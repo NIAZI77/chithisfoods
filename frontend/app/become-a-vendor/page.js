@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { FaArrowLeft, FaCamera } from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa";
 import Hero from "../components/Side-Hero";
 import Image from "next/image";
 import { getCookie } from "cookies-next";
 import Loading from "../loading";
 import Spinner from "../components/Spinner";
+import VendorProfileLayout from "@/components/VendorProfileLayout";
 
 export default function BecomeVendor() {
   const router = useRouter();
@@ -54,6 +55,50 @@ export default function BecomeVendor() {
       toast.error("We couldn't verify your vendor status right now. Give it another try!");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Check if username already exists
+  const checkUsernameAvailability = async (username) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[username][$eq]=${username}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      return response.ok && data.data.length === 0;
+    } catch (error) {
+      console.error("Error checking username availability:", error);
+      return false;
+    }
+  };
+
+  // Check if phone number already exists
+  const checkPhoneAvailability = async (phoneNumber) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[phoneNumber][$eq]=${phoneNumber}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      return response.ok && data.data.length === 0;
+    } catch (error) {
+      console.error("Error checking phone availability:", error);
+      return false;
     }
   };
 
@@ -111,49 +156,9 @@ export default function BecomeVendor() {
     }
   };
 
-  const uploadImage = async (file, name) => {
-    const form = new FormData();
-    form.append("files", file);
 
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-          body: form,
-        }
-      );
-
-      if (!res.ok) {
-        toast.error("Image upload didn't work. Let's try again!");
-        return;
-      }
-
-      const data = await res.json();
-      const { id, url } = data[0];
-      const fullUrl = new URL(url, process.env.NEXT_PUBLIC_STRAPI_HOST).href;
-
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: { id, url: fullUrl },
-      }));
-      toast.success("Perfect! Your image is now uploaded.");
-    } catch (err) {
-      toast.error("Image upload failed. Let's try again!");
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    const file = files[0];
-    if (file) uploadImage(file, name);
-  };
 
   const createVendor = async () => {
-    setSubmitting(true);
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors`,
@@ -171,13 +176,34 @@ export default function BecomeVendor() {
 
       if (response.ok) {
         toast.success("🎉 Congratulations! You're now a vendor!");
+        setSubmitting(false);
         setTimeout(() => {
           router.push("/vendor/dashboard");
         }, 1000);
       } else {
-        toast.error(
-          data?.error?.message || "Something unexpected happened. Please try again."
-        );
+        // Handle unique constraint errors specifically
+        if (data?.error?.details?.errors) {
+          const errors = data.error.details.errors;
+          let errorMessage = "";
+          
+          // Check for specific unique constraint violations
+          if (errors.some(err => err.path.includes('email'))) {
+            errorMessage = "This email address is already registered. Please use a different email.";
+          } else if (errors.some(err => err.path.includes('username'))) {
+            errorMessage = "This username is already taken. Please choose a different username.";
+          } else if (errors.some(err => err.path.includes('phoneNumber'))) {
+            errorMessage = "This phone number is already registered. Please use a different phone number.";
+          } else {
+            // Generic error message for other validation errors
+            errorMessage = data?.error?.message || "Something unexpected happened. Please try again.";
+          }
+          
+          toast.error(errorMessage);
+        } else {
+          toast.error(
+            data?.error?.message || "Something unexpected happened. Please try again."
+          );
+        }
       }
     } catch (error) {
       toast.error(
@@ -192,6 +218,7 @@ export default function BecomeVendor() {
     const usernameRegex = /^[a-z0-9_]{3,15}$/;
     const phoneRegex =
       /^\+?(\d{1,3})?[-. (]*\d{1,4}[-. )]*\d{1,4}[-. ]*\d{1,9}$/;
+    
     if (formData.zipcode.length !== 5) {
       toast.error("Please enter a valid 5-digit ZIP code to continue.");
       return;
@@ -203,12 +230,14 @@ export default function BecomeVendor() {
       );
       return;
     }
+    
     if (!phoneRegex.test(formData.phoneNumber)) {
       toast.error(
         "Please enter a valid phone number format to continue."
       );
       return;
     }
+    
     if (
       formData.avatar.url.length === 0 ||
       formData.coverImage.url.length === 0
@@ -216,7 +245,33 @@ export default function BecomeVendor() {
       toast.error("Please upload both profile and cover images to complete your application");
       return;
     }
-    await createVendor();
+
+    // Check for uniqueness before submitting
+    setSubmitting(true);
+    try {
+      const [isUsernameAvailable, isPhoneAvailable] = await Promise.all([
+        checkUsernameAvailability(formData.username),
+        checkPhoneAvailability(formData.phoneNumber)
+      ]);
+
+      if (!isUsernameAvailable) {
+        toast.error("This username is already taken. Please choose a different username.");
+        setSubmitting(false);
+        return;
+      }
+
+      if (!isPhoneAvailable) {
+        toast.error("This phone number is already registered. Please use a different phone number.");
+        setSubmitting(false);
+        return;
+      }
+
+      // If all validations pass, proceed with vendor creation
+      await createVendor();
+    } catch (error) {
+      toast.error("We encountered an error while validating your information. Please try again.");
+      setSubmitting(false);
+    }
   };
 
   if (loading) return <Loading />;
@@ -255,6 +310,7 @@ export default function BecomeVendor() {
                 placeholder="Username"
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400"
               />
+              <p className="text-xs text-gray-500 mb-2">Username must be unique (3-15 characters, lowercase letters, numbers, underscores only)</p>
               <input
                 name="city"
                 value={formData.city}
@@ -283,6 +339,7 @@ export default function BecomeVendor() {
                 placeholder="Bio"
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400 md:h-24 resize-none"
               />
+              <p className="text-xs text-gray-500 mb-2">Note: Your email address is automatically used and must be unique</p>
             </div>
           )}
 
@@ -304,58 +361,43 @@ export default function BecomeVendor() {
                 placeholder="Phone Number"
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400"
               />
+              <p className="text-xs text-gray-500 mb-2">Phone number must be unique and in a valid format</p>
             </div>
           )}
 
           {step === 3 && (
             <div>
-              <h2 className="font-bold text-2xl my-4">Display Profile</h2>
-              <div className="relative w-full mb-16">
-                <div
-                  className="bg-cover bg-center w-full aspect-video rounded-lg"
-                  style={{
-                    backgroundImage: `url("${
-                      formData.coverImage?.url || "/fallback.png"
-                    }")`,
-                  }}
-                >
-                  <input
-                    type="file"
-                    id="coverImage"
-                    name="coverImage"
-                    className="hidden"
-                    onChange={handleFileChange}
+                              <h2 className="font-bold text-2xl my-4">Display Profile</h2>
+                <div className="mb-12">
+                  <VendorProfileLayout
+                    onCoverImageUpload={(imageData) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        coverImage: imageData
+                      }));
+                    }}
+                    onCoverImageRemove={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        coverImage: { id: 0, url: "" }
+                      }));
+                    }}
+                    onAvatarUpload={(imageData) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        avatar: imageData
+                      }));
+                    }}
+                    onAvatarRemove={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        avatar: { id: 0, url: "" }
+                      }));
+                    }}
+                    currentCoverImageUrl={formData.coverImage?.url || null}
+                    currentAvatarUrl={formData.avatar?.url || null}
                   />
-                  <label
-                    htmlFor="coverImage"
-                    className="w-8 h-8 overflow-hidden absolute right-2 bottom-2 cursor-pointer bg-white rounded-full flex items-center justify-center shadow-md"
-                  >
-                    <FaCamera />
-                  </label>
                 </div>
-
-                <div className="absolute bottom-[-50px] left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white bg-slate-100">
-                  <img
-                    src={formData.avatar.url || "/fallback.png"}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                <label
-                  htmlFor="avatar"
-                  className="absolute bottom-[-40px] cursor-pointer left-1/2 transform -translate-x-1/2 w-8 h-8 overflow-hidden bg-white rounded-full flex items-center justify-center shadow-md"
-                >
-                  <input
-                    type="file"
-                    id="avatar"
-                    name="avatar"
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
-                  <FaCamera />
-                </label>
-              </div>
             </div>
           )}
 

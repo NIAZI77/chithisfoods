@@ -111,7 +111,7 @@ const VendorOrderGroup = ({ order }) => {
                           alt="Topping"
                           className="w-3 h-3 sm:w-4 sm:h-4"
                         />
-                        {topping.name} ({topping.option}) (${topping.price})
+                        {topping.name} (${topping.price})
                       </span>
                     ))}
                     {validExtras.map((extra, idx) => (
@@ -124,7 +124,7 @@ const VendorOrderGroup = ({ order }) => {
                           alt="Extra"
                           className="w-3 h-3 sm:w-4 sm:h-4"
                         />
-                        {extra.name} ({extra.option}) (${extra.price})
+                        {extra.name} (${extra.price})
                       </span>
                     ))}
                   </div>
@@ -325,17 +325,7 @@ export default function ThankYouPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mt-8 sm:mt-10 px-4 sm:px-6 md:px-12">
         <div className="space-y-3 bg-white p-4 sm:p-6 rounded-xl shadow-sm">
-          {currentOrder.customerOrderId && currentOrder.customerOrderId.trim() !== "" && (
-            <div className="flex items-center gap-2">
-              <Receipt className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-              <div>
-                <span className="text-gray-500 text-sm sm:text-base">Order Number</span>
-                <p className="text-black font-medium text-sm sm:text-base">
-                  {currentOrder.customerOrderId}
-                </p>
-              </div>
-            </div>
-          )}
+
           {currentOrder.createdAt && (
             <div className="flex items-center gap-2">
               <Calendar className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />

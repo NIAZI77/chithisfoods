@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, X, Tag, Layers, Image as ImageIcon } from 'lucide-react';
+import { Plus, X, Tag, Layers } from 'lucide-react';
 import { toast } from 'react-toastify';
+import CategoryImageUpload from '@/components/CategoryImageUpload';
 
 const defaultFormData = {
   name: '',
@@ -71,48 +72,7 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
     }
   }, [formData, focusSubcategoryIndex]);
 
-  const uploadImage = async (file) => {
-    const form = new FormData();
-    form.append("files", file);
 
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-          body: form,
-        }
-      );
-
-      if (!res.ok) {
-        toast.error("We couldn't upload your image right now. Please try again.");
-        return null;
-      }
-
-      const data = await res.json();
-      const { id, url } = data[0];
-      const fullUrl = url.startsWith('http') ? url : `${process.env.NEXT_PUBLIC_STRAPI_HOST}${url}`;
-
-      toast.success("Perfect! Your image has been uploaded successfully.");
-      return { id, url: fullUrl };
-    } catch (err) {
-      toast.error("We couldn't upload your image right now. Please try again.");
-      return null;
-    }
-  };
-
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const uploadedImage = await uploadImage(file);
-      if (uploadedImage) {
-        setFormData(prev => ({ ...prev, image: uploadedImage }));
-      }
-    }
-  };
 
   const addSubcategory = () => {
     setFormData(prev => ({
@@ -334,40 +294,21 @@ const CategoryForm = ({ isOpen, onClose, initialData = null, onSave, isSaving })
             </div>
 
             <div className="group">
-              <label className="font-semibold text-sm mb-2 flex items-center gap-2 text-gray-700 hover:text-pink-600 transition-colors">
-                <div className="p-1.5 bg-pink-50 rounded-lg hover:bg-pink-100 transition-colors">
-                  <ImageIcon className="w-4 h-4 text-pink-600" />
-                </div>
-                Category Image
-              </label>
-              {formData.image?.url && (
-                <div className="mt-3 relative w-32 h-32 rounded-xl overflow-hidden bg-gray-50 shadow-sm mx-auto border border-gray-200 hover:border-pink-300 transition-colors p-4 my-4">
-                  <img
-                    src={formData.image.url}
-                    alt="Category preview"
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
-                </div>
-              )}
-
-              <input
-                type="file"
-                id="image"
-                name="image"
-                className="hidden"
-                onChange={handleImageChange}
-                accept="image/*"
+              <CategoryImageUpload
+                onImageUpload={(imageData) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    image: imageData
+                  }));
+                }}
+                onImageRemove={() => {
+                  setFormData(prev => ({
+                    ...prev,
+                    image: { id: null, url: '' }
+                  }));
+                }}
+                currentImageUrl={formData.image?.url || null}
               />
-              <label
-                htmlFor="image"
-                className="w-full border rounded-xl py-1 focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-50 border-gray-200 hover:border-pink-300"
-              >
-                <div className="p-2 bg-pink-50 rounded-lg">
-                  <ImageIcon className="w-5 h-5 text-pink-600" />
-                </div>
-                {formData.image?.url ? "Change Image" : "Upload Image"}
-              </label>
             </div>
 
             <div className="space-y-4">

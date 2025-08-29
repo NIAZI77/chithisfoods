@@ -126,7 +126,7 @@ const DeliveryForm = ({
                 onFormChange('phone', '');
                 onFormChange('address', '');
               }}
-              className="px-3 sm:px-4 py-2 my-1 bg-rose-400 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-500 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
+              className="px-3 sm:px-4 py-2 my-1 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
               title="Clear form fields and enter new address"
             >
               <RotateCcw className="w-4 h-4" />

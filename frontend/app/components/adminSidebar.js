@@ -140,6 +140,8 @@ export default function AdminSidebar() {
               deleteCookie("AdminUser");
               toast.success("You've been successfully logged out. See you soon!");
               localStorage.clear();
+              // Notify navbar about cart update
+              window.dispatchEvent(new CustomEvent('cartUpdate'));
               router.push("/");
             }}
           className="flex items-center gap-3 px-3 py-2.5 w-full transition-all duration-200 hover:bg-pink-700 hover:text-white border-l-[3px] border-transparent text-left font-medium"

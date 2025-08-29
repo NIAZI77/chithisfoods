@@ -553,7 +553,7 @@ const Page = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-sm truncate">
-                      Order #{order.customerOrderId}
+                      Order #{order.searchableOrderId}
                     </h4>
                     <p className="text-gray-600">
                       ${parseFloat(order.subtotal).toFixed(2)}

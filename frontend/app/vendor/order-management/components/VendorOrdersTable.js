@@ -77,7 +77,7 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
               {orders.map((order, index) => (
                 <tr key={`${order.searchableOrderId || order.id}-${index}`} className="bg-white hover:bg-gray-50 border-b border-gray-100">
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-medium">
-                    {order.searchableOrderId || order.customerOrderId || 'N/A'}
+                    {order.searchableOrderId || 'N/A'}
                   </td>
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
                     {new Date(order.createdAt).toLocaleDateString()}

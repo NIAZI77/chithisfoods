@@ -1,21 +1,14 @@
 import React from 'react';
-import { Truck, MapPin, ShoppingBag } from 'lucide-react';
+import { Truck, ShoppingBag } from 'lucide-react';
 
 const AddressModeSelector = ({ selectedMode, onModeChange }) => {
   const modes = [
     {
-      id: 'address',
-      label: 'Address',
-      description: 'One-time delivery address',
+      id: 'delivery',
+      label: 'Delivery',
+      description: 'Deliver to your address',
       icon: Truck,
       color: 'rose'
-    },
-    {
-      id: 'saved-address',
-      label: 'Saved Address',
-      description: 'Use your saved addresses',
-      icon: MapPin,
-      color: 'blue'
     },
     {
       id: 'pickup',
@@ -32,8 +25,6 @@ const AddressModeSelector = ({ selectedMode, onModeChange }) => {
     switch (mode.color) {
       case 'rose':
         return 'border-rose-500 bg-rose-50 shadow-md';
-      case 'blue':
-        return 'border-blue-500 bg-blue-50 shadow-md';
       case 'green':
         return 'border-green-500 bg-green-50 shadow-md';
       default:
@@ -47,8 +38,6 @@ const AddressModeSelector = ({ selectedMode, onModeChange }) => {
     switch (mode.color) {
       case 'rose':
         return 'border-rose-500 bg-rose-500';
-      case 'blue':
-        return 'border-blue-500 bg-blue-500';
       case 'green':
         return 'border-green-500 bg-green-500';
       default:
@@ -60,8 +49,6 @@ const AddressModeSelector = ({ selectedMode, onModeChange }) => {
     switch (mode.color) {
       case 'rose':
         return 'text-rose-600';
-      case 'blue':
-        return 'text-blue-600';
       case 'green':
         return 'text-green-600';
       default:
@@ -74,7 +61,7 @@ const AddressModeSelector = ({ selectedMode, onModeChange }) => {
       <h3 className="font-black text-sm sm:text-base lg:text-lg mb-3 sm:mb-4 text-black flex items-center gap-2">
         <Truck className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" /> Delivery Options
       </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
         {modes.map((mode) => {
           const IconComponent = mode.icon;
           const isSelected = selectedMode === mode.id;
@@ -120,3 +107,5 @@ const AddressModeSelector = ({ selectedMode, onModeChange }) => {
 };
 
 export default AddressModeSelector;
+
+

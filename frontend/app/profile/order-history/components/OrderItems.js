@@ -69,7 +69,7 @@ function OrderItems({
                                   className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs"
                                 >
                                   <img src={"/toppings.png"} alt="Topping" className="w-3 h-3 scale-175" />
-                                  {topping.name || "Topping"}{topping.option === "included" ? "" : ` (${topping.option || "unknown"})`}
+                                  {topping.name || "Topping"} (${topping.price || "0.00"})
                                 </span>
                               ))}
                             </div>
@@ -84,7 +84,7 @@ function OrderItems({
                                   className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs"
                                 >
                                   <img src={"/extras.png"} alt="Extra" className="w-3 h-3 scale-125" />
-                                  {extra.name || "Extra"} {extra.option === "included" ? "" : ` (${extra.option || "unknown"})`}
+                                  {extra.name || "Extra"} (${extra.price || "0.00"})
                                 </span>
                               ))}
                             </div>

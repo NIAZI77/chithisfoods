@@ -14,7 +14,7 @@ import Loading from "../loading";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { FaShoppingBag } from 'react-icons/fa';
+import { FaShoppingBag, FaMapMarkerAlt, FaStore, FaBox } from 'react-icons/fa';
 
 
 import AddressModeSelector from './components/AddressModeSelector';
@@ -22,6 +22,7 @@ import DeliveryForm from './components/DeliveryForm';
 import SavedAddressesList from './components/SavedAddressesList';
 import DeliverySchedule from './components/DeliverySchedule';
 import OrderSummary from './components/OrderSummary';
+import DeliveryAddressSelector from './components/DeliveryAddressSelector';
 
 const initialFormData = {
   name: "",
@@ -29,7 +30,7 @@ const initialFormData = {
   address: "",
   note: "",
   user: "",
-  deliveryMode: "address",
+  deliveryMode: "delivery",
   deliveryDate: null,
   deliveryTime: "",
 };
@@ -43,8 +44,8 @@ const getMinTimeForDate = (date) => {
   
   if (!isToday) return undefined;
   
-  // For today, ensure minimum time is at least 29 minutes from now
-  const minTime = new Date(now.getTime() + 29 * 60000);
+  // For today, ensure minimum time is at least 30 minutes from now
+  const minTime = new Date(now.getTime() + 30 * 60000);
   const minutes = minTime.getMinutes();
   const roundedMinutes = Math.ceil(minutes / 5) * 5;
   minTime.setMinutes(roundedMinutes, 0, 0);
@@ -67,12 +68,16 @@ const isTimeValidForDate = (time, date) => {
   // If not today, any time is valid
   if (currentDate !== selectedDate) return true;
   
-  // For today, check if time is at least 29 minutes in advance
+  // For today, check if time is at least 30 minutes in advance
   const [hours, minutes] = time.split(':').map(Number);
   const selectedTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-  const minValidTime = new Date(now.getTime() + 29 * 60000);
+  const minValidTime = new Date(now.getTime() + 30 * 60000);
   
-  return selectedTime >= minValidTime;
+  // Allow exactly 30 minutes or more (with small tolerance for milliseconds)
+  const timeDifference = selectedTime.getTime() - now.getTime();
+  const thirtyMinutesInMs = 30 * 60 * 1000;
+  
+  return timeDifference >= (thirtyMinutesInMs - 1000); // Allow 1 second tolerance
 };
 
 const Page = () => {
@@ -87,7 +92,7 @@ const Page = () => {
   const [taxLoading, setTaxLoading] = useState(true);
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
-  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [showAddressForm, setShowAddressForm] = useState(true); // Show form by default
   const [addressFormData, setAddressFormData] = useState({
     name: "",
     phone: "",
@@ -104,14 +109,14 @@ const Page = () => {
 
   useEffect(() => {
     const now = new Date();
-    const minTime = new Date(now.getTime() + 29 * 60000);
+    const minTime = new Date(now.getTime() + 30 * 60000);
     
     const minutes = minTime.getMinutes();
     const roundedMinutes = Math.ceil(minutes / 5) * 5;
     minTime.setMinutes(roundedMinutes, 0, 0);
     
-    // Ensure the minimum time is valid (at least 29 minutes from now)
-    const validDeliveryTime = minTime > now ? minTime : new Date(now.getTime() + 29 * 60000);
+    // Ensure the minimum time is valid (at least 30 minutes from now)
+    const validDeliveryTime = minTime > now ? minTime : new Date(now.getTime() + 30 * 60000);
     
     setFormData(prev => ({
       ...prev,
@@ -135,11 +140,13 @@ const Page = () => {
       if (currentDate === selectedDate) {
         const [hours, minutes] = formData.deliveryTime.split(':').map(Number);
         const selectedTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-        const minValidTime = new Date(now.getTime() + 29 * 60000);
         
-        if (selectedTime < minValidTime) {
+        const timeDifference = selectedTime.getTime() - now.getTime();
+        const thirtyMinutesInMs = 30 * 60 * 1000;
+        
+        if (timeDifference < (thirtyMinutesInMs - 1000)) { // Allow 1 second tolerance
           // Auto-adjust to next valid time
-          const newMinTime = new Date(now.getTime() + 29 * 60000);
+          const newMinTime = new Date(now.getTime() + 30 * 60000);
           const newMinutes = newMinTime.getMinutes();
           const newRoundedMinutes = Math.ceil(newMinutes / 5) * 5;
           newMinTime.setMinutes(newRoundedMinutes, 0, 0);
@@ -261,19 +268,8 @@ const Page = () => {
             setSavedAddresses(userAddresses);
       setAddressesFetched(true);
       
-      if (userAddresses.length > 0) {
-        if (formData.deliveryMode === 'saved-address' && !selectedAddressId) {
-          setSelectedAddressId(userAddresses[0].id);
-          // Load the first address data
-          const firstAddress = userAddresses[0];
-          setFormData(prev => ({
-            ...prev,
-            name: firstAddress.name,
-            phone: firstAddress.phone,
-            address: firstAddress.address,
-          }))
-        }
-      }
+      // Don't auto-populate form - keep it empty by default
+      // User can manually select an address if they want to use a saved one
     } catch (error) {
       toast.error("We're having trouble loading your saved addresses. Please try again.");
     } finally {
@@ -294,8 +290,7 @@ const Page = () => {
         address: address.address,
       }));
       setSelectedAddressId(address.id);
-      // Auto-close the address form when an address is selected
-      setShowAddressForm(false);
+      // Keep form visible but clear editing state
       setEditingAddress(null);
     }
   }, [savedAddresses]);
@@ -459,8 +454,6 @@ const Page = () => {
 
       setSavedAddresses(updatedAddresses);
       setEditingAddress(null);
-      // Auto-close the address form after successful update
-      setShowAddressForm(false);
       toast.success("Perfect! Your address has been updated successfully.");
     } catch (error) {
       toast.error(error.message || "We couldn't update your address right now. Please try again.");
@@ -586,9 +579,6 @@ const Page = () => {
 
       setSavedAddresses(updatedAddresses);
       setSelectedAddressId(newAddress.id);
-      
-      // Auto-close the address form after successful save
-      setShowAddressForm(false);
       setEditingAddress(null);
       
       toast.success("Excellent! Your address has been saved successfully.");
@@ -601,7 +591,6 @@ const Page = () => {
   }, [formData, savedAddresses, user, jwt, fetchSavedAddresses]);
 
   const handleAddNewAddress = useCallback(() => {
-    setShowAddressForm(true);
     setEditingAddress(null);
     setSelectedAddressId(null);
     setFormData(prev => ({
@@ -632,7 +621,7 @@ const Page = () => {
       setSelectedAddressId(null);
       setShowAddressForm(false);
       setEditingAddress(null);
-    } else if (mode === 'address') {
+    } else if (mode === 'delivery') {
       setFormData(prev => ({
         ...prev,
         name: "",
@@ -640,22 +629,10 @@ const Page = () => {
         address: "",
       }));
       setSelectedAddressId(null);
-      setShowAddressForm(false);
-      setEditingAddress(null);
-    } else if (mode === 'saved-address') {
-      setShowAddressForm(false);
+      setShowAddressForm(true); // Show form by default for delivery
       setEditingAddress(null);
       
-      if (savedAddresses.length > 0 && !selectedAddressId) {
-        const firstAddress = savedAddresses[0];
-        setSelectedAddressId(firstAddress.id);
-        setFormData(prev => ({
-          ...prev,
-          name: firstAddress.name,
-          phone: firstAddress.phone,
-          address: firstAddress.address,
-        }));
-      }
+      // Keep form empty by default - user can manually select a saved address if needed
     }
   }, [savedAddresses, selectedAddressId, userData]);
 
@@ -684,9 +661,10 @@ const Page = () => {
     // If selecting today, ensure the current time is valid
     if (format(now, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")) {
       const currentTime = new Date();
-      const minValidTime = new Date(currentTime.getTime() + 30 * 60000);
+      const timeDifference = selectedDate.getTime() - currentTime.getTime();
+      const thirtyMinutesInMs = 30 * 60 * 1000;
       
-      if (selectedDate < minValidTime) {
+      if (timeDifference < (thirtyMinutesInMs - 1000)) { // Allow 1 second tolerance
         toast.error("Please schedule your delivery at least 30 minutes from now.");
         return;
       }
@@ -860,6 +838,8 @@ const Page = () => {
             } else {
               toast.error("Your cart data seems to be invalid. Please refresh and try again.");
               localStorage.removeItem("cart");
+              // Notify navbar about cart update
+              window.dispatchEvent(new CustomEvent('cartUpdate'));
               router.push("/cart");
               return;
             }
@@ -871,6 +851,8 @@ const Page = () => {
         } catch (error) {
           toast.error("We're having trouble loading your cart. Please refresh and try again.");
           localStorage.removeItem("cart");
+          // Notify navbar about cart update
+          window.dispatchEvent(new CustomEvent('cartUpdate'));
           router.push("/cart");
           return;
         }
@@ -1118,8 +1100,8 @@ const Page = () => {
           setSubmitting(false);
           return;
         }
-      } else {
-        // For delivery modes, validate required fields
+      } else if (formData.deliveryMode === 'delivery') {
+        // For delivery, validate required fields
         if (!formData.name || !formData.name.trim()) {
           toast.error("Please fill in your name to continue");
           setSubmitting(false);
@@ -1132,18 +1114,10 @@ const Page = () => {
           return;
         }
         
-        if (formData.deliveryMode === 'address') {
-          if (!formData.address || !formData.address.trim()) {
-            toast.error("Please fill in your delivery address to continue");
-            setSubmitting(false);
-            return;
-          }
-        } else if (formData.deliveryMode === 'saved-address') {
-          if (!selectedAddressId && (!formData.address || !formData.address.trim())) {
-            toast.error("Please select a delivery address to continue");
-            setSubmitting(false);
-            return;
-          }
+        if (!formData.address || !formData.address.trim()) {
+          toast.error("Please fill in your delivery address to continue");
+          setSubmitting(false);
+          return;
         }
       }
 
@@ -1230,7 +1204,7 @@ const Page = () => {
           orderData.address = "Pickup";
           orderData.customerName = userData.username;
           orderData.user = user;
-        } else {
+        } else if (formData.deliveryMode === "delivery") {
           orderData.customerName = formData.name;
           orderData.phone = formData.phone;
           // Get zipcode from localStorage and append to address
@@ -1252,6 +1226,8 @@ const Page = () => {
       
       toast.success("Excellent! Your order has been placed successfully!");
       localStorage.removeItem("cart");
+      // Notify navbar about cart update
+      window.dispatchEvent(new CustomEvent('cartUpdate'));
       router.push(`/thank-you/${customerOrderId}`);
     } catch (error) {
       toast.error(error.message || "We're having trouble placing your order right now. Please try again.");
@@ -1330,64 +1306,77 @@ const Page = () => {
                 <User className="inline w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" /> Order Information
               </h3>
               
-              {formData.deliveryMode === "address" && (
-                <DeliveryForm
+              {formData.deliveryMode === "delivery" && (
+                <DeliveryAddressSelector
                   formData={formData}
                   onFormChange={handleFormChange}
+                  savedAddresses={savedAddresses}
+                  selectedAddressId={selectedAddressId}
+                  onAddressSelection={handleAddressSelection}
+                  onEditAddress={handleEditAddress}
+                  onDeleteAddress={handleAddressDeletion}
+                  onRefreshAddresses={refreshAddresses}
+                  onAddNewAddress={handleAddNewAddress}
+                  addressesLoading={addressesLoading}
                   onSaveAddress={saveCurrentAddress}
                   onUpdateAddress={handleUpdateAddress}
                   onCancelEdit={handleCancelEdit}
                   editingAddress={editingAddress}
                   savingAddress={savingAddress}
-                  selectedAddressId={selectedAddressId}
-                  showSaveButton={false} 
+                  showAddressForm={showAddressForm}
+                  setShowAddressForm={setShowAddressForm}
                 />
               )}
               
-              {formData.deliveryMode === "saved-address" && (
-                <>
-                  <SavedAddressesList
-                    savedAddresses={savedAddresses}
-                    selectedAddressId={selectedAddressId}
-                    onAddressSelection={handleAddressSelection}
-                    onEditAddress={handleEditAddress}
-                    onDeleteAddress={handleAddressDeletion}
-                    onRefreshAddresses={refreshAddresses}
-                    onAddNewAddress={handleAddNewAddress}
-                    addressesLoading={addressesLoading}
-                    showAddNewButton={true}
-                  />
-                  
-                  {(showAddressForm || editingAddress) && (
-                    <div className="mt-4 sm:mt-6 p-4 sm:p-6 border-2 border-dashed border-rose-300 rounded-xl bg-rose-50 shadow-sm">
-                      <h4 className="font-black text-sm sm:text-base text-rose-900 mb-3 sm:mb-4 flex items-center gap-2">
-                        {editingAddress ? "Edit Address" : "Add New Address"}
-                      </h4>
-                      <DeliveryForm
-                        formData={formData}
-                        onFormChange={handleFormChange}
-                        onSaveAddress={saveCurrentAddress}
-                        onUpdateAddress={handleUpdateAddress}
-                        onCancelEdit={handleCancelEdit}
-                        editingAddress={editingAddress}
-                        savingAddress={savingAddress}
-                        selectedAddressId={selectedAddressId}
-                        showSaveButton={true}
-                      />
-                    </div>
-                  )}
-                </>
-              )}
-              
               {formData.deliveryMode === "pickup" && (
-                <div className="text-center py-6 sm:py-8">
-                  <div className="inline-flex flex-col items-center gap-3 px-6 sm:px-8 py-4 sm:py-6 bg-green-50 border-2 border-dashed border-green-300 rounded-xl">
-                    <FaShoppingBag className="w-10 h-10 sm:w-12 sm:h-12 text-green-400" />
-                    <div className="text-center">
-                      <div className="font-semibold text-green-600 mb-1 text-sm sm:text-base">Pickup Order</div>
-                      <div className="text-xs sm:text-sm text-green-500">You&apos;ll collect your order from the restaurant</div>
-                      <div className="text-xs text-green-400 mt-2">No customer details required for pickup</div>
+                <div className="py-6 sm:py-8">
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+                    <div className="text-center mb-8">
+                      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl mb-4 shadow-lg">
+                        <FaShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                      </div>
+                      <div className="font-bold text-green-800 mb-2 text-lg sm:text-xl">Pickup Order</div>
+                      <div className="text-sm text-green-600 mb-1">You&apos;ll collect your order from the restaurants below</div>
+                      <div className="text-xs text-green-500 bg-green-100 px-3 py-1 rounded-full inline-block">
+                        No customer details required
+                      </div>
                     </div>
+                    
+                    {cartItems.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 mb-4">
+                          <FaStore className="w-4 h-4 text-green-600" />
+                          <span className="font-semibold text-green-800 text-sm">Pickup Locations</span>
+                        </div>
+                        {cartItems.map((vendor, index) => (
+                          <div key={vendor.vendorId} className="group bg-white rounded-xl p-5 border border-green-200 hover:border-green-300 transition-all duration-200 shadow-sm hover:shadow-md">
+                            <div className="flex items-start gap-4">
+                         
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <FaStore className="w-4 h-4 text-green-600 flex-shrink-0" />
+                                  <div className="font-bold text-green-900 text-base">
+                                    {vendor.vendorName}
+                                  </div>
+                                </div>
+                                <div className="flex items-start gap-2 mb-3">
+                                  <FaMapMarkerAlt className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                                  <div className="text-green-700 text-sm leading-relaxed">
+                                    {vendor.vendorAddress}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <FaBox className="w-4 h-4 text-green-400" />
+                                  <div className="text-green-600 text-sm font-medium">
+                                    {vendor.dishes.length} item{vendor.dishes.length !== 1 ? 's' : ''} from this location
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

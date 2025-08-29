@@ -123,28 +123,14 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       const dishInfo = responseData.data;
       const enhancedDishInfo = {
         ...dishInfo,
-        extras:
-          dishInfo.extras?.map((extra) => ({
-            ...extra,
-            options: [
-              { label: "None", price: 0 },
-              ...extra.options.map((option) => ({
-                ...option,
-                price: Number(option.price) || 0,
-              })),
-            ],
-          })) || [],
-        toppings:
-          dishInfo.toppings?.map((topping) => ({
-            ...topping,
-            options: [
-              { label: "None", price: 0 },
-              ...topping.options.map((option) => ({
-                ...option,
-                price: Number(option.price) || 0,
-              })),
-            ],
-          })) || [],
+        extras: dishInfo.extras?.map((extra) => ({
+          ...extra,
+          price: Number(extra.price) || 0,
+        })) || [],
+        toppings: dishInfo.toppings?.map((topping) => ({
+          ...topping,
+          price: Number(topping.price) || 0,
+        })) || [],
         image: {
           id: dishInfo.image?.id || null,
           url: dishInfo.image?.url || "/fallback.png",
@@ -173,13 +159,13 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
       const initialToppings = {};
       enhancedDishInfo.toppings?.forEach((topping) => {
-        initialToppings[topping.name] = { selected: "None", price: 0 };
+        initialToppings[topping.name] = { selected: false, price: topping.price };
       });
       setSelectedToppings(initialToppings);
 
       const initialExtras = {};
       enhancedDishInfo.extras?.forEach((extra) => {
-        initialExtras[extra.name] = { selected: "None", price: 0 };
+        initialExtras[extra.name] = { selected: false, price: extra.price };
       });
       setSelectedExtras(initialExtras);
 
@@ -221,11 +207,11 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
     if (!dishDetails) return 0;
 
     const extrasTotal = Object.values(selectedExtras)
-      .filter(item => item.selected !== "None")
+      .filter(item => item.selected)
       .reduce((sum, item) => sum + Number(item.price), 0);
     
     const toppingsTotal = Object.values(selectedToppings)
-      .filter(item => item.selected !== "None")
+      .filter(item => item.selected)
       .reduce((sum, item) => sum + Number(item.price), 0);
     
     return (
@@ -235,21 +221,19 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
   const handleAddToCart = () => {
     try {
-      // Get all extras (excluding "None" selections)
+      // Get all selected extras
       const allExtras = Object.entries(selectedExtras)
-        .filter(([name, item]) => item.selected !== "None")
+        .filter(([name, item]) => item.selected)
         .map(([name, item]) => ({
           name,
-          option: item.selected,
           price: Number(item.price),
         }));
 
-      // Get all toppings (excluding "None" selections)
+      // Get all selected toppings
       const allToppings = Object.entries(selectedToppings)
-        .filter(([name, item]) => item.selected !== "None")
+        .filter(([name, item]) => item.selected)
         .map(([name, item]) => ({
           name,
-          option: item.selected,
           price: Number(item.price),
         }));
 
@@ -293,16 +277,14 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
             // Check if toppings match exactly
             if (dish.toppings.length !== allToppings.length) return false;
             const toppingsMatch = allToppings.every((topping, index) => 
-              dish.toppings[index]?.name === topping.name && 
-              dish.toppings[index]?.option === topping.option
+              dish.toppings[index]?.name === topping.name
             );
             if (!toppingsMatch) return false;
             
             // Check if extras match exactly
             if (dish.extras.length !== allExtras.length) return false;
             const extrasMatch = allExtras.every((extra, index) => 
-              dish.extras[index]?.name === extra.name && 
-              dish.extras[index]?.option === extra.option
+              dish.extras[index]?.name === extra.name
             );
             if (!extrasMatch) return false;
             
@@ -352,17 +334,23 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
     }
   };
 
-  const handleOptionSelect = (type, name, option, price) => {
+  const handleOptionSelect = (type, name) => {
     try {
       if (type === "topping") {
         setSelectedToppings((prev) => ({
           ...prev,
-          [name]: { selected: option, price: Number(price) },
+          [name]: { 
+            ...prev[name], 
+            selected: !prev[name].selected 
+          },
         }));
       } else if (type === "extra") {
         setSelectedExtras((prev) => ({
           ...prev,
-          [name]: { selected: option, price: Number(price) },
+          [name]: { 
+            ...prev[name], 
+            selected: !prev[name].selected 
+          },
         }));
       }
     } catch (error) {
@@ -548,39 +536,23 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                           </p>
                         </div>
 
-                        {dishDetails.toppings.map((topping, index) => (
-                          <div
-                            key={index}
-                            className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-3 bg-gray-50 rounded-lg"
-                          >
-                            <span className="text-gray-800 capitalize text-sm font-medium flex-shrink-0 whitespace-nowrap">
+                        <div className="flex flex-wrap gap-2 justify-end">
+                          {dishDetails.toppings.map((topping, index) => (
+                            <button
+                              key={index}
+                              onClick={() =>
+                                handleOptionSelect("topping", topping.name)
+                              }
+                              className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
+                                ${selectedToppings[topping.name]?.selected
+                                  ? "bg-red-500 text-white border-red-500"
+                                  : "bg-white text-red-500 border-red-500 hover:bg-red-50"
+                                }`}
+                            >
                               {topping.name}
-                            </span>
-                            <div className="flex gap-2 flex-wrap w-full sm:justify-end">
-                              {topping.options.map((option, i) => (
-                                <button
-                                  key={i}
-                                  onClick={() =>
-                                    handleOptionSelect(
-                                      "topping",
-                                      topping.name,
-                                      option.label,
-                                      option.price
-                                    )
-                                  }
-                                  className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
-                                    ${selectedToppings[topping.name]?.selected ===
-                                      option.label
-                                      ? "bg-red-500 text-white border-red-500"
-                                      : "bg-white text-red-500 border-red-500 hover:bg-red-50"
-                                    }`}
-                                >
-                                  {option.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
 
@@ -593,39 +565,23 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                           </p>
                         </div>
 
-                        {dishDetails.extras.map((extra, index) => (
-                          <div
-                            key={index}
-                            className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-3 bg-gray-50 rounded-lg"
-                          >
-                            <span className="text-gray-800 capitalize text-sm font-medium flex-shrink-0 whitespace-nowrap">
-                              {extra.name}
-                            </span>
-                            <div className="flex gap-2 flex-wrap w-full sm:justify-end">
-                              {extra.options.map((option, i) => (
-                                <button
-                                  key={i}
-                                  onClick={() =>
-                                    handleOptionSelect(
-                                      "extra",
-                                      extra.name,
-                                      option.label,
-                                      option.price
-                                    )
-                                  }
-                                  className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
-                                    ${selectedExtras[extra.name]?.selected ===
-                                      option.label
-                                        ? "bg-red-500 text-white border-red-500"
-                                        : "bg-white text-red-500 border-red-500 hover:bg-red-50"
-                                      }`}
-                                >
-                                  {option.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
+                        <div className="flex flex-wrap gap-2 justify-end">
+                          {dishDetails.extras.map((extra, index) => (
+                            <button
+                              key={index}
+                              onClick={() =>
+                                handleOptionSelect("extra", extra.name)
+                              }
+                              className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
+                                ${selectedExtras[extra.name]?.selected
+                                  ? "bg-red-500 text-white border-red-500"
+                                  : "bg-white text-red-500 border-red-500 hover:bg-red-50"
+                                }`}
+                            >
+                              {extra.name} 
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
 

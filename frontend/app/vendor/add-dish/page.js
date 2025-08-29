@@ -12,12 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FaCamera } from "react-icons/fa";
 import { getCookie } from "cookies-next";
 import Loading from "@/app/loading";
 import { useRouter } from "next/navigation";
 import Spinner from "@/app/components/Spinner";
 import IngredientInput from "@/components/IngredientInput";
+import DishImageUpload from "@/components/DishImageUpload";
 
 export default function AddDishPage() {
   const router = useRouter();
@@ -124,54 +124,7 @@ export default function AddDishPage() {
       setLoading(false);
     }
   };
-  const uploadImage = async (file, name) => {
-    const formData = new FormData();
-    formData.append("files", file);
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file.");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/upload`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        toast.error("Error uploading image");
-        return;
-      }
-
-      const data = await response.json();
-      const { id, url } = data[0];
-
-      setDishData((prevData) => ({
-        ...prevData,
-        [name]: { id, url },
-      }));
-
-      toast.success("Image uploaded successfully!");
-    } catch (error) {
-      console.error("Error uploading image", error);
-      toast.error("Error uploading image");
-    }
-  };
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    const file = files[0];
-
-    if (file) {
-      uploadImage(file, name);
-    }
-  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newValue = value;
@@ -214,7 +167,7 @@ export default function AddDishPage() {
     const last = dishData[type].at(-1);
     return (
       dishData[type].length === 0 ||
-      (last?.name && last.options.every((opt) => opt.label && opt.price))
+      (last?.name && last.price)
     );
   };
 
@@ -225,20 +178,9 @@ export default function AddDishPage() {
     }
     const newGroup = {
       name: "",
-      mode: "included",
-      options: [{ label: "included", price: "0.00" }],
+      price: "0.00",
     };
     setDishData((prev) => ({ ...prev, [type]: [...prev[type], newGroup] }));
-  };
-
-  const handleModeChange = (type, groupIndex, mode) => {
-    const updated = [...dishData[type]];
-    updated[groupIndex].mode = mode;
-    updated[groupIndex].options =
-      mode === "included"
-        ? [{ label: "included", price: "0.00" }]
-        : [{ label: "", price: "0.00" }];
-    setDishData((prev) => ({ ...prev, [type]: updated }));
   };
 
   const deleteOptionGroup = (type, index) => {
@@ -246,21 +188,11 @@ export default function AddDishPage() {
     setDishData((prev) => ({ ...prev, [type]: updated }));
   };
 
-  const deleteOption = (type, groupIndex, optionIndex) => {
-    const updated = [...dishData[type]];
-    updated[groupIndex].options = updated[groupIndex].options.filter(
-      (_, i) => i !== optionIndex
-    );
-    setDishData((prev) => ({ ...prev, [type]: updated }));
-  };
-
-  const isIncludedGroup = (group) => group.mode === "included";
-
   const isValid = () => {
     const complete = (list) =>
       list.every(
         (item) =>
-          item.name && item.options.every((opt) => opt.label && opt.price)
+          item.name && item.price
       );
     return complete(dishData.toppings) && complete(dishData.extras);
   };
@@ -404,25 +336,21 @@ export default function AddDishPage() {
         </div>
 
         <div className="w-full col-span-2">
-          <div className="relative w-full">
-            <input
-              type="file"
-              id="image"
-              name="image"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <img
-              src={dishData.image.url ? dishData.image.url : "/img.png"}
-              alt="Dish"
-              className="object-cover bg-center aspect-video shadow md:w-[50%] w-full mx-auto rounded-md"
-            />
-            <div className="w-8 h-8 overflow-hidden absolute right-10 bottom-5 cursor-pointer flex items-center justify-center rounded-full bg-white shadow">
-              <label className="pl-0.5 h-5 w-5 text-center" htmlFor="image">
-                <FaCamera className="cursor-pointer" />
-              </label>
-            </div>
-          </div>
+          <DishImageUpload
+            onImageUpload={(imageData) => {
+              setDishData(prev => ({
+                ...prev,
+                image: imageData
+              }));
+            }}
+            onImageRemove={() => {
+              setDishData(prev => ({
+                ...prev,
+                image: { id: 0, url: "" }
+              }));
+            }}
+            currentImageUrl={dishData.image.url || null}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -614,7 +542,7 @@ export default function AddDishPage() {
             <button
               type="button"
               onClick={() => addGroup("toppings")}
-              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-rose-100 sm:text-base text-xs text-rose-600 rounded-full hover:bg-rose-200 transition-all"
+              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-orange-100 sm:text-base text-xs text-orange-600 rounded-full hover:bg-orange-200 transition-all"
             >
               <PlusCircle size={20} /> Add Topping
             </button>
@@ -629,7 +557,7 @@ export default function AddDishPage() {
                 <div className="flex justify-between items-center gap-4">
                   <input
                     type="text"
-                    placeholder="i.e Toppings"
+                    placeholder="Topping Name"
                     value={group.name}
                     onChange={(e) =>
                       handleArrayChange(
@@ -650,129 +578,23 @@ export default function AddDishPage() {
                   </button>
                 </div>
 
-                <div className="flex items-center gap-6">
-                  <div role="radiogroup" className="inline-flex items-center gap-1 bg-slate-100 rounded-full p-1 border border-slate-200">
-                    <label className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name={`toppings-mode-${groupIndex}`}
-                        checked={group.mode === "included"}
-                        onChange={() => handleModeChange("toppings", groupIndex, "included")}
-                        className="sr-only"
-                      />
-                      <span
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                          group.mode === "included"
-                            ? "bg-slate-700 text-white shadow"
-                            : "text-slate-700 hover:bg-slate-200"
-                        }`}
-                      >
-                        Fixed Price
-                      </span>
-                    </label>
-                    <label className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name={`toppings-mode-${groupIndex}`}
-                        checked={group.mode === "quantity"}
-                        onChange={() => handleModeChange("toppings", groupIndex, "quantity")}
-                        className="sr-only"
-                      />
-                      <span
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                          group.mode === "quantity"
-                            ? "bg-slate-700 text-white shadow"
-                            : "text-slate-700 hover:bg-slate-200"
-                        }`}
-                      >
-                        Custom Options
-                      </span>
-                    </label>
-                  </div>
+                <div className="flex gap-4 items-center">
+                  <input
+                    type="text"
+                    placeholder="Price"
+                    value={group.price}
+                    onChange={(e) =>
+                      handleArrayChange(
+                        "toppings",
+                        groupIndex,
+                        "price",
+                        e.target.value
+                      )
+                    }
+                    className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                  />
                 </div>
               </div>
-
-              <div className="space-y-3">
-                {group.options.map((option, optionIndex) => (
-                  <div key={optionIndex} className="flex gap-4 items-center">
-                    {isIncludedGroup(group) ? (
-                      <input
-                        type="text"
-                        placeholder="Price"
-                        value={option.price}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "toppings",
-                            groupIndex,
-                            "price",
-                            e.target.value,
-                            optionIndex
-                          )
-                        }
-                        className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                      />
-                    ) : (
-                      <>
-                        <input
-                          type="text"
-                          placeholder="i.e 1"
-                          value={option.label}
-                          onChange={(e) =>
-                            handleArrayChange(
-                              "toppings",
-                              groupIndex,
-                              "label",
-                              e.target.value,
-                              optionIndex
-                            )
-                          }
-                          className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Price"
-                          value={option.price}
-                          onChange={(e) =>
-                            handleArrayChange(
-                              "toppings",
-                              groupIndex,
-                              "price",
-                              e.target.value,
-                              optionIndex
-                            )
-                          }
-                          className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                        />
-                        {group.options.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              deleteOption("toppings", groupIndex, optionIndex)
-                            }
-                            className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
-                          >
-                            <X size={18} />
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {!isIncludedGroup(group) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const updated = [...dishData.toppings];
-                    updated[groupIndex].options.push({ label: "", price: "0.00" });
-                    setDishData((prev) => ({ ...prev, toppings: updated }));
-                  }}
-                  className="text-sm text-orange-500 hover:text-orange-600 transition-colors"
-                >
-                  + Add Option
-                </button>
-              )}
             </div>
           ))}
         </section>
@@ -783,13 +605,13 @@ export default function AddDishPage() {
             <button
               type="button"
               onClick={() => addGroup("extras")}
-              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-rose-100 sm:text-base text-xs text-rose-600 rounded-full hover:bg-rose-200 transition-all"
+              className="flex items-center gap-2 sm:px-4 px-2 py-1 bg-orange-100 sm:text-base text-xs text-orange-600 rounded-full hover:bg-orange-200 transition-all"
             >
               <PlusCircle size={20} /> Add Extra
             </button>
           </div>
 
-          {dishData.extras.map((group, groupIndex) => (
+                    {dishData.extras.map((group, groupIndex) => (
             <div
               key={groupIndex}
               className="p-6 rounded-lg mb-6 bg-white shadow-sm space-y-4 border border-gray-100"
@@ -798,7 +620,7 @@ export default function AddDishPage() {
                 <div className="flex justify-between items-center gap-4">
                   <input
                     type="text"
-                    placeholder="Extra Group Name"
+                    placeholder="Extra Name"
                     value={group.name}
                     onChange={(e) =>
                       handleArrayChange(
@@ -819,129 +641,23 @@ export default function AddDishPage() {
                   </button>
                 </div>
 
-                <div className="flex items-center gap-6">
-                  <div role="radiogroup" className="inline-flex items-center gap-1 bg-slate-100 rounded-full p-1 border border-slate-200">
-                    <label className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name={`extras-mode-${groupIndex}`}
-                        checked={group.mode === "included"}
-                        onChange={() => handleModeChange("extras", groupIndex, "included")}
-                        className="sr-only"
-                      />
-                      <span
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                          group.mode === "included"
-                            ? "bg-slate-700 text-white shadow"
-                            : "text-slate-700 hover:bg-slate-200"
-                        }`}
-                      >
-                        Fixed Price 
-                      </span>
-                    </label>
-                    <label className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name={`extras-mode-${groupIndex}`}
-                        checked={group.mode === "quantity"}
-                        onChange={() => handleModeChange("extras", groupIndex, "quantity")}
-                        className="sr-only"
-                      />
-                      <span
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                          group.mode === "quantity"
-                            ? "bg-slate-700 text-white shadow"
-                            : "text-slate-700 hover:bg-slate-200"
-                        }`}
-                      >
-                        Custom Options
-                      </span>
-                    </label>
-                  </div>
+                <div className="flex gap-4 items-center">
+                  <input
+                    type="text"
+                    placeholder="Price"
+                    value={group.price}
+                    onChange={(e) =>
+                      handleArrayChange(
+                        "extras",
+                        groupIndex,
+                        "price",
+                        e.target.value
+                      )
+                    }
+                    className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
+                  />
                 </div>
               </div>
-
-              <div className="space-y-3">
-                {group.options.map((option, optionIndex) => (
-                  <div key={optionIndex} className="flex gap-4 items-center">
-                    {isIncludedGroup(group) ? (
-                      <input
-                        type="text"
-                        placeholder="Price"
-                        value={option.price}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "extras",
-                            groupIndex,
-                            "price",
-                            e.target.value,
-                            optionIndex
-                          )
-                        }
-                        className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                      />
-                    ) : (
-                      <>
-                        <input
-                          type="text"
-                          placeholder="i.e 1"
-                          value={option.label}
-                          onChange={(e) =>
-                            handleArrayChange(
-                              "extras",
-                              groupIndex,
-                              "label",
-                              e.target.value,
-                              optionIndex
-                            )
-                          }
-                          className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Price"
-                          value={option.price}
-                          onChange={(e) =>
-                            handleArrayChange(
-                              "extras",
-                              groupIndex,
-                              "price",
-                              e.target.value,
-                              optionIndex
-                            )
-                          }
-                          className="w-full px-4 py-2 border rounded-full outline-orange-400 bg-slate-50"
-                        />
-                        {group.options.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              deleteOption("extras", groupIndex, optionIndex)
-                            }
-                            className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
-                          >
-                            <X size={18} />
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {!isIncludedGroup(group) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const updated = [...dishData.extras];
-                    updated[groupIndex].options.push({ label: "", price: "0.00" });
-                    setDishData((prev) => ({ ...prev, extras: updated }));
-                  }}
-                  className="text-sm text-orange-500 hover:text-orange-600 transition-colors"
-                >
-                  + Add Option
-                </button>
-              )}
             </div>
           ))}
         </section>

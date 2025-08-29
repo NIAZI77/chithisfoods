@@ -463,7 +463,7 @@ function PaymentPage() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[orderStatus][$eq]=delivered${timeFilterQuery}&fields[0]=createdAt&fields[1]=vendorDeliveryFee&fields[2]=subtotal&fields[3]=vendor_payment&fields[4]=customerOrderId&sort[0]=createdAt:desc&pagination[limit]=9999999999`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[orderStatus][$eq]=delivered${timeFilterQuery}&fields[0]=createdAt&fields[1]=vendorDeliveryFee&fields[2]=subtotal&fields[3]=vendor_payment&fields[4]=searchableOrderId&sort[0]=createdAt:desc&pagination[limit]=9999999999`,
         {
           method: "GET",
           headers: {
@@ -478,7 +478,7 @@ function PaymentPage() {
       }
 
       const transformedOrders = data.data.map(order => ({
-        orderId: order.customerOrderId,
+        orderId: order.searchableOrderId,
         createdAt: order.createdAt,
         vendorPaymentStatus: order.vendor_payment.toUpperCase(),
         subtotal: parseFloat(order.subtotal),

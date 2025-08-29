@@ -139,6 +139,9 @@ export default function Navbar() {
     setIsLoggedIn(false);
     toast.success("You've been successfully logged out. See you soon!");
     localStorage.clear();
+    // Clear cart items state and notify navbar
+    setCartItems([]);
+    window.dispatchEvent(new CustomEvent('cartUpdate'));
     router.push("/");
   };
 

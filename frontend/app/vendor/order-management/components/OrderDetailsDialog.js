@@ -393,7 +393,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <img src={"/toppings.png"} alt="Topping" className="w-3 h-3 scale-175" />  {topping.name}{topping.option=="included" ? "" : ` (${topping.option})`}
+                                  <img src={"/toppings.png"} alt="Topping" className="w-3 h-3 scale-175" />  {topping.name} (${topping.price})
                                 </span>
                               ))}
                             </div>
@@ -407,7 +407,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <img src={"/extras.png"} alt="Extra" className="w-3 h-3 scale-125" /> {extra.name} {extra.option=="included" ? "" : ` (${extra.option})`}
+                                  <img src={"/extras.png"} alt="Extra" className="w-3 h-3 scale-125" /> {extra.name} (${extra.price})
                                 </span>
                               ))}
                             </div>
