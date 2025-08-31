@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { FaArrowLeft } from "react-icons/fa";
 import Hero from "../components/Side-Hero";
-import Image from "next/image";
 import { getCookie } from "cookies-next";
 import Loading from "../loading";
 import Spinner from "../components/Spinner";

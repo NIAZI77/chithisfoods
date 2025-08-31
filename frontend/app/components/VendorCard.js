@@ -1,12 +1,12 @@
 "use client";
 
-import { BadgeCheck, ChefHat, MapPin } from "lucide-react";
-import { FaCheckCircle, FaStar } from "react-icons/fa";
+import { ChefHat, MapPin } from "lucide-react";
+import { FaStar } from "react-icons/fa";
 import Link from "next/link";
 import VerificationBadge from "./VerificationBadge";
 
 const VendorCard = ({ chef }) => {
-  // const isTopRated = chef.rating >= 1.5;
+  const isTopRated = chef.rating >= 3.5;
   return (
     <Link
       href={`/vendors/@${chef?.username}`}
@@ -18,12 +18,12 @@ const VendorCard = ({ chef }) => {
           alt={chef?.coverImage?.alternativeText || "Vendor Food"}
           className="object-cover w-full h-full"
         />
-        {/* {isTopRated && (
+        {isTopRated && (
           <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-3 rounded-md flex items-center gap-1 shadow">
             <ChefHat className="inline w-4" />
             Top Rated
           </div>
-        )} */}
+        )}
       </div>
       <div className="grid grid-cols-3 gap-1 p-1">
         <div className="">

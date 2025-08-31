@@ -6,7 +6,6 @@ import {
   Clock,
   Mail,
   Pencil,
-  Zap,
   AlertCircle,
   X,
   Loader2,

@@ -9,15 +9,13 @@ import {
   ShoppingCart,
   ChefHat,
   Flame,
-  Salad,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import Loading from "../loading";
 import { FaCreditCard } from "react-icons/fa";
-import { PiBowlFood } from "react-icons/pi";
 import { useRouter } from "next/navigation";
-import { updateCartAndNotify, getCartItemCount } from "../lib/utils";
+import { updateCartAndNotify } from "../lib/utils";
 
 export default function CartPage() {
   const [cart, setCart] = useState([]);
@@ -265,7 +263,7 @@ export default function CartPage() {
 
   return (
     <div className="mx-3">
-      <div className="w-full mx-auto py-6 md:py-10 px-2 md:px-0 grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="w-full mx-auto  px-2 md:px-0 grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] col-span-1 lg:col-span-2">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
             <h2 className="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2">
@@ -412,7 +410,7 @@ export default function CartPage() {
                                       className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs md:text-sm truncate"
                                     >
                                       <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3 scale-175" />
-                                      {topping.name} (${topping.price})
+                                      {topping.name} 
                                     </span>
                                   ))}
                                 </div>
@@ -427,7 +425,7 @@ export default function CartPage() {
                                       className="bg-green-100 px-2 py-1 rounded-full text-green-700 flex items-center justify-center gap-1 text-xs md:text-sm truncate"
                                     >
                                       <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3 scale-125" />
-                                      {extra.name} (${extra.price})
+                                      {extra.name}
                                     </span>
                                   ))}
                                 </div>
@@ -493,7 +491,7 @@ export default function CartPage() {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm border border-gray-200 h-fit sticky top-4">
+        <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm border border-gray-200 h-fit sticky top-20">
           <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6">Order Summary</h2>
           <div className="space-y-3 md:space-y-4">
             <div className="flex justify-between text-sm md:text-base text-gray-600">

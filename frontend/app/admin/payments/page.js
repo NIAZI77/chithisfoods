@@ -1,29 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  DollarSign,
-  CheckCircle2,
-  XCircle,
-  RotateCcw,
-  CircleDollarSign,
-  Circle,
-  Check,
-  X,
-  Info,
-} from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import Loading from "@/app/loading";
 import Pagination from "@/app/admin/users-and-vendors/components/Pagination";
 import { toast } from 'react-toastify';
-import Spinner from "@/app/components/Spinner";
-import { FaHandHoldingUsd } from "react-icons/fa";
 import { getCookie, deleteCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import PaymentMetrics from "./components/PaymentMetrics";

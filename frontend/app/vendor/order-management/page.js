@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
-import { Package, Filter } from "lucide-react";
 import TableLoading from "@/components/TableLoading";
 import {
   Select,

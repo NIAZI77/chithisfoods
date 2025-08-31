@@ -16,7 +16,6 @@ import {
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import {
-  FaMoneyBillWave,
   FaShoppingCart,
   FaCheckCircle,
   FaTimesCircle,

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { PlusCircle, Trash2, X } from "lucide-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
   Select,

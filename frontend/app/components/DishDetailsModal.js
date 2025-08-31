@@ -370,9 +370,22 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
   if (!isOpen) return null;
 
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col relative" ref={modalRef}>
+    <div 
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={handleBackdropClick}
+    >
+      <div 
+        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col relative" 
+        ref={modalRef}
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
           className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors absolute top-2 right-2 z-10"
@@ -746,10 +759,13 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       {/* Full Screen Image Modal */}
       {fullScreenImage && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={closeFullScreenImage}
         >
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div 
+            className="relative w-full h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={closeFullScreenImage}
               className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10 bg-black bg-opacity-50 rounded-full p-2"

@@ -14,9 +14,7 @@ import {
   DollarSign,
   Flame,
   Sigma,
-  Salad,
 } from "lucide-react";
-import { PiBowlFood } from "react-icons/pi";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -24,8 +22,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import Spinner from "@/app/components/Spinner";
-import { HiOutlineReceiptTax } from "react-icons/hi";
-import { BadgePercent } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const ORDER_STATUS = {

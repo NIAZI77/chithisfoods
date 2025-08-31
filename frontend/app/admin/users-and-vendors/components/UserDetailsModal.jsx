@@ -83,10 +83,14 @@ const UserDetailsModal = ({ user, isOpen, onClose, onBlockUser, isLoading, onVer
     return (
         <>
         <div
-            className="fixed inset-0 bg-gray-100/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn"
             onClick={handleBackdropClick}
         >
-            <div className="bg-white rounded-2xl w-full sm:max-w-md max-h-[90vh] border border-pink-100 shadow-2xl flex flex-col relative px-6 py-8" style={{ minWidth: 340 }}>
+            <div 
+                className="bg-white rounded-2xl w-full sm:max-w-md max-h-[90vh] border border-pink-100 shadow-2xl flex flex-col relative px-6 py-8" 
+                style={{ minWidth: 340 }}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <button
                     onClick={onClose}
                     className="absolute top-5 right-5 z-10 w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded-full hover:bg-gray-100 transition-colors shadow-sm"

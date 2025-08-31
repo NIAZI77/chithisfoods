@@ -15,11 +15,7 @@ const SavedAddressesList = ({
 }) => {
   return (
     <div className="mb-4 sm:mb-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
-        <h4 className="font-black text-sm sm:text-base lg:text-lg text-gray-900 flex items-center gap-2">
-          <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-rose-600" />
-          Saved Addresses ({(savedAddresses || []).length})
-        </h4>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 sm:gap-4 mb-3 sm:mb-4">
         <div className="flex gap-2">
           {showAddNewButton && (
             <button

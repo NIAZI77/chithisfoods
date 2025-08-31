@@ -2,24 +2,19 @@
 import {
   ShoppingCart,
   User,
-  FileText,
 } from "lucide-react";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { getCookie, setCookie } from "cookies-next";
-import Spinner from "../components/Spinner";
+import { getCookie } from "cookies-next";
 import Loading from "../loading";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
-import { FaShoppingBag, FaMapMarkerAlt, FaStore, FaBox } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaStore, FaBox } from 'react-icons/fa';
 
 
 import AddressModeSelector from './components/AddressModeSelector';
-import DeliveryForm from './components/DeliveryForm';
-import SavedAddressesList from './components/SavedAddressesList';
 import DeliverySchedule from './components/DeliverySchedule';
 import OrderSummary from './components/OrderSummary';
 import DeliveryAddressSelector from './components/DeliveryAddressSelector';
@@ -37,19 +32,19 @@ const initialFormData = {
 
 const getMinTimeForDate = (date) => {
   if (!date) return undefined;
-  
+
   const now = new Date();
   const selectedDate = new Date(date);
   const isToday = format(now, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd");
-  
+
   if (!isToday) return undefined;
-  
+
   // For today, ensure minimum time is at least 30 minutes from now
-  const minTime = new Date(now.getTime() + 30 * 60000);
+  const minTime = new Date(now.getTime() + 25 * 60000);
   const minutes = minTime.getMinutes();
   const roundedMinutes = Math.ceil(minutes / 5) * 5;
   minTime.setMinutes(roundedMinutes, 0, 0);
-  
+
   return format(minTime, "HH:mm");
 };
 
@@ -60,23 +55,23 @@ const getMinDate = () => {
 
 const isTimeValidForDate = (time, date) => {
   if (!time || !date) return false;
-  
+
   const now = new Date();
   const currentDate = format(now, "yyyy-MM-dd");
   const selectedDate = format(date, "yyyy-MM-dd");
-  
+
   // If not today, any time is valid
   if (currentDate !== selectedDate) return true;
-  
+
   // For today, check if time is at least 30 minutes in advance
   const [hours, minutes] = time.split(':').map(Number);
   const selectedTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-  const minValidTime = new Date(now.getTime() + 30 * 60000);
-  
+  const minValidTime = new Date(now.getTime() + 25 * 60000);
+
   // Allow exactly 30 minutes or more (with small tolerance for milliseconds)
   const timeDifference = selectedTime.getTime() - now.getTime();
-  const thirtyMinutesInMs = 30 * 60 * 1000;
-  
+  const thirtyMinutesInMs = 25 * 60 * 1000;
+
   return timeDifference >= (thirtyMinutesInMs - 1000); // Allow 1 second tolerance
 };
 
@@ -110,47 +105,47 @@ const Page = () => {
   useEffect(() => {
     const now = new Date();
     const minTime = new Date(now.getTime() + 30 * 60000);
-    
+
     const minutes = minTime.getMinutes();
     const roundedMinutes = Math.ceil(minutes / 5) * 5;
     minTime.setMinutes(roundedMinutes, 0, 0);
-    
-    // Ensure the minimum time is valid (at least 30 minutes from now)
+
+    // Ensure the minimum time is valid (at least 40 minutes from now)
     const validDeliveryTime = minTime > now ? minTime : new Date(now.getTime() + 30 * 60000);
-    
+
     setFormData(prev => ({
       ...prev,
       deliveryDate: now,
       deliveryTime: format(validDeliveryTime, "HH:mm")
     }));
-    
+
     setLoading(false);
   }, []);
 
   // Validate delivery time every minute to ensure it's still valid
   useEffect(() => {
     if (!formData.deliveryDate || !formData.deliveryTime) return;
-    
+
     const validateInterval = setInterval(() => {
       const now = new Date();
       const currentDate = format(now, "yyyy-MM-dd");
       const selectedDate = format(formData.deliveryDate, "yyyy-MM-dd");
-      
+
       // If delivery is scheduled for today, check if time is still valid
       if (currentDate === selectedDate) {
         const [hours, minutes] = formData.deliveryTime.split(':').map(Number);
         const selectedTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-        
+
         const timeDifference = selectedTime.getTime() - now.getTime();
-        const thirtyMinutesInMs = 30 * 60 * 1000;
-        
+        const thirtyMinutesInMs = 25 * 60 * 1000;
+
         if (timeDifference < (thirtyMinutesInMs - 1000)) { // Allow 1 second tolerance
           // Auto-adjust to next valid time
           const newMinTime = new Date(now.getTime() + 30 * 60000);
           const newMinutes = newMinTime.getMinutes();
           const newRoundedMinutes = Math.ceil(newMinutes / 5) * 5;
           newMinTime.setMinutes(newRoundedMinutes, 0, 0);
-          
+
           setFormData(prev => ({
             ...prev,
             deliveryTime: format(newMinTime, "HH:mm")
@@ -158,13 +153,13 @@ const Page = () => {
         }
       }
     }, 60000); // Check every minute
-    
+
     return () => clearInterval(validateInterval);
   }, [formData.deliveryDate, formData.deliveryTime]);
 
   const initializeAddressesField = useCallback(async () => {
     if (!user || !jwt) return;
-    
+
     try {
       const userResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
@@ -174,11 +169,11 @@ const Page = () => {
           },
         }
       );
-      
+
       if (!userResponse.ok) {
         throw new Error("Failed to fetch user data");
       }
-      
+
       const userData = await userResponse.json();
       if (!userData.id) {
         throw new Error("User ID not found");
@@ -198,7 +193,7 @@ const Page = () => {
             }),
           }
         );
-        
+
         if (initResponse.ok) {
           setSavedAddresses([]);
         }
@@ -209,7 +204,7 @@ const Page = () => {
 
   const fetchSavedAddresses = useCallback(async () => {
     if (!user || !jwt || addressesFetched) return;
-    
+
     try {
       setAddressesLoading(true);
       const response = await fetch(
@@ -220,18 +215,18 @@ const Page = () => {
           },
         }
       );
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch user data");
       }
-      
+
       const userData = await response.json();
-      
+
       // Set userData state so username is available for pickup mode
       setUserData(userData);
-      
+
       let userAddresses = [];
-      
+
       if (userData.addresses && Array.isArray(userData.addresses)) {
         userAddresses = userData.addresses;
       } else if (userData.data && userData.data.addresses && Array.isArray(userData.data.addresses)) {
@@ -241,7 +236,7 @@ const Page = () => {
       } else if (userData.address && Array.isArray(userData.address)) {
         userAddresses = userData.address;
       }
-      
+
       if (!userAddresses) {
         userAddresses = [];
         try {
@@ -258,16 +253,16 @@ const Page = () => {
               }),
             }
           );
-          
+
           if (!initResponse.ok) {
           }
         } catch (initError) {
         }
       }
-      
-            setSavedAddresses(userAddresses);
+
+      setSavedAddresses(userAddresses);
       setAddressesFetched(true);
-      
+
       // Don't auto-populate form - keep it empty by default
       // User can manually select an address if they want to use a saved one
     } catch (error) {
@@ -314,11 +309,11 @@ const Page = () => {
           },
         }
       );
-      
+
       if (!userResponse.ok) {
         throw new Error("Failed to fetch user data");
       }
-      
+
       const userData = await userResponse.json();
       if (!userData.id) {
         throw new Error("User ID not found");
@@ -346,7 +341,7 @@ const Page = () => {
       }
 
       setSavedAddresses(updatedAddresses);
-      
+
       if (selectedAddressId === addressId) {
         setFormData(prev => ({
           ...prev,
@@ -385,17 +380,17 @@ const Page = () => {
 
   const handleUpdateAddress = useCallback(async () => {
     if (!editingAddress) return;
-    
+
     if (!formData.name || formData.name.trim().length < 2) {
       toast.error("Please enter a valid name (at least 2 characters) for your address.");
       return;
     }
-    
+
     if (!formData.phone || formData.phone.trim().length < 10) {
       toast.error("Please enter a valid phone number (at least 10 digits) for your address.");
       return;
     }
-    
+
     if (!formData.address || formData.address.trim().length < 5) {
       toast.error("Please enter a valid address (at least 5 characters) for your location.");
       return;
@@ -412,11 +407,11 @@ const Page = () => {
           },
         }
       );
-      
+
       if (!userResponse.ok) {
         throw new Error("Failed to fetch user data");
       }
-      
+
       const userData = await userResponse.json();
       if (!userData.id) {
         throw new Error("User ID not found");
@@ -430,7 +425,7 @@ const Page = () => {
       };
 
       const currentAddresses = Array.isArray(savedAddresses) ? savedAddresses : [];
-      const updatedAddresses = currentAddresses.map(addr => 
+      const updatedAddresses = currentAddresses.map(addr =>
         addr.id === editingAddress.id ? updatedAddress : addr
       );
 
@@ -467,12 +462,12 @@ const Page = () => {
       toast.error("Please enter your name before saving your address.");
       return;
     }
-    
+
     if (!formData.phone) {
       toast.error("Please enter your phone number before saving your address.");
       return;
     }
-    
+
     if (!formData.address) {
       toast.error("Please enter your address before saving your location.");
       return;
@@ -486,7 +481,7 @@ const Page = () => {
     setSavingAddress(true);
 
     try {
-      
+
       const userResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
         {
@@ -495,11 +490,11 @@ const Page = () => {
           },
         }
       );
-      
+
       if (!userResponse.ok) {
         throw new Error("Failed to fetch user data");
       }
-      
+
       const userData = await userResponse.json();
       if (!userData.id) {
         throw new Error("User ID not found");
@@ -512,35 +507,35 @@ const Page = () => {
         address: formData.address.trim(),
       };
 
-      
+
       if (newAddress.name.length < 2) {
         throw new Error("Name must be at least 2 characters long");
       }
-      
+
       if (newAddress.phone.length < 10) {
         throw new Error("Phone number must be at least 10 digits");
       }
-      
+
       if (newAddress.address.length < 5) {
         throw new Error("Address must be at least 5 characters long");
       }
 
-      
+
       const existingAddresses = Array.isArray(savedAddresses) ? savedAddresses : [];
-      const isDuplicate = existingAddresses.some(addr => 
+      const isDuplicate = existingAddresses.some(addr =>
         addr.name.toLowerCase() === newAddress.name.toLowerCase() &&
         addr.phone === newAddress.phone &&
         addr.address.toLowerCase() === newAddress.address.toLowerCase()
       );
-      
+
       if (isDuplicate) {
         throw new Error("This address is already saved");
       }
 
-      
+
       const updatedAddresses = [...existingAddresses, newAddress];
 
-      
+
       let response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userData.id}`,
         {
@@ -555,7 +550,7 @@ const Page = () => {
         }
       );
 
-      
+
       if (!response.ok) {
         response = await fetch(
           `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userData.id}`,
@@ -580,9 +575,9 @@ const Page = () => {
       setSavedAddresses(updatedAddresses);
       setSelectedAddressId(newAddress.id);
       setEditingAddress(null);
-      
+
       toast.success("Excellent! Your address has been saved successfully.");
-      
+
     } catch (error) {
       toast.error(error.message || "We couldn't save your address right now. Please try again.");
     } finally {
@@ -603,14 +598,14 @@ const Page = () => {
 
   const refreshAddresses = useCallback(async () => {
     if (!user || !jwt) return;
-    
+
     setAddressesFetched(false);
     await fetchSavedAddresses();
   }, [user, jwt]);
 
   const handleModeChange = useCallback((mode) => {
     setFormData(prev => ({ ...prev, deliveryMode: mode }));
-    
+
     if (mode === 'pickup') {
       setFormData(prev => ({
         ...prev,
@@ -631,7 +626,7 @@ const Page = () => {
       setSelectedAddressId(null);
       setShowAddressForm(true); // Show form by default for delivery
       setEditingAddress(null);
-      
+
       // Keep form empty by default - user can manually select a saved address if needed
     }
   }, [savedAddresses, selectedAddressId, userData]);
@@ -640,7 +635,7 @@ const Page = () => {
 
   const handleFormChange = useCallback((name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     if (['name', 'phone', 'address'].includes(name) && selectedAddressId) {
       setSelectedAddressId(null);
     }
@@ -648,28 +643,28 @@ const Page = () => {
 
   const handleDateChange = useCallback((date, minTime) => {
     if (!date) return;
-    
+
     const now = new Date();
     const selectedDate = new Date(date);
-    
+
     // Check if selected date is in the past
     if (selectedDate < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
       toast.error("Sorry, you cannot select a past date for delivery.");
       return;
     }
-    
+
     // If selecting today, ensure the current time is valid
     if (format(now, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")) {
       const currentTime = new Date();
       const timeDifference = selectedDate.getTime() - currentTime.getTime();
-      const thirtyMinutesInMs = 30 * 60 * 1000;
-      
+      const thirtyMinutesInMs = 25 * 60 * 1000;
+
       if (timeDifference < (thirtyMinutesInMs - 1000)) { // Allow 1 second tolerance
         toast.error("Please schedule your delivery at least 30 minutes from now.");
         return;
       }
     }
-    
+
     // If changing to today and current time is invalid, adjust the time
     if (format(now, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")) {
       const currentTime = new Date();
@@ -677,16 +672,16 @@ const Page = () => {
       const minutes = minValidTime.getMinutes();
       const roundedMinutes = Math.ceil(minutes / 5) * 5;
       minValidTime.setMinutes(roundedMinutes, 0, 0);
-      
+
       minTime = format(minValidTime, "HH:mm");
     }
-    
+
     setFormData(prev => ({
       ...prev,
       deliveryDate: date,
       deliveryTime: minTime || prev.deliveryTime,
     }));
-    
+
     if (date) {
       const formattedDate = format(date, "EEEE, MMMM do, yyyy");
       toast.success(`Perfect! Your delivery is scheduled for ${formattedDate}`);
@@ -695,20 +690,20 @@ const Page = () => {
 
   const handleTimeChange = useCallback((time) => {
     if (!time) return;
-    
+
     // Use the validation function
     if (!isTimeValidForDate(time, formData.deliveryDate)) {
       toast.error("Please schedule your delivery at least 30 minutes from now.");
       return;
     }
-    
+
     setFormData(prev => ({ ...prev, deliveryTime: time }));
   }, [formData.deliveryDate]);
 
   const fetchTaxPercentage = useCallback(async () => {
     try {
       setTaxLoading(true);
-      
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/admin`,
         {
@@ -718,16 +713,16 @@ const Page = () => {
           },
         }
       );
-      
+
       if (!response.ok) {
         setTaxPercentage(10);
         return;
       }
-      
+
       const data = await response.json();
-      
-      let taxValue = 10; 
-      
+
+      let taxValue = 10;
+
       if (data.data && data.data.taxPercentage !== undefined) {
         taxValue = Number(data.data.taxPercentage);
       } else if (data.taxPercentage !== undefined) {
@@ -735,13 +730,13 @@ const Page = () => {
       } else if (data.data && data.data.attributes && data.data.attributes.taxPercentage !== undefined) {
         taxValue = Number(data.data.attributes.taxPercentage);
       }
-      
+
       if (isNaN(taxValue) || taxValue < 0 || taxValue > 100) {
         taxValue = 10;
       }
-      
+
       setTaxPercentage(taxValue);
-      
+
     } catch (error) {
       setTaxPercentage(10);
     } finally {
@@ -800,18 +795,18 @@ const Page = () => {
     const checkAuth = async () => {
       const userCookie = getCookie("user");
       const jwtCookie = getCookie("jwt");
-      
+
       if (!userCookie || !jwtCookie) {
         toast.error("Please sign in to complete your order");
         router.push("/login");
         return;
       }
-      
+
       setUser(userCookie);
       setJwt(jwtCookie);
       const storedZipCode = typeof window !== "undefined" ? (localStorage.getItem("zipcode") || "") : "";
       setFormData((prev) => ({ ...prev, user: userCookie }));
-      
+
       // Load cart items directly instead of calling validateCart
       const storedCartItems = localStorage.getItem("cart");
       if (storedCartItems) {
@@ -819,20 +814,20 @@ const Page = () => {
           const cartData = JSON.parse(storedCartItems);
           if (cartData && Array.isArray(cartData) && cartData.length > 0) {
             // Validate cart data structure
-            const isValidCart = cartData.every(vendor => 
-              vendor && 
-              vendor.vendorId && 
-              vendor.dishes && 
-              Array.isArray(vendor.dishes) && 
+            const isValidCart = cartData.every(vendor =>
+              vendor &&
+              vendor.vendorId &&
+              vendor.dishes &&
+              Array.isArray(vendor.dishes) &&
               vendor.dishes.length > 0 &&
-              vendor.dishes.every(dish => 
-                dish && 
-                dish.basePrice && 
-                dish.quantity && 
+              vendor.dishes.every(dish =>
+                dish &&
+                dish.basePrice &&
+                dish.quantity &&
                 dish.quantity > 0
               )
             );
-            
+
             if (isValidCart) {
               setCartItems(cartData);
             } else {
@@ -863,14 +858,14 @@ const Page = () => {
       }
     };
     checkAuth();
-    
+
     const taxTimeout = setTimeout(() => {
       if (taxLoading) {
         setTaxPercentage(10);
         setTaxLoading(false);
       }
-    }, 5000); 
-    
+    }, 5000);
+
     fetchTaxPercentage().finally(() => {
       clearTimeout(taxTimeout);
     });
@@ -912,7 +907,7 @@ const Page = () => {
         return (
           dishSum +
           (Number(dish.basePrice) + toppingsTotal + extrasTotal) *
-            Number(dish.quantity)
+          Number(dish.quantity)
         );
       }, 0);
       return sum + vendorTotal;
@@ -950,7 +945,7 @@ const Page = () => {
   useEffect(() => {
     if (formData.deliveryMode === 'pickup' && userData && Object.keys(userData).length > 0) {
       const username = userData?.username || userData?.data?.username || userData?.attributes?.username || "";
-      
+
       if (username) {
         setFormData(prev => ({
           ...prev,
@@ -970,28 +965,28 @@ const Page = () => {
       if (!user) {
         throw new Error("Authentication required");
       }
-      
+
       // Validate required order data
       if (!orderData.vendorId) {
         throw new Error("Vendor ID is required");
       }
-      
+
       if (!orderData.dishes || orderData.dishes.length === 0) {
         throw new Error("Order must contain dishes");
       }
-      
+
       if (!orderData.customerName || !orderData.customerName.trim()) {
         throw new Error("Customer name is required");
       }
-      
+
       if (orderData.deliveryType === "delivery" && (!orderData.phone || !orderData.phone.trim())) {
         throw new Error("Phone number is required for delivery orders");
       }
-      
+
       if (orderData.deliveryType === "delivery" && (!orderData.address || !orderData.address.trim())) {
         throw new Error("Delivery address is required");
       }
-      
+
       const cleanOrderData = {
         ...orderData,
         user,
@@ -1006,7 +1001,7 @@ const Page = () => {
         deliveryFee: Number(orderData.deliveryFee) || 0,
         vendorDeliveryFee: Number(orderData.vendorDeliveryFee) || 0,
       };
-      
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`,
         {
@@ -1018,19 +1013,19 @@ const Page = () => {
           body: JSON.stringify({ data: cleanOrderData }),
         }
       );
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error?.message || "Failed to place order");
       }
-      
+
       const result = await response.json();
-      
+
       // Validate API response
       if (!result || !result.data || !result.data.id) {
         throw new Error("Invalid response from server");
       }
-      
+
       return result;
     } catch (error) {
       throw new Error(
@@ -1043,7 +1038,7 @@ const Page = () => {
     e.preventDefault();
     setSubmitting(true);
     const customerOrderId = new Date().getTime();
-    
+
     try {
       // Validate cart has items
       if (!cartItems || cartItems.length === 0) {
@@ -1059,7 +1054,7 @@ const Page = () => {
           setSubmitting(false);
           return;
         }
-        
+
         for (const dish of vendor.dishes) {
           if (!dish.basePrice || !dish.quantity || dish.quantity <= 0) {
             toast.error("Some dish information in your cart is invalid. Please refresh and try again.");
@@ -1093,7 +1088,7 @@ const Page = () => {
           setSubmitting(false);
           return;
         }
-        
+
         // Ensure name is set for pickup
         if (!formData.name || !formData.name.trim()) {
           toast.error("Please provide your name for pickup orders");
@@ -1107,13 +1102,13 @@ const Page = () => {
           setSubmitting(false);
           return;
         }
-        
+
         if (!formData.phone || !formData.phone.trim()) {
           toast.error("Please fill in your phone number to continue");
           setSubmitting(false);
           return;
         }
-        
+
         if (!formData.address || !formData.address.trim()) {
           toast.error("Please fill in your delivery address to continue");
           setSubmitting(false);
@@ -1145,7 +1140,7 @@ const Page = () => {
           return (
             sum +
             (Number(dish.basePrice) + toppingsTotal + extrasTotal) *
-              Number(dish.quantity)
+            Number(dish.quantity)
           );
         }, 0);
         return {
@@ -1153,7 +1148,7 @@ const Page = () => {
           proportion: orderSubtotal > 0 ? vendorSubtotal / orderSubtotal : 0,
         };
       });
-      
+
       const orderPromises = cartItems.map((vendor, index) => {
         const { subtotal: vendorSubtotal } = vendorProportions[index];
         const vendorTax = Number(
@@ -1162,13 +1157,13 @@ const Page = () => {
         const vendorFeeObj = deliveryFees.find(
           (fee) => fee.vendorId === vendor.vendorId
         );
-        const vendorDeliveryFee = formData.deliveryMode === "pickup" 
-          ? 0 
+        const vendorDeliveryFee = formData.deliveryMode === "pickup"
+          ? 0
           : (vendorFeeObj ? vendorFeeObj.vendorDeliveryFee : 0);
         const vendorTotal = Number(
           (vendorSubtotal + vendorTax + vendorDeliveryFee).toFixed(2)
         );
-        
+
         // Validate vendor data before creating order
         if (!vendor.vendorId) {
           throw new Error("Vendor information is missing. Please refresh and try again.");
@@ -1214,16 +1209,16 @@ const Page = () => {
         }
         return addOrder(orderData);
       });
-      
+
       const orderResults = await Promise.all(orderPromises);
-      
+
       // Validate that all orders were created successfully
       for (const result of orderResults) {
         if (!result || !result.data || !result.data.id) {
           throw new Error("Failed to create one or more orders. Please try again.");
         }
       }
-      
+
       toast.success("Excellent! Your order has been placed successfully!");
       localStorage.removeItem("cart");
       // Notify navbar about cart update
@@ -1243,23 +1238,23 @@ const Page = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 text-center transform hover:scale-105 transition-all duration-300">
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center transform hover:scale-105 transition-all duration-300">
             {/* Icon */}
             <div className="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShoppingCart className="w-10 h-10 text-rose-500" />
             </div>
-            
+
             {/* Title */}
             <h2 className="text-3xl font-bold tracking-tight mb-3 text-gray-800">
               Your Cart is Empty
             </h2>
-            
+
             {/* Description */}
             <p className="text-gray-600 mb-8 text-lg leading-relaxed">
-              Looks like you haven&apos;t added any delicious dishes yet. 
+              Looks like you haven&apos;t added any delicious dishes yet.
               Start exploring our menu and add some tasty items to your cart!
             </p>
-            
+
             {/* Action Button */}
             <div className="space-y-4">
               <button
@@ -1268,7 +1263,7 @@ const Page = () => {
               >
                 🛒 Go to Cart
               </button>
-              
+
               <button
                 onClick={() => router.push("/explore")}
                 className="w-full text-center block text-rose-600 px-6 py-3 rounded-full border-2 border-rose-600 hover:bg-rose-600 hover:text-white transition-all font-medium text-lg"
@@ -1276,7 +1271,7 @@ const Page = () => {
                 🍽️ Explore Menu
               </button>
             </div>
-            
+
             {/* Decorative Elements */}
             <div className="absolute top-4 right-4 w-3 h-3 bg-rose-200 rounded-full opacity-60"></div>
             <div className="absolute bottom-4 left-4 w-2 h-2 bg-rose-300 rounded-full opacity-40"></div>
@@ -1289,132 +1284,202 @@ const Page = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <form onSubmit={handleSubmit} className="mx-3">
-        <div className="w-full mx-auto pb-10 px-2 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] col-span-2 mb-6 md:mb-0">
-            <h2 className="text-2xl font-black tracking-tight mb-8 text-rose-600 flex items-center gap-2">
-              <ShoppingCart className="inline" />
-              Checkout
-            </h2>
-            
-            <AddressModeSelector
-              selectedMode={formData.deliveryMode}
-              onModeChange={handleModeChange}
-            />
-            
-            <div className="mb-6 sm:mb-8">
-              <h3 className="font-black text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 text-black flex items-center gap-2">
-                <User className="inline w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" /> Order Information
-              </h3>
-              
-              {formData.deliveryMode === "delivery" && (
-                <DeliveryAddressSelector
-                  formData={formData}
-                  onFormChange={handleFormChange}
-                  savedAddresses={savedAddresses}
-                  selectedAddressId={selectedAddressId}
-                  onAddressSelection={handleAddressSelection}
-                  onEditAddress={handleEditAddress}
-                  onDeleteAddress={handleAddressDeletion}
-                  onRefreshAddresses={refreshAddresses}
-                  onAddNewAddress={handleAddNewAddress}
-                  addressesLoading={addressesLoading}
-                  onSaveAddress={saveCurrentAddress}
-                  onUpdateAddress={handleUpdateAddress}
-                  onCancelEdit={handleCancelEdit}
-                  editingAddress={editingAddress}
-                  savingAddress={savingAddress}
-                  showAddressForm={showAddressForm}
-                  setShowAddressForm={setShowAddressForm}
-                />
-              )}
-              
-              {formData.deliveryMode === "pickup" && (
-                <div className="py-6 sm:py-8">
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6 sm:p-8 shadow-sm">
-                    <div className="text-center mb-8">
-                      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl mb-4 shadow-lg">
-                        <FaShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                      </div>
-                      <div className="font-bold text-green-800 mb-2 text-lg sm:text-xl">Pickup Order</div>
-                      <div className="text-sm text-green-600 mb-1">You&apos;ll collect your order from the restaurants below</div>
-                      <div className="text-xs text-green-500 bg-green-100 px-3 py-1 rounded-full inline-block">
-                        No customer details required
-                      </div>
-                    </div>
-                    
-                    {cartItems.length > 0 && (
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2 mb-4">
-                          <FaStore className="w-4 h-4 text-green-600" />
-                          <span className="font-semibold text-green-800 text-sm">Pickup Locations</span>
+        <div className="w-full mx-auto pb-10 px-2 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-3xl p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] col-span-1 md:col-span-2 mb-6 md:mb-0 relative overflow-hidden">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-rose-100 to-pink-100 rounded-full -translate-y-16 translate-x-16 opacity-60"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-gray-100 to-gray-100 rounded-full translate-y-12 -translate-x-12 opacity-40"></div>
+
+            <div className="relative z-10">
+              <h2 className="text-3xl font-black tracking-tight mb-8 text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600 flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-pink-500 rounded-full flex items-center justify-center">
+                  <ShoppingCart className="w-5 h-5 text-white" />
+                </div>
+                Checkout
+              </h2>
+
+              <AddressModeSelector
+                selectedMode={formData.deliveryMode}
+                onModeChange={handleModeChange}
+              />
+
+              <div className="mb-6 sm:mb-8">
+                <h3 className="font-black text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 text-black flex items-center gap-2">
+                  <User className="inline w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" /> Order Information
+                </h3>
+
+                {formData.deliveryMode === "delivery" && (
+                  <DeliveryAddressSelector
+                    formData={formData}
+                    onFormChange={handleFormChange}
+                    savedAddresses={savedAddresses}
+                    selectedAddressId={selectedAddressId}
+                    onAddressSelection={handleAddressSelection}
+                    onEditAddress={handleEditAddress}
+                    onDeleteAddress={handleAddressDeletion}
+                    onRefreshAddresses={refreshAddresses}
+                    onAddNewAddress={handleAddNewAddress}
+                    addressesLoading={addressesLoading}
+                    onSaveAddress={saveCurrentAddress}
+                    onUpdateAddress={handleUpdateAddress}
+                    onCancelEdit={handleCancelEdit}
+                    editingAddress={editingAddress}
+                    savingAddress={savingAddress}
+                    showAddressForm={showAddressForm}
+                    setShowAddressForm={setShowAddressForm}
+                  />
+                )}
+
+                {formData.deliveryMode === "pickup" && (
+                  <div className="">
+                    <div className="border-2 border-gray-200 rounded-xl p-4">
+                      {/* Header */}
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                          <FaStore className="w-5 h-5 text-white" />
                         </div>
-                        {cartItems.map((vendor, index) => (
-                          <div key={vendor.vendorId} className="group bg-white rounded-xl p-5 border border-green-200 hover:border-green-300 transition-all duration-200 shadow-sm hover:shadow-md">
-                            <div className="flex items-start gap-4">
-                         
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <FaStore className="w-4 h-4 text-green-600 flex-shrink-0" />
-                                  <div className="font-bold text-green-900 text-base">
-                                    {vendor.vendorName}
+                        <div>
+                          <h3 className="text-lg font-bold text-green-600">Pickup Locations</h3>
+                          <p className="text-sm text-gray-600">Collect your order from these restaurants</p>
+                        </div>
+                      </div>
+
+                      {cartItems.length > 0 && (
+                        <div className="space-y-4">
+                          {cartItems.map((vendor, index) => (
+                            <div key={vendor.vendorId} className="group border-2 border-gray-200 rounded-xl p-4 shadow-md transition-shadow duration-300">
+                              {/* Vendor Header */}
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <FaStore className="w-6 h-6 text-white" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-bold text-green-600 text-lg leading-tight">
+                                      {vendor.vendorName || vendor.storeName || "Restaurant"}
+                                    </h4>
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                      <span className="text-sm text-green-600 font-medium">Available for Pickup</span>
+                                    </div>
                                   </div>
                                 </div>
-                                <div className="flex items-start gap-2 mb-3">
-                                  <FaMapMarkerAlt className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                                  <div className="text-green-700 text-sm leading-relaxed">
-                                    {vendor.vendorAddress}
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <FaBox className="w-4 h-4 text-green-400" />
-                                  <div className="text-green-600 text-sm font-medium">
-                                    {vendor.dishes.length} item{vendor.dishes.length !== 1 ? 's' : ''} from this location
+                                <div className="text-right">
+                                  <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
+                                    #{index + 1}
                                   </div>
                                 </div>
                               </div>
+
+                              {/* Vendor Details */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                {/* Address Section */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                  <div className="flex items-start gap-3">
+                                    <FaMapMarkerAlt className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                    <div>
+                                      <h5 className="font-semibold text-gray-800 text-sm mb-1">Pickup Address</h5>
+                                      <p className="text-gray-700 text-sm leading-relaxed">
+                                        {vendor.vendorAddress || "Address not available"}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Order Summary */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                  <div className="flex items-start gap-3">
+                                    <FaBox className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5 text-green-600" />
+                                    <div>
+                                      <h5 className="font-semibold text-gray-800 text-sm mb-1">Order Summary</h5>
+                                      <div className="space-y-1">
+                                        <p className="text-gray-700 text-sm">
+                                          <span className="font-bold text-lg text-green-600">{vendor.dishes.length}</span> item{vendor.dishes.length !== 1 ? 's' : ''}
+                                        </p>
+                                        <p className="text-gray-600 text-xs">
+                                          Total {" "}
+                                          <span className="font-bold text-lg text-green-600 ">
+
+                                            ${vendor.dishes.reduce((sum, dish) => {
+                                              const toppingsTotal = dish.toppings.reduce((tSum, topping) => tSum + (Number(topping.price) || 0), 0);
+                                              const extrasTotal = dish.extras.reduce((eSum, extra) => eSum + (Number(extra.price) || 0), 0);
+                                              return sum + (Number(dish.basePrice) + toppingsTotal + extrasTotal) * Number(dish.quantity);
+                                            }, 0).toFixed(2)}
+                                          </span>
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+
+                              {/* Quick Actions */}
+                              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                                <div className="flex items-center gap-2 text-sm text-green-600">
+                                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                  <span>Order will be prepared at pickup time</span>
+                                </div>
+                              </div>
                             </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Pickup Mode Benefits */}
+                      <div className="mt-6 bg-green-50 border-2 border-green-200 rounded-xl p-4 ">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-sm font-bold">✓</span>
                           </div>
-                        ))}
+                          <div>
+                            <h4 className="font-semibold text-green-800 text-sm">Pickup Benefits</h4>
+                            <p className="text-green-700 text-xs">No delivery fees • Faster service • Direct communication with restaurant</p>
+                          </div>
+                        </div>
                       </div>
-                    )}
+                    </div>
                   </div>
+                )}
+
+                <div className="mt-4 sm:mt-6">
+                  <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-3 mb-2">
+                    Delivery Instructions
+                  </label>
+                  <textarea
+                    name="note"
+                    value={formData.note}
+                    onChange={(e) => handleFormChange('note', e.target.value)}
+                    placeholder="Special instructions or notes for your order"
+                    className="w-full px-3 sm:px-4 py-2 my-1 border rounded-lg sm:rounded-xl outline-rose-400 h-20 sm:h-24 resize-none text-sm sm:text-base bg-slate-100"
+                  />
                 </div>
-              )}
-              
-              <div className="mt-4 sm:mt-6">
-                <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-3 mb-2">
-                  Delivery Instructions
-                </label>
-                <textarea
-                  name="note"
-                  value={formData.note}
-                  onChange={(e) => handleFormChange('note', e.target.value)}
-                  placeholder="Special instructions or notes for your order"
-                  className="w-full px-3 sm:px-4 py-2 my-1 border rounded-lg sm:rounded-xl outline-rose-400 h-20 sm:h-24 resize-none text-sm sm:text-base bg-slate-100"
-                />
               </div>
+
+              <DeliverySchedule
+                deliveryDate={formData.deliveryDate}
+                deliveryTime={formData.deliveryTime}
+                deliveryType={formData.deliveryMode}
+                onDateChange={handleDateChange}
+                onTimeChange={handleTimeChange}
+                getMinTimeForDate={getMinTimeForDate}
+                getMinDate={getMinDate}
+              />
             </div>
-            
-            <DeliverySchedule
-              deliveryDate={formData.deliveryDate}
-              deliveryTime={formData.deliveryTime}
-              onDateChange={handleDateChange}
-              onTimeChange={handleTimeChange}
-              getMinTimeForDate={getMinTimeForDate}
-              getMinDate={getMinDate}
+          </div>
+
+          <div className="col-span-1 md:col-span-1">
+            <OrderSummary
+              subtotal={subtotal}
+              tax={tax}
+              deliveryFees={deliveryFees}
+              totalDeliveryFee={totalDeliveryFee}
+              total={total}
+              submitting={submitting}
+              onSubmit={handleSubmit}
+              deliveryMode={formData.deliveryMode}
             />
           </div>
-          
-          <OrderSummary
-            subtotal={subtotal}
-            tax={tax}
-            deliveryFees={deliveryFees}
-            totalDeliveryFee={totalDeliveryFee}
-            total={total}
-            submitting={submitting}
-            onSubmit={handleSubmit}
-            deliveryMode={formData.deliveryMode}
-          />
         </div>
       </form>
     </LocalizationProvider>

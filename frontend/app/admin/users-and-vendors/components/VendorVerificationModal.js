@@ -111,10 +111,13 @@ const VendorVerificationModal = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-gray-100/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-2xl w-full sm:max-w-2xl max-h-[90vh] border border-pink-100 shadow-xl flex flex-col relative">
+      <div 
+        className="bg-white rounded-2xl w-full sm:max-w-2xl max-h-[90vh] border border-pink-100 shadow-xl flex flex-col relative"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors p-2 rounded-full"

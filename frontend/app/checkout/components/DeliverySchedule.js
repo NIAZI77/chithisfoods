@@ -3,9 +3,9 @@ import { Calendar, Clock } from 'lucide-react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import dayjs from 'dayjs';
-import { format } from 'date-fns';
 
 const DeliverySchedule = ({ 
+  deliveryType,
   deliveryDate, 
   deliveryTime, 
   onDateChange, 
@@ -41,15 +41,18 @@ const DeliverySchedule = ({
     return () => clearInterval(interval);
   }, [deliveryDate, deliveryTime]);
   
+  const isPickup = deliveryType === 'pickup';
+  
   return (
     <div className="mb-6 sm:mb-8">
       <h3 className="font-black text-base sm:text-lg lg:text-xl mt-6 sm:mt-8 mb-3 sm:mb-4 text-black flex items-center gap-2">
-        <Calendar className="inline w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" /> Delivery Schedule
+        <Calendar className="inline w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" /> 
+        {isPickup ? 'Pickup Schedule' : 'Delivery Schedule'}
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-4">
         <div className="flex flex-col gap-1 px-1">
-          <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-3 mb-1 sm:mb-2">
-            Delivery Date
+          <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-1 -mb-2">
+            {isPickup ? 'Pickup Date' : 'Delivery Date'}
           </label>
           <div className="w-full">
             <DatePicker
@@ -77,22 +80,20 @@ const DeliverySchedule = ({
                 '& .MuiIconButton-root': {
                   marginBottom: '-5px',
                 },
-                '& .MuiInputBase-root': {
-                  fontSize: '14px',
-                  backgroundColor: '#f1f5f9', // slate-100
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
                   '@media (min-width: 640px)': {
-                    fontSize: '16px',
+                    padding: '14px 18px',
                   }
                 }
               }}
             />
-
           </div>
         </div>
         
         <div className="flex flex-col gap-1 px-1">
-          <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-3 mb-1 sm:mb-2">
-            Delivery Time
+          <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-1 -mb-2">
+            {isPickup ? 'Pickup Time' : 'Delivery Time'}
           </label>
           <div className="w-full">
             <TimePicker
@@ -114,11 +115,10 @@ const DeliverySchedule = ({
                 '& .MuiIconButton-root': {
                   marginBottom: '-5px',
                 },
-                '& .MuiInputBase-root': {
-                  fontSize: '14px',
-                  backgroundColor: '#f1f5f9', // slate-100
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
                   '@media (min-width: 640px)': {
-                    fontSize: '16px',
+                    padding: '14px 18px',
                   }
                 }
               }}
