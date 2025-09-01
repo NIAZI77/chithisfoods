@@ -85,7 +85,8 @@ const Footer = () => {
                 <div className="flex items-start space-x-3">
                   <FaMapMarkerAlt className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-gray-700 font-medium">
-                    2501 Chatham Rd Springfield,<br/> IL 62704
+                    2501 Chatham Rd Springfield,
+                    <br /> IL 62704
                   </p>
                 </div>
               </div>

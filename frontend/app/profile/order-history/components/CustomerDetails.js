@@ -24,8 +24,8 @@ function CustomerDetails({ order }) {
         <div className="bg-gradient-to-r from-rose-50 to-rose-50 rounded-lg p-3 border border-rose-100">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm">
-              <img 
-                src={order.vendorAvatar || "/fallback.png"} 
+              <img
+                src={order.vendorAvatar || "/fallback.png"}
                 alt={order.vendorName || "Vendor"}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -48,7 +48,7 @@ function CustomerDetails({ order }) {
               )}
             </div>
           </div>
-          
+
           {/* Vendor Address - Inline compact design */}
           {order.vendorAddress && (
             <div className="mt-2 flex items-center gap-2 bg-white rounded-md px-3 py-2 border border-rose-200">
@@ -56,7 +56,9 @@ function CustomerDetails({ order }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-rose-600 font-medium">
-                    {order.deliveryType === "pickup" ? "Pickup Location" : "Vendor Location"}
+                    {order.deliveryType === "pickup"
+                      ? "Pickup Location"
+                      : "Vendor Location"}
                   </span>
                   {order.deliveryType === "pickup" && (
                     <DeliveryTypeBadge deliveryType="pickup" variant="soft" />
@@ -69,7 +71,7 @@ function CustomerDetails({ order }) {
             </div>
           )}
         </div>
-        
+
         {order.customerName && (
           <div className="flex items-start gap-2">
             <User className="w-4 h-4 text-gray-500 mt-0.5" />
@@ -86,9 +88,7 @@ function CustomerDetails({ order }) {
             <Phone className="w-4 h-4 text-gray-500 mt-0.5" />
             <div>
               <p className="text-gray-500 text-xs mb-0.5">Phone Number</p>
-              <p className="text-xs text-gray-800 font-medium">
-                {order.phone}
-              </p>
+              <p className="text-xs text-gray-800 font-medium">{order.phone}</p>
             </div>
           </div>
         )}
@@ -122,7 +122,10 @@ function CustomerDetails({ order }) {
               <div>
                 <p className="text-gray-500 text-xs mb-0.5">Order Type</p>
                 <div className="mt-1">
-                  <DeliveryTypeBadge deliveryType={order.deliveryType} variant="soft" />
+                  <DeliveryTypeBadge
+                    deliveryType={order.deliveryType}
+                    variant="soft"
+                  />
                 </div>
               </div>
             </div>
@@ -170,10 +173,12 @@ function CustomerDetails({ order }) {
                 <div>
                   <p className="text-gray-500 text-xs mb-0.5">Delivery Time</p>
                   <p className="text-xs text-gray-800 font-medium">
-                    {new Date(`2000-01-01T${order.deliveryTime}`).toLocaleTimeString([], {
+                    {new Date(
+                      `2000-01-01T${order.deliveryTime}`
+                    ).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
-                      hour12: true
+                      hour12: true,
                     })}
                   </p>
                 </div>
@@ -186,9 +191,7 @@ function CustomerDetails({ order }) {
             <FileText className="w-4 h-4 text-gray-500 mt-0.5" />
             <div>
               <p className="text-gray-500 text-xs mb-0.5">Order Note</p>
-              <p className="text-xs text-gray-800 font-medium">
-                {order.note}
-              </p>
+              <p className="text-xs text-gray-800 font-medium">{order.note}</p>
             </div>
           </div>
         )}

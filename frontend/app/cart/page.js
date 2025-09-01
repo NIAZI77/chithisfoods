@@ -58,19 +58,33 @@ export default function CartPage() {
       const updatedCart = await Promise.all(
         cartData.map(async (vendorGroup) => {
           // If vendor data is missing or incomplete, fetch it from API
-          if (!vendorGroup.vendorAvatar || !vendorGroup.vendorUsername || !vendorGroup.vendorName) {
+          if (
+            !vendorGroup.vendorAvatar ||
+            !vendorGroup.vendorUsername ||
+            !vendorGroup.vendorName
+          ) {
             const vendorData = await fetchVendorData(vendorGroup.vendorId);
             if (vendorData) {
               // Construct vendor address from vendor data
-              const vendorAddress = vendorData.businessAddress && vendorData.city && vendorData.zipcode 
-                ? `${vendorData.businessAddress}, ${vendorData.city}, ${vendorData.zipcode}`
-                : vendorData.businessAddress || "Address not available";
-              
+              const vendorAddress =
+                vendorData.businessAddress &&
+                vendorData.city &&
+                vendorData.zipcode
+                  ? `${vendorData.businessAddress}, ${vendorData.city}, ${vendorData.zipcode}`
+                  : vendorData.businessAddress || "Address not available";
+
               return {
                 ...vendorGroup,
-                vendorName: vendorData.storeName || vendorData.fullName || "Unknown Vendor",
-                vendorUsername: vendorData.username || vendorGroup.vendorUsername || "",
-                vendorAvatar: vendorData.avatar?.url || vendorGroup.vendorAvatar || "/fallback.png",
+                vendorName:
+                  vendorData.storeName ||
+                  vendorData.fullName ||
+                  "Unknown Vendor",
+                vendorUsername:
+                  vendorData.username || vendorGroup.vendorUsername || "",
+                vendorAvatar:
+                  vendorData.avatar?.url ||
+                  vendorGroup.vendorAvatar ||
+                  "/fallback.png",
                 vendorAddress: vendorAddress,
               };
             } else {
@@ -80,7 +94,8 @@ export default function CartPage() {
                 vendorName: vendorGroup.vendorName || "Unknown Vendor",
                 vendorUsername: vendorGroup.vendorUsername || "",
                 vendorAvatar: vendorGroup.vendorAvatar || "/fallback.png",
-                vendorAddress: vendorGroup.vendorAddress || "Address not available",
+                vendorAddress:
+                  vendorGroup.vendorAddress || "Address not available",
               };
             }
           }
@@ -100,7 +115,7 @@ export default function CartPage() {
         try {
           const parsedCart = JSON.parse(savedCart);
           const cartArray = Array.isArray(parsedCart) ? parsedCart : [];
-          
+
           // Update cart with vendor data if needed
           const updatedCart = await updateCartWithVendorData(cartArray);
           setCart(updatedCart);
@@ -195,12 +210,12 @@ export default function CartPage() {
         }
         return vendorGroup;
       });
-      
+
       // Update localStorage and notify navbar immediately
       setTimeout(() => {
         updateCartAndNotify(updatedCart);
       }, 0);
-      
+
       return updatedCart;
     });
   };
@@ -228,12 +243,12 @@ export default function CartPage() {
           return vendorGroup;
         })
         .filter(Boolean);
-      
+
       // Update localStorage and notify navbar immediately
       setTimeout(() => {
         updateCartAndNotify(updatedCart);
       }, 0);
-      
+
       return updatedCart;
     });
     toast.success(`${dish.name} has been removed from your cart`);
@@ -253,7 +268,9 @@ export default function CartPage() {
 
   const handleCheckout = () => {
     if (cart.length === 0) {
-      toast.error("Please add some delicious items to your cart before checkout");
+      toast.error(
+        "Please add some delicious items to your cart before checkout"
+      );
       return;
     }
     router.push("/checkout");
@@ -316,14 +333,15 @@ export default function CartPage() {
                           <ChefHat className="w-4 h-4 md:w-5 md:h-5" />
                           {vendorGroup.vendorName}
                         </h3>
-                        {vendorGroup.vendorUsername && vendorGroup.vendorUsername.trim() !== "" && (
-                          <Link
-                            href={`/vendors/@${vendorGroup.vendorUsername}`}
-                            className="text-xs md:text-sm text-gray-500 hover:text-rose-500 hover:underline"
-                          >
-                            @{vendorGroup.vendorUsername}
-                          </Link>
-                        )}
+                        {vendorGroup.vendorUsername &&
+                          vendorGroup.vendorUsername.trim() !== "" && (
+                            <Link
+                              href={`/vendors/@${vendorGroup.vendorUsername}`}
+                              className="text-xs md:text-sm text-gray-500 hover:text-rose-500 hover:underline"
+                            >
+                              @{vendorGroup.vendorUsername}
+                            </Link>
+                          )}
                       </div>
                       <div>
                         <p className="text-xs md:text-sm text-gray-500">
@@ -386,11 +404,11 @@ export default function CartPage() {
                               className="rounded-lg object-cover w-auto h-12 aspect-video"
                             />
                             <div>
-                              <h3 className="font-semibold capitalize truncate text-sm">{
-                              dish.name.length > 12
-                                ? dish.name.slice(0, 12) + "..."
-                                : dish.name
-                                }</h3>
+                              <h3 className="font-semibold capitalize truncate text-sm">
+                                {dish.name.length > 12
+                                  ? dish.name.slice(0, 12) + "..."
+                                  : dish.name}
+                              </h3>
                               {dish.selectedSpiciness && (
                                 <div className="flex items-center gap-1 text-xs md:text-sm text-orange-400 font-bold">
                                   <Flame className="w-3 h-3 md:w-4 md:h-4" />
@@ -409,8 +427,14 @@ export default function CartPage() {
                                       key={idx}
                                       className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs md:text-sm truncate"
                                     >
-                                      <Image src={"/toppings.png"} alt="Topping" width={14} height={14} className="w-3 h-3 scale-175" />
-                                      {topping.name} 
+                                      <Image
+                                        src={"/toppings.png"}
+                                        alt="Topping"
+                                        width={14}
+                                        height={14}
+                                        className="w-3 h-3 scale-175"
+                                      />
+                                      {topping.name}
                                     </span>
                                   ))}
                                 </div>
@@ -424,7 +448,13 @@ export default function CartPage() {
                                       key={idx}
                                       className="bg-green-100 px-2 py-1 rounded-full text-green-700 flex items-center justify-center gap-1 text-xs md:text-sm truncate"
                                     >
-                                      <Image src={"/extras.png"} alt="Extra" width={14} height={14} className="w-3 h-3 scale-125" />
+                                      <Image
+                                        src={"/extras.png"}
+                                        alt="Extra"
+                                        width={14}
+                                        height={14}
+                                        className="w-3 h-3 scale-125"
+                                      />
                                       {extra.name}
                                     </span>
                                   ))}
@@ -440,7 +470,9 @@ export default function CartPage() {
                           </div>
 
                           <div className="flex items-center justify-between md:justify-center gap-2 border-t md:border-t-0 pt-3 md:pt-0">
-                            <span className="text-sm md:text-base font-medium md:hidden">Quantity:</span>
+                            <span className="text-sm md:text-base font-medium md:hidden">
+                              Quantity:
+                            </span>
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() =>
@@ -465,7 +497,9 @@ export default function CartPage() {
                           </div>
 
                           <div className="flex items-center justify-between md:justify-center border-t md:border-t-0 pt-3 md:pt-0">
-                            <span className="text-sm md:text-base font-medium md:hidden">Total:</span>
+                            <span className="text-sm md:text-base font-medium md:hidden">
+                              Total:
+                            </span>
                             <span className="text-sm md:text-base font-semibold">
                               ${dish.total}
                             </span>
@@ -492,7 +526,9 @@ export default function CartPage() {
         </div>
 
         <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm border border-gray-200 h-fit sticky top-20">
-          <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6">Order Summary</h2>
+          <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6">
+            Order Summary
+          </h2>
           <div className="space-y-3 md:space-y-4">
             <div className="flex justify-between text-sm md:text-base text-gray-600">
               <span>Items ({totalItems})</span>

@@ -1,28 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import {
-  CreditCard,
-  Plus,
-  Edit3,
-  Save,
-  X
-} from "lucide-react";
+import { CreditCard, Plus, Edit3, Save, X } from "lucide-react";
 import { toast } from "react-toastify";
 import Spinner from "@/app/components/Spinner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getCookie } from "cookies-next";
 
 const RefundDetailsManager = ({
   userId,
   initialRefundDetails,
   onRefundDetailsUpdate,
-  jwt
+  jwt,
 }) => {
   const [refundDetails, setRefundDetails] = useState({
     provider: initialRefundDetails?.provider || "paypal",
     accountId: initialRefundDetails?.accountId || "",
-    additionalInfo: initialRefundDetails?.additionalInfo || ""
+    additionalInfo: initialRefundDetails?.additionalInfo || "",
   });
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -32,7 +32,7 @@ const RefundDetailsManager = ({
   const PAYMENT_PROVIDERS = [
     { value: "paypal", label: "PayPal", color: "#0070ba" },
     { value: "bank_transfer", label: "Bank Transfer", color: "#059669" },
-    { value: "other", label: "Other", color: "#7c3aed" }
+    { value: "other", label: "Other", color: "#7c3aed" },
   ];
 
   // Function to automatically update canceled orders with new refund details (hidden from user)
@@ -44,9 +44,7 @@ const RefundDetailsManager = ({
         console.error("User email not found in cookie");
         return false;
       }
-      
-      
-      
+
       // Fetch all canceled orders for this user using email
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${userEmail}&filters[orderStatus][$eq]=cancelled&pagination[limit]=9999999999`,
@@ -59,7 +57,11 @@ const RefundDetailsManager = ({
       );
 
       if (!response.ok) {
-        console.error("Failed to fetch canceled orders:", response.status, response.statusText);
+        console.error(
+          "Failed to fetch canceled orders:",
+          response.status,
+          response.statusText
+        );
         return false;
       }
 
@@ -67,17 +69,12 @@ const RefundDetailsManager = ({
       const canceledOrders = data.data || [];
 
       if (canceledOrders.length === 0) {
-        
         return true;
       }
-
-      
 
       // Update each canceled order with the new refund details
       const updatePromises = canceledOrders.map(async (order) => {
         try {
-
-          
           const updateResponse = await fetch(
             `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders/${order.documentId}`,
             {
@@ -90,20 +87,22 @@ const RefundDetailsManager = ({
                 data: {
                   refundDetails: {
                     ...newRefundDetails,
-                    updatedAt: new Date().toISOString()
-                  }
-                }
+                    updatedAt: new Date().toISOString(),
+                  },
+                },
               }),
             }
           );
 
           if (!updateResponse.ok) {
             const errorData = await updateResponse.json();
-            console.error(`Failed to update order ${order.documentId}:`, errorData);
+            console.error(
+              `Failed to update order ${order.documentId}:`,
+              errorData
+            );
             return false;
           }
 
-          
           return true;
         } catch (error) {
           console.error(`Error updating order ${order.documentId}:`, error);
@@ -116,9 +115,10 @@ const RefundDetailsManager = ({
       const failedCount = results.length - successCount;
 
       if (failedCount > 0) {
-        console.warn(`${failedCount} orders failed to update out of ${results.length} total`);
+        console.warn(
+          `${failedCount} orders failed to update out of ${results.length} total`
+        );
       } else {
-
       }
 
       return successCount > 0;
@@ -129,9 +129,9 @@ const RefundDetailsManager = ({
   };
 
   const handleRefundDetailsChange = (field, value) => {
-    setRefundDetails(prev => ({
+    setRefundDetails((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -146,7 +146,7 @@ const RefundDetailsManager = ({
         provider: refundDetails.provider,
         accountId: refundDetails.accountId || "",
         additionalInfo: refundDetails.additionalInfo || "",
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
       // First, update the user's refund details
       const response = await fetch(
@@ -158,21 +158,20 @@ const RefundDetailsManager = ({
             Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
           },
           body: JSON.stringify({
-            refundDetails: updatedRefundDetails
+            refundDetails: updatedRefundDetails,
           }),
         }
       );
 
-      
-
       const data = await response.json();
-      
 
       if (response.ok) {
         // Update user's refund details in local state
         onRefundDetailsUpdate(updatedRefundDetails);
-        
-        toast.success("Perfect! Your refund details have been updated successfully.");
+
+        toast.success(
+          "Perfect! Your refund details have been updated successfully."
+        );
         setShowAddForm(false);
 
         // Automatically update canceled orders with new refund details
@@ -180,11 +179,16 @@ const RefundDetailsManager = ({
         await updateCanceledOrdersRefundDetails(updatedRefundDetails);
       } else {
         console.error("API Error:", data);
-        toast.error(data?.error?.message || `We couldn't update your refund details (${response.status})`);
+        toast.error(
+          data?.error?.message ||
+            `We couldn't update your refund details (${response.status})`
+        );
       }
     } catch (err) {
       console.error("Network Error:", err);
-      toast.error("We're having trouble updating your refund details. Please try again in a moment.");
+      toast.error(
+        "We're having trouble updating your refund details. Please try again in a moment."
+      );
     } finally {
       setSaving(false);
     }
@@ -198,19 +202,19 @@ const RefundDetailsManager = ({
     setRefundDetails({
       provider: initialRefundDetails?.provider || "paypal",
       accountId: initialRefundDetails?.accountId || "",
-      additionalInfo: initialRefundDetails?.additionalInfo || ""
+      additionalInfo: initialRefundDetails?.additionalInfo || "",
     });
     setShowAddForm(false);
   };
 
   const getProviderColor = (providerValue) => {
-    const provider = PAYMENT_PROVIDERS.find(p => p.value === providerValue);
+    const provider = PAYMENT_PROVIDERS.find((p) => p.value === providerValue);
     return provider ? provider.color : "#6b7280";
   };
 
   const getProviderLabel = (providerValue) => {
-    const provider = PAYMENT_PROVIDERS.find(p => p.value === providerValue);
-    return provider ? provider.label : 'Payment Provider';
+    const provider = PAYMENT_PROVIDERS.find((p) => p.value === providerValue);
+    return provider ? provider.label : "Payment Provider";
   };
 
   if (!showAddForm) {
@@ -223,7 +227,9 @@ const RefundDetailsManager = ({
                 <div className="flex items-center gap-4">
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg"
-                    style={{ backgroundColor: getProviderColor(refundDetails.provider) }}
+                    style={{
+                      backgroundColor: getProviderColor(refundDetails.provider),
+                    }}
                   >
                     <CreditCard className="w-6 h-6" />
                   </div>
@@ -266,7 +272,9 @@ const RefundDetailsManager = ({
                   <CreditCard className="w-8 h-8 text-blue-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-blue-800 font-semibold text-xl">No refund details</h3>
+                  <h3 className="text-blue-800 font-semibold text-xl">
+                    No refund details
+                  </h3>
                   <p className="text-blue-700 text-sm max-w-md">
                     Set up your refund details for smooth processing
                   </p>
@@ -289,7 +297,9 @@ const RefundDetailsManager = ({
   return (
     <div className="border-2 border-dashed border-gray-200 rounded-lg shadow-sm">
       <div className="p-6 border-b border-gray-100">
-        <h2 className="text-xl font-semibold text-gray-800">Configure Refund Details</h2>
+        <h2 className="text-xl font-semibold text-gray-800">
+          Configure Refund Details
+        </h2>
         <p className="text-gray-600 mt-1">
           Set up payment method and account details for refunds
         </p>
@@ -298,16 +308,20 @@ const RefundDetailsManager = ({
         <form onSubmit={handleSave} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Payment Provider</label>
+              <label className="text-sm font-medium text-gray-700">
+                Payment Provider
+              </label>
               <Select
                 value={refundDetails.provider}
-                onValueChange={(value) => handleRefundDetailsChange("provider", value)}
+                onValueChange={(value) =>
+                  handleRefundDetailsChange("provider", value)
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select provider" />
                 </SelectTrigger>
                 <SelectContent>
-                  {PAYMENT_PROVIDERS.map(provider => (
+                  {PAYMENT_PROVIDERS.map((provider) => (
                     <SelectItem key={provider.value} value={provider.value}>
                       <div className="flex items-center gap-2">
                         <div
@@ -324,22 +338,30 @@ const RefundDetailsManager = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Account ID</label>
+            <label className="text-sm font-medium text-gray-700">
+              Account ID
+            </label>
             <input
               type="text"
               placeholder="Email, account number, etc."
               value={refundDetails.accountId}
-              onChange={(e) => handleRefundDetailsChange("accountId", e.target.value)}
+              onChange={(e) =>
+                handleRefundDetailsChange("accountId", e.target.value)
+              }
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Additional Info</label>
+            <label className="text-sm font-medium text-gray-700">
+              Additional Info
+            </label>
             <textarea
               placeholder="Any extra details for refund processing..."
               value={refundDetails.additionalInfo}
-              onChange={(e) => handleRefundDetailsChange("additionalInfo", e.target.value)}
+              onChange={(e) =>
+                handleRefundDetailsChange("additionalInfo", e.target.value)
+              }
               rows="3"
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent resize-none"
             />

@@ -82,7 +82,6 @@ const VerificationBadge = ({ status, size = "small" }) => {
     <span
       className={`flex items-center justify-center gap-1 ${statusStyles.bg} ${statusStyles.text} ${sizeStyles.text} ${sizeStyles.padding} ${sizeStyles.width} rounded-full font-semibold`}
     >
-
       {statusStyles.icon}
 
       {statusStyles.label}
@@ -90,4 +89,4 @@ const VerificationBadge = ({ status, size = "small" }) => {
   );
 };
 
-export default VerificationBadge; 
+export default VerificationBadge;

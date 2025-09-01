@@ -34,4 +34,4 @@ const TaxMetrics = ({ metrics }) => {
   );
 };
 
-export default TaxMetrics; 
+export default TaxMetrics;

@@ -39,7 +39,7 @@ export default function EditDishPage() {
       toast.error("Please login to continue.");
       router.push("/login");
     }
-  }, [router,id]);
+  }, [router, id]);
 
   const fetchCategories = async () => {
     try {
@@ -93,14 +93,19 @@ export default function EditDishPage() {
 
       const data = await response.json();
       const dishData = data.data;
-      
+
       // Convert ingredients from string to array if needed
-      if (typeof dishData.ingredients === 'string' && dishData.ingredients.trim()) {
-        dishData.ingredients = dishData.ingredients.split(",").map(item => item.trim());
+      if (
+        typeof dishData.ingredients === "string" &&
+        dishData.ingredients.trim()
+      ) {
+        dishData.ingredients = dishData.ingredients
+          .split(",")
+          .map((item) => item.trim());
       } else if (!Array.isArray(dishData.ingredients)) {
         dishData.ingredients = [];
       }
-      
+
       setDishData(dishData);
     } catch (error) {
       console.error("Error fetching Dish:", error);
@@ -182,10 +187,7 @@ export default function EditDishPage() {
 
   const canAddNewGroup = (type) => {
     const last = dishData[type].at(-1);
-    return (
-      dishData[type].length === 0 ||
-      (last?.name && last.price)
-    );
+    return dishData[type].length === 0 || (last?.name && last.price);
   };
 
   const addGroup = (type) => {
@@ -206,11 +208,7 @@ export default function EditDishPage() {
   };
 
   const isValid = () => {
-    const complete = (list) =>
-      list.every(
-        (item) =>
-          item.name && item.price
-      );
+    const complete = (list) => list.every((item) => item.name && item.price);
     return complete(dishData.toppings) && complete(dishData.extras);
   };
   const handleSpicinessChange = (spicinessLevel) => {
@@ -248,21 +246,27 @@ export default function EditDishPage() {
 
     try {
       // Clean nested objects to remove any documentId fields
-      const cleanImage = dishData.image ? {
-        id: dishData.image.id,
-        url: dishData.image.url
-      } : null;
-      
-      const cleanToppings = dishData.toppings ? dishData.toppings.map(topping => ({
-        name: topping.name,
-        price: topping.price
-      })) : [];
-      
-      const cleanExtras = dishData.extras ? dishData.extras.map(extra => ({
-        name: extra.name,
-        price: extra.price
-      })) : [];
-      
+      const cleanImage = dishData.image
+        ? {
+            id: dishData.image.id,
+            url: dishData.image.url,
+          }
+        : null;
+
+      const cleanToppings = dishData.toppings
+        ? dishData.toppings.map((topping) => ({
+            name: topping.name,
+            price: topping.price,
+          }))
+        : [];
+
+      const cleanExtras = dishData.extras
+        ? dishData.extras.map((extra) => ({
+            name: extra.name,
+            price: extra.price,
+          }))
+        : [];
+
       const payload = {
         name: dishData.name,
         price: parseFloat(dishData.price),
@@ -276,11 +280,11 @@ export default function EditDishPage() {
         toppings: cleanToppings,
         extras: cleanExtras,
         image: cleanImage,
-        ingredients: Array.isArray(dishData.ingredients) ? dishData.ingredients : [],
+        ingredients: Array.isArray(dishData.ingredients)
+          ? dishData.ingredients
+          : [],
       };
-      
 
-      
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${id}`,
         {
@@ -295,8 +299,10 @@ export default function EditDishPage() {
 
       if (!response.ok) {
         const errorData = await response.text();
-        console.error('Server response:', errorData);
-        throw new Error(`Failed to update dish: ${response.status} ${response.statusText}`);
+        console.error("Server response:", errorData);
+        throw new Error(
+          `Failed to update dish: ${response.status} ${response.statusText}`
+        );
       }
 
       toast.success("Dish updated successfully!");
@@ -385,15 +391,15 @@ export default function EditDishPage() {
         <div className="w-full col-span-2">
           <DishImageUpload
             onImageUpload={(imageData) => {
-              setDishData(prev => ({
+              setDishData((prev) => ({
                 ...prev,
-                image: imageData
+                image: imageData,
               }));
             }}
             onImageRemove={() => {
-              setDishData(prev => ({
+              setDishData((prev) => ({
                 ...prev,
-                image: { id: 0, url: "" }
+                image: { id: 0, url: "" },
               }));
             }}
             currentImageUrl={dishData.image.url || null}
@@ -545,8 +551,12 @@ export default function EditDishPage() {
               Ingredients
             </label>
             <IngredientInput
-              value={Array.isArray(dishData.ingredients) ? dishData.ingredients : []}
-              onChange={(ingredients) => setDishData(prev => ({ ...prev, ingredients }))}
+              value={
+                Array.isArray(dishData.ingredients) ? dishData.ingredients : []
+              }
+              onChange={(ingredients) =>
+                setDishData((prev) => ({ ...prev, ingredients }))
+              }
               placeholder="Type ingredient and press Enter..."
               maxIngredients={20}
             />
@@ -568,19 +578,21 @@ export default function EditDishPage() {
 
         <label className="text-sm text-slate-400 ml-2">Spice Level</label>
         <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
-          {["None","Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map((level) => (
-            <div
-              key={level}
-              onClick={() => handleSpicinessChange(level)}
-              className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md text-xs font-semibold transition-all ${
-                dishData.spiciness.includes(level)
-                  ? "bg-orange-500 text-white border-orange-500"
-                  : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
-              }`}
-            >
-              {level}
-            </div>
-          ))}
+          {["None", "Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map(
+            (level) => (
+              <div
+                key={level}
+                onClick={() => handleSpicinessChange(level)}
+                className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md text-xs font-semibold transition-all ${
+                  dishData.spiciness.includes(level)
+                    ? "bg-orange-500 text-white border-orange-500"
+                    : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
+                }`}
+              >
+                {level}
+              </div>
+            )
+          )}
         </div>
 
         <section className="space-y-6 mt-8">

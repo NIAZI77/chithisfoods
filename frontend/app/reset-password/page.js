@@ -37,12 +37,16 @@ export default function ResetPasswordPage() {
     }
 
     if (!code) {
-      toast.error("The reset code is missing or has expired. Please request a new one.");
+      toast.error(
+        "The reset code is missing or has expired. Please request a new one."
+      );
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error("Your passwords don't match. Please double-check and try again.");
+      toast.error(
+        "Your passwords don't match. Please double-check and try again."
+      );
       return;
     }
 
@@ -71,7 +75,10 @@ export default function ResetPasswordPage() {
         toast.success("Perfect! Your password has been reset successfully.");
         setTimeout(() => router.push("/login"), 2000);
       } else {
-        toast.error(data.error?.message || "We couldn't reset your password right now. Please try again.");
+        toast.error(
+          data.error?.message ||
+            "We couldn't reset your password right now. Please try again."
+        );
       }
     } catch {
       toast.error("Something went wrong. Please try again in a moment.");
@@ -133,7 +140,7 @@ export default function ResetPasswordPage() {
                 className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all"
                 disabled={loading}
               >
-                {loading ? <Spinner/> : "Save"}
+                {loading ? <Spinner /> : "Save"}
               </button>
             </form>
           </div>

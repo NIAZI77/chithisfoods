@@ -2,7 +2,14 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { LuPlus, LuMinus } from "react-icons/lu";
 import { FaStar, FaUser } from "react-icons/fa";
-import { Timer, AlertCircle, Eye, BadgeCheck, X, MessageSquare } from "lucide-react";
+import {
+  Timer,
+  AlertCircle,
+  Eye,
+  BadgeCheck,
+  X,
+  MessageSquare,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import { updateCartAndNotify } from "@/app/lib/utils";
 import Link from "next/link";
@@ -10,11 +17,15 @@ import { getCookie } from "cookies-next";
 import VerificationBadge from "@/app/components/VerificationBadge";
 
 const API_ERROR_MESSAGES = {
-  CONFIG_MISSING: "We're having trouble with our configuration. Please contact our support team.",
-  FETCH_ERROR: "We're having trouble loading dish details right now. Please try again later.",
+  CONFIG_MISSING:
+    "We're having trouble with our configuration. Please contact our support team.",
+  FETCH_ERROR:
+    "We're having trouble loading dish details right now. Please try again later.",
   NOT_FOUND: "Sorry, we couldn't find the dish you're looking for.",
-  CART_ERROR: "We couldn't add this item to your cart right now. Please try again.",
-  SELECTION_ERROR: "We couldn't update your selection right now. Please try again.",
+  CART_ERROR:
+    "We couldn't add this item to your cart right now. Please try again.",
+  SELECTION_ERROR:
+    "We couldn't update your selection right now. Please try again.",
 };
 
 export default function DishDetailsModal({ isOpen, onClose, dishId }) {
@@ -123,14 +134,16 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       const dishInfo = responseData.data;
       const enhancedDishInfo = {
         ...dishInfo,
-        extras: dishInfo.extras?.map((extra) => ({
-          ...extra,
-          price: Number(extra.price) || 0,
-        })) || [],
-        toppings: dishInfo.toppings?.map((topping) => ({
-          ...topping,
-          price: Number(topping.price) || 0,
-        })) || [],
+        extras:
+          dishInfo.extras?.map((extra) => ({
+            ...extra,
+            price: Number(extra.price) || 0,
+          })) || [],
+        toppings:
+          dishInfo.toppings?.map((topping) => ({
+            ...topping,
+            price: Number(topping.price) || 0,
+          })) || [],
         image: {
           id: dishInfo.image?.id || null,
           url: dishInfo.image?.url || "/fallback.png",
@@ -159,7 +172,10 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
       const initialToppings = {};
       enhancedDishInfo.toppings?.forEach((topping) => {
-        initialToppings[topping.name] = { selected: false, price: topping.price };
+        initialToppings[topping.name] = {
+          selected: false,
+          price: topping.price,
+        };
       });
       setSelectedToppings(initialToppings);
 
@@ -201,19 +217,17 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
     }
   }, [dishId, fetchDishDetails, onClose]); // Removed isOpen dependency to prevent unnecessary resets
 
-
-
   const calculateTotalPrice = () => {
     if (!dishDetails) return 0;
 
     const extrasTotal = Object.values(selectedExtras)
-      .filter(item => item.selected)
+      .filter((item) => item.selected)
       .reduce((sum, item) => sum + Number(item.price), 0);
-    
+
     const toppingsTotal = Object.values(selectedToppings)
-      .filter(item => item.selected)
+      .filter((item) => item.selected)
       .reduce((sum, item) => sum + Number(item.price), 0);
-    
+
     return (
       (Number(dishDetails.price) + extrasTotal + toppingsTotal) * orderQuantity
     );
@@ -270,35 +284,41 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
           (dish) => {
             // Check if it's the same dish
             if (dish.id !== dishDetails.documentId) return false;
-            
+
             // Check if spiciness matches
-            if (dish.selectedSpiciness !== (selectedSpiceLevel || "Not specified")) return false;
-            
+            if (
+              dish.selectedSpiciness !== (selectedSpiceLevel || "Not specified")
+            )
+              return false;
+
             // Check if toppings match exactly
             if (dish.toppings.length !== allToppings.length) return false;
-            const toppingsMatch = allToppings.every((topping, index) => 
-              dish.toppings[index]?.name === topping.name
+            const toppingsMatch = allToppings.every(
+              (topping, index) => dish.toppings[index]?.name === topping.name
             );
             if (!toppingsMatch) return false;
-            
+
             // Check if extras match exactly
             if (dish.extras.length !== allExtras.length) return false;
-            const extrasMatch = allExtras.every((extra, index) => 
-              dish.extras[index]?.name === extra.name
+            const extrasMatch = allExtras.every(
+              (extra, index) => dish.extras[index]?.name === extra.name
             );
             if (!extrasMatch) return false;
-            
+
             return true;
           }
         );
 
         if (existingDishIndex > -1) {
           // Update quantity of existing item
-          cart[vendorGroupIndex].dishes[existingDishIndex].quantity += orderQuantity;
+          cart[vendorGroupIndex].dishes[existingDishIndex].quantity +=
+            orderQuantity;
           cart[vendorGroupIndex].dishes[existingDishIndex].total = (
-            (Number(cart[vendorGroupIndex].dishes[existingDishIndex].basePrice) + 
-             allToppings.reduce((sum, t) => sum + t.price, 0) + 
-             allExtras.reduce((sum, e) => sum + e.price, 0)) * 
+            (Number(
+              cart[vendorGroupIndex].dishes[existingDishIndex].basePrice
+            ) +
+              allToppings.reduce((sum, t) => sum + t.price, 0) +
+              allExtras.reduce((sum, e) => sum + e.price, 0)) *
             cart[vendorGroupIndex].dishes[existingDishIndex].quantity
           ).toFixed(2);
         } else {
@@ -306,10 +326,13 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
         }
       } else {
         // Construct vendor address from vendor details
-        const vendorAddress = vendorDetails?.businessAddress && vendorDetails?.city && vendorDetails?.zipcode 
-          ? `${vendorDetails.businessAddress}, ${vendorDetails.city}, ${vendorDetails.zipcode}`
-          : vendorDetails?.businessAddress || "Address not available";
-        
+        const vendorAddress =
+          vendorDetails?.businessAddress &&
+          vendorDetails?.city &&
+          vendorDetails?.zipcode
+            ? `${vendorDetails.businessAddress}, ${vendorDetails.city}, ${vendorDetails.zipcode}`
+            : vendorDetails?.businessAddress || "Address not available";
+
         cart.push({
           vendorId: dishDetails.vendorId,
           vendorName: vendorDetails?.storeName || "Unknown Chef",
@@ -321,7 +344,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       }
 
       updateCartAndNotify(cart);
-      
+
       toast.success(
         `Great! ${orderQuantity} ${dishDetails.name} has been added to your cart!`
       );
@@ -339,17 +362,17 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       if (type === "topping") {
         setSelectedToppings((prev) => ({
           ...prev,
-          [name]: { 
-            ...prev[name], 
-            selected: !prev[name].selected 
+          [name]: {
+            ...prev[name],
+            selected: !prev[name].selected,
           },
         }));
       } else if (type === "extra") {
         setSelectedExtras((prev) => ({
           ...prev,
-          [name]: { 
-            ...prev[name], 
-            selected: !prev[name].selected 
+          [name]: {
+            ...prev[name],
+            selected: !prev[name].selected,
           },
         }));
       }
@@ -363,8 +386,9 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
     Array.from({ length: 5 }, (_, index) => (
       <FaStar
         key={index}
-        className={`inline w-4 h-4 ${index < Math.round(rating) ? "text-yellow-400" : "text-slate-400"
-          }`}
+        className={`inline w-4 h-4 ${
+          index < Math.round(rating) ? "text-yellow-400" : "text-slate-400"
+        }`}
       />
     ));
 
@@ -377,12 +401,12 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleBackdropClick}
     >
-      <div 
-        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col relative" 
+      <div
+        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col relative"
         ref={modalRef}
         onClick={(e) => e.stopPropagation()}
       >
@@ -461,14 +485,20 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                       <div className="text-sm text-gray-600">
                         <h3 className="font-bold text-lg mb-2">Description</h3>
                         {dishDetails.description ? (
-                          <p className="text-gray-700 leading-relaxed">{dishDetails.description}</p>
+                          <p className="text-gray-700 leading-relaxed">
+                            {dishDetails.description}
+                          </p>
                         ) : (
-                          <p className="text-gray-400 italic">No description available for this dish.</p>
+                          <p className="text-gray-400 italic">
+                            No description available for this dish.
+                          </p>
                         )}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-start gap-2 sm:gap-4 mt-4">
                           <p className="font-bold text-md flex items-center gap-x-1 text-gray-700">
                             <Timer className="w-5 h-5" />
-                            {dishDetails.preparation_time ? `${dishDetails.preparation_time} Minutes` : "Preparation time not specified"}
+                            {dishDetails.preparation_time
+                              ? `${dishDetails.preparation_time} Minutes`
+                              : "Preparation time not specified"}
                           </p>
                         </div>
                       </div>
@@ -517,28 +547,30 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                       </div>
                     </div>
 
-                    {dishDetails.spiciness && dishDetails.spiciness.length > 0 && (
-                      <div className="space-y-4">
-                        <div className="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-700">
-                          <h3>Spiciness</h3>
-                        </div>
-                        <div className="flex items-center justify-end space-x-2 flex-wrap gap-2">
-                          {dishDetails.spiciness.map((level, index) => (
-                            <button
-                              key={index}
-                              onClick={() => setSelectedSpiceLevel(level)}
-                              className={`px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 hover:scale-105 min-w-fit
-                              ${selectedSpiceLevel === level
+                    {dishDetails.spiciness &&
+                      dishDetails.spiciness.length > 0 && (
+                        <div className="space-y-4">
+                          <div className="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-700">
+                            <h3>Spiciness</h3>
+                          </div>
+                          <div className="flex items-center justify-end space-x-2 flex-wrap gap-2">
+                            {dishDetails.spiciness.map((level, index) => (
+                              <button
+                                key={index}
+                                onClick={() => setSelectedSpiceLevel(level)}
+                                className={`px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 hover:scale-105 min-w-fit
+                              ${
+                                selectedSpiceLevel === level
                                   ? "bg-red-500 text-white border-red-500 shadow-md"
                                   : "bg-white text-red-500 border-red-500 hover:bg-red-50 hover:border-red-600"
-                                }`}
-                            >
-                              {level}
-                            </button>
-                          ))}
+                              }`}
+                              >
+                                {level}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {dishDetails.toppings?.length > 0 && (
                       <div className="space-y-4">
@@ -557,9 +589,10 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                                 handleOptionSelect("topping", topping.name)
                               }
                               className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
-                                ${selectedToppings[topping.name]?.selected
-                                  ? "bg-red-500 text-white border-red-500"
-                                  : "bg-white text-red-500 border-red-500 hover:bg-red-50"
+                                ${
+                                  selectedToppings[topping.name]?.selected
+                                    ? "bg-red-500 text-white border-red-500"
+                                    : "bg-white text-red-500 border-red-500 hover:bg-red-50"
                                 }`}
                             >
                               {topping.name}
@@ -586,19 +619,18 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                                 handleOptionSelect("extra", extra.name)
                               }
                               className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
-                                ${selectedExtras[extra.name]?.selected
-                                  ? "bg-red-500 text-white border-red-500"
-                                  : "bg-white text-red-500 border-red-500 hover:bg-red-50"
+                                ${
+                                  selectedExtras[extra.name]?.selected
+                                    ? "bg-red-500 text-white border-red-500"
+                                    : "bg-white text-red-500 border-red-500 hover:bg-red-50"
                                 }`}
                             >
-                              {extra.name} 
+                              {extra.name}
                             </button>
                           ))}
                         </div>
                       </div>
                     )}
-
-
                   </div>
                 </div>
 
@@ -608,10 +640,11 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                       <button
                         key={section}
                         onClick={() => setActiveSection(section)}
-                        className={`pb-1 border-b-2 whitespace-nowrap ${activeSection === section
-                          ? "text-red-600 border-red-600 font-semibold"
-                          : "text-gray-500 border-transparent"
-                          }`}
+                        className={`pb-1 border-b-2 whitespace-nowrap ${
+                          activeSection === section
+                            ? "text-red-600 border-red-600 font-semibold"
+                            : "text-gray-500 border-transparent"
+                        }`}
                       >
                         {section === "ingredients" ? "Ingredients" : "Reviews"}
                       </button>
@@ -620,7 +653,8 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
                   {activeSection === "ingredients" && (
                     <div className="mt-6">
-                      {dishDetails.ingredients && dishDetails.ingredients.length > 0 ? (
+                      {dishDetails.ingredients &&
+                      dishDetails.ingredients.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                           {dishDetails.ingredients.map((item, index) => (
                             <div
@@ -655,8 +689,13 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                               />
                             </div>
                             <div className="space-y-1">
-                              <h3 className="text-lg font-semibold text-gray-700">No ingredients listed</h3>
-                              <p className="text-sm text-gray-500">This dish doesn&apos;t have ingredients information available.</p>
+                              <h3 className="text-lg font-semibold text-gray-700">
+                                No ingredients listed
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                This dish doesn&apos;t have ingredients
+                                information available.
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -669,7 +708,10 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                       {dishDetails.reviews && dishDetails.reviews.length > 0 ? (
                         <div className="space-y-4">
                           {dishDetails.reviews.map((review, idx) => (
-                            <div key={idx} className="border border-gray-200 p-4 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+                            <div
+                              key={idx}
+                              className="border border-gray-200 p-4 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
+                            >
                               <div className="flex items-start justify-between mb-2">
                                 <p className="text-sm font-semibold text-gray-800 capitalize">
                                   {review.name || "Anonymous"}
@@ -689,9 +731,13 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                                     src={review.image.url || review.image}
                                     alt="Review image"
                                     className="w-10 bg max-w-xs h-auto rounded-lg border border-gray-200 object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                                    onClick={() => handleImageClick(review.image.url || review.image)}
+                                    onClick={() =>
+                                      handleImageClick(
+                                        review.image.url || review.image
+                                      )
+                                    }
                                     onError={(e) => {
-                                      e.target.style.display = 'none';
+                                      e.target.style.display = "none";
                                     }}
                                   />
                                 </div>
@@ -706,8 +752,12 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                               <MessageSquare className="w-8 h-8 text-gray-400" />
                             </div>
                             <div className="space-y-1">
-                              <h3 className="text-lg font-semibold text-gray-700">No reviews yet</h3>
-                              <p className="text-sm text-gray-500">Be the first to review this dish!</p>
+                              <h3 className="text-lg font-semibold text-gray-700">
+                                No reviews yet
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                Be the first to review this dish!
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -723,9 +773,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
               <div className="flex flex-row items-center gap-2">
                 <div className="bg-rose-600 text-white rounded-full flex items-center gap-2 p-2">
                   <button
-                    onClick={() =>
-                      setOrderQuantity((q) => Math.max(1, q - 1))
-                    }
+                    onClick={() => setOrderQuantity((q) => Math.max(1, q - 1))}
                     className="hover:bg-rose-400 rounded-full p-1"
                   >
                     <LuMinus size={16} />
@@ -758,11 +806,11 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
       {/* Full Screen Image Modal */}
       {fullScreenImage && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={closeFullScreenImage}
         >
-          <div 
+          <div
             className="relative w-full h-full flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >

@@ -23,11 +23,19 @@ export default function AdminSidebar() {
 
   const isActive = (path) => pathname === path;
   useEffect(() => {
-    if (!pathname.includes("/admin/") || pathname === "/admin/login" || pathname === "/admin/signup") {
+    if (
+      !pathname.includes("/admin/") ||
+      pathname === "/admin/login" ||
+      pathname === "/admin/signup"
+    ) {
       return;
     }
   }, [pathname]);
-  if (!pathname.includes("/admin/") || pathname === "/admin/login" || pathname === "/admin/signup") {
+  if (
+    !pathname.includes("/admin/") ||
+    pathname === "/admin/login" ||
+    pathname === "/admin/signup"
+  ) {
     return;
   }
   return (
@@ -101,7 +109,9 @@ export default function AdminSidebar() {
         >
           <Users className="w-5 h-5" />
           {!collapsed && (
-            <span className="whitespace-nowrap font-medium">Users & Vendors</span>
+            <span className="whitespace-nowrap font-medium">
+              Users & Vendors
+            </span>
           )}
         </Link>
 
@@ -152,14 +162,14 @@ export default function AdminSidebar() {
         </Link>
         <button
           onClick={() => {
-              deleteCookie("AdminJWT");
-              deleteCookie("AdminUser");
-              toast.success("You've been successfully logged out. See you soon!");
-              localStorage.clear();
-              // Notify navbar about cart update
-              window.dispatchEvent(new CustomEvent('cartUpdate'));
-              router.push("/");
-            }}
+            deleteCookie("AdminJWT");
+            deleteCookie("AdminUser");
+            toast.success("You've been successfully logged out. See you soon!");
+            localStorage.clear();
+            // Notify navbar about cart update
+            window.dispatchEvent(new CustomEvent("cartUpdate"));
+            router.push("/");
+          }}
           className="flex items-center gap-3 px-3 py-2.5 w-full transition-all duration-200 hover:bg-pink-700 hover:text-white border-l-[3px] border-transparent text-left font-medium"
         >
           <LogOut className="w-5 h-5" />

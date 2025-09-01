@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const maxPagesToShow = 5; // Maximum number of page numbers to show directly
@@ -11,7 +11,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     if (startPage > 1) {
       pages.push(1);
       if (startPage > 2) {
-        pages.push('...');
+        pages.push("...");
       }
     }
 
@@ -21,7 +21,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
-        pages.push('...');
+        pages.push("...");
       }
       pages.push(totalPages);
     }
@@ -46,9 +46,13 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       {pageNumbers.map((page, index) => (
         <button
           key={index}
-          onClick={() => typeof page === 'number' && onPageChange(page)}
-          disabled={page === '...' || page === currentPage}
-          className={`px-3 py-1 rounded ${page === currentPage ? 'bg-orange-500 text-white' : 'hover:bg-gray-200 disabled:opacity-50'}`}
+          onClick={() => typeof page === "number" && onPageChange(page)}
+          disabled={page === "..." || page === currentPage}
+          className={`px-3 py-1 rounded ${
+            page === currentPage
+              ? "bg-orange-500 text-white"
+              : "hover:bg-gray-200 disabled:opacity-50"
+          }`}
         >
           {page}
         </button>
@@ -66,4 +70,4 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   );
 };
 
-export default Pagination; 
+export default Pagination;

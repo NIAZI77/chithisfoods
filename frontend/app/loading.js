@@ -2,9 +2,7 @@ import React from "react";
 
 const Loading = () => {
   return (
-    <div
-     className="flex items-center justify-center h-screen bg-white fixed inset-0 w-screen z-40"
-    >
+    <div className="flex items-center justify-center h-screen bg-white fixed inset-0 w-screen z-40">
       <img
         src="/logo.png"
         alt="Logo"

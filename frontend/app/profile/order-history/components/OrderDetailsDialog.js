@@ -15,16 +15,16 @@ import { TOAST_MESSAGES } from "./constants";
 import { Package } from "lucide-react";
 import { getCookie } from "cookies-next";
 
-function OrderDetailsDialog({ 
-  order, 
-  userData, 
-  isOpen, 
-  onClose, 
-  onStatusUpdate, 
-  getCurrentUserId, 
+function OrderDetailsDialog({
+  order,
+  userData,
+  isOpen,
+  onClose,
+  onStatusUpdate,
+  getCurrentUserId,
   hasUserReviewedDish,
   validateReviewData,
-  getDishReviewStatus
+  getDishReviewStatus,
 }) {
   const [loadingStates, setLoadingStates] = useState({
     cancel: false,
@@ -39,12 +39,12 @@ function OrderDetailsDialog({
     if (!reviews || !Array.isArray(reviews) || reviews.length === 0) {
       return 0;
     }
-    
+
     const totalRating = reviews.reduce((sum, review) => {
       const rating = parseFloat(review.rating) || 0;
       return sum + rating;
     }, 0);
-    
+
     const averageRating = totalRating / reviews.length;
     return Math.round(averageRating * 10) / 10; // Round to 1 decimal place
   };
@@ -53,20 +53,21 @@ function OrderDetailsDialog({
     if (!dishes || !Array.isArray(dishes) || dishes.length === 0) {
       return 0;
     }
-    
-    const dishesWithRatings = dishes.filter(dish => 
-      dish.rating !== undefined && dish.rating !== null && dish.rating > 0
+
+    const dishesWithRatings = dishes.filter(
+      (dish) =>
+        dish.rating !== undefined && dish.rating !== null && dish.rating > 0
     );
-    
+
     if (dishesWithRatings.length === 0) {
       return 0;
     }
-    
+
     const totalRating = dishesWithRatings.reduce((sum, dish) => {
       const rating = parseFloat(dish.rating) || 0;
       return sum + rating;
     }, 0);
-    
+
     const averageRating = totalRating / dishesWithRatings.length;
     return Math.round(averageRating * 10) / 10; // Round to 1 decimal place
   };
@@ -78,7 +79,6 @@ function OrderDetailsDialog({
   }, [order]);
 
   if (!order) {
-
     return (
       <div className="p-8 text-center">
         <div className="text-gray-500 mb-4">
@@ -95,12 +95,12 @@ function OrderDetailsDialog({
   }
 
   // Check if order has dishes or items
-  const hasDishes = order.dishes && Array.isArray(order.dishes) && order.dishes.length > 0;
-  const hasItems = order.items && Array.isArray(order.items) && order.items.length > 0;
-  
-  if (!hasDishes && !hasItems) {
+  const hasDishes =
+    order.dishes && Array.isArray(order.dishes) && order.dishes.length > 0;
+  const hasItems =
+    order.items && Array.isArray(order.items) && order.items.length > 0;
 
-    
+  if (!hasDishes && !hasItems) {
     return (
       <div className="p-8 text-center">
         <div className="text-gray-500 mb-4">
@@ -112,19 +112,19 @@ function OrderDetailsDialog({
             This order doesn&apos;t have any items or dishes associated with it.
           </p>
           <div className="mt-4 text-xs text-gray-400">
-            <p>Order ID: {order.documentId || 'Unknown'}</p>
-            <p>Order Status: {order.orderStatus || 'Unknown'}</p>
-            <p>Has dishes: {hasDishes ? 'Yes' : 'No'}</p>
-            <p>Has items: {hasItems ? 'Yes' : 'No'}</p>
-            <p>Dishes count: {order.dishes ? order.dishes.length : 'undefined'}</p>
-            <p>Items count: {order.items ? order.items.length : 'undefined'}</p>
+            <p>Order ID: {order.documentId || "Unknown"}</p>
+            <p>Order Status: {order.orderStatus || "Unknown"}</p>
+            <p>Has dishes: {hasDishes ? "Yes" : "No"}</p>
+            <p>Has items: {hasItems ? "Yes" : "No"}</p>
+            <p>
+              Dishes count: {order.dishes ? order.dishes.length : "undefined"}
+            </p>
+            <p>Items count: {order.items ? order.items.length : "undefined"}</p>
           </div>
         </div>
       </div>
     );
   }
-
-
 
   const handleCancelOrder = async () => {
     if (order.orderStatus !== "pending") {
@@ -133,7 +133,10 @@ function OrderDetailsDialog({
     }
 
     // Check if user has refund details
-    if (!userData?.refundDetails?.provider || !userData?.refundDetails?.accountId) {
+    if (
+      !userData?.refundDetails?.provider ||
+      !userData?.refundDetails?.accountId
+    ) {
       toast.error(TOAST_MESSAGES.REFUND_DETAILS_MISSING);
       return;
     }
@@ -150,17 +153,17 @@ function OrderDetailsDialog({
       const userEmail = userData.email || getCookie("user");
 
       if (!userEmail) {
-        toast.error("Unable to retrieve user email. Please try refreshing the page.");
+        toast.error(
+          "Unable to retrieve user email. Please try refreshing the page."
+        );
         return;
       }
 
       const orderRefundDetails = {
         ...userData.refundDetails,
-        email: userEmail, 
-        updatedAt: new Date().toISOString()
+        email: userEmail,
+        updatedAt: new Date().toISOString(),
       };
-
-
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders/${order.documentId}`,
@@ -199,39 +202,40 @@ function OrderDetailsDialog({
   // Utility function to clean up duplicate reviews
   const cleanupDuplicateReviews = (reviews, currentUserId) => {
     if (!reviews || !Array.isArray(reviews)) return reviews;
-    
+
     // Remove duplicate reviews from the same user
     const seenUserIds = new Set();
-    const cleanedReviews = reviews.filter(review => {
-      const reviewUserId = review.userId || review.userEmail || review.userUsername;
+    const cleanedReviews = reviews.filter((review) => {
+      const reviewUserId =
+        review.userId || review.userEmail || review.userUsername;
       if (!reviewUserId) return true; // Keep reviews without userId for backward compatibility
-      
+
       if (seenUserIds.has(reviewUserId)) {
         console.warn("Removing duplicate review:", review);
         return false;
       }
-      
+
       // Check if this review belongs to the current user
-      const isCurrentUserReview = 
+      const isCurrentUserReview =
         reviewUserId === currentUserId ||
         reviewUserId === userData?.id ||
         reviewUserId === userData?.email ||
         reviewUserId === userData?.username ||
         reviewUserId === getCookie("user");
-      
+
       if (isCurrentUserReview) {
         seenUserIds.add(reviewUserId);
       }
-      
+
       return true;
     });
-    
+
     return cleanedReviews;
   };
 
   const handleReviewSubmit = async (reviewData) => {
     console.log("Review data received:", reviewData); // Debug log
-    
+
     if (!order.documentId) {
       console.error("handleReviewSubmit: order.documentId is missing:", order);
       toast.error("Order ID is missing. Please try refreshing the page.");
@@ -267,43 +271,57 @@ function OrderDetailsDialog({
 
       const dishData = await dishResponse.json();
       const currentDish = dishData.data;
-      
+
       // Use utility function for consistent userId check
-      const currentUserId = getCurrentUserId ? getCurrentUserId() : (userData?.id || userData?.email || userData?.username || getCookie("user"));
-      
+      const currentUserId = getCurrentUserId
+        ? getCurrentUserId()
+        : userData?.id ||
+          userData?.email ||
+          userData?.username ||
+          getCookie("user");
+
       if (!currentUserId) {
-        throw new Error("Unable to identify user. Please refresh the page and try again.");
+        throw new Error(
+          "Unable to identify user. Please refresh the page and try again."
+        );
       }
-      
+
       // Use utility function to check if user has already reviewed
-      const userHasAlreadyReviewed = hasUserReviewedDish ? hasUserReviewedDish({ reviews: currentDish.reviews }) : 
-        currentDish.reviews?.some(review => 
-          review.userId === currentUserId || 
+      const userHasAlreadyReviewed = hasUserReviewedDish
+        ? hasUserReviewedDish({ reviews: currentDish.reviews })
+        : currentDish.reviews?.some(
+            (review) =>
+              review.userId === currentUserId ||
+              review.userId === userData?.id ||
+              review.userId === userData?.email ||
+              review.userId === userData?.username ||
+              review.userId === getCookie("user")
+          );
+
+      if (userHasAlreadyReviewed) {
+        toast.error(
+          "You have already reviewed this dish! Each dish can only be reviewed once."
+        );
+        return;
+      }
+
+      // Additional safety check: verify the review doesn't already exist in the database
+      const existingReview = currentDish.reviews?.find(
+        (review) =>
+          review.userId === currentUserId ||
           review.userId === userData?.id ||
           review.userId === userData?.email ||
           review.userId === userData?.username ||
           review.userId === getCookie("user")
-        );
-      
-      if (userHasAlreadyReviewed) {
-        toast.error("You have already reviewed this dish! Each dish can only be reviewed once.");
-        return;
-      }
-      
-      // Additional safety check: verify the review doesn't already exist in the database
-      const existingReview = currentDish.reviews?.find(review => 
-        review.userId === currentUserId || 
-        review.userId === userData?.id ||
-        review.userId === userData?.email ||
-        review.userId === userData?.username ||
-        review.userId === getCookie("user")
       );
-      
+
       if (existingReview) {
         console.warn("Duplicate review detected in database:", existingReview);
-        throw new Error("A review from you already exists for this dish. Please refresh the page.");
+        throw new Error(
+          "A review from you already exists for this dish. Please refresh the page."
+        );
       }
-      
+
       // Handle image data if provided (image is already uploaded from ReviewDialog)
       let reviewImage = null;
       if (reviewData.image && reviewData.image.id && reviewData.image.url) {
@@ -311,7 +329,7 @@ function OrderDetailsDialog({
         reviewImage = {
           id: reviewData.image.id,
           url: reviewData.image.url,
-          name: reviewData.image.name || 'review-image'
+          name: reviewData.image.name || "review-image",
         };
         console.log("Using uploaded image data:", reviewImage);
       }
@@ -327,33 +345,39 @@ function OrderDetailsDialog({
         userUsername: userData?.username,
         orderId: order.documentId, // Track which order this review came from
         reviewDate: new Date().toISOString(),
-        image: reviewImage // Include the uploaded image data
+        image: reviewImage, // Include the uploaded image data
       };
 
       // Get existing reviews and add the new one
       const existingReviews = currentDish.reviews || [];
-      
+
       // Clean up any existing duplicate reviews before adding new one
-      const cleanedReviews = cleanupDuplicateReviews(existingReviews, currentUserId);
-      
-      // Check again after cleanup
-      const stillHasUserReview = cleanedReviews.some(review => 
-        review.userId === currentUserId || 
-        review.userId === userData?.id ||
-        review.userId === userData?.email ||
-        review.userId === userData?.username ||
-        review.userId === getCookie("user")
+      const cleanedReviews = cleanupDuplicateReviews(
+        existingReviews,
+        currentUserId
       );
-      
+
+      // Check again after cleanup
+      const stillHasUserReview = cleanedReviews.some(
+        (review) =>
+          review.userId === currentUserId ||
+          review.userId === userData?.id ||
+          review.userId === userData?.email ||
+          review.userId === userData?.username ||
+          review.userId === getCookie("user")
+      );
+
       if (stillHasUserReview) {
-        throw new Error("You have already reviewed this dish! Each dish can only be reviewed once.");
+        throw new Error(
+          "You have already reviewed this dish! Each dish can only be reviewed once."
+        );
       }
-      
+
       const updatedReviews = [...cleanedReviews, newReview];
 
       // Calculate new dish rating
       const newDishRating = calculateAverageRating(updatedReviews);
-      
+
       // Update the dish with the new review and rating
       const updateResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${reviewData.dishId}`,
@@ -366,8 +390,8 @@ function OrderDetailsDialog({
           body: JSON.stringify({
             data: {
               reviews: updatedReviews,
-              rating: newDishRating
-            }
+              rating: newDishRating,
+            },
           }),
         }
       );
@@ -397,10 +421,10 @@ function OrderDetailsDialog({
           if (vendorDishesResponse.ok) {
             const vendorDishesData = await vendorDishesResponse.json();
             const vendorDishes = vendorDishesData.data || [];
-            
+
             // Calculate new vendor rating
             const newVendorRating = calculateVendorRating(vendorDishes);
-            
+
             // Update vendor with new rating
             const vendorUpdateResponse = await fetch(
               `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}`,
@@ -412,14 +436,17 @@ function OrderDetailsDialog({
                 },
                 body: JSON.stringify({
                   data: {
-                    rating: newVendorRating
-                  }
+                    rating: newVendorRating,
+                  },
                 }),
               }
             );
 
             if (!vendorUpdateResponse.ok) {
-              console.warn("Failed to update vendor rating:", await vendorUpdateResponse.text());
+              console.warn(
+                "Failed to update vendor rating:",
+                await vendorUpdateResponse.text()
+              );
               // Don't throw error as this is not critical for review submission
             }
           }
@@ -433,40 +460,41 @@ function OrderDetailsDialog({
       if (selectedDish) {
         const updatedDish = {
           ...selectedDish,
-          reviews: [
-            ...(selectedDish.reviews || []),
-            newReview
-          ],
-          rating: newDishRating
+          reviews: [...(selectedDish.reviews || []), newReview],
+          rating: newDishRating,
         };
         setSelectedDish(updatedDish);
-        
+
         // Also update the order dishes to reflect the new review and rating
         if (order.dishes) {
-          const updatedOrderDishes = order.dishes.map(dish => 
+          const updatedOrderDishes = order.dishes.map((dish) =>
             dish.id === selectedDish.id ? updatedDish : dish
           );
           // You might need to update the order state here if you have it in local state
-  
         }
       }
 
       toast.success("Thank you for your feedback.");
       setIsReviewDialogOpen(false);
-      
+
       // Refresh the order data to show the updated review status
       onStatusUpdate();
     } catch (error) {
       console.error("Error submitting review:", error);
-      
+
       // Handle specific error cases
-      if (error.message.includes("already reviewed") || error.message.includes("already exists")) {
+      if (
+        error.message.includes("already reviewed") ||
+        error.message.includes("already exists")
+      ) {
         toast.error("You have already reviewed this dish!");
         setIsReviewDialogOpen(false);
         // Refresh to show updated review status
         onStatusUpdate();
       } else {
-        toast.error(error.message || "Failed to submit review. Please try again.");
+        toast.error(
+          error.message || "Failed to submit review. Please try again."
+        );
       }
     } finally {
       setLoadingStates((prev) => ({ ...prev, review: false }));
@@ -481,36 +509,49 @@ function OrderDetailsDialog({
         toast.error(validation.error);
         return;
       }
-      
+
       const reviewStatus = getDishReviewStatus(dish);
       if (reviewStatus.hasReviewed) {
-        toast.info("You have already reviewed this dish! Each dish can only be reviewed once.");
+        toast.info(
+          "You have already reviewed this dish! Each dish can only be reviewed once."
+        );
         return;
       }
     } else {
       // Fallback to manual validation
-      const currentUserId = getCurrentUserId ? getCurrentUserId() : (userData?.id || userData?.email || userData?.username || getCookie("user"));
-      
+      const currentUserId = getCurrentUserId
+        ? getCurrentUserId()
+        : userData?.id ||
+          userData?.email ||
+          userData?.username ||
+          getCookie("user");
+
       if (!currentUserId) {
-        toast.error("Unable to identify user. Please refresh the page and try again.");
+        toast.error(
+          "Unable to identify user. Please refresh the page and try again."
+        );
         return;
       }
-      
-      const userHasReviewed = hasUserReviewedDish ? hasUserReviewedDish(dish) : 
-        dish.reviews?.some(review => 
-          review.userId === currentUserId || 
-          review.userId === userData?.id ||
-          review.userId === userData?.email ||
-          review.userId === userData?.username ||
-          review.userId === getCookie("user")
-        );
-      
+
+      const userHasReviewed = hasUserReviewedDish
+        ? hasUserReviewedDish(dish)
+        : dish.reviews?.some(
+            (review) =>
+              review.userId === currentUserId ||
+              review.userId === userData?.id ||
+              review.userId === userData?.email ||
+              review.userId === userData?.username ||
+              review.userId === getCookie("user")
+          );
+
       if (userHasReviewed) {
-        toast.info("You have already reviewed this dish! Each dish can only be reviewed once.");
+        toast.info(
+          "You have already reviewed this dish! Each dish can only be reviewed once."
+        );
         return;
       }
     }
-    
+
     setSelectedDish(dish);
     setIsReviewDialogOpen(true);
   };
@@ -532,12 +573,12 @@ function OrderDetailsDialog({
               ×
             </button>
           </div>
-          
+
           <div className="flex-1 overflow-y-auto flex flex-col md:flex-row p-4 gap-4">
             <CustomerDetails order={order} />
-            <OrderItems 
-              order={order} 
-              onReviewClick={openReviewDialog} 
+            <OrderItems
+              order={order}
+              onReviewClick={openReviewDialog}
               userData={userData}
               getCurrentUserId={getCurrentUserId}
               hasUserReviewedDish={hasUserReviewedDish}
@@ -545,7 +586,7 @@ function OrderDetailsDialog({
               getDishReviewStatus={getDishReviewStatus}
             />
           </div>
-          
+
           <OrderActions
             order={order}
             loadingStates={loadingStates}

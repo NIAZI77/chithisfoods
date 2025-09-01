@@ -32,14 +32,14 @@ const FacebookAuth = () => {
             setTimeout(() => router.push("/login"), 1000);
             return;
           }
-          
+
           // Check if user is blocked
           if (data.user.blocked) {
             setShowBlockedMessage(true);
             setTimeout(() => router.push("/login"), 1000);
             return;
           }
-          
+
           toast.success("Welcome back! We're glad to see you again.");
           const expires = new Date();
           expires.setDate(expires.getDate() + 7);
@@ -47,11 +47,16 @@ const FacebookAuth = () => {
           setCookie("user", data.user.email, { expires });
           setTimeout(() => router.push("/"), 1000);
         } else {
-          toast.error(data.error.message || "We're having trouble connecting right now. Please try again in a moment.");
+          toast.error(
+            data.error.message ||
+              "We're having trouble connecting right now. Please try again in a moment."
+          );
           setTimeout(() => router.push("/login"), 1000);
         }
       } catch (err) {
-        toast.error("We're experiencing some technical difficulties. Please try again in a moment.");
+        toast.error(
+          "We're experiencing some technical difficulties. Please try again in a moment."
+        );
         setTimeout(() => router.push("/login"), 1000);
       }
     };

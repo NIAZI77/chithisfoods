@@ -35,4 +35,4 @@ export const customScrollbarStyles = `
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #666;
   }
-`; 
+`;

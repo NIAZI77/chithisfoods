@@ -1,7 +1,6 @@
 "use client";
 
 import { getCookie } from "cookies-next";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -69,19 +68,24 @@ export default function OrderHistoryPage() {
 
   // Utility function to get current user ID consistently
   const getCurrentUserId = () => {
-    const userId = userData?.id || userData?.email || userData?.username || user || getCookie("user");
-    
+    const userId =
+      userData?.id ||
+      userData?.email ||
+      userData?.username ||
+      user ||
+      getCookie("user");
+
     // Log for debugging
     if (!userId) {
-      console.warn("No user ID found:", { 
-        userDataId: userData?.id, 
-        userDataEmail: userData?.email, 
-        userDataUsername: userData?.username, 
-        user: user, 
-        cookieUser: getCookie("user") 
+      console.warn("No user ID found:", {
+        userDataId: userData?.id,
+        userDataEmail: userData?.email,
+        userDataUsername: userData?.username,
+        user: user,
+        cookieUser: getCookie("user"),
       });
     }
-    
+
     return userId;
   };
 
@@ -89,21 +93,22 @@ export default function OrderHistoryPage() {
   const hasUserReviewedDish = (dish) => {
     const currentUserId = getCurrentUserId();
     if (!currentUserId || !dish.reviews) return false;
-    
-    const hasReviewed = dish.reviews.some(review => 
-      review.userId === currentUserId || 
-      review.userId === userData?.id ||
-      review.userId === userData?.email ||
-      review.userId === userData?.username ||
-      review.userId === user ||
-      review.userId === getCookie("user")
+
+    const hasReviewed = dish.reviews.some(
+      (review) =>
+        review.userId === currentUserId ||
+        review.userId === userData?.id ||
+        review.userId === userData?.email ||
+        review.userId === userData?.username ||
+        review.userId === user ||
+        review.userId === getCookie("user")
     );
-    
+
     // Log for debugging
     if (hasReviewed) {
       // User has already reviewed this dish
     }
-    
+
     return hasReviewed;
   };
 
@@ -111,37 +116,47 @@ export default function OrderHistoryPage() {
   const validateReviewData = (dish) => {
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
-      return { isValid: false, error: "Unable to identify user. Please refresh the page and try again." };
+      return {
+        isValid: false,
+        error:
+          "Unable to identify user. Please refresh the page and try again.",
+      };
     }
-    
+
     if (!dish || !dish.id) {
       return { isValid: false, error: "Invalid dish data. Please try again." };
     }
-    
+
     if (hasUserReviewedDish(dish)) {
-      return { isValid: false, error: "You have already reviewed this dish! Each dish can only be reviewed once." };
+      return {
+        isValid: false,
+        error:
+          "You have already reviewed this dish! Each dish can only be reviewed once.",
+      };
     }
-    
+
     return { isValid: true, error: null };
   };
 
   // Utility function to get review status for a dish
   const getDishReviewStatus = (dish) => {
     const currentUserId = getCurrentUserId();
-    if (!currentUserId || !dish.reviews) return { hasReviewed: false, review: null };
-    
-    const userReview = dish.reviews.find(review => 
-      review.userId === currentUserId || 
-      review.userId === userData?.id ||
-      review.userId === userData?.email ||
-      review.userId === userData?.username ||
-      review.userId === user ||
-      review.userId === getCookie("user")
+    if (!currentUserId || !dish.reviews)
+      return { hasReviewed: false, review: null };
+
+    const userReview = dish.reviews.find(
+      (review) =>
+        review.userId === currentUserId ||
+        review.userId === userData?.id ||
+        review.userId === userData?.email ||
+        review.userId === userData?.username ||
+        review.userId === user ||
+        review.userId === getCookie("user")
     );
-    
-    return { 
-      hasReviewed: !!userReview, 
-      review: userReview 
+
+    return {
+      hasReviewed: !!userReview,
+      review: userReview,
     };
   };
 
@@ -153,14 +168,17 @@ export default function OrderHistoryPage() {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwt}`,
-        },
-      });
-      
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt}`,
+          },
+        }
+      );
+
       if (response.ok) {
         const userDataJson = await response.json();
         setUserData(userDataJson);
@@ -179,7 +197,7 @@ export default function OrderHistoryPage() {
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     if (!user) {
       toast.error("Please sign in to view your order history");
       router.push("/login");
@@ -192,11 +210,15 @@ export default function OrderHistoryPage() {
 
   const fetchStatusCounts = async () => {
     if (!user) return;
-    
+
     try {
       const now = new Date();
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      const monthAgo = new Date(
+        now.getFullYear(),
+        now.getMonth() - 1,
+        now.getDate()
+      );
 
       // Fetch all time counts
       const allTimeRes = await fetch(
@@ -213,24 +235,32 @@ export default function OrderHistoryPage() {
       if (allTimeRes.ok) {
         const allTimeData = await allTimeRes.json();
         const allTimeOrders = allTimeData.data || [];
-        
+
         // Count statuses for all time
-        const allTimeCounts = allTimeOrders.reduce((counts, order) => {
-          const status = order.orderStatus?.toLowerCase();
-          if (status && counts.hasOwnProperty(status)) {
-            counts[status]++;
-          }
-          return counts;
-        }, { pending: 0, "in-process": 0, ready: 0, delivered: 0, cancelled: 0 });
-        
+        const allTimeCounts = allTimeOrders.reduce(
+          (counts, order) => {
+            const status = order.orderStatus?.toLowerCase();
+            if (status && counts.hasOwnProperty(status)) {
+              counts[status]++;
+            }
+            return counts;
+          },
+          { pending: 0, "in-process": 0, ready: 0, delivered: 0, cancelled: 0 }
+        );
+
         setStatusCountsAll(allTimeCounts);
       } else {
-        console.error("Failed to fetch all-time status counts:", allTimeRes.status);
+        console.error(
+          "Failed to fetch all-time status counts:",
+          allTimeRes.status
+        );
       }
 
       // Fetch week counts
       const weekRes = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        `${
+          process.env.NEXT_PUBLIC_STRAPI_HOST
+        }/api/orders?filters[user][$eq]=${user}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {
           method: "GET",
           headers: {
@@ -243,16 +273,19 @@ export default function OrderHistoryPage() {
       if (weekRes.ok) {
         const weekData = await weekRes.json();
         const weekOrders = weekData.data || [];
-        
+
         // Count statuses for week
-        const weekCounts = weekOrders.reduce((counts, order) => {
-          const status = order.orderStatus?.toLowerCase();
-          if (status && counts.hasOwnProperty(status)) {
-            counts[status]++;
-          }
-          return counts;
-        }, { pending: 0, "in-process": 0, ready: 0, delivered: 0, cancelled: 0 });
-        
+        const weekCounts = weekOrders.reduce(
+          (counts, order) => {
+            const status = order.orderStatus?.toLowerCase();
+            if (status && counts.hasOwnProperty(status)) {
+              counts[status]++;
+            }
+            return counts;
+          },
+          { pending: 0, "in-process": 0, ready: 0, delivered: 0, cancelled: 0 }
+        );
+
         setStatusCountsWeek(weekCounts);
       } else {
         console.error("Failed to fetch week status counts:", weekRes.status);
@@ -260,7 +293,9 @@ export default function OrderHistoryPage() {
 
       // Fetch month counts
       const monthRes = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}&filters[createdAt][$gte]=${monthAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        `${
+          process.env.NEXT_PUBLIC_STRAPI_HOST
+        }/api/orders?filters[user][$eq]=${user}&filters[createdAt][$gte]=${monthAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {
           method: "GET",
           headers: {
@@ -273,29 +308,35 @@ export default function OrderHistoryPage() {
       if (monthRes.ok) {
         const monthData = await monthRes.json();
         const monthOrders = monthData.data || [];
-        
+
         // Count statuses for month
-        const monthCounts = monthOrders.reduce((counts, order) => {
-          const status = order.orderStatus?.toLowerCase();
-          if (status && counts.hasOwnProperty(status)) {
-            counts[status]++;
-          }
-          return counts;
-        }, { pending: 0, "in-process": 0, ready: 0, delivered: 0, cancelled: 0 });
-        
+        const monthCounts = monthOrders.reduce(
+          (counts, order) => {
+            const status = order.orderStatus?.toLowerCase();
+            if (status && counts.hasOwnProperty(status)) {
+              counts[status]++;
+            }
+            return counts;
+          },
+          { pending: 0, "in-process": 0, ready: 0, delivered: 0, cancelled: 0 }
+        );
+
         setStatusCountsMonth(monthCounts);
       } else {
         console.error("Failed to fetch month status counts:", monthRes.status);
       }
     } catch (error) {
       console.error("Error fetching status counts:", error);
-      toast.error("We're having trouble loading your order statistics right now. Please try again.");
+      toast.error(
+        "We're having trouble loading your order statistics right now. Please try again."
+      );
     }
   };
 
   const getAllOrders = async () => {
-    if (!user) return { data: [], meta: { pagination: { total: 0, pageCount: 0 } } };
-    
+    if (!user)
+      return { data: [], meta: { pagination: { total: 0, pageCount: 0 } } };
+
     setLoading(true);
     try {
       // Build filter queries
@@ -324,8 +365,6 @@ export default function OrderHistoryPage() {
       }
 
       const apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[user][$eq]=${user}${statusFilterQuery}${timeFilterQuery}${searchQueryParam}&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}&sort=createdAt:desc`;
-      
-
 
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -337,18 +376,27 @@ export default function OrderHistoryPage() {
 
       if (!response.ok) {
         const errorData = await response.text();
-        console.error("API Error Response:", response.status, response.statusText, errorData);
-        
+        console.error(
+          "API Error Response:",
+          response.status,
+          response.statusText,
+          errorData
+        );
+
         if (response.status === 401) {
           throw new Error("Authentication failed. Please log in again.");
         } else if (response.status === 403) {
-          throw new Error("Access denied. You don't have permission to view these orders.");
+          throw new Error(
+            "Access denied. You don't have permission to view these orders."
+          );
         } else if (response.status === 404) {
           throw new Error("Orders not found. Please check your account.");
         } else if (response.status >= 500) {
           throw new Error("Server error. Please try again later.");
         } else {
-          throw new Error(`Failed to fetch orders: ${response.status} ${response.statusText}`);
+          throw new Error(
+            `Failed to fetch orders: ${response.status} ${response.statusText}`
+          );
         }
       }
 
@@ -366,7 +414,6 @@ export default function OrderHistoryPage() {
 
       // Debug: Log the first order to see its structure
       if (data.data.length > 0) {
-
       }
 
       setTotalPages(data.meta?.pagination?.pageCount || 1);
@@ -374,21 +421,22 @@ export default function OrderHistoryPage() {
       return data;
     } catch (error) {
       console.error("Error in getAllOrders:", error);
-      
+
       // Provide user-friendly error messages
       let errorMessage = "Unable to load orders. Please try again.";
-      
+
       if (error.message.includes("Authentication failed")) {
         errorMessage = "Please log in again to view your orders.";
         router.push("/login");
       } else if (error.message.includes("Access denied")) {
         errorMessage = "You don't have permission to view these orders.";
       } else if (error.message.includes("Server error")) {
-        errorMessage = "Server is temporarily unavailable. Please try again later.";
+        errorMessage =
+          "Server is temporarily unavailable. Please try again later.";
       } else if (error.message.includes("Network")) {
         errorMessage = "Network error. Please check your internet connection.";
       }
-      
+
       toast.error(errorMessage);
       return { data: [], meta: { pagination: { total: 0, pageCount: 0 } } };
     } finally {
@@ -406,8 +454,10 @@ export default function OrderHistoryPage() {
         setOrderData(orders.data || []);
       } catch (error) {
         console.error("Error fetching orders:", error);
-        toast.error("We're having trouble loading your orders right now. Please try again.");
-        
+        toast.error(
+          "We're having trouble loading your orders right now. Please try again."
+        );
+
         setOrderData([]);
         setTotalPages(1);
         setTotalOrders(0);
@@ -415,21 +465,27 @@ export default function OrderHistoryPage() {
     };
 
     fetchOrders();
-  }, [mounted, user, statusFilter, timeFilter, currentSearchQuery, currentPage, pageSize]);
+  }, [
+    mounted,
+    user,
+    statusFilter,
+    timeFilter,
+    currentSearchQuery,
+    currentPage,
+    pageSize,
+  ]);
 
   const handleViewDetails = (order) => {
     if (!order) {
       console.error("handleViewDetails: order is undefined");
       return;
     }
-    
+
     if (!order.documentId) {
       console.error("handleViewDetails: order.documentId is missing:", order);
       return;
     }
-    
 
-    
     setSelectedOrder(order);
     setIsDialogOpen(true);
   };
@@ -454,7 +510,7 @@ export default function OrderHistoryPage() {
 
   const getStatusClasses = (status) => {
     if (!status) return "bg-gray-100 text-gray-800";
-    
+
     const STATUS_STYLES = {
       pending: "bg-yellow-100 text-yellow-700",
       "in-process": "bg-indigo-100 text-indigo-700",
@@ -466,14 +522,12 @@ export default function OrderHistoryPage() {
     return STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.default;
   };
 
-
-
   const countByStatus = (status) =>
     orderData.filter((order) => order.orderStatus === status).length;
 
   const StatusBadge = ({ status }) => {
     if (!status) return null;
-    
+
     const statusMap = {
       pending: "bg-yellow-200 text-yellow-900 font-bold w-24 text-center",
       "in-process": "bg-indigo-200 text-indigo-900 font-bold w-24 text-center",
@@ -491,7 +545,8 @@ export default function OrderHistoryPage() {
     return (
       <span
         className={
-          "text-xs font-medium px-2 py-1 rounded-full " + (statusMap[status] || statusMap.default)
+          "text-xs font-medium px-2 py-1 rounded-full " +
+          (statusMap[status] || statusMap.default)
         }
       >
         {labelMap[status] || status.toUpperCase()}
@@ -512,18 +567,18 @@ export default function OrderHistoryPage() {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg md:text-xl font-semibold">ORDER STATUS</h2>
       </div>
-      
+
       <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs md:text-sm text-gray-500">Pending</p>
               <p className="text-xl md:text-2xl font-bold">
-                {timeFilter === "week" 
-                  ? statusCountsWeek.pending 
-                  : timeFilter === "month" 
-                    ? statusCountsMonth.pending 
-                    : statusCountsAll.pending}
+                {timeFilter === "week"
+                  ? statusCountsWeek.pending
+                  : timeFilter === "month"
+                  ? statusCountsMonth.pending
+                  : statusCountsAll.pending}
               </p>
             </div>
             <Clock className="w-6 h-6 md:w-8 md:h-8 text-yellow-500" />
@@ -534,11 +589,11 @@ export default function OrderHistoryPage() {
             <div>
               <p className="text-xs md:text-sm text-gray-500">In Process</p>
               <p className="text-xl md:text-2xl font-bold">
-                {timeFilter === "week" 
-                  ? statusCountsWeek["in-process"] 
-                  : timeFilter === "month" 
-                    ? statusCountsMonth["in-process"] 
-                    : statusCountsAll["in-process"]}
+                {timeFilter === "week"
+                  ? statusCountsWeek["in-process"]
+                  : timeFilter === "month"
+                  ? statusCountsMonth["in-process"]
+                  : statusCountsAll["in-process"]}
               </p>
             </div>
             <Package className="w-6 h-6 md:w-8 md:h-8 text-indigo-500" />
@@ -549,11 +604,11 @@ export default function OrderHistoryPage() {
             <div>
               <p className="text-xs md:text-sm text-gray-500">Ready</p>
               <p className="text-xl md:text-2xl font-bold">
-                {timeFilter === "week" 
-                  ? statusCountsWeek.ready 
-                  : timeFilter === "month" 
-                    ? statusCountsMonth.ready 
-                    : statusCountsAll.ready}
+                {timeFilter === "week"
+                  ? statusCountsWeek.ready
+                  : timeFilter === "month"
+                  ? statusCountsMonth.ready
+                  : statusCountsAll.ready}
               </p>
             </div>
             <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8 text-green-500" />
@@ -564,11 +619,11 @@ export default function OrderHistoryPage() {
             <div>
               <p className="text-xs md:text-sm text-gray-500">Delivered</p>
               <p className="text-xl md:text-2xl font-bold">
-                {timeFilter === "week" 
-                  ? statusCountsWeek.delivered 
-                  : timeFilter === "month" 
-                    ? statusCountsMonth.delivered 
-                    : statusCountsAll.delivered}
+                {timeFilter === "week"
+                  ? statusCountsWeek.delivered
+                  : timeFilter === "month"
+                  ? statusCountsMonth.delivered
+                  : statusCountsAll.delivered}
               </p>
             </div>
             <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-slate-500" />
@@ -579,11 +634,11 @@ export default function OrderHistoryPage() {
             <div>
               <p className="text-xs md:text-sm text-gray-500">Cancelled</p>
               <p className="text-xl md:text-2xl font-bold">
-                {timeFilter === "week" 
-                  ? statusCountsWeek.cancelled 
-                  : timeFilter === "month" 
-                    ? statusCountsMonth.cancelled 
-                    : statusCountsAll.cancelled}
+                {timeFilter === "week"
+                  ? statusCountsWeek.cancelled
+                  : timeFilter === "month"
+                  ? statusCountsMonth.cancelled
+                  : statusCountsAll.cancelled}
               </p>
             </div>
             <XCircle className="w-6 h-6 md:w-8 md:h-8 text-red-500" />
@@ -634,7 +689,7 @@ export default function OrderHistoryPage() {
           </div>
         </div>
       </div>
-            {/* Table Layout */}
+      {/* Table Layout */}
       {orderData.length === 0 ? (
         <div className="text-center py-16">
           <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-orange-50">
@@ -644,7 +699,8 @@ export default function OrderHistoryPage() {
             No Orders Found
           </h3>
           <p className="text-gray-500 text-sm max-w-sm mx-auto">
-            You haven&apos;t placed any orders yet. Orders will appear here once you start shopping.
+            You haven&apos;t placed any orders yet. Orders will appear here once
+            you start shopping.
           </p>
         </div>
       ) : (
@@ -674,28 +730,85 @@ export default function OrderHistoryPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order ID</th>
-                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Date</th>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Vendor</th>
-                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Items</th>
-                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Status</th>
-                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Type</th>
-                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Total</th>
-                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Actions</th>
+                      <th
+                        scope="col"
+                        className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Order ID
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Order Date
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Vendor
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Items
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Order Status
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Order Type
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Total
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {orderData.map((order, index) => {
                       // Calculate proper values with fallbacks
-                      const subtotal = parseFloat(order.subtotal) || parseFloat(order.totalAmount) || 0;
-                      const deliveryFee = parseFloat(order.deliveryFee) || parseFloat(order.vendorDeliveryFee) || 0;
-                      const tax = parseFloat(order.tax) || parseFloat(order.totalTax) || 0;
-                      const totalAmount = parseFloat(order.totalAmount) || parseFloat(order.orderTotal) || (subtotal + deliveryFee + tax);
-                      
+                      const subtotal =
+                        parseFloat(order.subtotal) ||
+                        parseFloat(order.totalAmount) ||
+                        0;
+                      const deliveryFee =
+                        parseFloat(order.deliveryFee) ||
+                        parseFloat(order.vendorDeliveryFee) ||
+                        0;
+                      const tax =
+                        parseFloat(order.tax) ||
+                        parseFloat(order.totalTax) ||
+                        0;
+                      const totalAmount =
+                        parseFloat(order.totalAmount) ||
+                        parseFloat(order.orderTotal) ||
+                        subtotal + deliveryFee + tax;
+
                       return (
-                        <tr key={`${order.searchableOrderId || order.id}-${index}`} className="bg-white hover:bg-gray-50 border-b border-gray-100">
+                        <tr
+                          key={`${
+                            order.searchableOrderId || order.id
+                          }-${index}`}
+                          className="bg-white hover:bg-gray-50 border-b border-gray-100"
+                        >
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-medium">
-                            {order.searchableOrderId || 'N/A'}
+                            {order.searchableOrderId || "N/A"}
                           </td>
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
                             {new Date(order.createdAt).toLocaleDateString()}
@@ -703,8 +816,8 @@ export default function OrderHistoryPage() {
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
                             <div className="flex flex-col items-center">
                               <div className="w-8 h-8 rounded-full overflow-hidden mb-1">
-                                <img 
-                                  src={order.vendorAvatar || "/fallback.png"} 
+                                <img
+                                  src={order.vendorAvatar || "/fallback.png"}
                                   alt={order.vendorName || "Vendor"}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
@@ -718,15 +831,24 @@ export default function OrderHistoryPage() {
                             </div>
                           </td>
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
-                            {Array.isArray(order.dishes) ? order.dishes.length : 0} items
+                            {Array.isArray(order.dishes)
+                              ? order.dishes.length
+                              : 0}{" "}
+                            items
                           </td>
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
-                            <span className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize mx-auto ${getStatusClasses(order.orderStatus)}`}>
-                              {order.orderStatus || 'Unknown'}
+                            <span
+                              className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize mx-auto ${getStatusClasses(
+                                order.orderStatus
+                              )}`}
+                            >
+                              {order.orderStatus || "Unknown"}
                             </span>
                           </td>
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
-                            <DeliveryTypeBadge deliveryType={order.deliveryType || "delivery"} />
+                            <DeliveryTypeBadge
+                              deliveryType={order.deliveryType || "delivery"}
+                            />
                           </td>
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-semibold">
                             ${totalAmount.toFixed(2)}

@@ -17,16 +17,66 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order ID</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Date</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Buyer Name</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Items</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Status</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Type</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Net Amount</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Delivery Fee</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Total</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Actions</th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                  >
+                    Order ID
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                  >
+                    Order Date
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                  >
+                    Buyer Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                  >
+                    Items
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                  >
+                    Order Status
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                  >
+                    Order Type
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                  >
+                    Net Amount
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                  >
+                    Delivery Fee
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                  >
+                    Total
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                  >
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -40,7 +90,8 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
                         No Orders Found
                       </h3>
                       <p className="text-gray-500 text-sm max-w-sm mx-auto">
-                        You haven&apos;t received any orders yet. Orders will appear here once customers start placing them.
+                        You haven&apos;t received any orders yet. Orders will
+                        appear here once customers start placing them.
                       </p>
                     </div>
                   </td>
@@ -59,25 +110,78 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
       <div className="overflow-x-auto rounded-md -mx-4 sm:mx-0 custom-scrollbar">
         <div className="min-w-[800px] sm:min-w-full">
           <table className="w-full">
-                          <thead>
-                <tr className="border-b border-gray-200">
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order ID</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Date</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Buyer Name</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Items</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Status</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Order Type</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Net Amount</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Delivery Fee</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Total</th>
-                  <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Actions</th>
-                </tr>
-              </thead>
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th
+                  scope="col"
+                  className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                >
+                  Order ID
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                >
+                  Order Date
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                >
+                  Buyer Name
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                >
+                  Items
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                >
+                  Order Status
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                >
+                  Order Type
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                >
+                  Net Amount
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                >
+                  Delivery Fee
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                >
+                  Total
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
             <tbody className="divide-y divide-gray-200">
               {orders.map((order, index) => (
-                <tr key={`${order.searchableOrderId || order.id}-${index}`} className="bg-white hover:bg-gray-50 border-b border-gray-100">
+                <tr
+                  key={`${order.searchableOrderId || order.id}-${index}`}
+                  className="bg-white hover:bg-gray-50 border-b border-gray-100"
+                >
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-medium">
-                    {order.searchableOrderId || 'N/A'}
+                    {order.searchableOrderId || "N/A"}
                   </td>
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
                     {new Date(order.createdAt).toLocaleDateString()}
@@ -87,10 +191,13 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
                   </td>
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
                     {order.dishes?.length || 0} items
-                  
                   </td>
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
-                    <span className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize mx-auto ${getStatusClasses(order.orderStatus)}`}>
+                    <span
+                      className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize mx-auto ${getStatusClasses(
+                        order.orderStatus
+                      )}`}
+                    >
                       {order.orderStatus}
                     </span>
                   </td>
@@ -101,7 +208,9 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
                     ${(order.subtotal || 0).toFixed(2)}
                   </td>
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
-                    {order.deliveryType === 'pickup' ? 'Pickup' : `$${(order.deliveryFee || 0).toFixed(2)}`}
+                    {order.deliveryType === "pickup"
+                      ? "Pickup"
+                      : `$${(order.deliveryFee || 0).toFixed(2)}`}
                   </td>
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center font-semibold">
                     ${(order.subtotal + order.deliveryFee || 0).toFixed(2)}

@@ -94,11 +94,16 @@ const Page = () => {
       );
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error?.message || "Unable to retrieve vendor information. Please try again later.");
+        throw new Error(
+          data.error?.message ||
+            "Unable to retrieve vendor information. Please try again later."
+        );
       }
       const vendorData = data.data[0];
       if (!vendorData) {
-        toast.info("Please complete your vendor registration to access settings.");
+        toast.info(
+          "Please complete your vendor registration to access settings."
+        );
         router.push("/become-vendor");
         return;
       }
@@ -108,14 +113,17 @@ const Page = () => {
         avatar: vendorData.avatar || { id: 0, url: "" },
         coverImage: vendorData.coverImage || { id: 0, url: "" },
         vendorDeliveryFee:
-          vendorData.vendorDeliveryFee !== null && vendorData.vendorDeliveryFee !== undefined
+          vendorData.vendorDeliveryFee !== null &&
+          vendorData.vendorDeliveryFee !== undefined
             ? Number(vendorData.vendorDeliveryFee).toFixed(2)
             : "",
         verificationDocument: vendorData.verificationDocument || null,
         verificationStatus: vendorData.verificationStatus || "unverified",
       });
     } catch (error) {
-      toast.error("We're having trouble loading your vendor information. Please refresh the page or try again later.");
+      toast.error(
+        "We're having trouble loading your vendor information. Please refresh the page or try again later."
+      );
     } finally {
       setLoading(false);
     }
@@ -129,8 +137,6 @@ const Page = () => {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-
-
 
   const uploadVerificationDocument = async (file) => {
     const formDataUpload = new FormData();
@@ -160,13 +166,17 @@ const Page = () => {
       );
 
       if (!response.ok) {
-        toast.error("We couldn't upload your document right now. Please try again.");
+        toast.error(
+          "We couldn't upload your document right now. Please try again."
+        );
         return;
       }
 
       const data = await response.json();
       if (!data || !data[0]) {
-        toast.error("We received an unexpected response while uploading your document. Please try again.");
+        toast.error(
+          "We received an unexpected response while uploading your document. Please try again."
+        );
         return;
       }
 
@@ -192,7 +202,9 @@ const Page = () => {
       );
 
       if (!updateResponse.ok) {
-        toast.error("We couldn't update your vendor profile with the verification document right now. Please try again.");
+        toast.error(
+          "We couldn't update your vendor profile with the verification document right now. Please try again."
+        );
         return;
       }
 
@@ -201,13 +213,17 @@ const Page = () => {
         verificationDocument: {
           id,
           url: fullUrl,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         },
       }));
 
-      toast.success("Excellent! Your verification document has been uploaded successfully!");
+      toast.success(
+        "Excellent! Your verification document has been uploaded successfully!"
+      );
     } catch (error) {
-      toast.error("We're having trouble uploading your document right now. Please try again.");
+      toast.error(
+        "We're having trouble uploading your document right now. Please try again."
+      );
     } finally {
       setUploadingDocument(false);
     }
@@ -261,7 +277,8 @@ const Page = () => {
         border: "border-orange-200",
         icon: <AlertCircle className="w-5 h-5" />,
         label: "Unverified",
-        description: "Please upload your verification document to get verified.",
+        description:
+          "Please upload your verification document to get verified.",
         gradient: "from-orange-50 to-amber-50",
         iconBg: "bg-orange-100",
         iconColor: "text-orange-600",
@@ -272,7 +289,8 @@ const Page = () => {
         border: "border-orange-200",
         icon: <XCircle className="w-5 h-5" />,
         label: "Rejected",
-        description: "Your verification was rejected. Please upload a new document.",
+        description:
+          "Your verification was rejected. Please upload a new document.",
         gradient: "from-orange-50 to-red-50",
         iconBg: "bg-orange-100",
         iconColor: "text-orange-600",
@@ -281,8 +299,6 @@ const Page = () => {
 
     return statusConfig[status] || statusConfig.unverified;
   };
-
-
 
   const validateForm = () => {
     const missingFields = REQUIRED_FIELDS.filter((field) => !formData[field]);
@@ -305,17 +321,25 @@ const Page = () => {
       return;
     }
     if (!jwt) {
-      toast.error("Your session has expired. Please sign in again to continue.");
+      toast.error(
+        "Your session has expired. Please sign in again to continue."
+      );
       router.push("/login");
       return;
     }
     let deliveryFee = formData.vendorDeliveryFee;
-    if (deliveryFee === "" || deliveryFee === null || deliveryFee === undefined) {
+    if (
+      deliveryFee === "" ||
+      deliveryFee === null ||
+      deliveryFee === undefined
+    ) {
       deliveryFee = null;
     } else {
       let num = parseFloat(deliveryFee);
       if (isNaN(num) || num < 0) {
-        toast.error("Please enter a valid delivery fee (non-negative number with up to two decimal places).");
+        toast.error(
+          "Please enter a valid delivery fee (non-negative number with up to two decimal places)."
+        );
         return;
       } else if (num === 0) {
         deliveryFee = "0.00";
@@ -355,7 +379,10 @@ const Page = () => {
       );
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error?.message || "Failed to update your settings. Please try again later.");
+        throw new Error(
+          data.error?.message ||
+            "Failed to update your settings. Please try again later."
+        );
       }
       const dishesResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes?filters[vendorId][$eq]=${formData.documentId}`,
@@ -391,7 +418,10 @@ const Page = () => {
       toast.success("Perfect! Your settings have been updated successfully.");
       setTimeout(() => router.push("/vendor/dashboard"), 1000);
     } catch (error) {
-      toast.error(error.message || "We're having trouble updating your settings right now. Please try again.");
+      toast.error(
+        error.message ||
+          "We're having trouble updating your settings right now. Please try again."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -417,7 +447,10 @@ const Page = () => {
       <form onSubmit={handleSubmit} className="space-y-8">
         <section className="bg-white rounded-xl shadow p-6 space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Email
             </label>
             <div className="relative">
@@ -432,7 +465,10 @@ const Page = () => {
             </div>
           </div>
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Username
             </label>
             <div className="relative">
@@ -453,7 +489,10 @@ const Page = () => {
             Store Information
           </h2>
           <div>
-            <label htmlFor="storeName" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="storeName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Store Name
             </label>
             <input
@@ -466,7 +505,10 @@ const Page = () => {
             />
           </div>
           <div>
-            <label htmlFor="vendorDeliveryFee" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="vendorDeliveryFee"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Delivery Fee
             </label>
             <input
@@ -482,7 +524,10 @@ const Page = () => {
             />
           </div>
           <div>
-            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="bio"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Bio
             </label>
             <textarea
@@ -495,42 +540,42 @@ const Page = () => {
             />
           </div>
         </section>
-                 <section className="bg-white rounded-xl shadow p-6 space-y-4">
-           <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
-             <ImageIcon className="h-5 w-5" />
-             Media
-           </h2>
-           <div className="mb-12">
-             <VendorProfileLayout
-               onCoverImageUpload={(imageData) => {
-                 setFormData(prev => ({
-                   ...prev,
-                   coverImage: imageData
-                 }));
-               }}
-               onCoverImageRemove={() => {
-                 setFormData(prev => ({
-                   ...prev,
-                   coverImage: { id: 0, url: "" }
-                 }));
-               }}
-               onAvatarUpload={(imageData) => {
-                 setFormData(prev => ({
-                   ...prev,
-                   avatar: imageData
-                 }));
-               }}
-               onAvatarRemove={() => {
-                 setFormData(prev => ({
-                   ...prev,
-                   avatar: { id: 0, url: "" }
-                 }));
-               }}
-               currentCoverImageUrl={formData.coverImage?.url || null}
-               currentAvatarUrl={formData.avatar?.url || null}
-             />
-           </div>
-         </section>
+        <section className="bg-white rounded-xl shadow p-6 space-y-4">
+          <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
+            <ImageIcon className="h-5 w-5" />
+            Media
+          </h2>
+          <div className="mb-12">
+            <VendorProfileLayout
+              onCoverImageUpload={(imageData) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  coverImage: imageData,
+                }));
+              }}
+              onCoverImageRemove={() => {
+                setFormData((prev) => ({
+                  ...prev,
+                  coverImage: { id: 0, url: "" },
+                }));
+              }}
+              onAvatarUpload={(imageData) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  avatar: imageData,
+                }));
+              }}
+              onAvatarRemove={() => {
+                setFormData((prev) => ({
+                  ...prev,
+                  avatar: { id: 0, url: "" },
+                }));
+              }}
+              currentCoverImageUrl={formData.coverImage?.url || null}
+              currentAvatarUrl={formData.avatar?.url || null}
+            />
+          </div>
+        </section>
         <section className="bg-white rounded-xl shadow p-6 space-y-4">
           <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
             <User className="h-5 w-5" />
@@ -538,7 +583,10 @@ const Page = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="fullName"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Full Name
               </label>
               <div className="relative">
@@ -554,7 +602,10 @@ const Page = () => {
               </div>
             </div>
             <div>
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="phoneNumber"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Phone Number
               </label>
               <div className="relative">
@@ -577,7 +628,10 @@ const Page = () => {
             Location
           </h2>
           <div>
-            <label htmlFor="businessAddress" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="businessAddress"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Business Address
             </label>
             <div className="relative">
@@ -594,7 +648,10 @@ const Page = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="city"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 City
               </label>
               <input
@@ -607,7 +664,10 @@ const Page = () => {
               />
             </div>
             <div>
-              <label htmlFor="zipcode" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="zipcode"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Zipcode
               </label>
               <input
@@ -633,7 +693,10 @@ const Page = () => {
         </div>
       </form>
 
-      <section className="bg-white rounded-xl shadow-lg p-6 mt-8 border border-gray-100" id="account-verification">
+      <section
+        className="bg-white rounded-xl shadow-lg p-6 mt-8 border border-gray-100"
+        id="account-verification"
+      >
         <h2 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-900">
           <div className="p-2 bg-orange-100 rounded-lg">
             <FileText className="h-5 w-5 text-orange-600" />
@@ -642,25 +705,53 @@ const Page = () => {
         </h2>
 
         <div className="space-y-6">
-          <div className={`bg-gradient-to-r ${getVerificationStatusConfig(formData.verificationStatus).gradient} rounded-xl p-6 border ${getVerificationStatusConfig(formData.verificationStatus).border} shadow-sm`}>
+          <div
+            className={`bg-gradient-to-r ${
+              getVerificationStatusConfig(formData.verificationStatus).gradient
+            } rounded-xl p-6 border ${
+              getVerificationStatusConfig(formData.verificationStatus).border
+            } shadow-sm`}
+          >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-full ${getVerificationStatusConfig(formData.verificationStatus).iconBg} shadow-sm`}>
-                  <div className={getVerificationStatusConfig(formData.verificationStatus).iconColor}>
-                    {getVerificationStatusConfig(formData.verificationStatus).icon}
+                <div
+                  className={`p-3 rounded-full ${
+                    getVerificationStatusConfig(formData.verificationStatus)
+                      .iconBg
+                  } shadow-sm`}
+                >
+                  <div
+                    className={
+                      getVerificationStatusConfig(formData.verificationStatus)
+                        .iconColor
+                    }
+                  >
+                    {
+                      getVerificationStatusConfig(formData.verificationStatus)
+                        .icon
+                    }
                   </div>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    {getVerificationStatusConfig(formData.verificationStatus).label}
+                    {
+                      getVerificationStatusConfig(formData.verificationStatus)
+                        .label
+                    }
                   </h3>
                   <p className="text-gray-600 mt-1">
-                    {getVerificationStatusConfig(formData.verificationStatus).description}
+                    {
+                      getVerificationStatusConfig(formData.verificationStatus)
+                        .description
+                    }
                   </p>
                 </div>
               </div>
               <div>
-                <VerificationBadge status={formData.verificationStatus} size="small" />
+                <VerificationBadge
+                  status={formData.verificationStatus}
+                  size="small"
+                />
               </div>
             </div>
           </div>
@@ -679,7 +770,9 @@ const Page = () => {
                       <FileText className="w-6 h-6 text-red-600" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 text-sm">Verification Document</p>
+                      <p className="font-semibold text-gray-900 text-sm">
+                        Verification Document
+                      </p>
                       <p className="text-gray-500 text-xs">PDF Document</p>
                       {formData.verificationDocument.createdAt && (
                         <p className="text-gray-400 text-xs flex items-center gap-1 mt-1">
@@ -700,29 +793,31 @@ const Page = () => {
                       <FileText className="w-4 h-4" />
                       View Document
                     </Link>
-                    {formData.verificationStatus !== 'verified' && <button
-                      onClick={() => {
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.accept = '.pdf';
-                        input.onchange = handleVerificationFileChange;
-                        input.click();
-                      }}
-                      disabled={uploadingDocument}
-                      className="w-full sm:w-auto px-3 py-1.5 bg-gray-600 text-white rounded-full shadow-gray-300 shadow-md hover:bg-gray-700 transition-all text-xs font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {uploadingDocument ? (
-                        <>
-                          <Spinner size={14} color="white" />
-                          Uploading...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="w-4 h-4" />
-                          Replace
-                        </>
-                      )}
-                    </button>}
+                    {formData.verificationStatus !== "verified" && (
+                      <button
+                        onClick={() => {
+                          const input = document.createElement("input");
+                          input.type = "file";
+                          input.accept = ".pdf";
+                          input.onchange = handleVerificationFileChange;
+                          input.click();
+                        }}
+                        disabled={uploadingDocument}
+                        className="w-full sm:w-auto px-3 py-1.5 bg-gray-600 text-white rounded-full shadow-gray-300 shadow-md hover:bg-gray-700 transition-all text-xs font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {uploadingDocument ? (
+                          <>
+                            <Spinner size={14} color="white" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4" />
+                            Replace
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -736,18 +831,21 @@ const Page = () => {
                   )}
                 </div>
                 <h5 className="text-xl font-semibold text-gray-900 mb-2">
-                  {uploadingDocument ? "Uploading Document..." : "Upload Verification Document"}
+                  {uploadingDocument
+                    ? "Uploading Document..."
+                    : "Upload Verification Document"}
                 </h5>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed">
-                  Please upload a PDF document for verification. This could be a business license,
-                  food service permit, or any official document that verifies your business.
+                  Please upload a PDF document for verification. This could be a
+                  business license, food service permit, or any official
+                  document that verifies your business.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <button
                     onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = '.pdf';
+                      const input = document.createElement("input");
+                      input.type = "file";
+                      input.accept = ".pdf";
                       input.onchange = handleVerificationFileChange;
                       input.click();
                     }}
@@ -789,19 +887,27 @@ const Page = () => {
             <ul className="space-y-3 text-sm text-gray-700">
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-orange-600 rounded-full mt-2 flex-shrink-0 shadow-sm"></div>
-                <span className="leading-relaxed">Valid business license or food service permit</span>
+                <span className="leading-relaxed">
+                  Valid business license or food service permit
+                </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-orange-600 rounded-full mt-2 flex-shrink-0 shadow-sm"></div>
-                <span className="leading-relaxed">Government-issued ID or business registration</span>
+                <span className="leading-relaxed">
+                  Government-issued ID or business registration
+                </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-orange-600 rounded-full mt-2 flex-shrink-0 shadow-sm"></div>
-                <span className="leading-relaxed">Health department certification (if applicable)</span>
+                <span className="leading-relaxed">
+                  Health department certification (if applicable)
+                </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-orange-600 rounded-full mt-2 flex-shrink-0 shadow-sm"></div>
-                <span className="leading-relaxed">Document must be in PDF format and clearly legible</span>
+                <span className="leading-relaxed">
+                  Document must be in PDF format and clearly legible
+                </span>
               </li>
             </ul>
           </div>

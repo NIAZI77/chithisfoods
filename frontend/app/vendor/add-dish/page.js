@@ -165,10 +165,7 @@ export default function AddDishPage() {
 
   const canAddNewGroup = (type) => {
     const last = dishData[type].at(-1);
-    return (
-      dishData[type].length === 0 ||
-      (last?.name && last.price)
-    );
+    return dishData[type].length === 0 || (last?.name && last.price);
   };
 
   const addGroup = (type) => {
@@ -189,11 +186,7 @@ export default function AddDishPage() {
   };
 
   const isValid = () => {
-    const complete = (list) =>
-      list.every(
-        (item) =>
-          item.name && item.price
-      );
+    const complete = (list) => list.every((item) => item.name && item.price);
     return complete(dishData.toppings) && complete(dishData.extras);
   };
   const handleSpicinessChange = (spicinessLevel) => {
@@ -216,7 +209,9 @@ export default function AddDishPage() {
       return;
     }
     if (dishData.spiciness.length === 0) {
-      toast.warning("Please select at least one spiciness level for your dish.");
+      toast.warning(
+        "Please select at least one spiciness level for your dish."
+      );
       return;
     }
     if (dishData.image.url.length === 0) {
@@ -256,7 +251,9 @@ export default function AddDishPage() {
       toast.success("Excellent! Your dish has been saved successfully.");
       setTimeout(() => router.push("/vendor/manage-inventory"), 1000);
     } catch (error) {
-      toast.error("Something went wrong while saving your dish. Please try again.");
+      toast.error(
+        "Something went wrong while saving your dish. Please try again."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -338,15 +335,15 @@ export default function AddDishPage() {
         <div className="w-full col-span-2">
           <DishImageUpload
             onImageUpload={(imageData) => {
-              setDishData(prev => ({
+              setDishData((prev) => ({
                 ...prev,
-                image: imageData
+                image: imageData,
               }));
             }}
             onImageRemove={() => {
-              setDishData(prev => ({
+              setDishData((prev) => ({
                 ...prev,
-                image: { id: 0, url: "" }
+                image: { id: 0, url: "" },
               }));
             }}
             currentImageUrl={dishData.image.url || null}
@@ -499,8 +496,10 @@ export default function AddDishPage() {
             </label>
             <IngredientInput
               value={dishData.ingredients}
-              onChange={(ingredients) => setDishData(prev => ({ ...prev, ingredients }))}
-                placeholder="i.e Chicken breast, Olive oil, Garlic"
+              onChange={(ingredients) =>
+                setDishData((prev) => ({ ...prev, ingredients }))
+              }
+              placeholder="i.e Chicken breast, Olive oil, Garlic"
               maxIngredients={20}
             />
           </div>
@@ -519,21 +518,23 @@ export default function AddDishPage() {
           />
         </div>
 
-          <label className="text-sm text-slate-400 ml-2">Spice Level</label>
+        <label className="text-sm text-slate-400 ml-2">Spice Level</label>
         <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
-          {["None","Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map((level) => (
-            <div
-              key={level}
-              onClick={() => handleSpicinessChange(level)}
-              className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md text-xs font-semibold transition-all ${
-                dishData.spiciness.includes(level)
-                  ? "bg-orange-500 text-white border-orange-500"
-                  : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
-              }`}
-            >
-              {level}
-            </div>
-          ))}
+          {["None", "Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"].map(
+            (level) => (
+              <div
+                key={level}
+                onClick={() => handleSpicinessChange(level)}
+                className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md text-xs font-semibold transition-all ${
+                  dishData.spiciness.includes(level)
+                    ? "bg-orange-500 text-white border-orange-500"
+                    : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
+                }`}
+              >
+                {level}
+              </div>
+            )
+          )}
         </div>
 
         <section className="space-y-6 mt-8">
@@ -611,7 +612,7 @@ export default function AddDishPage() {
             </button>
           </div>
 
-                    {dishData.extras.map((group, groupIndex) => (
+          {dishData.extras.map((group, groupIndex) => (
             <div
               key={groupIndex}
               className="p-6 rounded-lg mb-6 bg-white shadow-sm space-y-4 border border-gray-100"

@@ -36,12 +36,16 @@ export default function PopularDishes({ zipcode }) {
       if (response.ok) {
         setPopularDishes(result.data || []);
       } else {
-        toast.error("We're having trouble loading dishes right now. Please try again later.");
+        toast.error(
+          "We're having trouble loading dishes right now. Please try again later."
+        );
         setPopularDishes([]);
       }
     } catch (error) {
       console.error("Error fetching popular dishes:", error);
-      toast.error("We're having trouble loading dishes right now. Please try again later.");
+      toast.error(
+        "We're having trouble loading dishes right now. Please try again later."
+      );
       setPopularDishes([]);
     } finally {
       setIsLoading(false);

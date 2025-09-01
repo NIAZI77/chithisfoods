@@ -1,13 +1,19 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaEnvelope, FaInfo } from "react-icons/fa";
+import {
+  FaUser,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaEnvelope,
+  FaInfo,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { setCookie, getCookie } from "cookies-next";
 import Loading from "@/app/loading";
 import Spinner from "@/app/components/Spinner";
-import AddressManager from "./components/AddressManager";
 import RefundDetailsManager from "./components/RefundDetailsManager";
 
 export default function AccountSettings() {
@@ -28,45 +34,53 @@ export default function AccountSettings() {
   const [jwt, setJwt] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
-  
+
   // Refund details state
   const [refundDetails, setRefundDetails] = useState({});
 
   const usernameRegex = /^[a-z0-9_]{3,15}$/;
 
-  const getUser = useCallback(async (token) => {
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await res.json();
+  const getUser = useCallback(
+    async (token) => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data = await res.json();
 
-      if (!res.ok) {
-        console.error(data?.error?.message || "Error fetching user");
-        toast.error(data?.error?.message || "We couldn't load your profile information right now.");
-        router.push("/login");
-      } else {
-        setUsername(data.username);
-        setEmail(data.email);
-        setProvider(data.provider);
-        setUserId(data.id);
-        // Extract refund details from user data
-        if (data.refundDetails) {
-          setRefundDetails(data.refundDetails);
+        if (!res.ok) {
+          console.error(data?.error?.message || "Error fetching user");
+          toast.error(
+            data?.error?.message ||
+              "We couldn't load your profile information right now."
+          );
+          router.push("/login");
+        } else {
+          setUsername(data.username);
+          setEmail(data.email);
+          setProvider(data.provider);
+          setUserId(data.id);
+          // Extract refund details from user data
+          if (data.refundDetails) {
+            setRefundDetails(data.refundDetails);
+          }
         }
+      } catch (error) {
+        console.error("Error:", error);
+        toast.error(
+          "We're having trouble loading your profile data. Please refresh and try again."
+        );
+        router.push("/login");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("We're having trouble loading your profile data. Please refresh and try again.");
-      router.push("/login");
-    } finally {
-      setLoading(false);
-    }
-  }, [router]);
+    },
+    [router]
+  );
 
   useEffect(() => {
     const token = getCookie("jwt");
@@ -123,10 +137,15 @@ export default function AccountSettings() {
         setUsername(data.username);
         setCookie("user", JSON.stringify(data), { path: "/" });
       } else {
-        toast.error(data?.error?.message || "We couldn't update your username right now. Please try again.");
+        toast.error(
+          data?.error?.message ||
+            "We couldn't update your username right now. Please try again."
+        );
       }
     } catch (err) {
-      toast.error("We're having trouble updating your profile. Please try again in a moment.");
+      toast.error(
+        "We're having trouble updating your profile. Please try again in a moment."
+      );
     } finally {
       setSavingProfile(false);
     }
@@ -146,7 +165,9 @@ export default function AccountSettings() {
     }
 
     if (newPassword !== confirmNewPassword) {
-      toast.error("Your passwords don't match. Please double-check and try again.");
+      toast.error(
+        "Your passwords don't match. Please double-check and try again."
+      );
       return;
     }
 
@@ -172,15 +193,22 @@ export default function AccountSettings() {
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("Excellent! Your password has been changed successfully.");
+        toast.success(
+          "Excellent! Your password has been changed successfully."
+        );
         setCurrentPassword("");
         setNewPassword("");
         setConfirmNewPassword("");
       } else {
-        toast.error(data?.error?.message || "We couldn't change your password right now. Please try again.");
+        toast.error(
+          data?.error?.message ||
+            "We couldn't change your password right now. Please try again."
+        );
       }
     } catch (err) {
-      toast.error("We're having trouble changing your password. Please try again in a moment.");
+      toast.error(
+        "We're having trouble changing your password. Please try again in a moment."
+      );
     } finally {
       setSavingPassword(false);
     }
@@ -188,7 +216,6 @@ export default function AccountSettings() {
 
   const handleRefundDetailsUpdate = (updatedRefundDetails) => {
     setRefundDetails(updatedRefundDetails);
-    
   };
 
   if (loading) return <Loading />;
@@ -303,23 +330,19 @@ export default function AccountSettings() {
           <FaEnvelope className="w-5 h-5 text-rose-600" />
           Refund Details Management
         </h2>
-        
+
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-start gap-3">
             <FaInfo className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-blue-800">
-              <p className="font-medium">
-                Auto-sync with canceled orders
-              </p>
+              <p className="font-medium">Auto-sync with canceled orders</p>
               <p className="mt-1 text-blue-700">
                 Updates all canceled orders when you change refund details
               </p>
             </div>
           </div>
         </div>
-        
 
-        
         <RefundDetailsManager
           key={`refund-manager-${JSON.stringify(refundDetails)}`}
           userId={userId}
@@ -328,8 +351,6 @@ export default function AccountSettings() {
           jwt={jwt}
         />
       </section>
-
-      <AddressManager />
     </div>
   );
 }

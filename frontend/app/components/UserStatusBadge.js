@@ -54,12 +54,10 @@ const UserStatusBadge = ({ isBlocked, size = "default" }) => {
     <span
       className={`inline-flex items-center ${sizeStyles.gap} ${sizeStyles.padding} ${sizeStyles.text} font-medium rounded-full border ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border} shadow-sm`}
     >
-      <span className={sizeStyles.icon}>
-        {statusStyles.icon}
-      </span>
+      <span className={sizeStyles.icon}>{statusStyles.icon}</span>
       {statusStyles.label}
     </span>
   );
 };
 
-export default UserStatusBadge; 
+export default UserStatusBadge;

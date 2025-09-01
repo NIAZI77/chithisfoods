@@ -135,7 +135,8 @@ const TransactionListByDate = ({ transactions, isLoading }) => {
             No Transactions Found
           </h3>
           <p className="text-orange-600 mb-6 leading-relaxed">
-            You haven&apos;t received any payments yet. Once customers place orders and payments are processed, they will appear here.
+            You haven&apos;t received any payments yet. Once customers place
+            orders and payments are processed, they will appear here.
           </p>
           <div className="flex items-center justify-center space-x-2 text-sm text-orange-500">
             <Calendar className="h-4 w-4" />
@@ -205,7 +206,9 @@ const TransactionListByDate = ({ transactions, isLoading }) => {
 };
 
 const TransactionList = ({ transactions, isLoading }) => {
-  return <TransactionListByDate transactions={transactions} isLoading={isLoading} />;
+  return (
+    <TransactionListByDate transactions={transactions} isLoading={isLoading} />
+  );
 };
 
 const PayPalConnection = ({
@@ -450,14 +453,18 @@ function PaymentPage() {
   const fetchVendorOrders = async (vendorId) => {
     try {
       setIsLoading(true);
-      
+
       let timeFilterQuery = "";
       const now = new Date();
       if (timeFilter === "week") {
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         timeFilterQuery = `&filters[createdAt][$gte]=${weekAgo.toISOString()}`;
       } else if (timeFilter === "month") {
-        const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        const monthAgo = new Date(
+          now.getFullYear(),
+          now.getMonth() - 1,
+          now.getDate()
+        );
         timeFilterQuery = `&filters[createdAt][$gte]=${monthAgo.toISOString()}`;
       }
 
@@ -476,7 +483,7 @@ function PaymentPage() {
         throw new Error(data.error?.message || "Failed to fetch orders");
       }
 
-      const transformedOrders = data.data.map(order => ({
+      const transformedOrders = data.data.map((order) => ({
         orderId: order.searchableOrderId,
         createdAt: order.createdAt,
         vendorPaymentStatus: order.vendor_payment.toUpperCase(),
@@ -800,7 +807,10 @@ function PaymentPage() {
                 </button>
               </div>
             </div>
-            <TransactionList transactions={transactions} isLoading={isLoading} />
+            <TransactionList
+              transactions={transactions}
+              isLoading={isLoading}
+            />
           </div>
         )}
 

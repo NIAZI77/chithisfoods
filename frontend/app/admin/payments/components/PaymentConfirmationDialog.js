@@ -25,15 +25,18 @@ const PaymentConfirmationDialog = ({
   useEffect(() => {
     const fetchVendorData = async () => {
       if (!order?.vendorId || type !== "payment") return;
-      
+
       try {
         setLoadingVendor(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${order.vendorId}`, {
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${order.vendorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Failed to fetch vendor data");
@@ -61,8 +64,10 @@ const PaymentConfirmationDialog = ({
     ? "This will mark the vendor payment as paid. This action cannot be reversed."
     : "This will mark the order as refunded. This action cannot be reversed.";
   const confirmText = isPayment ? "Mark as Paid" : "Mark as Refunded";
-  const confirmColor = isPayment ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600";
-  
+  const confirmColor = isPayment
+    ? "bg-green-500 hover:bg-green-600"
+    : "bg-red-500 hover:bg-red-600";
+
   // Check if refund details are available for refund type
   const hasRefundDetails = order?.refundDetails?.email;
   const isRefundDisabled = type === "refund" && !hasRefundDetails;
@@ -84,12 +89,32 @@ const PaymentConfirmationDialog = ({
           </AlertDialogDescription>
 
           <div className="mt-4 space-y-2 text-sm text-gray-600">
-            <p><span className="font-medium">Order ID</span> {order.documentId}</p>
-            <p><span className="font-medium">Amount</span> ${isPayment ? Number(order.subtotal?.toFixed(2)) + Number(order.deliveryFee?.toFixed(2)) : order.totalAmount?.toFixed(2)}</p>
-            <p><span className="font-medium">Vendor</span> @{order.vendorUsername || "N/A"}</p>
-            <p><span className="font-medium">Order Status</span> {order.orderStatus}</p>
-            <p><span className="font-medium">Payment Status</span> {order.paymentStatus}</p>
-            <p><span className="font-bold">Vendor Payment</span> {order.vendor_payment}</p>
+            <p>
+              <span className="font-medium">Order ID</span> {order.documentId}
+            </p>
+            <p>
+              <span className="font-medium">Amount</span> $
+              {isPayment
+                ? Number(order.subtotal?.toFixed(2)) +
+                  Number(order.deliveryFee?.toFixed(2))
+                : order.totalAmount?.toFixed(2)}
+            </p>
+            <p>
+              <span className="font-medium">Vendor</span> @
+              {order.vendorUsername || "N/A"}
+            </p>
+            <p>
+              <span className="font-medium">Order Status</span>{" "}
+              {order.orderStatus}
+            </p>
+            <p>
+              <span className="font-medium">Payment Status</span>{" "}
+              {order.paymentStatus}
+            </p>
+            <p>
+              <span className="font-bold">Vendor Payment</span>{" "}
+              {order.vendor_payment}
+            </p>
             {type === "payment" ? (
               <p>
                 <span className="font-medium">Vendor PayPal Email</span>{" "}
@@ -105,30 +130,37 @@ const PaymentConfirmationDialog = ({
                 {hasRefundDetails ? (
                   order.refundDetails.email
                 ) : (
-                  <span className="text-red-600 font-medium">Not provided - Refund cannot be processed</span>
+                  <span className="text-red-600 font-medium">
+                    Not provided - Refund cannot be processed
+                  </span>
                 )}
               </p>
             )}
             {type === "refund" && !hasRefundDetails && (
               <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                 <p className="text-sm text-yellow-800">
-                  <strong>Note:</strong> Customer has not provided refund details. 
-                  The refund button is disabled until the customer adds their refund information.
+                  <strong>Note:</strong> Customer has not provided refund
+                  details. The refund button is disabled until the customer adds
+                  their refund information.
                 </p>
               </div>
             )}
           </div>
         </AlertDialogHeader>
-        
+
         <AlertDialogFooter>
           <AlertDialogCancel className="mt-0 border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-800">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            disabled={isProcessing || (type === "payment" && loadingVendor) || isRefundDisabled}
+            disabled={
+              isProcessing ||
+              (type === "payment" && loadingVendor) ||
+              isRefundDisabled
+            }
             className={`${confirmColor} text-white shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 ${
-              isRefundDisabled ? 'opacity-50 cursor-not-allowed' : ''
+              isRefundDisabled ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             {isProcessing ? (
@@ -146,4 +178,4 @@ const PaymentConfirmationDialog = ({
   );
 };
 
-export default PaymentConfirmationDialog; 
+export default PaymentConfirmationDialog;

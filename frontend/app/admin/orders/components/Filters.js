@@ -7,8 +7,17 @@ import {
 } from "@/components/ui/select";
 import SearchComponent from "@/components/SearchComponent";
 
-const Filters = ({ timeFilter, filterStatus, vendorPaymentStatus, searchQuery, onTimeFilterChange, onFilterStatusChange, onVendorPaymentChange, onSearchChange, onSearchSubmit }) => {
-
+const Filters = ({
+  timeFilter,
+  filterStatus,
+  vendorPaymentStatus,
+  searchQuery,
+  onTimeFilterChange,
+  onFilterStatusChange,
+  onVendorPaymentChange,
+  onSearchChange,
+  onSearchSubmit,
+}) => {
   return (
     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
       <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
@@ -45,7 +54,10 @@ const Filters = ({ timeFilter, filterStatus, vendorPaymentStatus, searchQuery, o
           </SelectContent>
         </Select>
 
-        <Select value={vendorPaymentStatus} onValueChange={onVendorPaymentChange}>
+        <Select
+          value={vendorPaymentStatus}
+          onValueChange={onVendorPaymentChange}
+        >
           <SelectTrigger className="w-full sm:w-[210px]">
             <SelectValue placeholder="Vendor Payment" />
           </SelectTrigger>
@@ -60,4 +72,4 @@ const Filters = ({ timeFilter, filterStatus, vendorPaymentStatus, searchQuery, o
   );
 };
 
-export default Filters; 
+export default Filters;

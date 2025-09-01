@@ -66,8 +66,6 @@ export default function Navbar() {
     }
   };
 
-
-
   useEffect(() => {
     const jwt = getCookie("jwt");
     const user = getCookie("user");
@@ -80,23 +78,23 @@ export default function Navbar() {
 
   useEffect(() => {
     const loadCartData = () => {
-      const cartData = localStorage.getItem('cart');
+      const cartData = localStorage.getItem("cart");
       if (cartData) {
         try {
           const parsedCart = JSON.parse(cartData);
           setCartItems(parsedCart);
         } catch (error) {
-          console.error('Error parsing cart data:', error);
+          console.error("Error parsing cart data:", error);
           setCartItems([]);
         }
       }
     };
 
     loadCartData();
-    
+
     // Listen for cart updates from other tabs
     const handleStorageChange = (e) => {
-      if (e.key === 'cart') {
+      if (e.key === "cart") {
         loadCartData();
       }
     };
@@ -111,14 +109,14 @@ export default function Navbar() {
       setCartItems([]);
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('cartUpdate', handleCartUpdate);
-    window.addEventListener('zipcodeChange', handleZipcodeChange);
-    
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("cartUpdate", handleCartUpdate);
+    window.addEventListener("zipcodeChange", handleZipcodeChange);
+
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('cartUpdate', handleCartUpdate);
-      window.removeEventListener('zipcodeChange', handleZipcodeChange);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("cartUpdate", handleCartUpdate);
+      window.removeEventListener("zipcodeChange", handleZipcodeChange);
     };
   }, []);
 
@@ -141,7 +139,7 @@ export default function Navbar() {
     localStorage.clear();
     // Clear cart items state and notify navbar
     setCartItems([]);
-    window.dispatchEvent(new CustomEvent('cartUpdate'));
+    window.dispatchEvent(new CustomEvent("cartUpdate"));
     router.push("/");
   };
 
@@ -154,11 +152,7 @@ export default function Navbar() {
     <nav className="bg-transparent w-full border-gray-200 md:h-20 md:max-h-20 h-16 max-h-16 sticky top-0 z-50 backdrop-blur-sm">
       <div className="flex flex-wrap items-center justify-between w-full mx-auto md:p-5 p-3 md:px-12">
         <Link href="/">
-          <img
-            src="/logo.png"
-            alt="Logo"
-            className="w-12 md:w-20 h-auto"
-          />
+          <img src="/logo.png" alt="Logo" className="w-12 md:w-20 h-auto" />
         </Link>
 
         <div className="flex items-center md:order-2 space-x-1 md:space-x-0">

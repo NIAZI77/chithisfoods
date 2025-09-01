@@ -2,12 +2,7 @@ import { CheckCircle, X, AlertTriangle, Settings } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import Link from "next/link";
 
-function OrderActions({ 
-  order, 
-  loadingStates, 
-  onCancelOrder,
-  userData
-}) {
+function OrderActions({ order, loadingStates, onCancelOrder, userData }) {
   try {
     // Add safety check for order
     if (!order) {
@@ -16,16 +11,15 @@ function OrderActions({
     }
 
     const canCancel = order.orderStatus === "pending";
-    const hasRefundDetails = userData?.refundDetails?.provider && userData?.refundDetails?.accountId;
+    const hasRefundDetails =
+      userData?.refundDetails?.provider && userData?.refundDetails?.accountId;
 
     return (
       <div className="flex flex-col gap-4 p-3 border-t border-gray-100">
         {/* Action Buttons */}
         <div className="flex flex-col md:flex-row justify-between gap-4">
-          <div>
-            {/* Additional information can go here */}
-          </div>
-          
+          <div>{/* Additional information can go here */}</div>
+
           <div className="flex gap-2">
             {canCancel && (
               <div className="flex flex-col gap-2">
@@ -42,7 +36,7 @@ function OrderActions({
                     </Link>
                   </div>
                 )}
-                
+
                 <button
                   onClick={onCancelOrder}
                   disabled={loadingStates.cancel || !hasRefundDetails}
@@ -52,9 +46,17 @@ function OrderActions({
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
                   type="button"
-                  title={hasRefundDetails ? "Cancel this order" : "Add refund details in settings to cancel orders"}
+                  title={
+                    hasRefundDetails
+                      ? "Cancel this order"
+                      : "Add refund details in settings to cancel orders"
+                  }
                 >
-                  {loadingStates.cancel ? <Spinner /> : <X className="w-4 h-4" />}
+                  {loadingStates.cancel ? (
+                    <Spinner />
+                  ) : (
+                    <X className="w-4 h-4" />
+                  )}
                   Cancel Order
                 </button>
               </div>

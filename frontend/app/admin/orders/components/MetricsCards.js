@@ -1,4 +1,9 @@
-import { FaShoppingCart, FaCheckCircle, FaTimesCircle, FaMoneyBillWave } from "react-icons/fa";
+import {
+  FaShoppingCart,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaMoneyBillWave,
+} from "react-icons/fa";
 
 const MetricsCards = ({ orderMetrics }) => {
   return (
@@ -6,8 +11,12 @@ const MetricsCards = ({ orderMetrics }) => {
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500 font-medium mb-1">Total Money</p>
-            <p className="text-2xl font-bold text-gray-900">${orderMetrics.totalMoney}</p>
+            <p className="text-sm text-gray-500 font-medium mb-1">
+              Total Money
+            </p>
+            <p className="text-2xl font-bold text-gray-900">
+              ${orderMetrics.totalMoney}
+            </p>
           </div>
           <div className="p-3 bg-pink-100 rounded-full">
             <FaMoneyBillWave className="w-6 h-6 text-pink-600" />
@@ -18,8 +27,12 @@ const MetricsCards = ({ orderMetrics }) => {
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500 font-medium mb-1">Total Orders</p>
-            <p className="text-2xl font-bold text-gray-900">{orderMetrics.total}</p>
+            <p className="text-sm text-gray-500 font-medium mb-1">
+              Total Orders
+            </p>
+            <p className="text-2xl font-bold text-gray-900">
+              {orderMetrics.total}
+            </p>
           </div>
           <div className="p-3 bg-pink-100 rounded-full">
             <FaShoppingCart className="w-6 h-6 text-pink-600" />
@@ -30,8 +43,12 @@ const MetricsCards = ({ orderMetrics }) => {
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500 font-medium mb-1">Delivered Orders</p>
-            <p className="text-2xl font-bold text-gray-900">{orderMetrics.delivered}</p>
+            <p className="text-sm text-gray-500 font-medium mb-1">
+              Delivered Orders
+            </p>
+            <p className="text-2xl font-bold text-gray-900">
+              {orderMetrics.delivered}
+            </p>
           </div>
           <div className="p-3 bg-pink-100 rounded-full">
             <FaCheckCircle className="w-6 h-6 text-pink-600" />
@@ -43,7 +60,9 @@ const MetricsCards = ({ orderMetrics }) => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-500 font-medium mb-1">Cancelled</p>
-            <p className="text-2xl font-bold text-gray-900">{orderMetrics.refunded}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {orderMetrics.refunded}
+            </p>
           </div>
           <div className="p-3 bg-pink-100 rounded-full">
             <FaTimesCircle className="w-6 h-6 text-pink-600" />
@@ -54,8 +73,12 @@ const MetricsCards = ({ orderMetrics }) => {
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500 font-medium mb-1 truncate">Uncompleted Orders</p>
-            <p className="text-2xl font-bold text-gray-900">{orderMetrics.uncompletedOrders}</p>
+            <p className="text-sm text-gray-500 font-medium mb-1 truncate">
+              Uncompleted Orders
+            </p>
+            <p className="text-2xl font-bold text-gray-900">
+              {orderMetrics.uncompletedOrders}
+            </p>
           </div>
           <div className="p-3 bg-pink-100 rounded-full">
             <FaShoppingCart className="w-6 h-6 text-pink-600" />
@@ -66,4 +89,4 @@ const MetricsCards = ({ orderMetrics }) => {
   );
 };
 
-export default MetricsCards; 
+export default MetricsCards;

@@ -59,13 +59,15 @@ export default function LoginPage() {
           toast.error("Sorry, this area is for customers only");
           return;
         }
-        
+
         // Check if user is blocked
         if (data.user.blocked) {
-          toast.error("Your account has been temporarily suspended. Please contact our support team for assistance.");
+          toast.error(
+            "Your account has been temporarily suspended. Please contact our support team for assistance."
+          );
           return;
         }
-        
+
         toast.success("Welcome back! We're glad to see you again.");
         const expires = new Date();
         expires.setDate(expires.getDate() + 7);
@@ -73,10 +75,15 @@ export default function LoginPage() {
         setCookie("user", data.user.email, { expires });
         setTimeout(() => router.push("/"), 1000);
       } else {
-        toast.error(data.error.message || "Oops! Those credentials don't match our records.");
+        toast.error(
+          data.error.message ||
+            "Oops! Those credentials don't match our records."
+        );
       }
     } catch (error) {
-      toast.error("We're having trouble connecting right now. Please try again in a moment.");
+      toast.error(
+        "We're having trouble connecting right now. Please try again in a moment."
+      );
     } finally {
       setLoading(false);
     }

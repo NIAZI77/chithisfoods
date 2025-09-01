@@ -3,11 +3,11 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Loading from "../loading";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import styles from './TopCategories.module.css';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import styles from "./TopCategories.module.css";
 
 export default function TopCategories() {
   const [categories, setCategories] = useState([]);
@@ -32,7 +32,9 @@ export default function TopCategories() {
         setCategories(data.data || []);
       } catch (error) {
         console.error("Error fetching categories:", error);
-        toast.error("We're having trouble loading categories right now. Please try again.");
+        toast.error(
+          "We're having trouble loading categories right now. Please try again."
+        );
       } finally {
         setIsLoading(false);
       }
@@ -64,12 +66,14 @@ export default function TopCategories() {
       slidesPerView: 7,
       spaceBetween: 28,
     },
-  }
+  };
   if (isLoading) return <Loading />;
   if (categories.length === 0) return;
   return (
     <div className="md:w-[90%] w-full mx-auto p-2">
-      <h2 className="md:text-xl text-lg font-bold mb-3 md:ml-[5%]">Top Categories</h2>
+      <h2 className="md:text-xl text-lg font-bold mb-3 md:ml-[5%]">
+        Top Categories
+      </h2>
       <div className={styles.sliderWrapper}>
         <Swiper
           modules={[Navigation]}

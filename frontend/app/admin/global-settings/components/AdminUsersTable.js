@@ -9,12 +9,14 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
   const [loading, setLoading] = useState(true);
 
   // Add prop validation
-  if (typeof isMainAdmin !== 'boolean') {
-    console.warn('AdminUsersTable: isMainAdmin prop should be a boolean');
+  if (typeof isMainAdmin !== "boolean") {
+    console.warn("AdminUsersTable: isMainAdmin prop should be a boolean");
   }
 
-  if (currentUser && typeof currentUser !== 'object') {
-    console.warn('AdminUsersTable: currentUser prop should be an object or null');
+  if (currentUser && typeof currentUser !== "object") {
+    console.warn(
+      "AdminUsersTable: currentUser prop should be an object or null"
+    );
   }
 
   useEffect(() => {
@@ -45,7 +47,7 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
       }
 
       const data = await response.json();
-      
+
       if (Array.isArray(data)) {
         setAdminUsers(data);
       } else if (data.data && Array.isArray(data.data)) {
@@ -92,7 +94,11 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
   };
 
   const handleDeleteAdmin = async (userId, email) => {
-    if (!confirm(`Are you sure you want to delete admin user "${email}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete admin user "${email}"? This action cannot be undone.`
+      )
+    ) {
       return;
     }
 
@@ -162,7 +168,9 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
     <div className="w-full">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg md:text-xl font-semibold text-pink-800">ADMIN USERS</h2>
+        <h2 className="text-lg md:text-xl font-semibold text-pink-800">
+          ADMIN USERS
+        </h2>
         <button
           onClick={fetchAdminUsers}
           className="px-3 py-2 text-sm bg-pink-50 text-pink-600 rounded-md hover:bg-pink-100 transition-colors"
@@ -212,20 +220,48 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th scope="col" className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Email</th>
-                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Admin Type</th>
-                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Status</th>
-                      <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Created Date</th>
+                      <th
+                        scope="col"
+                        className="px-2 sm:px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Email
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Admin Type
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Status
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                      >
+                        Created Date
+                      </th>
                       {isMainAdmin && (
-                        <th scope="col" className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap">Actions</th>
+                        <th
+                          scope="col"
+                          className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                        >
+                          Actions
+                        </th>
                       )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {adminUsersToDisplay.map((user, index) => (
-                      <tr key={`${user.id}-${index}`} className="bg-white hover:bg-gray-50 border-b border-gray-100">
+                      <tr
+                        key={`${user.id}-${index}`}
+                        className="bg-white hover:bg-gray-50 border-b border-gray-100"
+                      >
                         <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                          {user.email || 'N/A'}
+                          {user.email || "N/A"}
                         </td>
                         <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
                           <span className="px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full">
@@ -233,7 +269,11 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
                           </span>
                         </td>
                         <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
-                          <span className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full mx-auto ${getStatusClasses(user)}`}>
+                          <span
+                            className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full mx-auto ${getStatusClasses(
+                              user
+                            )}`}
+                          >
                             {getStatusText(user)}
                           </span>
                         </td>
@@ -253,18 +293,22 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
                                   <CheckCircle className="w-4 h-4" />
                                 </button>
                               )}
-                              
+
                               {/* Delete button for all admins except current user */}
-                              {user.id !== currentUser?.id && (user.isAdmin || user.isAdminVerified === "pending") && (
-                                <button
-                                  onClick={() => handleDeleteAdmin(user.id, user.email)}
-                                  className="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded"
-                                  title="Delete Admin"
-                                  disabled={!currentUser}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              )}
+                              {user.id !== currentUser?.id &&
+                                (user.isAdmin ||
+                                  user.isAdminVerified === "pending") && (
+                                  <button
+                                    onClick={() =>
+                                      handleDeleteAdmin(user.id, user.email)
+                                    }
+                                    className="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded"
+                                    title="Delete Admin"
+                                    disabled={!currentUser}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                )}
                             </div>
                           </td>
                         )}

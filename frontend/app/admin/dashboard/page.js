@@ -81,7 +81,7 @@ const DashboardPage = () => {
     const AdminJWT = getCookie("AdminJWT");
     const AdminUser = getCookie("AdminUser");
 
-    if (AdminJWT || AdminUser) { 
+    if (AdminJWT || AdminUser) {
       const isAdmin = async () => {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
@@ -96,8 +96,7 @@ const DashboardPage = () => {
         const data = await response.json();
         if (data.isAdmin) {
           return;
-        }
-        else {
+        } else {
           toast.error("Sorry, you don't have permission to access this page.");
           deleteCookie("AdminJWT");
           deleteCookie("AdminUser");
@@ -106,8 +105,7 @@ const DashboardPage = () => {
         }
       };
       isAdmin();
-    } 
-    else {
+    } else {
       toast.error("Please sign in to continue.");
       router.push("/admin/login");
     }
@@ -174,7 +172,7 @@ const DashboardPage = () => {
     orderData.forEach((order) => {
       const dateString = safeDateString(order.createdAt);
       if (!dateString || !dailyData[dateString]) return;
-      
+
       dailyData[dateString].orders += 1;
       dailyData[dateString].totalMoney += parseFloat(order.totalAmount || 0);
       if (order.orderStatus === "delivered") {
@@ -200,7 +198,7 @@ const DashboardPage = () => {
         .slice(0, 5),
     [orderData]
   );
-  
+
   const recentCancelledOrders = useMemo(
     () =>
       orderData
@@ -243,7 +241,7 @@ const DashboardPage = () => {
       }
       // For "all" time period, no date filters are added, so all orders are fetched
 
-      const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
+      const filtersString = filters.length > 0 ? `&${filters.join("&")}` : "";
       const apiUrl = `${baseUrl}?fields[0]=orderStatus&fields[1]=totalAmount&${sort}${filtersString}&pagination[limit]=9999999999`;
 
       const response = await fetch(apiUrl, {
@@ -260,32 +258,37 @@ const DashboardPage = () => {
       const data = await response.json();
 
       if (!data.data || !Array.isArray(data.data)) {
-        throw new Error('Invalid data format received from API');
+        throw new Error("Invalid data format received from API");
       }
 
       // Validate and filter out orders with invalid dates
-      const validOrders = data.data.filter(order => {
+      const validOrders = data.data.filter((order) => {
         if (!order.createdAt) {
           console.warn(`Order ${order.id} has no createdAt date`);
           return false;
         }
-        
+
         try {
           const date = new Date(order.createdAt);
           if (isNaN(date.getTime())) {
-            console.warn(`Order ${order.id} has invalid createdAt date:`, order.createdAt);
+            console.warn(
+              `Order ${order.id} has invalid createdAt date:`,
+              order.createdAt
+            );
             return false;
           }
           return true;
         } catch (error) {
-          console.warn(`Order ${order.id} has invalid createdAt date:`, order.createdAt, error);
+          console.warn(
+            `Order ${order.id} has invalid createdAt date:`,
+            order.createdAt,
+            error
+          );
           return false;
         }
       });
 
       setOrderData(validOrders);
-      
-
     } catch (err) {
       console.error("Error fetching orders:", err);
       setOrderData([]);
@@ -315,29 +318,35 @@ const DashboardPage = () => {
         }
 
         const { data } = await response.json();
-        
+
         // Validate and filter out orders with invalid dates
-        const validOrders = (data || []).filter(order => {
+        const validOrders = (data || []).filter((order) => {
           if (!order.createdAt) {
             console.warn(`Order ${order.id} has no createdAt date`);
             return false;
           }
-          
+
           try {
             const date = new Date(order.createdAt);
             if (isNaN(date.getTime())) {
-              console.warn(`Order ${order.id} has invalid createdAt date:`, order.createdAt);
+              console.warn(
+                `Order ${order.id} has invalid createdAt date:`,
+                order.createdAt
+              );
               return false;
             }
             return true;
           } catch (error) {
-            console.warn(`Order ${order.id} has invalid createdAt date:`, order.createdAt, error);
+            console.warn(
+              `Order ${order.id} has invalid createdAt date:`,
+              order.createdAt,
+              error
+            );
             return false;
           }
         });
-        
-        setOrderData(validOrders);
 
+        setOrderData(validOrders);
       } catch (error) {
         console.error("Error fetching order data:", error);
         toast.error(
@@ -380,7 +389,9 @@ const DashboardPage = () => {
       <div className="bg-white p-3 shadow-md rounded-lg border">
         <p className="font-medium">{label}</p>
         <p className="text-pink-600">${totalMoney.toFixed(2)}</p>
-        <p className="text-green-600">Tax Revenue: ${data.taxRevenue.toFixed(2)}</p>
+        <p className="text-green-600">
+          Tax Revenue: ${data.taxRevenue.toFixed(2)}
+        </p>
         <p className="text-gray-600">{ordersForDate.length} Orders</p>
         <p className="text-green-600">{deliveredCount} Delivered</p>
         <p className="text-red-600">{cancelledCount} Cancelled</p>
@@ -411,11 +422,9 @@ const DashboardPage = () => {
       }
 
       // Update local state
-      setOrderData(prevData =>
-        prevData.map(order =>
-          order.id === orderId
-            ? { ...order, orderStatus: "cancelled" }
-            : order
+      setOrderData((prevData) =>
+        prevData.map((order) =>
+          order.id === orderId ? { ...order, orderStatus: "cancelled" } : order
         )
       );
 
@@ -443,7 +452,9 @@ const DashboardPage = () => {
         <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-sm sm:text-base text-slate-600 truncate">Total Money Received</p>
+              <p className="text-sm sm:text-base text-slate-600 truncate">
+                Total Money Received
+              </p>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
                   ${dashboardMetrics.totalMoneyReceived}
@@ -458,7 +469,9 @@ const DashboardPage = () => {
         <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-sm sm:text-base text-slate-600 truncate">Total Orders</p>
+              <p className="text-sm sm:text-base text-slate-600 truncate">
+                Total Orders
+              </p>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
                   {dashboardMetrics.orderCounts.total}
@@ -473,7 +486,9 @@ const DashboardPage = () => {
         <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-sm sm:text-base text-slate-600 truncate">Delivered Orders</p>
+              <p className="text-sm sm:text-base text-slate-600 truncate">
+                Delivered Orders
+              </p>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
                   {dashboardMetrics.orderCounts.delivered}
@@ -488,7 +503,9 @@ const DashboardPage = () => {
         <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm min-w-0">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-sm sm:text-base text-slate-600 truncate">Refunded/Cancelled</p>
+              <p className="text-sm sm:text-base text-slate-600 truncate">
+                Refunded/Cancelled
+              </p>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">
                   {dashboardMetrics.orderCounts.refunded}
@@ -516,8 +533,8 @@ const DashboardPage = () => {
                   {selectedTimePeriod === "week"
                     ? "Last 7 Days"
                     : selectedTimePeriod === "month"
-                      ? "Last 30 Days"
-                      : "All Time"}
+                    ? "Last 30 Days"
+                    : "All Time"}
                 </span>
               </div>
             </div>
@@ -590,8 +607,8 @@ const DashboardPage = () => {
                   {selectedTimePeriod === "week"
                     ? "Last 7 Days"
                     : selectedTimePeriod === "month"
-                      ? "Last 30 Days"
-                      : "All Time"}
+                    ? "Last 30 Days"
+                    : "All Time"}
                 </span>
               </div>
             </div>
@@ -609,8 +626,12 @@ const DashboardPage = () => {
                     return (
                       <div className="bg-white p-3 shadow-md rounded-lg border">
                         <p className="font-medium">{label}</p>
-                        <p className="text-pink-600">Total: ${data.totalMoney.toFixed(2)}</p>
-                        <p className="text-green-600">Tax Revenue: ${data.taxRevenue.toFixed(2)}</p>
+                        <p className="text-pink-600">
+                          Total: ${data.totalMoney.toFixed(2)}
+                        </p>
+                        <p className="text-green-600">
+                          Tax Revenue: ${data.taxRevenue.toFixed(2)}
+                        </p>
                         <p className="text-slate-600">{data.orders} Orders</p>
                       </div>
                     );
@@ -674,13 +695,17 @@ const DashboardPage = () => {
             ) : (
               <div className="text-center py-8">
                 <FaClipboardList className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Orders Delivered</h3>
-                <p className="text-gray-500">There are no delivered orders in the selected time period.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No Orders Delivered
+                </h3>
+                <p className="text-gray-500">
+                  There are no delivered orders in the selected time period.
+                </p>
               </div>
             )}
           </div>
         </div>
-        
+
         <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-semibold flex items-center gap-2">
@@ -742,8 +767,12 @@ const DashboardPage = () => {
             ) : (
               <div className="text-center py-8">
                 <FaExclamationTriangle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Cancelled Orders</h3>
-                <p className="text-gray-500">There are no cancelled orders in the selected time period.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No Cancelled Orders
+                </h3>
+                <p className="text-gray-500">
+                  There are no cancelled orders in the selected time period.
+                </p>
               </div>
             )}
           </div>

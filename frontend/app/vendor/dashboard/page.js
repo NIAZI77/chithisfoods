@@ -8,7 +8,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from "recharts";
 import { ShoppingCart, User, Package } from "lucide-react";
 import Link from "next/link";
@@ -42,8 +42,9 @@ const STATUS_LABELS = {
 
 const StatusBadge = ({ status }) => (
   <span
-    className={`text-xs font-medium px-2 py-1 rounded-full inline-block w-24 ${STATUS_STYLES[status] || ""
-      }`}
+    className={`text-xs font-medium px-2 py-1 rounded-full inline-block w-24 ${
+      STATUS_STYLES[status] || ""
+    }`}
   >
     {STATUS_LABELS[status] || status}
   </span>
@@ -127,18 +128,19 @@ const Page = () => {
     const uniqueCustomers = new Set();
 
     const now = new Date();
-    const daysToShow = timePeriod === "week" ? 7 : timePeriod === "month" ? 30 : 30;
+    const daysToShow =
+      timePeriod === "week" ? 7 : timePeriod === "month" ? 30 : 30;
     const dates = Array.from({ length: daysToShow }, (_, i) => {
       const date = new Date(now);
       date.setDate(date.getDate() - i);
       return date.toISOString().split("T")[0];
     }).reverse();
 
-    dates.forEach(date => {
+    dates.forEach((date) => {
       salesByDate[date] = {
         date,
         sales: 0,
-        orders: 0
+        orders: 0,
       };
     });
 
@@ -166,7 +168,11 @@ const Page = () => {
     try {
       const now = new Date();
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      const monthAgo = new Date(
+        now.getFullYear(),
+        now.getMonth() - 1,
+        now.getDate()
+      );
 
       const allTimeRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
@@ -180,7 +186,9 @@ const Page = () => {
       );
 
       const weekRes = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        `${
+          process.env.NEXT_PUBLIC_STRAPI_HOST
+        }/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {
           method: "GET",
           headers: {
@@ -191,7 +199,9 @@ const Page = () => {
       );
 
       const monthRes = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${monthAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        `${
+          process.env.NEXT_PUBLIC_STRAPI_HOST
+        }/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${monthAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {
           method: "GET",
           headers: {
@@ -227,7 +237,9 @@ const Page = () => {
         setStatusCountsMonth(processCounts(monthData));
       }
     } catch (error) {
-      toast.error("We're experiencing some technical difficulties. Please try again in a moment.");
+      toast.error(
+        "We're experiencing some technical difficulties. Please try again in a moment."
+      );
     }
   };
 
@@ -256,7 +268,10 @@ const Page = () => {
 
       setDashboardData(processOrdersData(orders));
     } catch (error) {
-      toast.error(error.message || "We're experiencing some technical difficulties. Please try again in a moment.");
+      toast.error(
+        error.message ||
+          "We're experiencing some technical difficulties. Please try again in a moment."
+      );
     } finally {
       setLoading(false);
     }
@@ -286,7 +301,9 @@ const Page = () => {
         );
 
         if (!vendorRes.ok) {
-          toast.error("We're having trouble loading your vendor information right now. Please try again.");
+          toast.error(
+            "We're having trouble loading your vendor information right now. Please try again."
+          );
           router.push("/become-a-vendor");
           return;
         }
@@ -302,10 +319,12 @@ const Page = () => {
         const vendorId = vendorData.data[0].documentId;
         await Promise.all([
           fetchStatusCounts(vendorId),
-          fetchDashboardData(vendorId)
+          fetchDashboardData(vendorId),
         ]);
       } catch (error) {
-        toast.error("We're experiencing some technical difficulties. Please try again in a moment.");
+        toast.error(
+          "We're experiencing some technical difficulties. Please try again in a moment."
+        );
         router.push("/become-a-vendor");
       }
     };
@@ -342,10 +361,18 @@ const Page = () => {
               <Package className="w-6 h-6 text-yellow-600" />
             </span>
             <div className="flex-1">
-              <p className="font-semibold text-lg text-yellow-900 mb-1">Set up your delivery fee</p>
-              <p className="text-sm text-yellow-700">Add your delivery fee details to start receiving orders smoothly.</p>
+              <p className="font-semibold text-lg text-yellow-900 mb-1">
+                Set up your delivery fee
+              </p>
+              <p className="text-sm text-yellow-700">
+                Add your delivery fee details to start receiving orders
+                smoothly.
+              </p>
             </div>
-            <Link href="/vendor/settings#delivery-free" className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base">
+            <Link
+              href="/vendor/settings#delivery-free"
+              className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base"
+            >
               Set Delivery Fee
             </Link>
           </div>
@@ -357,10 +384,18 @@ const Page = () => {
               <User className="w-6 h-6 text-blue-600" />
             </span>
             <div className="flex-1">
-              <p className="font-semibold text-lg text-blue-900 mb-1">Verify your account</p>
-              <p className="text-sm text-blue-700">Complete your account verification for full access and customer trust.</p>
+              <p className="font-semibold text-lg text-blue-900 mb-1">
+                Verify your account
+              </p>
+              <p className="text-sm text-blue-700">
+                Complete your account verification for full access and customer
+                trust.
+              </p>
             </div>
-            <Link href="/vendor/settings#account-verification" className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base">
+            <Link
+              href="/vendor/settings#account-verification"
+              className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base"
+            >
               Verify Account
             </Link>
           </div>
@@ -372,10 +407,18 @@ const Page = () => {
               <User className="w-6 h-6 text-red-600" />
             </span>
             <div className="flex-1">
-              <p className="font-semibold text-lg text-red-900 mb-1">Verification was rejected</p>
-              <p className="text-sm text-red-700">Please review your details and resubmit your verification to activate your account.</p>
+              <p className="font-semibold text-lg text-red-900 mb-1">
+                Verification was rejected
+              </p>
+              <p className="text-sm text-red-700">
+                Please review your details and resubmit your verification to
+                activate your account.
+              </p>
             </div>
-            <Link href="/vendor/settings#account-verification" className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base">
+            <Link
+              href="/vendor/settings#account-verification"
+              className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base"
+            >
               Resubmit Verification
             </Link>
           </div>
@@ -397,8 +440,8 @@ const Page = () => {
                   {timePeriod === "week"
                     ? statusCountsWeek.pending
                     : timePeriod === "month"
-                      ? statusCountsMonth.pending
-                      : statusCountsAll.pending}
+                    ? statusCountsMonth.pending
+                    : statusCountsAll.pending}
                 </h3>
               </div>
             </div>
@@ -411,8 +454,8 @@ const Page = () => {
               {timePeriod === "week"
                 ? "This Week"
                 : timePeriod === "month"
-                  ? "This Month"
-                  : "All Time"}
+                ? "This Month"
+                : "All Time"}
             </span>
           </div>
         </div>
@@ -457,8 +500,8 @@ const Page = () => {
                 {timePeriod === "week"
                   ? statusCountsWeek.pending
                   : timePeriod === "month"
-                    ? statusCountsMonth.pending
-                    : statusCountsAll.pending}
+                  ? statusCountsMonth.pending
+                  : statusCountsAll.pending}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -467,8 +510,8 @@ const Page = () => {
                 {timePeriod === "week"
                   ? statusCountsWeek.delivered
                   : timePeriod === "month"
-                    ? statusCountsMonth.delivered
-                    : statusCountsAll.delivered}
+                  ? statusCountsMonth.delivered
+                  : statusCountsAll.delivered}
               </span>
             </div>
           </div>
@@ -486,8 +529,8 @@ const Page = () => {
                   {timePeriod === "week"
                     ? "Last 7 Days"
                     : timePeriod === "month"
-                      ? "Last 30 Days"
-                      : "All Time"}
+                    ? "Last 30 Days"
+                    : "All Time"}
                 </span>
               </div>
             </div>
@@ -572,8 +615,12 @@ const Page = () => {
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
                   <ShoppingCart className="w-8 h-8 text-gray-400" />
                 </div>
-                <p className="text-gray-500 font-medium mb-1">No Recent Orders</p>
-                <p className="text-sm text-gray-400">Orders will appear here once you receive</p>
+                <p className="text-gray-500 font-medium mb-1">
+                  No Recent Orders
+                </p>
+                <p className="text-sm text-gray-400">
+                  Orders will appear here once you receive
+                </p>
               </div>
             )}
           </div>

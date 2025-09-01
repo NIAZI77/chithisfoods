@@ -1,4 +1,9 @@
-import { DollarSign, CheckCircle2, XCircle, CircleDollarSign } from "lucide-react";
+import {
+  DollarSign,
+  CheckCircle2,
+  XCircle,
+  CircleDollarSign,
+} from "lucide-react";
 import { FaHandHoldingUsd } from "react-icons/fa";
 
 const PaymentMetrics = ({ metrics }) => {
@@ -20,7 +25,9 @@ const PaymentMetrics = ({ metrics }) => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-gray-600 text-sm">Delivered Orders</p>
-            <h3 className="text-2xl font-semibold">{metrics.deliveredOrders}</h3>
+            <h3 className="text-2xl font-semibold">
+              {metrics.deliveredOrders}
+            </h3>
           </div>
           <div className="p-3 bg-green-100 rounded-full">
             <CheckCircle2 className="w-6 h-6 text-green-600" />
@@ -32,7 +39,9 @@ const PaymentMetrics = ({ metrics }) => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-gray-600 text-sm">Cancelled Orders</p>
-            <h3 className="text-2xl font-semibold">{metrics.cancelledOrders}</h3>
+            <h3 className="text-2xl font-semibold">
+              {metrics.cancelledOrders}
+            </h3>
           </div>
           <div className="p-3 bg-red-100 rounded-full">
             <XCircle className="w-6 h-6 text-red-600" />
@@ -71,4 +80,4 @@ const PaymentMetrics = ({ metrics }) => {
   );
 };
 
-export default PaymentMetrics; 
+export default PaymentMetrics;

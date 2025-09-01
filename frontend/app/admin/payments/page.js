@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Loading from "@/app/loading";
 import Pagination from "@/app/admin/users-and-vendors/components/Pagination";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import { getCookie, deleteCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import PaymentMetrics from "./components/PaymentMetrics";
@@ -31,8 +31,10 @@ const PAYMENT_STATUS_STYLES = {
 };
 
 const BUTTON_STYLES = {
-  payVendor: "w-40 px-4 py-2 bg-green-600 text-white rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
-  processRefund: "w-40 px-4 py-2 bg-red-600 text-white rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
+  payVendor:
+    "w-40 px-4 py-2 bg-green-600 text-white rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
+  processRefund:
+    "w-40 px-4 py-2 bg-red-600 text-white rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
 };
 
 const TIME_FILTERS = {
@@ -44,7 +46,7 @@ const TIME_FILTERS = {
 const ACTION_STATUS_STYLES = {
   refunded: "text-red-600 font-medium flex items-center justify-center gap-2",
   paid: "text-emerald-600 font-medium flex items-center justify-center gap-2",
-  default: "text-gray-500 flex items-center justify-center gap-2"
+  default: "text-gray-500 flex items-center justify-center gap-2",
 };
 
 const PaymentsPage = () => {
@@ -98,23 +100,44 @@ const PaymentsPage = () => {
     }
   }, [router]);
 
-  const paymentMetrics = useMemo(() => ({
-    totalOrders: fullOrders.length,
-    deliveredOrders: fullOrders.filter(order => order.orderStatus === "delivered").length,
-    cancelledOrders: fullOrders.filter(order => order.orderStatus === "cancelled").length,
-    totalVendorPayments: fullOrders
-      .filter(order => order.orderStatus === "delivered" && order.vendor_payment === "unpaid")
-      .reduce((sum, order) => sum + order.totalAmount, 0),
-    totalCancelledRefunds: fullOrders
-      .filter(order => order.orderStatus === "cancelled" && order.paymentStatus !== "refunded" && order.vendor_payment !== "refunded")
-      .reduce((sum, order) => sum + order.totalAmount, 0),
-    totalTax: fullOrders.reduce((sum, order) => sum + (order.tax || 0), 0),
-    deliveredOrdersTax: fullOrders
-      .filter(order => order.orderStatus === "delivered")
-      .reduce((sum, order) => sum + (order.tax || 0), 0),
-  }), [fullOrders]);
+  const paymentMetrics = useMemo(
+    () => ({
+      totalOrders: fullOrders.length,
+      deliveredOrders: fullOrders.filter(
+        (order) => order.orderStatus === "delivered"
+      ).length,
+      cancelledOrders: fullOrders.filter(
+        (order) => order.orderStatus === "cancelled"
+      ).length,
+      totalVendorPayments: fullOrders
+        .filter(
+          (order) =>
+            order.orderStatus === "delivered" &&
+            order.vendor_payment === "unpaid"
+        )
+        .reduce((sum, order) => sum + order.totalAmount, 0),
+      totalCancelledRefunds: fullOrders
+        .filter(
+          (order) =>
+            order.orderStatus === "cancelled" &&
+            order.paymentStatus !== "refunded" &&
+            order.vendor_payment !== "refunded"
+        )
+        .reduce((sum, order) => sum + order.totalAmount, 0),
+      totalTax: fullOrders.reduce((sum, order) => sum + (order.tax || 0), 0),
+      deliveredOrdersTax: fullOrders
+        .filter((order) => order.orderStatus === "delivered")
+        .reduce((sum, order) => sum + (order.tax || 0), 0),
+    }),
+    [fullOrders]
+  );
 
-  const fetchOrders = async (page = 1, timeFilter = "all-time", orderStatusFilter = "all", paymentStatusFilter = "all") => {
+  const fetchOrders = async (
+    page = 1,
+    timeFilter = "all-time",
+    orderStatusFilter = "all",
+    paymentStatusFilter = "all"
+  ) => {
     try {
       setLoading(true);
       setError(null);
@@ -157,7 +180,7 @@ const PaymentsPage = () => {
 
       filters.push(`populate=*`);
 
-      const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
+      const filtersString = filters.length > 0 ? `&${filters.join("&")}` : "";
       const apiUrl = `${baseUrl}?${sort}&${pagination}${filtersString}`;
 
       const response = await fetch(apiUrl, {
@@ -175,7 +198,6 @@ const PaymentsPage = () => {
       const data = await response.json();
       setOrders(data.data);
       setTotalPages(data.meta.pagination.pageCount);
-
     } catch (err) {
       setError(err.message);
       console.error("Error fetching orders:", err);
@@ -184,7 +206,11 @@ const PaymentsPage = () => {
     }
   };
 
-  const fetchFullOrders = async (timeFilter = "all-time", orderStatusFilter = "all", paymentStatusFilter = "all") => {
+  const fetchFullOrders = async (
+    timeFilter = "all-time",
+    orderStatusFilter = "all",
+    paymentStatusFilter = "all"
+  ) => {
     try {
       const baseUrl = `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders`;
       const sort = "sort[0]=createdAt:desc";
@@ -220,7 +246,7 @@ const PaymentsPage = () => {
         filters.push(`filters[paymentStatus][$eq]=${paymentStatusFilter}`);
       }
 
-      const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
+      const filtersString = filters.length > 0 ? `&${filters.join("&")}` : "";
       const apiUrl = `${baseUrl}?${sort}${filtersString}&pagination[limit]=9999999999`;
 
       const response = await fetch(apiUrl, {
@@ -237,7 +263,6 @@ const PaymentsPage = () => {
 
       const data = await response.json();
       setFullOrders(data.data);
-
     } catch (err) {
       setError(err.message);
       console.error("Error fetching orders:", err);
@@ -272,119 +297,159 @@ const PaymentsPage = () => {
 
   const processVendorPayment = async (orderId) => {
     try {
-      const order = orders.find(o => o.documentId === orderId);
+      const order = orders.find((o) => o.documentId === orderId);
       if (!order) return;
-      if (order.orderStatus !== "delivered" || order.vendor_payment !== "unpaid") return;
+      if (
+        order.orderStatus !== "delivered" ||
+        order.vendor_payment !== "unpaid"
+      )
+        return;
 
       // Fetch vendor data to check PayPal email
-      const vendorResponse = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${order.vendorId}`, {
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const vendorResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${order.vendorId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!vendorResponse.ok) return;
 
       const vendorData = await vendorResponse.json();
       if (!vendorData.data?.paypalEmail) return;
 
-      setProcessingPayments(prev => ({ ...prev, [orderId]: true }));
+      setProcessingPayments((prev) => ({ ...prev, [orderId]: true }));
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders/${orderId}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data: {
-            vendor_payment: "paid"
-          }
-        })
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders/${orderId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data: {
+              vendor_payment: "paid",
+            },
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error?.message || "Failed to process vendor payment");
+        throw new Error(
+          errorData.error?.message || "Failed to process vendor payment"
+        );
       }
 
-      setOrders(prevOrders =>
-        prevOrders.map(order =>
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
           order.documentId === orderId
             ? { ...order, vendor_payment: "paid" }
             : order
         )
       );
 
-      toast.success("Excellent! Vendor payment has been processed successfully!");
+      toast.success(
+        "Excellent! Vendor payment has been processed successfully!"
+      );
 
-      await fetchOrders(currentPage, timeFilter, orderStatusFilter, paymentStatusFilter);
+      await fetchOrders(
+        currentPage,
+        timeFilter,
+        orderStatusFilter,
+        paymentStatusFilter
+      );
       await fetchFullOrders(timeFilter, orderStatusFilter, paymentStatusFilter);
     } catch (err) {
-      toast.error(err.message || "We couldn't process the vendor payment right now. Please try again.");
+      toast.error(
+        err.message ||
+          "We couldn't process the vendor payment right now. Please try again."
+      );
       console.error("Error processing vendor payment:", err);
     } finally {
-      setProcessingPayments(prev => ({ ...prev, [orderId]: false }));
+      setProcessingPayments((prev) => ({ ...prev, [orderId]: false }));
     }
   };
 
   const processRefund = async (orderId) => {
     try {
-      const order = orders.find(o => o.documentId === orderId);
+      const order = orders.find((o) => o.documentId === orderId);
       if (!order) return;
       if (order.orderStatus !== "cancelled") return;
       // Check for refund email in refundDetails object
       if (!order.refundDetails?.email) return;
 
-      setProcessingRefunds(prev => ({ ...prev, [orderId]: true }));
+      setProcessingRefunds((prev) => ({ ...prev, [orderId]: true }));
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders/${orderId}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data: {
-            paymentStatus: "refunded",
-            vendor_payment: "refunded"
-          }
-        })
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders/${orderId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data: {
+              paymentStatus: "refunded",
+              vendor_payment: "refunded",
+            },
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error?.message || "Failed to process refund");
       }
 
-      setOrders(prevOrders =>
-        prevOrders.map(order =>
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
           order.documentId === orderId
-            ? { ...order, paymentStatus: "refunded", vendor_payment: "refunded" }
+            ? {
+                ...order,
+                paymentStatus: "refunded",
+                vendor_payment: "refunded",
+              }
             : order
         )
       );
 
       toast.success("Great! The refund has been processed successfully!");
 
-      await fetchOrders(currentPage, timeFilter, orderStatusFilter, paymentStatusFilter);
+      await fetchOrders(
+        currentPage,
+        timeFilter,
+        orderStatusFilter,
+        paymentStatusFilter
+      );
       await fetchFullOrders(timeFilter, orderStatusFilter, paymentStatusFilter);
     } catch (err) {
-      toast.error(err.message || "We couldn't process the refund right now. Please try again.");
+      toast.error(
+        err.message ||
+          "We couldn't process the refund right now. Please try again."
+      );
       console.error("Error processing refund:", err);
     } finally {
-      setProcessingRefunds(prev => ({ ...prev, [orderId]: false }));
+      setProcessingRefunds((prev) => ({ ...prev, [orderId]: false }));
     }
   };
 
   const handleVendorPaymentClick = (orderId) => {
-    const order = orders.find(o => o.documentId === orderId);
+    const order = orders.find((o) => o.documentId === orderId);
     if (!order) {
       toast.error("We couldn't find that order. Please try again.");
       return;
     }
-    if (order.orderStatus !== "delivered" || order.vendor_payment !== "unpaid") {
+    if (
+      order.orderStatus !== "delivered" ||
+      order.vendor_payment !== "unpaid"
+    ) {
       toast.error("This order is not in a valid state for vendor payment.");
       return;
     }
@@ -394,7 +459,7 @@ const PaymentsPage = () => {
   };
 
   const handleRefundClick = (orderId) => {
-    const order = orders.find(o => o.documentId === orderId);
+    const order = orders.find((o) => o.documentId === orderId);
     if (!order) {
       toast.error("We couldn't find that order. Please try again.");
       return;
@@ -410,20 +475,25 @@ const PaymentsPage = () => {
 
   const handleDialogConfirm = async () => {
     if (!selectedOrder) return;
-    
+
     if (dialogType === "payment") {
       await processVendorPayment(selectedOrder.documentId);
     } else if (dialogType === "refund") {
       await processRefund(selectedOrder.documentId);
     }
-    
+
     setDialogOpen(false);
     setSelectedOrder(null);
     setDialogType(null);
   };
 
   useEffect(() => {
-    fetchOrders(currentPage, timeFilter, orderStatusFilter, paymentStatusFilter);
+    fetchOrders(
+      currentPage,
+      timeFilter,
+      orderStatusFilter,
+      paymentStatusFilter
+    );
     fetchFullOrders(timeFilter, orderStatusFilter, paymentStatusFilter);
   }, [currentPage, timeFilter, orderStatusFilter, paymentStatusFilter]);
 
@@ -447,10 +517,15 @@ const PaymentsPage = () => {
           type={dialogType}
           order={selectedOrder}
           onConfirm={handleDialogConfirm}
-          isProcessing={processingPayments[selectedOrder?.documentId] || processingRefunds[selectedOrder?.documentId]}
+          isProcessing={
+            processingPayments[selectedOrder?.documentId] ||
+            processingRefunds[selectedOrder?.documentId]
+          }
         />
 
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">Payments</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">
+          Payments
+        </h1>
 
         <PaymentMetrics metrics={paymentMetrics} />
 

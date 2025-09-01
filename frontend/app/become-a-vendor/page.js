@@ -51,7 +51,9 @@ export default function BecomeVendor() {
         router.push("/vendor/dashboard");
       }
     } catch (error) {
-      toast.error("We couldn't verify your vendor status right now. Give it another try!");
+      toast.error(
+        "We couldn't verify your vendor status right now. Give it another try!"
+      );
     } finally {
       setLoading(false);
     }
@@ -113,14 +115,14 @@ export default function BecomeVendor() {
     }
   }, [router]);
 
- const handleChange = (e) => {
-  const { name, value } = e.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  const sanitizedValue =
-    name === "phoneNumber" ? value.replace(/[^0-9 +]/g, "") : value;
+    const sanitizedValue =
+      name === "phoneNumber" ? value.replace(/[^0-9 +]/g, "") : value;
 
-  setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
-};
+    setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
+  };
 
   const getFieldsForStep = () => {
     switch (step) {
@@ -155,8 +157,6 @@ export default function BecomeVendor() {
     }
   };
 
-
-
   const createVendor = async () => {
     try {
       const response = await fetch(
@@ -184,23 +184,29 @@ export default function BecomeVendor() {
         if (data?.error?.details?.errors) {
           const errors = data.error.details.errors;
           let errorMessage = "";
-          
+
           // Check for specific unique constraint violations
-          if (errors.some(err => err.path.includes('email'))) {
-            errorMessage = "This email address is already registered. Please use a different email.";
-          } else if (errors.some(err => err.path.includes('username'))) {
-            errorMessage = "This username is already taken. Please choose a different username.";
-          } else if (errors.some(err => err.path.includes('phoneNumber'))) {
-            errorMessage = "This phone number is already registered. Please use a different phone number.";
+          if (errors.some((err) => err.path.includes("email"))) {
+            errorMessage =
+              "This email address is already registered. Please use a different email.";
+          } else if (errors.some((err) => err.path.includes("username"))) {
+            errorMessage =
+              "This username is already taken. Please choose a different username.";
+          } else if (errors.some((err) => err.path.includes("phoneNumber"))) {
+            errorMessage =
+              "This phone number is already registered. Please use a different phone number.";
           } else {
             // Generic error message for other validation errors
-            errorMessage = data?.error?.message || "Something unexpected happened. Please try again.";
+            errorMessage =
+              data?.error?.message ||
+              "Something unexpected happened. Please try again.";
           }
-          
+
           toast.error(errorMessage);
         } else {
           toast.error(
-            data?.error?.message || "Something unexpected happened. Please try again."
+            data?.error?.message ||
+              "Something unexpected happened. Please try again."
           );
         }
       }
@@ -217,7 +223,7 @@ export default function BecomeVendor() {
     const usernameRegex = /^[a-z0-9_]{3,15}$/;
     const phoneRegex =
       /^\+?(\d{1,3})?[-. (]*\d{1,4}[-. )]*\d{1,4}[-. ]*\d{1,9}$/;
-    
+
     if (formData.zipcode.length !== 5) {
       toast.error("Please enter a valid 5-digit ZIP code to continue.");
       return;
@@ -229,19 +235,19 @@ export default function BecomeVendor() {
       );
       return;
     }
-    
+
     if (!phoneRegex.test(formData.phoneNumber)) {
-      toast.error(
-        "Please enter a valid phone number format to continue."
-      );
+      toast.error("Please enter a valid phone number format to continue.");
       return;
     }
-    
+
     if (
       formData.avatar.url.length === 0 ||
       formData.coverImage.url.length === 0
     ) {
-      toast.error("Please upload both profile and cover images to complete your application");
+      toast.error(
+        "Please upload both profile and cover images to complete your application"
+      );
       return;
     }
 
@@ -250,17 +256,21 @@ export default function BecomeVendor() {
     try {
       const [isUsernameAvailable, isPhoneAvailable] = await Promise.all([
         checkUsernameAvailability(formData.username),
-        checkPhoneAvailability(formData.phoneNumber)
+        checkPhoneAvailability(formData.phoneNumber),
       ]);
 
       if (!isUsernameAvailable) {
-        toast.error("This username is already taken. Please choose a different username.");
+        toast.error(
+          "This username is already taken. Please choose a different username."
+        );
         setSubmitting(false);
         return;
       }
 
       if (!isPhoneAvailable) {
-        toast.error("This phone number is already registered. Please use a different phone number.");
+        toast.error(
+          "This phone number is already registered. Please use a different phone number."
+        );
         setSubmitting(false);
         return;
       }
@@ -268,7 +278,9 @@ export default function BecomeVendor() {
       // If all validations pass, proceed with vendor creation
       await createVendor();
     } catch (error) {
-      toast.error("We encountered an error while validating your information. Please try again.");
+      toast.error(
+        "We encountered an error while validating your information. Please try again."
+      );
       setSubmitting(false);
     }
   };
@@ -309,7 +321,10 @@ export default function BecomeVendor() {
                 placeholder="Username"
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400"
               />
-              <p className="text-xs text-gray-500 mb-2">Username must be unique (3-15 characters, lowercase letters, numbers, underscores only)</p>
+              <p className="text-xs text-gray-500 mb-2">
+                Username must be unique (3-15 characters, lowercase letters,
+                numbers, underscores only)
+              </p>
               <input
                 name="city"
                 value={formData.city}
@@ -338,7 +353,10 @@ export default function BecomeVendor() {
                 placeholder="Bio"
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400 md:h-24 resize-none"
               />
-              <p className="text-xs text-gray-500 mb-2">Note: Your email address is automatically used and must be unique</p>
+              <p className="text-xs text-gray-500 mb-2">
+                Note: Your email address is automatically used and must be
+                unique
+              </p>
             </div>
           )}
 
@@ -360,43 +378,45 @@ export default function BecomeVendor() {
                 placeholder="Phone Number"
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400"
               />
-              <p className="text-xs text-gray-500 mb-2">Phone number must be unique and in a valid format</p>
+              <p className="text-xs text-gray-500 mb-2">
+                Phone number must be unique and in a valid format
+              </p>
             </div>
           )}
 
           {step === 3 && (
             <div>
-                              <h2 className="font-bold text-2xl my-4">Display Profile</h2>
-                <div className="mb-12">
-                  <VendorProfileLayout
-                    onCoverImageUpload={(imageData) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        coverImage: imageData
-                      }));
-                    }}
-                    onCoverImageRemove={() => {
-                      setFormData(prev => ({
-                        ...prev,
-                        coverImage: { id: 0, url: "" }
-                      }));
-                    }}
-                    onAvatarUpload={(imageData) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        avatar: imageData
-                      }));
-                    }}
-                    onAvatarRemove={() => {
-                      setFormData(prev => ({
-                        ...prev,
-                        avatar: { id: 0, url: "" }
-                      }));
-                    }}
-                    currentCoverImageUrl={formData.coverImage?.url || null}
-                    currentAvatarUrl={formData.avatar?.url || null}
-                  />
-                </div>
+              <h2 className="font-bold text-2xl my-4">Display Profile</h2>
+              <div className="mb-12">
+                <VendorProfileLayout
+                  onCoverImageUpload={(imageData) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      coverImage: imageData,
+                    }));
+                  }}
+                  onCoverImageRemove={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      coverImage: { id: 0, url: "" },
+                    }));
+                  }}
+                  onAvatarUpload={(imageData) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      avatar: imageData,
+                    }));
+                  }}
+                  onAvatarRemove={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      avatar: { id: 0, url: "" },
+                    }));
+                  }}
+                  currentCoverImageUrl={formData.coverImage?.url || null}
+                  currentAvatarUrl={formData.avatar?.url || null}
+                />
+              </div>
             </div>
           )}
 

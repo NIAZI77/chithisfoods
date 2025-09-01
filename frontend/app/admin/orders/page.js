@@ -60,23 +60,33 @@ const OrdersPage = () => {
     }
   }, [router]);
 
-  const orderMetrics = useMemo(() => ({
-    total: fullOrders.length,
-    delivered: fullOrders.filter(order => order.orderStatus === "delivered").length,
-    refunded: fullOrders.filter(order =>
-      order.orderStatus === "refunded" || order.orderStatus === "cancelled"
-    ).length,
-    totalMoney: fullOrders
-      .reduce((sum, order) => sum + parseFloat(order.totalAmount || 0), 0)
-      .toFixed(2),
-    uncompletedOrders: fullOrders
-      .filter(order =>
-        order.orderStatus !== "delivered" &&
-        order.orderStatus !== "cancelled"
+  const orderMetrics = useMemo(
+    () => ({
+      total: fullOrders.length,
+      delivered: fullOrders.filter((order) => order.orderStatus === "delivered")
+        .length,
+      refunded: fullOrders.filter(
+        (order) =>
+          order.orderStatus === "refunded" || order.orderStatus === "cancelled"
       ).length,
-  }), [fullOrders]);
+      totalMoney: fullOrders
+        .reduce((sum, order) => sum + parseFloat(order.totalAmount || 0), 0)
+        .toFixed(2),
+      uncompletedOrders: fullOrders.filter(
+        (order) =>
+          order.orderStatus !== "delivered" && order.orderStatus !== "cancelled"
+      ).length,
+    }),
+    [fullOrders]
+  );
 
-  const fetchOrders = async (page = 1, orderStatus = "all", vendorPayment = "all", timeFilter = "all-time", search = "") => {
+  const fetchOrders = async (
+    page = 1,
+    orderStatus = "all",
+    vendorPayment = "all",
+    timeFilter = "all-time",
+    search = ""
+  ) => {
     try {
       setLoading(true);
       setError(null);
@@ -114,8 +124,10 @@ const OrdersPage = () => {
         filters.push(`filters[vendor_payment][$eq]=${vendorPayment}`);
       }
 
-      const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
-      const searchString = search ? `&search=${encodeURIComponent(search)}` : '';
+      const filtersString = filters.length > 0 ? `&${filters.join("&")}` : "";
+      const searchString = search
+        ? `&search=${encodeURIComponent(search)}`
+        : "";
       const apiUrl = `${baseUrl}?${sort}&${pagination}${filtersString}${searchString}`;
 
       const response = await fetch(apiUrl, {
@@ -132,12 +144,11 @@ const OrdersPage = () => {
       const data = await response.json();
 
       if (!data.data || !Array.isArray(data.data)) {
-        throw new Error('Invalid data format received from API');
+        throw new Error("Invalid data format received from API");
       }
 
       setOrders(data.data);
       setTotalPages(data.meta.pagination.pageCount);
-
     } catch (err) {
       setError(err.message);
       console.error("Error fetching orders:", err);
@@ -174,7 +185,7 @@ const OrdersPage = () => {
         }
       }
 
-      const filtersString = filters.length > 0 ? `&${filters.join('&')}` : '';
+      const filtersString = filters.length > 0 ? `&${filters.join("&")}` : "";
       const apiUrl = `${baseUrl}?fields[0]=orderStatus&fields[1]=totalAmount&${sort}${filtersString}&pagination[limit]=9999999999`;
 
       const response = await fetch(apiUrl, {
@@ -191,11 +202,10 @@ const OrdersPage = () => {
       const data = await response.json();
 
       if (!data.data || !Array.isArray(data.data)) {
-        throw new Error('Invalid data format received from API');
+        throw new Error("Invalid data format received from API");
       }
 
       setFullOrders(data.data);
-
     } catch (err) {
       setError(err.message);
       console.error("Error fetching orders:", err);
@@ -237,13 +247,31 @@ const OrdersPage = () => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    fetchOrders(page, filterStatus, vendorPaymentStatus, timeFilter, searchQuery);
+    fetchOrders(
+      page,
+      filterStatus,
+      vendorPaymentStatus,
+      timeFilter,
+      searchQuery
+    );
   };
 
   useEffect(() => {
-    fetchOrders(currentPage, filterStatus, vendorPaymentStatus, timeFilter, currentSearchQuery);
+    fetchOrders(
+      currentPage,
+      filterStatus,
+      vendorPaymentStatus,
+      timeFilter,
+      currentSearchQuery
+    );
     fetchFullOrders(timeFilter);
-  }, [currentPage, timeFilter, filterStatus, vendorPaymentStatus, currentSearchQuery]);
+  }, [
+    currentPage,
+    timeFilter,
+    filterStatus,
+    vendorPaymentStatus,
+    currentSearchQuery,
+  ]);
 
   if (loading && orders.length === 0) return <Loading />;
 
@@ -259,7 +287,9 @@ const OrdersPage = () => {
     <>
       <style>{customScrollbarStyles}</style>
       <div className="max-w-7xl mx-auto p-4 sm:p-6 rounded-xl !pl-20">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">Orders</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">
+          Orders
+        </h1>
 
         <MetricsCards orderMetrics={orderMetrics} />
 

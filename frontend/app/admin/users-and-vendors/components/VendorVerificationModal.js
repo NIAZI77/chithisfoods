@@ -16,12 +16,7 @@ import {
 import Spinner from "@/app/components/Spinner";
 import VerificationBadge from "@/app/components/VerificationBadge";
 
-const VendorVerificationModal = ({
-  vendor,
-  onClose,
-  onVerify,
-  isLoading,
-}) => {
+const VendorVerificationModal = ({ vendor, onClose, onVerify, isLoading }) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [isBanning, setIsBanning] = useState(false);
@@ -30,12 +25,12 @@ const VendorVerificationModal = ({
 
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onClose();
       }
     };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
   }, [onClose]);
 
   const handleBackdropClick = (e) => {
@@ -107,14 +102,12 @@ const VendorVerificationModal = ({
     }
   };
 
-
-
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="bg-white rounded-2xl w-full sm:max-w-2xl max-h-[90vh] border border-pink-100 shadow-xl flex flex-col relative"
         onClick={(e) => e.stopPropagation()}
       >
@@ -138,7 +131,9 @@ const VendorVerificationModal = ({
                 />
               </div>
               <div className="text-center sm:text-left">
-                <h2 className="text-lg md:text-2xl font-bold mb-1">{vendor.storeName}</h2>
+                <h2 className="text-lg md:text-2xl font-bold mb-1">
+                  {vendor.storeName}
+                </h2>
                 <div className="flex items-center gap-2 text-white/80 flex-col sm:flex-row">
                   <p className="text-sm">@{vendor.username}</p>
                   <span className="w-1 h-1 rounded-full bg-white/50 hidden sm:block"></span>
@@ -151,7 +146,10 @@ const VendorVerificationModal = ({
             </div>
           </div>
           <div className="mt-6 flex flex-wrap items-center justify-center sm:justify-start gap-3">
-            <VerificationBadge status={vendor.verificationStatus} size="large" />
+            <VerificationBadge
+              status={vendor.verificationStatus}
+              size="large"
+            />
             {vendor.createdAt && (
               <span className="text-sm text-white/80 flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
@@ -212,7 +210,8 @@ const VendorVerificationModal = ({
         <div className="overflow-y-auto flex-1 p-6">
           {!vendor.verificationDocument && (
             <div className="bg-yellow-50 p-3 rounded-lg flex items-center justify-center gap-2 my-2">
-              <OctagonAlert className="w-5 h-5 text-yellow-600" /> Document Not Uploaded
+              <OctagonAlert className="w-5 h-5 text-yellow-600" /> Document Not
+              Uploaded
             </div>
           )}
           <div className="">
@@ -231,23 +230,31 @@ const VendorVerificationModal = ({
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm font-medium text-gray-500">City</p>
-                      <p className="text-gray-800 font-medium text-sm sm:text-base">{vendor.city}</p>
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">
+                        {vendor.city}
+                      </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm font-medium text-gray-500">Zipcode</p>
+                      <p className="text-sm font-medium text-gray-500">
+                        Zipcode
+                      </p>
                       <p className="text-gray-800 font-medium text-sm sm:text-base">
                         {vendor.zipcode}
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm font-medium text-gray-500">Delivery Fee</p>
+                      <p className="text-sm font-medium text-gray-500">
+                        Delivery Fee
+                      </p>
                       <p className="text-gray-800 font-medium text-sm sm:text-base">
                         ${vendor.vendorDeliveryFee}
                       </p>
                     </div>
                     <div className="col-span-1 sm:col-span-2 space-y-1">
                       <p className="text-sm font-medium text-gray-500">Bio</p>
-                      <p className="text-gray-800 font-medium text-sm sm:text-base">{vendor.bio}</p>
+                      <p className="text-gray-800 font-medium text-sm sm:text-base">
+                        {vendor.bio}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -259,7 +266,9 @@ const VendorVerificationModal = ({
                 <div className="p-4 sm:p-6 w-full">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="space-y-1">
-                      <p className="text-sm font-medium text-gray-500">Full Name</p>
+                      <p className="text-sm font-medium text-gray-500">
+                        Full Name
+                      </p>
                       <p className="text-gray-800 font-medium text-sm sm:text-base">
                         {vendor.fullName}
                       </p>
@@ -304,7 +313,9 @@ const VendorVerificationModal = ({
                             <p className="text-xs text-gray-500 flex items-center gap-1">
                               <Calendar className="w-3 h-3" />
                               Uploaded on{" "}
-                              {formatDate(vendor.verificationDocument.createdAt)}
+                              {formatDate(
+                                vendor.verificationDocument.createdAt
+                              )}
                             </p>
                           </div>
                         </div>

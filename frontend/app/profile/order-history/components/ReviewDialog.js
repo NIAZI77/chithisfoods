@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { Star, MessageSquare, Send, X, AlertCircle, ChefHat, Image, Upload } from "lucide-react";
+import {
+  Star,
+  MessageSquare,
+  Send,
+  X,
+  AlertCircle,
+  ChefHat,
+  Image,
+  Upload,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -18,7 +27,7 @@ function ReviewDialog({
   isLoading,
   userData,
   getCurrentUserId,
-  hasUserReviewedDish
+  hasUserReviewedDish,
 }) {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
@@ -44,8 +53,6 @@ function ReviewDialog({
     return true;
   };
 
-
-
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
@@ -60,10 +67,17 @@ function ReviewDialog({
       }
 
       // Use utility function for consistent userId check
-      const currentUserId = getCurrentUserId ? getCurrentUserId() : (userData?.id || userData?.email || userData?.username || getCookie("user"));
+      const currentUserId = getCurrentUserId
+        ? getCurrentUserId()
+        : userData?.id ||
+          userData?.email ||
+          userData?.username ||
+          getCookie("user");
 
       if (!currentUserId) {
-        throw new Error("Unable to identify user. Please refresh the page and try again.");
+        throw new Error(
+          "Unable to identify user. Please refresh the page and try again."
+        );
       }
 
       // Create the review data structure with userId and optional image
@@ -74,7 +88,7 @@ function ReviewDialog({
         text: reviewText.trim(),
         createdAt: new Date().toISOString(),
         userId: currentUserId,
-        image: selectedImage // Include the uploaded image data with id and url
+        image: selectedImage, // Include the uploaded image data with id and url
       };
 
       console.log("ReviewDialog sending review data:", reviewData); // Debug log
@@ -88,10 +102,10 @@ function ReviewDialog({
 
       // Don't show success message here - parent component handles it
       // toast.success("Review submitted successfully!");
-
     } catch (error) {
       console.error("Review submission error:", error);
-      const errorMessage = error.message || "Failed to submit review. Please try again.";
+      const errorMessage =
+        error.message || "Failed to submit review. Please try again.";
       setError(errorMessage);
       toast.error(errorMessage);
     }
@@ -131,10 +145,11 @@ function ReviewDialog({
         aria-label={`Rate ${index + 1} stars`}
       >
         <Star
-          className={`w-6 h-6 ${index < rating
-            ? "text-amber-400 fill-current"
-            : "text-gray-300 group-hover:text-amber-200"
-            } transition-all duration-300`}
+          className={`w-6 h-6 ${
+            index < rating
+              ? "text-amber-400 fill-current"
+              : "text-gray-300 group-hover:text-amber-200"
+          } transition-all duration-300`}
         />
       </button>
     ));
@@ -143,15 +158,22 @@ function ReviewDialog({
   if (!selectedDish) return null;
 
   // Use utility function for consistent check
-  const currentUserId = getCurrentUserId ? getCurrentUserId() : (userData?.id || userData?.email || userData?.username || getCookie("user"));
-  const userHasReviewed = hasUserReviewedDish ? hasUserReviewedDish(selectedDish) :
-    selectedDish.reviews?.some(review =>
-      review.userId === currentUserId ||
-      review.userId === userData?.id ||
-      review.userId === userData?.email ||
-      review.userId === userData?.username ||
-      review.userId === getCookie("user")
-    );
+  const currentUserId = getCurrentUserId
+    ? getCurrentUserId()
+    : userData?.id ||
+      userData?.email ||
+      userData?.username ||
+      getCookie("user");
+  const userHasReviewed = hasUserReviewedDish
+    ? hasUserReviewedDish(selectedDish)
+    : selectedDish.reviews?.some(
+        (review) =>
+          review.userId === currentUserId ||
+          review.userId === userData?.id ||
+          review.userId === userData?.email ||
+          review.userId === userData?.username ||
+          review.userId === getCookie("user")
+      );
 
   if (userHasReviewed) {
     return (
@@ -219,7 +241,11 @@ function ReviewDialog({
           <div className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
             <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
               <img
-                src={selectedDish.image?.url || selectedDish.image || "/fallback.png"}
+                src={
+                  selectedDish.image?.url ||
+                  selectedDish.image ||
+                  "/fallback.png"
+                }
                 alt={selectedDish.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -291,7 +317,9 @@ function ReviewDialog({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isLoading || rating === 0 || reviewText.trim().length < 10}
+            disabled={
+              isLoading || rating === 0 || reviewText.trim().length < 10
+            }
             className="px-6 py-2 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             type="button"
           >

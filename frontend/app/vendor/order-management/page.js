@@ -21,8 +21,10 @@ import { useRouter } from "next/navigation";
 const TOAST_MESSAGES = {
   AUTH_REQUIRED: "Please sign in as a vendor to access this page.",
   VENDOR_INFO_ERROR: "We're having trouble loading your vendor information.",
-  VENDOR_NOT_FOUND: "Vendor profile not found. Please contact our support team for assistance.",
-  UNEXPECTED_ERROR: "Something unexpected happened. Please try again in a moment.",
+  VENDOR_NOT_FOUND:
+    "Vendor profile not found. Please contact our support team for assistance.",
+  UNEXPECTED_ERROR:
+    "Something unexpected happened. Please try again in a moment.",
   FETCH_ORDERS_ERROR: "We're having trouble loading your orders right now.",
   NO_ORDERS: "No orders found for your store at the moment.",
 };
@@ -139,7 +141,11 @@ export default function VendorOrderManagement() {
     try {
       const now = new Date();
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      const monthAgo = new Date(
+        now.getFullYear(),
+        now.getMonth() - 1,
+        now.getDate()
+      );
 
       const allTimeRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
@@ -153,7 +159,9 @@ export default function VendorOrderManagement() {
       );
 
       const weekRes = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        `${
+          process.env.NEXT_PUBLIC_STRAPI_HOST
+        }/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${weekAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {
           method: "GET",
           headers: {
@@ -164,7 +172,9 @@ export default function VendorOrderManagement() {
       );
 
       const monthRes = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${monthAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
+        `${
+          process.env.NEXT_PUBLIC_STRAPI_HOST
+        }/api/orders?filters[vendorId][$eq]=${vendorId}&filters[createdAt][$gte]=${monthAgo.toISOString()}&fields[0]=orderStatus&pagination[pageSize]=9999999999`,
         {
           method: "GET",
           headers: {
@@ -226,14 +236,18 @@ export default function VendorOrderManagement() {
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         timeFilterQuery = `&filters[createdAt][$gte]=${weekAgo.toISOString()}`;
       } else if (timeFilter === "month") {
-        const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        const monthAgo = new Date(
+          now.getFullYear(),
+          now.getMonth() - 1,
+          now.getDate()
+        );
         timeFilterQuery = `&filters[createdAt][$gte]=${monthAgo.toISOString()}`;
       }
 
-             let searchQueryParam = "";
-       if (currentSearchQuery) {
-         searchQueryParam = `&search=${encodeURIComponent(currentSearchQuery)}`;
-       }
+      let searchQueryParam = "";
+      if (currentSearchQuery) {
+        searchQueryParam = `&search=${encodeURIComponent(currentSearchQuery)}`;
+      }
 
       const totalCountsRes = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/orders?filters[vendorId][$eq]=${vendorId}&pagination[pageSize]=9999999999`,
@@ -330,16 +344,18 @@ export default function VendorOrderManagement() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 rounded-xl !pl-20">
-      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">Order Management</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">
+        Order Management
+      </h1>
 
-      <StatusSummary 
+      <StatusSummary
         totalStatusCounts={
-          timeFilter === "week" 
-            ? statusCountsWeek 
-            : timeFilter === "month" 
-              ? statusCountsMonth 
-              : statusCountsAll
-        } 
+          timeFilter === "week"
+            ? statusCountsWeek
+            : timeFilter === "month"
+            ? statusCountsMonth
+            : statusCountsAll
+        }
       />
 
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
@@ -385,17 +401,17 @@ export default function VendorOrderManagement() {
         </div>
       </div>
 
-        {loading ? (
-          <TableLoading rows={10} columns={12} />
-        ) : (
-          <VendorOrdersTable 
-            orders={orders}
-            onViewDetails={(order) => {
-              setSelectedOrder(order);
-              setIsDialogOpen(true);
-            }}
-          />
-        )}
+      {loading ? (
+        <TableLoading rows={10} columns={12} />
+      ) : (
+        <VendorOrdersTable
+          orders={orders}
+          onViewDetails={(order) => {
+            setSelectedOrder(order);
+            setIsDialogOpen(true);
+          }}
+        />
+      )}
 
       {totalPages > 1 && (
         <div className="mt-4 flex justify-center">

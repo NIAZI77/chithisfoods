@@ -16,8 +16,10 @@ export const PAYMENT_STATUS_STYLES = {
 };
 
 export const BUTTON_STYLES = {
-  payVendor: "w-40 px-4 py-2 bg-green-600 text-white rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
-  processRefund: "w-40 px-4 py-2 bg-red-600 text-white rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
+  payVendor:
+    "w-40 px-4 py-2 bg-green-600 text-white rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
+  processRefund:
+    "w-40 px-4 py-2 bg-red-600 text-white rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
 };
 
 export const TIME_FILTERS = {
@@ -29,7 +31,7 @@ export const TIME_FILTERS = {
 export const ACTION_STATUS_STYLES = {
   refunded: "text-red-600 font-medium flex items-center justify-center gap-2",
   paid: "text-emerald-600 font-medium flex items-center justify-center gap-2",
-  default: "text-gray-500 flex items-center justify-center gap-2"
+  default: "text-gray-500 flex items-center justify-center gap-2",
 };
 
 export const customScrollbarStyles = `
@@ -51,4 +53,4 @@ export const customScrollbarStyles = `
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #666;
   }
-`; 
+`;

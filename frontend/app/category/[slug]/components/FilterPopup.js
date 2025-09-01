@@ -13,7 +13,14 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
     }
   }, [isOpen, currentFilters]);
 
-  const spiceLevels = ["All", "Sweet", "Mild", "Medium", "Hot", "Sweet & Spicy"];
+  const spiceLevels = [
+    "All",
+    "Sweet",
+    "Mild",
+    "Medium",
+    "Hot",
+    "Sweet & Spicy",
+  ];
   const ratingOptions = [0, 1, 2, 3, 4, 5];
 
   const handleRatingChange = (rating) => {
@@ -57,11 +64,11 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="bg-white rounded-lg shadow-xl w-full max-w-xl max-h-[95vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
@@ -85,9 +92,7 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Star className="w-5 h-5 text-yellow-400" />
-              <h3 className="font-semibold text-gray-700">
-                Dish Rating
-              </h3>
+              <h3 className="font-semibold text-gray-700">Dish Rating</h3>
             </div>
             <div className="flex flex-wrap gap-2">
               {ratingOptions.map((rating) => (
@@ -104,7 +109,8 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
                     "Any"
                   ) : (
                     <>
-                      {rating} <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      {rating}{" "}
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                     </>
                   )}
                 </button>
@@ -116,9 +122,7 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Flame className="w-5 h-5 text-orange-500" />
-              <h3 className="font-semibold text-gray-700">
-                Spice Level
-              </h3>
+              <h3 className="font-semibold text-gray-700">Spice Level</h3>
             </div>
             <div className="flex flex-wrap gap-2">
               {spiceLevels.map((level) => (
@@ -126,7 +130,8 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
                   key={level}
                   onClick={() => handleSpiceLevelChange(level)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
-                    (level === "All" && filters.spiceLevel === "") || filters.spiceLevel === level
+                    (level === "All" && filters.spiceLevel === "") ||
+                    filters.spiceLevel === level
                       ? "bg-red-50 text-red-600 border-red-200"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200 border-transparent"
                   }`}
@@ -141,9 +146,7 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <DollarSign className="w-5 h-5 text-green-500" />
-              <h3 className="font-semibold text-gray-700">
-                Price Range
-              </h3>
+              <h3 className="font-semibold text-gray-700">Price Range</h3>
             </div>
             <div className="space-y-4 pt-2">
               <Slider
@@ -180,4 +183,4 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
   );
 };
 
-export default FilterPopup; 
+export default FilterPopup;

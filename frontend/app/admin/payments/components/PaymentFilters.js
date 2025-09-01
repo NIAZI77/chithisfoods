@@ -28,7 +28,10 @@ const PaymentFilters = ({
           </SelectContent>
         </Select>
 
-        <Select value={orderStatusFilter} onValueChange={onOrderStatusFilterChange}>
+        <Select
+          value={orderStatusFilter}
+          onValueChange={onOrderStatusFilterChange}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Order Status" />
           </SelectTrigger>
@@ -39,7 +42,10 @@ const PaymentFilters = ({
           </SelectContent>
         </Select>
 
-        <Select value={paymentStatusFilter} onValueChange={onPaymentStatusFilterChange}>
+        <Select
+          value={paymentStatusFilter}
+          onValueChange={onPaymentStatusFilterChange}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Payment Status" />
           </SelectTrigger>
@@ -54,4 +60,4 @@ const PaymentFilters = ({
   );
 };
 
-export default PaymentFilters; 
+export default PaymentFilters;

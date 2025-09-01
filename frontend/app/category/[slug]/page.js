@@ -2,7 +2,14 @@
 
 import { useParams } from "next/navigation";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Menu, Search, X, ChevronRight, FilterIcon, UtensilsCrossed } from "lucide-react";
+import {
+  Menu,
+  Search,
+  X,
+  ChevronRight,
+  FilterIcon,
+  UtensilsCrossed,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Pagination from "@/app/components/pagination";
@@ -82,7 +89,9 @@ const Page = () => {
         setTotalPages(result.meta.pagination.pageCount);
       } catch (error) {
         console.error("Error fetching dishes:", error);
-        toast.error("We're having trouble loading dishes right now. Please try again later");
+        toast.error(
+          "We're having trouble loading dishes right now. Please try again later"
+        );
         setAllDishes([]);
       } finally {
         setLoading(false);
@@ -94,7 +103,9 @@ const Page = () => {
   const getSubcategories = useCallback(async () => {
     const zipcode = localStorage.getItem("zipcode");
     if (!zipcode) {
-      toast.error("Please set your delivery location to view available dishes in your area");
+      toast.error(
+        "Please set your delivery location to view available dishes in your area"
+      );
       return;
     }
 
@@ -123,7 +134,9 @@ const Page = () => {
       setSubcategories(uniqueSubcategories);
     } catch (error) {
       console.error("Error fetching subcategories:", error);
-      toast.error("We're having trouble loading subcategories right now. Please try again later");
+      toast.error(
+        "We're having trouble loading subcategories right now. Please try again later"
+      );
       setSubcategories([]);
     }
   }, [slug]);
@@ -162,15 +175,20 @@ const Page = () => {
     }
 
     if (appliedFilters.spiceLevel) {
-      dishes = dishes.filter((dish) =>
-        dish.spiciness && dish.spiciness.includes(appliedFilters.spiceLevel)
+      dishes = dishes.filter(
+        (dish) =>
+          dish.spiciness && dish.spiciness.includes(appliedFilters.spiceLevel)
       );
     }
 
-    if (appliedFilters.priceRange[0] > 0 || appliedFilters.priceRange[1] < 100) {
-      dishes = dishes.filter((dish) =>
-        dish.price >= appliedFilters.priceRange[0] &&
-        dish.price <= appliedFilters.priceRange[1]
+    if (
+      appliedFilters.priceRange[0] > 0 ||
+      appliedFilters.priceRange[1] < 100
+    ) {
+      dishes = dishes.filter(
+        (dish) =>
+          dish.price >= appliedFilters.priceRange[0] &&
+          dish.price <= appliedFilters.priceRange[1]
       );
     }
 
@@ -242,7 +260,8 @@ const Page = () => {
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = appliedFilters.rating > 0 ||
+  const hasActiveFilters =
+    appliedFilters.rating > 0 ||
     appliedFilters.spiceLevel ||
     appliedFilters.priceRange[0] > 0 ||
     appliedFilters.priceRange[1] < 100;
@@ -267,8 +286,9 @@ const Page = () => {
       )}
 
       <aside
-        className={`${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } md:translate-x-0 duration-300 transition-all fixed md:static top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-20 p-6 flex flex-col gap-6 pt-16 md:pt-0`}
+        className={`${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 duration-300 transition-all fixed md:static top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-20 p-6 flex flex-col gap-6 pt-16 md:pt-0`}
       >
         <div className="md:hidden flex justify-end mb-4">
           <button
@@ -283,8 +303,9 @@ const Page = () => {
           <p className="font-semibold text-red-600 mb-4">Sub Categories</p>
           <ul className="space-y-2 text-sm text-gray-700">
             <li
-              className={`cursor-pointer hover:text-red-600 flex items-center justify-between ${activeSubcategory === "All" ? "text-red-600 font-bold" : ""
-                }`}
+              className={`cursor-pointer hover:text-red-600 flex items-center justify-between ${
+                activeSubcategory === "All" ? "text-red-600 font-bold" : ""
+              }`}
               onClick={() => handleSubcategoryChange("All")}
             >
               <span>All</span>
@@ -296,8 +317,9 @@ const Page = () => {
               subcategories.map((item) => (
                 <li
                   key={item}
-                  className={`cursor-pointer hover:text-red-600 capitalize flex items-center justify-between ${activeSubcategory === item ? "text-red-600 font-bold" : ""
-                    }`}
+                  className={`cursor-pointer hover:text-red-600 capitalize flex items-center justify-between ${
+                    activeSubcategory === item ? "text-red-600 font-bold" : ""
+                  }`}
                   onClick={() => handleSubcategoryChange(item)}
                 >
                   <span>{item}</span>
@@ -318,10 +340,11 @@ const Page = () => {
               </p>
               <ul className="space-y-2 text-sm text-gray-700">
                 <li
-                  className={`cursor-pointer hover:text-red-600 flex items-center justify-between ${activeSubSubCategory === "All"
-                    ? "text-red-600 font-bold"
-                    : ""
-                    }`}
+                  className={`cursor-pointer hover:text-red-600 flex items-center justify-between ${
+                    activeSubSubCategory === "All"
+                      ? "text-red-600 font-bold"
+                      : ""
+                  }`}
                   onClick={() => setActiveSubSubCategory("All")}
                 >
                   <span>All</span>
@@ -332,10 +355,11 @@ const Page = () => {
                 {subSubCategories.map((ssc) => (
                   <li
                     key={ssc}
-                    className={`cursor-pointer hover:text-red-600 capitalize flex items-center justify-between ${activeSubSubCategory === ssc
-                      ? "text-red-600 font-bold"
-                      : ""
-                      }`}
+                    className={`cursor-pointer hover:text-red-600 capitalize flex items-center justify-between ${
+                      activeSubSubCategory === ssc
+                        ? "text-red-600 font-bold"
+                        : ""
+                    }`}
                     onClick={() => setActiveSubSubCategory(ssc)}
                   >
                     <span>{ssc}</span>
@@ -377,10 +401,11 @@ const Page = () => {
               </button>
             </form>
             <button
-              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${hasActiveFilters
+              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                hasActiveFilters
                   ? "bg-red-100 text-red-700 border border-red-300"
                   : "text-gray-700 hover:bg-gray-100"
-                }`}
+              }`}
               onClick={() => setFilterPopupOpen(true)}
             >
               <FilterIcon className="w-4 h-4" />
@@ -405,8 +430,10 @@ const Page = () => {
               <p className="text-gray-600 text-center max-w-md mb-6 ">
                 {hasActiveFilters
                   ? "No dishes match your current filters. Try adjusting your search criteria or clearing some filters."
-                  : `We couldn't find any dishes in the ${slug?.replace("-", " ")} category for your area.`
-                }
+                  : `We couldn't find any dishes in the ${slug?.replace(
+                      "-",
+                      " "
+                    )} category for your area.`}
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 {hasActiveFilters && (
@@ -424,7 +451,6 @@ const Page = () => {
                     Clear Filters
                   </button>
                 )}
-
               </div>
             </div>
           )}

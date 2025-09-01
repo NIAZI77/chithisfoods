@@ -41,7 +41,7 @@ export default function DishCard({ dish }) {
       fetchVendorData();
     }
   }, [dish.vendorId]);
-if(loading) return <Loading />;
+  if (loading) return <Loading />;
   return (
     <>
       <div
@@ -114,7 +114,11 @@ if(loading) return <Loading />;
           </div>
         </div>
       </div>
-      <DishDetailsModal isOpen={showModal} onClose={() => setShowModal(false)} dishId={dish.documentId} />
+      <DishDetailsModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        dishId={dish.documentId}
+      />
     </>
   );
 }

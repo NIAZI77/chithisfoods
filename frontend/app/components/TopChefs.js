@@ -41,12 +41,16 @@ export default function TopChefs({ zipcode }) {
       if (response.ok) {
         setTopVendors(result.data || []);
       } else {
-        toast.error("We're having trouble loading top chefs right now. Please try again later.");
+        toast.error(
+          "We're having trouble loading top chefs right now. Please try again later."
+        );
         setTopVendors([]);
       }
     } catch (error) {
       console.error("Error fetching top chefs:", error);
-      toast.error("We're having trouble loading top chefs right now. Please try again later.");
+      toast.error(
+        "We're having trouble loading top chefs right now. Please try again later."
+      );
       setTopVendors([]);
     } finally {
       setIsLoading(false);

@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { HomeIcon, ChefHatIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function NotFound() {
   return (
@@ -30,4 +36,4 @@ export default function NotFound() {
       </Card>
     </div>
   );
-} 
+}

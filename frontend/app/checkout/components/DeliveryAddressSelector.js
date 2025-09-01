@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { MapPin, Plus, ChevronDown, ChevronUp } from 'lucide-react';
-import SavedAddressesList from './SavedAddressesList';
-import DeliveryForm from './DeliveryForm';
+import React, { useState } from "react";
+import { MapPin, Plus, ChevronDown, ChevronUp } from "lucide-react";
+import SavedAddressesList from "./SavedAddressesList";
+import DeliveryForm from "./DeliveryForm";
 
 const DeliveryAddressSelector = ({
   formData,
@@ -20,15 +20,48 @@ const DeliveryAddressSelector = ({
   editingAddress,
   savingAddress,
   showAddressForm,
-  setShowAddressForm
+  setShowAddressForm,
+  onAddressSelect,
+  onMarkerDrag,
+  googleMapsLoaded,
+  showMap,
+  addressValidationError,
+  onAddressValidationError,
+  mapAddressData,
 }) => {
   const [showSavedAddresses, setShowSavedAddresses] = useState(false);
 
   const hasSavedAddresses = savedAddresses && savedAddresses.length > 0;
   const addressCount = savedAddresses ? savedAddresses.length : 0;
-  
+
   // Only make form red when actively editing, not on initial load
   const isFormRed = editingAddress;
+
+  // Function to scroll to delivery address section
+  const scrollToDeliveryAddress = () => {
+    const element = document.getElementById("delivery-address");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Update URL hash
+      window.location.hash = "delivery-address";
+    }
+  };
+
+  // Enhanced add new address function that scrolls to delivery address
+  const handleAddNewAddress = () => {
+    onAddNewAddress();
+    scrollToDeliveryAddress();
+  };
+
+  // Auto-scroll to delivery address if hash is present in URL
+  React.useEffect(() => {
+    if (window.location.hash === "#delivery-address") {
+      // Small delay to ensure component is fully rendered
+      setTimeout(() => {
+        scrollToDeliveryAddress();
+      }, 100);
+    }
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -51,7 +84,7 @@ const DeliveryAddressSelector = ({
             <ChevronDown className="w-5 h-5 text-gray-500" />
           )}
         </button>
-        
+
         {showSavedAddresses && (
           <div className="mt-4 pt-4 border-t border-gray-200">
             {hasSavedAddresses ? (
@@ -62,13 +95,15 @@ const DeliveryAddressSelector = ({
                 onEditAddress={onEditAddress}
                 onDeleteAddress={onDeleteAddress}
                 onRefreshAddresses={onRefreshAddresses}
-                onAddNewAddress={onAddNewAddress}
+                onAddNewAddress={handleAddNewAddress}
                 addressesLoading={addressesLoading}
                 showAddNewButton={true}
               />
             ) : (
               <div className="text-center py-4 text-gray-500">
-                <p className="text-sm">No saved addresses yet. Add your first address below!</p>
+                <p className="text-sm">
+                  No saved addresses yet. Add your first address below!
+                </p>
               </div>
             )}
           </div>
@@ -76,20 +111,25 @@ const DeliveryAddressSelector = ({
       </div>
 
       {/* Address Form Section - Always Visible */}
-      <div className="border-2 border-gray-200 rounded-xl p-4">
+      <div
+        id="delivery-address"
+        className="border-2 border-gray-200 rounded-xl p-4"
+      >
         <div className="mb-4">
           <h4 className="font-semibold text-gray-900 flex items-center gap-2">
             <Plus className="w-5 h-5 text-rose-600" />
-            {editingAddress ? 'Edit Address' : 'Delivery Address'}
+            {editingAddress ? "Edit Address" : "Delivery Address"}
           </h4>
         </div>
 
         {/* Always show the form with transparent background by default */}
-        <div className={`rounded-xl p-4 ${
-          isFormRed 
-            ? 'border-2 border-dashed border-rose-300 bg-rose-50' 
-            : ''
-        }`}>
+        <div
+          className={`rounded-xl p-4 ${
+            isFormRed
+              ? "border-2 border-dashed border-slate-300 bg-slate-50"
+              : ""
+          }`}
+        >
           <DeliveryForm
             formData={formData}
             onFormChange={onFormChange}
@@ -100,6 +140,13 @@ const DeliveryAddressSelector = ({
             savingAddress={savingAddress}
             selectedAddressId={selectedAddressId}
             showSaveButton={isFormRed || !selectedAddressId} // Show save button when editing or no address selected
+            onAddressSelect={onAddressSelect}
+            onMarkerDrag={onMarkerDrag}
+            googleMapsLoaded={googleMapsLoaded}
+            showMap={showMap}
+            addressValidationError={addressValidationError}
+            onAddressValidationError={onAddressValidationError}
+            mapAddressData={mapAddressData}
           />
         </div>
       </div>

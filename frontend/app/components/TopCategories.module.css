@@ -66,21 +66,21 @@
     height: 90px;
     padding: 8px;
   }
-  
+
   .categoryImage {
     width: 48px;
     height: 48px;
     margin-bottom: 4px;
   }
-  
+
   .categoryName {
     font-size: 10px;
   }
-  
+
   .sliderWrapper {
     padding: 0 16px;
   }
-  
+
   .swiper {
     padding: 0 16px;
   }
@@ -92,21 +92,21 @@
     height: 100px;
     padding: 10px;
   }
-  
+
   .categoryImage {
     width: 52px;
     height: 52px;
     margin-bottom: 6px;
   }
-  
+
   .categoryName {
     font-size: 11px;
   }
-  
+
   .sliderWrapper {
     padding: 0 20px;
   }
-  
+
   .swiper {
     padding: 0 20px;
   }
@@ -118,13 +118,13 @@
     height: 105px;
     padding: 11px;
   }
-  
+
   .categoryImage {
     width: 56px;
     height: 56px;
     margin-bottom: 7px;
   }
-  
+
   .categoryName {
     font-size: 11px;
   }
@@ -136,7 +136,7 @@
     height: 108px;
     padding: 12px;
   }
-  
+
   .categoryImage {
     width: 58px;
     height: 58px;
@@ -150,13 +150,13 @@
     height: 120px;
     padding: 14px;
   }
-  
+
   .categoryImage {
     width: 65px;
     height: 65px;
     margin-bottom: 10px;
   }
-  
+
   .categoryName {
     font-size: 13px;
   }

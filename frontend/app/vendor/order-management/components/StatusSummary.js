@@ -1,4 +1,10 @@
-import { Clock, Package, AlertCircle, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Clock,
+  Package,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 
 const StatusSummary = ({ totalStatusCounts }) => {
   return (
@@ -62,4 +68,4 @@ const StatusSummary = ({ totalStatusCounts }) => {
   );
 };
 
-export default StatusSummary; 
+export default StatusSummary;

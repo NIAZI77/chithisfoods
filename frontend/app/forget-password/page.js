@@ -27,7 +27,9 @@ export default function ForgetPassword() {
     e.preventDefault();
 
     if (!email) {
-      toast.error("Please enter your email address so we can help you reset your password.");
+      toast.error(
+        "Please enter your email address so we can help you reset your password."
+      );
       return;
     }
 
@@ -49,13 +51,20 @@ export default function ForgetPassword() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Great! We've sent a password reset link to your email. Please check your inbox.");
+        toast.success(
+          "Great! We've sent a password reset link to your email. Please check your inbox."
+        );
         setTimeout(() => router.push("/login"), 2000);
       } else {
-        toast.error(data?.error?.message || "We couldn't process your request right now. Please try again.");
+        toast.error(
+          data?.error?.message ||
+            "We couldn't process your request right now. Please try again."
+        );
       }
     } catch {
-      toast.error("We're experiencing some technical difficulties. Please try again in a moment.");
+      toast.error(
+        "We're experiencing some technical difficulties. Please try again in a moment."
+      );
     } finally {
       setLoading(false);
     }

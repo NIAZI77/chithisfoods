@@ -33,9 +33,12 @@ const ORDER_STATUS = {
 };
 
 const TOAST_MESSAGES = {
-  ORDER_UPDATE_SUCCESS: "Great! Your order status has been updated successfully.",
-  ORDER_UPDATE_ERROR: "We couldn't update the order status right now. Please try again.",
-  CANCEL_NOT_ALLOWED: "Sorry, you cannot cancel an order that is ready for delivery.",
+  ORDER_UPDATE_SUCCESS:
+    "Great! Your order status has been updated successfully.",
+  ORDER_UPDATE_ERROR:
+    "We couldn't update the order status right now. Please try again.",
+  CANCEL_NOT_ALLOWED:
+    "Sorry, you cannot cancel an order that is ready for delivery.",
 };
 
 function OrderDetailsDialog({ order, isOpen, onClose }) {
@@ -83,7 +86,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
           }
 
           const dishData = await fetchResponse.json();
-          
+
           if (!dishData.data || dishData.data.length === 0) {
             console.warn(`No dish found with documentId: ${dish.id}`);
             return;
@@ -112,8 +115,13 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
 
           if (!updateResponse.ok) {
             const errorText = await updateResponse.text();
-            console.error(`Failed to update weekly sales count for dish ${dish.id}:`, errorText);
-            throw new Error(`Failed to update weekly sales count for ${dish.name}`);
+            console.error(
+              `Failed to update weekly sales count for dish ${dish.id}:`,
+              errorText
+            );
+            throw new Error(
+              `Failed to update weekly sales count for ${dish.name}`
+            );
           }
 
           return updateResponse.json();
@@ -126,11 +134,17 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
 
       // Wait for all dish updates to complete
       const results = await Promise.all(updatePromises);
-      const successfulUpdates = results.filter(result => result !== null).length;
+      const successfulUpdates = results.filter(
+        (result) => result !== null
+      ).length;
       const totalDishes = orderItems.length;
-      
+
       if (successfulUpdates < totalDishes) {
-        toast.warning(`${totalDishes - successfulUpdates} dish sales counts could not be updated.`);
+        toast.warning(
+          `${
+            totalDishes - successfulUpdates
+          } dish sales counts could not be updated.`
+        );
       }
     } catch (error) {
       console.error("Error updating weekly sales count:", error);
@@ -152,10 +166,10 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
       newStatus === ORDER_STATUS.IN_PROCESS
         ? "processing"
         : newStatus === ORDER_STATUS.READY
-          ? "ready"
-          : newStatus === ORDER_STATUS.DELIVERED
-            ? "delivered"
-            : "cancel";
+        ? "ready"
+        : newStatus === ORDER_STATUS.DELIVERED
+        ? "delivered"
+        : "cancel";
 
     setLoadingStates((prev) => ({ ...prev, [loadingKey]: true }));
 
@@ -222,7 +236,9 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                 <div className="flex items-start gap-2">
                   <User className="w-4 h-4 text-gray-500 mt-0.5" />
                   <div>
-                    <p className="text-gray-500 text-xs mb-0.5">Customer Name</p>
+                    <p className="text-gray-500 text-xs mb-0.5">
+                      Customer Name
+                    </p>
                     <p className="text-xs text-gray-800 font-medium">
                       {order.customerName}
                     </p>
@@ -244,7 +260,9 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                 <div className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
                   <div>
-                    <p className="text-gray-500 text-xs mb-0.5">Delivery Address</p>
+                    <p className="text-gray-500 text-xs mb-0.5">
+                      Delivery Address
+                    </p>
                     <p className="text-xs text-gray-800 font-medium">
                       {order.address || "-"}
                     </p>
@@ -255,7 +273,9 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                 <div className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-blue-500 mt-0.5" />
                   <div>
-                    <p className="text-blue-500 text-xs mb-0.5">Pickup Location</p>
+                    <p className="text-blue-500 text-xs mb-0.5">
+                      Pickup Location
+                    </p>
                     <p className="text-xs text-blue-800 font-medium">
                       {order.vendorAddress}
                     </p>
@@ -281,9 +301,14 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                     <div className="flex-1 flex items-start gap-2">
                       <Truck className="w-4 h-4 text-gray-500 mt-0.5" />
                       <div>
-                        <p className="text-gray-500 text-xs mb-0.5">Order Type</p>
+                        <p className="text-gray-500 text-xs mb-0.5">
+                          Order Type
+                        </p>
                         <div className="mt-1">
-                          <DeliveryTypeBadge deliveryType={order.deliveryType} variant="soft" />
+                          <DeliveryTypeBadge
+                            deliveryType={order.deliveryType}
+                            variant="soft"
+                          />
                         </div>
                       </div>
                     </div>
@@ -320,7 +345,9 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                   <div className="flex-1 flex items-start gap-2">
                     <Calendar className="w-4 h-4 text-gray-500 mt-0.5" />
                     <div>
-                      <p className="text-gray-500 text-xs mb-0.5">Delivery Date</p>
+                      <p className="text-gray-500 text-xs mb-0.5">
+                        Delivery Date
+                      </p>
                       <p className="text-xs text-gray-800 font-medium">
                         {new Date(order.deliveryDate).toLocaleDateString()}
                       </p>
@@ -329,9 +356,13 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                   <div className="flex-1 flex items-start gap-2">
                     <ClockIcon className="w-4 h-4 text-gray-500 mt-0.5" />
                     <div>
-                      <p className="text-gray-500 text-xs mb-0.5">Delivery Time</p>
+                      <p className="text-gray-500 text-xs mb-0.5">
+                        Delivery Time
+                      </p>
                       <p className="text-xs text-gray-800 font-medium">
-                        {new Date(`2000-01-01T${order.deliveryTime}`).toLocaleTimeString([], {
+                        {new Date(
+                          `2000-01-01T${order.deliveryTime}`
+                        ).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
@@ -378,7 +409,7 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                     <div className="text-xs text-gray-500 mt-0.5">
                       Quantity: {dish.quantity}
                     </div>
-                   
+
                     {(dish.toppings?.length > 0 || dish.extras?.length > 0) && (
                       <div className="space-x-2 space-y-1 pt-2 border-t border-gray-100 flex items-start flex-col">
                         {dish.toppings?.length > 0 && (
@@ -389,7 +420,12 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <img src={"/toppings.png"} alt="Topping" className="w-3 h-3 scale-175" />  {topping.name} (${topping.price})
+                                  <img
+                                    src={"/toppings.png"}
+                                    alt="Topping"
+                                    className="w-3 h-3 scale-175"
+                                  />{" "}
+                                  {topping.name} (${topping.price})
                                 </span>
                               ))}
                             </div>
@@ -403,7 +439,12 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                                   key={idx}
                                   className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs"
                                 >
-                                  <img src={"/extras.png"} alt="Extra" className="w-3 h-3 scale-125" /> {extra.name} (${extra.price})
+                                  <img
+                                    src={"/extras.png"}
+                                    alt="Extra"
+                                    className="w-3 h-3 scale-125"
+                                  />{" "}
+                                  {extra.name} (${extra.price})
                                 </span>
                               ))}
                             </div>
@@ -447,15 +488,17 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
                   ${order.subtotal.toFixed(2)}
                 </span>
               </div>
-             {order.deliveryType === "delivery" && <div className="flex justify-between items-center">
-                <span className="text-xs font-medium text-gray-700 flex items-center gap-1">
-                  <Truck className="w-3 h-3" />
-                  Delivery Fee
-                </span>
-                <span className="text-xs font-semibold text-orange-600">
-                  ${(order.deliveryFee || 0).toFixed(2)}
-                </span>
-              </div>}
+              {order.deliveryType === "delivery" && (
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-medium text-gray-700 flex items-center gap-1">
+                    <Truck className="w-3 h-3" />
+                    Delivery Fee
+                  </span>
+                  <span className="text-xs font-semibold text-orange-600">
+                    ${(order.deliveryFee || 0).toFixed(2)}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between items-center">
                 <span className="text-xs font-medium text-gray-700 flex items-center gap-1">
                   <Sigma className="w-3 h-3" />

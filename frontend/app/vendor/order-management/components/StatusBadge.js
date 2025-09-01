@@ -25,4 +25,4 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-export default StatusBadge; 
+export default StatusBadge;

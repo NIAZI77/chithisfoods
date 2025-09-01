@@ -11,11 +11,11 @@ const Page = () => {
         <section>
           <p className="text-gray-700 mb-4">
             Welcome to <strong>Chithi&apos;s Foods</strong>! These{" "}
-            <strong>Terms of Service</strong> (&quot;Terms&quot;) govern your use of
-            our website, mobile applications, and services (collectively, the
-            &quot;Services&quot;). By accessing or using our Services, you agree to
-            be bound by these Terms. If you do not agree to these Terms, please do
-            not use our Services.
+            <strong>Terms of Service</strong> (&quot;Terms&quot;) govern your
+            use of our website, mobile applications, and services (collectively,
+            the &quot;Services&quot;). By accessing or using our Services, you
+            agree to be bound by these Terms. If you do not agree to these
+            Terms, please do not use our Services.
           </p>
         </section>
 

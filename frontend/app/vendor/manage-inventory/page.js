@@ -3,7 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
-import { Edit, Plus, Trash2, AlertTriangle, ChefHat, Search, Loader2 } from "lucide-react";
+import {
+  Edit,
+  Plus,
+  Trash2,
+  AlertTriangle,
+  ChefHat,
+  Search,
+  Loader2,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Link from "next/link";
@@ -139,15 +147,18 @@ export default function ManageInventory() {
     setchangingAvailability(true);
     setBulkActionMessage("Setting all dishes as Available");
     try {
-      const updatePromises = dishes.map(dish =>
-        fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dish.documentId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-          body: JSON.stringify({ data: { available: true } }),
-        })
+      const updatePromises = dishes.map((dish) =>
+        fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dish.documentId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+            body: JSON.stringify({ data: { available: true } }),
+          }
+        )
       );
 
       await Promise.all(updatePromises);
@@ -170,15 +181,18 @@ export default function ManageInventory() {
     setchangingAvailability(true);
     setBulkActionMessage("Setting all dishes as Unavailable");
     try {
-      const updatePromises = dishes.map(dish =>
-        fetch(`${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dish.documentId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-          body: JSON.stringify({ data: { available: false } }),
-        })
+      const updatePromises = dishes.map((dish) =>
+        fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/dishes/${dish.documentId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+            body: JSON.stringify({ data: { available: false } }),
+          }
+        )
       );
 
       await Promise.all(updatePromises);
@@ -217,7 +231,8 @@ export default function ManageInventory() {
               Delete Dish
             </AlertDialogTitle>
             <AlertDialogDescription className="text-base text-gray-600 mt-2">
-              This will permanently remove the dish from your menu. This action cannot be reversed.
+              This will permanently remove the dish from your menu. This action
+              cannot be reversed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
@@ -302,10 +317,11 @@ export default function ManageInventory() {
             <button
               key={status}
               onClick={() => setFilterStatus(status)}
-              className={`md:px-4 md:py-1.5 px-2 py-1 rounded-md text-xs font-medium ${filterStatus === status
+              className={`md:px-4 md:py-1.5 px-2 py-1 rounded-md text-xs font-medium ${
+                filterStatus === status
                   ? "bg-orange-100 text-orange-700"
                   : "bg-white text-gray-600"
-                }`}
+              }`}
             >
               {status}
             </button>
@@ -367,8 +383,7 @@ export default function ManageInventory() {
                     <p className="text-gray-500 text-sm mb-4 max-w-md">
                       {searchTerm || filterStatus !== "All"
                         ? "Try adjusting your search or filters to find what you're looking for."
-                        : "Get started by adding your first dish to your menu."
-                      }
+                        : "Get started by adding your first dish to your menu."}
                     </p>
                     {!searchTerm && filterStatus === "All" && (
                       <button
@@ -408,16 +423,19 @@ export default function ManageInventory() {
                       onClick={() =>
                         toggleAvailability(dish.documentId, dish.available)
                       }
-                      className={`relative w-12 h-6 flex items-center p-0.5 rounded-full transition-all shadow-md mx-auto ${dish.available ? "bg-emerald-500" : "bg-rose-500"
-                        } ${changingAvailability
+                      className={`relative w-12 h-6 flex items-center p-0.5 rounded-full transition-all shadow-md mx-auto ${
+                        dish.available ? "bg-emerald-500" : "bg-rose-500"
+                      } ${
+                        changingAvailability
                           ? "opacity-50 cursor-not-allowed"
                           : ""
-                        }`}
+                      }`}
                       disabled={changingAvailability}
                     >
                       <span
-                        className={`w-5 h-5 rounded-full flex items-center justify-center transition-all bg-white ${dish.available ? "translate-x-6" : "translate-x-0"
-                          }`}
+                        className={`w-5 h-5 rounded-full flex items-center justify-center transition-all bg-white ${
+                          dish.available ? "translate-x-6" : "translate-x-0"
+                        }`}
                       >
                         {dish.available ? (
                           <div className="w-3 h-3 border-2 border-black rounded-full"></div>
@@ -432,10 +450,11 @@ export default function ManageInventory() {
                       <button
                         onClick={() => handleEdit(dish.documentId)}
                         className={`text-orange-500 hover:text-orange-700
-                        ${changingAvailability || deletingDish
+                        ${
+                          changingAvailability || deletingDish
                             ? "opacity-50 cursor-not-allowed"
                             : ""
-                          }`}
+                        }`}
                         disabled={changingAvailability || deletingDish}
                       >
                         <Edit size={16} />
@@ -443,9 +462,10 @@ export default function ManageInventory() {
                       <button
                         onClick={() => handleDelete(dish.documentId)}
                         className={`text-orange-500 hover:text-orange-700
-                          ${changingAvailability || deletingDish
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
+                          ${
+                            changingAvailability || deletingDish
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
                           }`}
                         disabled={changingAvailability || deletingDish}
                       >

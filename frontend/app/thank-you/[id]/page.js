@@ -84,19 +84,27 @@ const VendorOrderGroup = ({ order }) => {
               <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
                 {dish.quantity && Number(dish.quantity) > 0 && (
                   <span className="bg-gray-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <FaShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" /> Qty: {dish.quantity}
+                    <FaShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" /> Qty:{" "}
+                    {dish.quantity}
                   </span>
                 )}
-                {dish.selectedSpiciness && dish.selectedSpiciness.trim() !== "" && (
-                  <span className="bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <Flame className="w-3 h-3 sm:w-4 sm:h-4" /> {dish.selectedSpiciness}
-                  </span>
-                )}
+                {dish.selectedSpiciness &&
+                  dish.selectedSpiciness.trim() !== "" && (
+                    <span className="bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Flame className="w-3 h-3 sm:w-4 sm:h-4" />{" "}
+                      {dish.selectedSpiciness}
+                    </span>
+                  )}
               </div>
               {(() => {
-                const validToppings = dish.toppings?.filter(topping => topping.name && topping.price) || [];
-                const validExtras = dish.extras?.filter(extra => extra.name && extra.price) || [];
-                return (validToppings.length > 0 || validExtras.length > 0) ? (
+                const validToppings =
+                  dish.toppings?.filter(
+                    (topping) => topping.name && topping.price
+                  ) || [];
+                const validExtras =
+                  dish.extras?.filter((extra) => extra.name && extra.price) ||
+                  [];
+                return validToppings.length > 0 || validExtras.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {validToppings.map((topping, idx) => (
                       <span
@@ -199,7 +207,8 @@ export default function ThankYouPage() {
             Access Denied
           </h1>
           <p className="text-gray-600 mb-6">
-            You are not authorized to view this order. This order belongs to another user account.
+            You are not authorized to view this order. This order belongs to
+            another user account.
           </p>
           <div className="space-y-3">
             <Link
@@ -232,9 +241,7 @@ export default function ThankYouPage() {
           <h1 className="text-2xl font-bold text-gray-800 mb-3">
             Error Loading Order
           </h1>
-          <p className="text-gray-600 mb-6">
-            {errorMessage}
-          </p>
+          <p className="text-gray-600 mb-6">{errorMessage}</p>
           <div className="space-y-3">
             <button
               onClick={() => fetchOrderDetails(orderId)}
@@ -267,7 +274,9 @@ export default function ThankYouPage() {
             Order Not Found
           </h1>
           <p className="text-gray-600 mb-6">
-            We couldn&apos;t find an order with the ID <strong>{orderId}</strong>. Please check the order number and try again.
+            We couldn&apos;t find an order with the ID{" "}
+            <strong>{orderId}</strong>. Please check the order number and try
+            again.
           </p>
           <div className="space-y-3">
             <Link
@@ -289,7 +298,6 @@ export default function ThankYouPage() {
       </div>
     );
   }
-
 
   const orderSubtotal = orderData.reduce(
     (sum, order) => sum + order.subtotal,
@@ -322,60 +330,76 @@ export default function ThankYouPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mt-8 sm:mt-10 px-4 sm:px-6 md:px-12">
         <div className="space-y-3 bg-white p-4 sm:p-6 rounded-xl shadow-sm">
-
           {currentOrder.createdAt && (
             <div className="flex items-center gap-2">
               <Calendar className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
               <div>
-                <span className="text-gray-500 text-sm sm:text-base">Date of Order</span>
+                <span className="text-gray-500 text-sm sm:text-base">
+                  Date of Order
+                </span>
                 <p className="text-black font-medium text-sm sm:text-base">
                   {new Date(currentOrder.createdAt).toLocaleDateString()}
                 </p>
               </div>
             </div>
           )}
-          {currentOrder.deliveryDate && currentOrder.deliveryDate.trim() !== "" && (
-            <div className="flex items-center gap-2">
-              <Calendar className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-              <div>
-                <span className="text-gray-500 text-sm sm:text-base">Delivery Date</span>
-                <p className="text-black font-medium text-sm sm:text-base">
-                  {new Date(currentOrder.deliveryDate).toLocaleDateString()}
-                </p>
+          {currentOrder.deliveryDate &&
+            currentOrder.deliveryDate.trim() !== "" && (
+              <div className="flex items-center gap-2">
+                <Calendar className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+                <div>
+                  <span className="text-gray-500 text-sm sm:text-base">
+                    Delivery Date
+                  </span>
+                  <p className="text-black font-medium text-sm sm:text-base">
+                    {new Date(currentOrder.deliveryDate).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-          {currentOrder.deliveryTime && currentOrder.deliveryTime.trim() !== "" && (
-            <div className="flex items-center gap-2">
-              <Clock className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-              <div>
-                <span className="text-gray-500 text-sm sm:text-base">Delivery Time</span>
-                <p className="text-black font-medium text-sm sm:text-base">
-                  {new Date(`2000-01-01T${currentOrder.deliveryTime}`).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
+            )}
+          {currentOrder.deliveryTime &&
+            currentOrder.deliveryTime.trim() !== "" && (
+              <div className="flex items-center gap-2">
+                <Clock className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+                <div>
+                  <span className="text-gray-500 text-sm sm:text-base">
+                    Delivery Time
+                  </span>
+                  <p className="text-black font-medium text-sm sm:text-base">
+                    {new Date(
+                      `2000-01-01T${currentOrder.deliveryTime}`
+                    ).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-          {currentOrder.customerName && currentOrder.customerName.trim() !== "" && (
-            <div className="flex items-center gap-2">
-              <User className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
-              <div>
-                <span className="text-gray-500 text-sm sm:text-base">Recipient&apos;s Name</span>
-                <p className="text-black font-medium text-sm sm:text-base">
-                  {currentOrder.customerName}
-                </p>
+            )}
+          {currentOrder.customerName &&
+            currentOrder.customerName.trim() !== "" && (
+              <div className="flex items-center gap-2">
+                <User className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
+                <div>
+                  <span className="text-gray-500 text-sm sm:text-base">
+                    Recipient&apos;s Name
+                  </span>
+                  <p className="text-black font-medium text-sm sm:text-base">
+                    {currentOrder.customerName}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
           {currentOrder.address && currentOrder.address.trim() !== "" && (
             <div className="flex items-center gap-2">
               <MapPin className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
               <div>
-                <span className="text-gray-500 text-sm sm:text-base">Delivery Address</span>
-                <p className="text-black font-medium text-sm sm:text-base">{currentOrder.address}</p>
+                <span className="text-gray-500 text-sm sm:text-base">
+                  Delivery Address
+                </span>
+                <p className="text-black font-medium text-sm sm:text-base">
+                  {currentOrder.address}
+                </p>
               </div>
             </div>
           )}
@@ -383,8 +407,12 @@ export default function ThankYouPage() {
             <div className="flex items-center gap-2">
               <Phone className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
               <div>
-                <span className="text-gray-500 text-sm sm:text-base">Phone Number</span>
-                <p className="text-black font-medium text-sm sm:text-base">{currentOrder.phone}</p>
+                <span className="text-gray-500 text-sm sm:text-base">
+                  Phone Number
+                </span>
+                <p className="text-black font-medium text-sm sm:text-base">
+                  {currentOrder.phone}
+                </p>
               </div>
             </div>
           )}
@@ -393,7 +421,9 @@ export default function ThankYouPage() {
               <FileText className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
               <div>
                 <span className="text-gray-500 text-sm sm:text-base">Note</span>
-                <p className="text-black font-medium text-sm sm:text-base">{currentOrder.note}</p>
+                <p className="text-black font-medium text-sm sm:text-base">
+                  {currentOrder.note}
+                </p>
               </div>
             </div>
           )}
@@ -406,7 +436,9 @@ export default function ThankYouPage() {
                 <FaShoppingBag className="text-gray-500 w-5 h-5 sm:w-6 sm:h-6" />
                 <span className="text-sm sm:text-base">Sub Total</span>
               </div>
-              <span className="font-semibold text-sm sm:text-base">${orderSubtotal.toFixed(2)}</span>
+              <span className="font-semibold text-sm sm:text-base">
+                ${orderSubtotal.toFixed(2)}
+              </span>
             </div>
           )}
           {currentOrder.totalTax && Number(currentOrder.totalTax) > 0 && (
@@ -420,17 +452,23 @@ export default function ThankYouPage() {
               </span>
             </div>
           )}
-          {orderData.some(order => order.vendorDeliveryFee && Number(order.vendorDeliveryFee) > 0 && order.vendorUsername) && (
+          {orderData.some(
+            (order) =>
+              order.vendorDeliveryFee &&
+              Number(order.vendorDeliveryFee) > 0 &&
+              order.vendorUsername
+          ) && (
             <div className="mb-2">
               {orderData.map((order, idx) =>
-                order.vendorDeliveryFee && Number(order.vendorDeliveryFee) > 0 && order.vendorUsername ? (
+                order.vendorDeliveryFee &&
+                Number(order.vendorDeliveryFee) > 0 &&
+                order.vendorUsername ? (
                   <div
                     key={order.vendorId || idx}
                     className="flex justify-between text-sm text-gray-700 py-1"
                   >
                     <span className="flex items-center gap-2">
-                      <Truck className="w-4 h-4" />
-                      @{order.vendorUsername}
+                      <Truck className="w-4 h-4" />@{order.vendorUsername}
                     </span>
                     <span>${Number(order.vendorDeliveryFee).toFixed(2)}</span>
                   </div>

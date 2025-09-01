@@ -9,8 +9,8 @@ const Page = () => {
         <section>
           <p className="text-gray-700 mb-4">Welcome to Chithi&apos;s Foods</p>
           <p className="text-gray-700 mb-4">
-            Chithi&apos;s Foods provides an online marketplace where Sellers can list,
-            offer, sell, and deliver food items and meals to customers.
+            Chithi&apos;s Foods provides an online marketplace where Sellers can
+            list, offer, sell, and deliver food items and meals to customers.
             Customers can browse and purchase these items via the website and
             mobile applications (collectively referred to as the{" "}
             <strong>Service</strong>).
@@ -101,10 +101,21 @@ const Page = () => {
 
         <section>
           <h2 className="text-xl font-semibold mb-3">Contact Us</h2>
-          <p className="text-gray-700 mb-4">If you have any questions or concerns about this Privacy Policy, please contact us at:</p>
+          <p className="text-gray-700 mb-4">
+            If you have any questions or concerns about this Privacy Policy,
+            please contact us at:
+          </p>
           <div className="pl-6 text-gray-700">
             <p className="font-semibold">Chithi&apos;s Foods</p>
-            <p>Email: <a href="mailto:info@chithisfoods.com" className="text-rose-500 hover:text-rose-600 hover:underline">info@chithisfoods.com</a></p>
+            <p>
+              Email:{" "}
+              <a
+                href="mailto:info@chithisfoods.com"
+                className="text-rose-500 hover:text-rose-600 hover:underline"
+              >
+                info@chithisfoods.com
+              </a>
+            </p>
             <p>Phone: (312) 985-6684</p>
             <p>Address: 2501 Chatham Rd Springfield, IL 62704</p>
           </div>

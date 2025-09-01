@@ -38,7 +38,9 @@ export default function ZipcodeDialogue() {
   }, []);
 
   const handleZipcodeChange = useCallback((e) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, ZIPCODE_MAX_LENGTH);
+    const value = e.target.value
+      .replace(/\D/g, "")
+      .slice(0, ZIPCODE_MAX_LENGTH);
     setZipcode(value);
     setError("");
   }, []);
@@ -59,34 +61,38 @@ export default function ZipcodeDialogue() {
     try {
       // Clear cart when zipcode changes
       localStorage.removeItem("cart");
-      
+
       // Clear all localStorage and set new zipcode
       localStorage.clear();
       localStorage.setItem("zipcode", zipcode);
-      window.dispatchEvent(new CustomEvent("zipcodeChange", {
-        detail: { zipcode }
-      }));
+      window.dispatchEvent(
+        new CustomEvent("zipcodeChange", {
+          detail: { zipcode },
+        })
+      );
       // Notify navbar about cart update
-      window.dispatchEvent(new CustomEvent('cartUpdate'));
+      window.dispatchEvent(new CustomEvent("cartUpdate"));
       setIsOpen(false);
       router.push("/explore");
     } catch (error) {
-      toast.error("We couldn't update your location right now. Please try again.");
+      toast.error(
+        "We couldn't update your location right now. Please try again."
+      );
       console.error("Error saving zipcode:", error);
     }
   }, [zipcode, validateZipcode, router]);
 
-  const buttonText = pathname === "/" ? "Explore Chef Services" : "Change Location";
-  const buttonClass = pathname === "/" 
-    ? "uppercase w-full mt-8 px-6 py-3 rounded-lg bg-rose-600 text-white shadow-rose-300 hover:bg-rose-700 transition-all font-semibold"
-    : "text-center block text-green-400 px-4 py-2 rounded-full border-2 border-green-400 hover:bg-green-400 hover:text-black transition-all font-bold";
+  const buttonText =
+    pathname === "/" ? "Explore Chef Services" : "Change Location";
+  const buttonClass =
+    pathname === "/"
+      ? "uppercase w-full mt-8 px-6 py-3 rounded-lg bg-rose-600 text-white shadow-rose-300 hover:bg-rose-700 transition-all font-semibold"
+      : "text-center block text-green-400 px-4 py-2 rounded-full border-2 border-green-400 hover:bg-green-400 hover:text-black transition-all font-bold";
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <button className={buttonClass}>
-          {buttonText}
-        </button>
+        <button className={buttonClass}>{buttonText}</button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -107,7 +113,7 @@ export default function ZipcodeDialogue() {
             value={zipcode}
             onChange={handleZipcodeChange}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && zipcode.length === ZIPCODE_MAX_LENGTH) {
+              if (e.key === "Enter" && zipcode.length === ZIPCODE_MAX_LENGTH) {
                 handleSaveZipcode();
               }
             }}
@@ -119,7 +125,9 @@ export default function ZipcodeDialogue() {
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel asChild>
-            <button className="text-center block text-gray-600 px-4 py-2 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium">Cancel</button>
+            <button className="text-center block text-gray-600 px-4 py-2 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium">
+              Cancel
+            </button>
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleSaveZipcode}

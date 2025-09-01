@@ -66,7 +66,9 @@ export default function SignupPage() {
     }
 
     if (password !== confirmPassword) {
-      toast.error("Your passwords don't match. Please double-check and try again.");
+      toast.error(
+        "Your passwords don't match. Please double-check and try again."
+      );
       setLoading(false);
       return;
     }
@@ -100,10 +102,15 @@ export default function SignupPage() {
           router.push("/");
         }, 1000);
       } else {
-        toast.error(data?.error?.message || "We couldn't create your account right now. Please try again.");
+        toast.error(
+          data?.error?.message ||
+            "We couldn't create your account right now. Please try again."
+        );
       }
     } catch (error) {
-      toast.error("We're experiencing some technical difficulties. Please try again in a moment.");
+      toast.error(
+        "We're experiencing some technical difficulties. Please try again in a moment."
+      );
     } finally {
       setLoading(false);
     }
