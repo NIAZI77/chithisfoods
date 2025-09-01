@@ -38,6 +38,12 @@ const LoginPage = () => {
             const data = await response.json();
 
             if (response.ok) {
+                // Check if user is a pending admin
+                if (!data.user.isAdmin && data.user.isAdminVerified === "pending") {
+                    toast.error("Verification pending from main admin. Please wait for approval.");
+                    return;
+                }
+                
                 if (!data.user.isAdmin) {
                     toast.error("Access denied. This is an admin-only area.");
                     return;

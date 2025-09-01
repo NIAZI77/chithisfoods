@@ -69,6 +69,24 @@
       "type": "boolean",
       "default": false
     },
+    "admintype": {
+      "type": "enumeration",
+      "enum": [
+        "none",
+        "regular",
+        "main"
+      ],
+      "default": "none"
+    },
+    "isAdminVerified": {
+      "type": "enumeration",
+      "enum": [
+        "none",
+        "pending",
+        "verified"
+      ],
+      "default": "none"
+    },
     "addresses": {
       "type": "json"
     },

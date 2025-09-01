@@ -1058,6 +1058,8 @@ export interface PluginUsersPermissionsUser
   };
   attributes: {
     addresses: Schema.Attribute.JSON;
+    admintype: Schema.Attribute.Enumeration<['none', 'regular', 'main']> &
+      Schema.Attribute.DefaultTo<'none'>;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -1070,6 +1072,10 @@ export interface PluginUsersPermissionsUser
         minLength: 6;
       }>;
     isAdmin: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    isAdminVerified: Schema.Attribute.Enumeration<
+      ['none', 'pending', 'verified']
+    > &
+      Schema.Attribute.DefaultTo<'none'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

@@ -10,6 +10,7 @@ import {
   ShoppingBag,
   Users,
   User,
+  Tag,
 } from "lucide-react";
 import { MdOutlinePayments } from "react-icons/md";
 import { deleteCookie } from "cookies-next";
@@ -22,11 +23,11 @@ export default function AdminSidebar() {
 
   const isActive = (path) => pathname === path;
   useEffect(() => {
-    if (!pathname.includes("/admin/") || pathname === "/admin/login") {
+    if (!pathname.includes("/admin/") || pathname === "/admin/login" || pathname === "/admin/signup") {
       return;
     }
   }, [pathname]);
-  if (!pathname.includes("/admin/") || pathname === "/admin/login") {
+  if (!pathname.includes("/admin/") || pathname === "/admin/login" || pathname === "/admin/signup") {
     return;
   }
   return (
@@ -116,6 +117,21 @@ export default function AdminSidebar() {
           {!collapsed && (
             <span className="whitespace-nowrap font-medium">
               Payment Management
+            </span>
+          )}
+        </Link>
+        <Link
+          href="/admin/manage-category"
+          className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 hover:bg-pink-700 hover:text-white border-l-[3px] border-transparent ${
+            isActive("/admin/manage-category") &&
+            "text-pink-600 !border-pink-600 !border-l-4 bg-pink-50"
+          }
+            }`}
+        >
+          <Tag className="w-5 h-5" />
+          {!collapsed && (
+            <span className="whitespace-nowrap font-medium">
+              Manage Categories
             </span>
           )}
         </Link>

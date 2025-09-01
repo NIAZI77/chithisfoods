@@ -85,14 +85,14 @@ const ImageUpload = ({
   };
 
   return (
-    <div className={`space-y-2 ${className}`} style={customStyles}>
+    <div className={`space-y-2 ${className} flex flex-col items-center`} style={customStyles}>
       <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
         <Image className="w-4 h-4 text-green-500" />
         {label} {required && showRequired && <span className="text-red-500">*</span>}
       </label>
 
       {!imagePreview ? (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-rose-300 transition-colors">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center w-3/4">
           <input
             type="file"
             accept={accept}
@@ -108,9 +108,9 @@ const ImageUpload = ({
             {uploading ? (
               <Spinner />
             ) : (
-              <Upload className="w-8 h-8 text-gray-400" />
+              <Upload className="w-6 h-6 text-gray-400" />
             )}
-            <span className="text-sm text-gray-600">
+            <span className="text-xs text-gray-600">
               {uploading ? "Uploading..." : "Click to upload an image"}
             </span>
             <span className="text-xs text-gray-400">
@@ -119,20 +119,22 @@ const ImageUpload = ({
           </label>
         </div>
       ) : (
-        <div className="relative">
-          <img
-            src={imagePreview}
-            alt="Image preview"
-            className={`w-full ${aspectRatio} object-cover rounded-lg border border-gray-200`}
-          />
-          <button
-            type="button"
-            onClick={removeImage}
-            className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-            disabled={disabled}
-          >
-            <X className="w-3 h-3" />
-          </button>
+        <div className="relative flex justify-center bg-transparent">
+          <div className="relative bg-transparent">
+            <img
+              src={imagePreview}
+              alt="Image preview"
+              className={`w-1/2 ${aspectRatio} m-auto object-contain rounded-lg border border-gray-200 bg-transparent`}
+            />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+              disabled={disabled}
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
         </div>
       )}
     </div>
