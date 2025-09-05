@@ -15,7 +15,7 @@ import {
 import { getCookie } from "cookies-next";
 import Loading from "@/app/loading";
 import { useRouter } from "next/navigation";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 import IngredientInput from "@/components/IngredientInput";
 import DishImageUpload from "@/components/DishImageUpload";
 
@@ -88,11 +88,11 @@ export default function AddDishPage() {
     } catch (error) {
       console.error("Error fetching categories:", error);
       toast.error("Failed to load categories");
+      setLoading(false);
     }
   };
 
   const getChefData = async (email) => {
-    setLoading(true);
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${email}&populate=*`,
@@ -114,13 +114,13 @@ export default function AddDishPage() {
           vendorId: data.data[0].documentId,
           email: data.data[0].email,
         }));
+        setLoading(false);
       } else {
         toast.error("We couldn't verify your vendor.");
         router.push("/become-a-vendor");
       }
     } catch (err) {
       toast.error("We couldn't verify your vendor. Please try again shortly.");
-    } finally {
       setLoading(false);
     }
   };
@@ -144,7 +144,8 @@ export default function AddDishPage() {
   };
 
   const handleArrayChange = (type, index, field, value, subIndex = null) => {
-    const updated = [...dishData[type]];
+    const array = dishData[type] || [];
+    const updated = [...array];
     let newValue = value;
     if (field === "price") {
       newValue = value.replace(/[^0-9.]/g, "");
@@ -164,8 +165,9 @@ export default function AddDishPage() {
   };
 
   const canAddNewGroup = (type) => {
-    const last = dishData[type].at(-1);
-    return dishData[type].length === 0 || (last?.name && last.price);
+    const array = dishData[type] || [];
+    const last = array.at(-1);
+    return array.length === 0 || (last?.name && last.price);
   };
 
   const addGroup = (type) => {
@@ -177,23 +179,33 @@ export default function AddDishPage() {
       name: "",
       price: "0.00",
     };
-    setDishData((prev) => ({ ...prev, [type]: [...prev[type], newGroup] }));
+    setDishData((prev) => ({ ...prev, [type]: [...(prev[type] || []), newGroup] }));
   };
 
   const deleteOptionGroup = (type, index) => {
-    const updated = dishData[type].filter((_, i) => i !== index);
+    const array = dishData[type] || [];
+    const updated = array.filter((_, i) => i !== index);
     setDishData((prev) => ({ ...prev, [type]: updated }));
   };
 
   const isValid = () => {
-    const complete = (list) => list.every((item) => item.name && item.price);
-    return complete(dishData.toppings) && complete(dishData.extras);
+    const complete = (list) => {
+      if (!Array.isArray(list)) return true; // Allow empty arrays
+      return list.every((item) => {
+        if (!item || typeof item !== 'object') return false;
+        const hasName = item.name && typeof item.name === 'string' && item.name.trim().length > 0;
+        const hasValidPrice = item.price && !isNaN(Number(item.price)) && Number(item.price) >= 0;
+        return hasName && hasValidPrice;
+      });
+    };
+    return complete(dishData.toppings || []) && complete(dishData.extras || []);
   };
   const handleSpicinessChange = (spicinessLevel) => {
     setDishData((prevDishData) => {
-      const updatedSpiciness = prevDishData.spiciness.includes(spicinessLevel)
-        ? prevDishData.spiciness.filter((level) => level !== spicinessLevel)
-        : [...prevDishData.spiciness, spicinessLevel];
+      const currentSpiciness = prevDishData.spiciness || [];
+      const updatedSpiciness = currentSpiciness.includes(spicinessLevel)
+        ? currentSpiciness.filter((level) => level !== spicinessLevel)
+        : [...currentSpiciness, spicinessLevel];
 
       return {
         ...prevDishData,
@@ -208,13 +220,13 @@ export default function AddDishPage() {
       toast.error("Please complete all topping and extra fields to continue.");
       return;
     }
-    if (dishData.spiciness.length === 0) {
+    if (!dishData.spiciness || dishData.spiciness.length === 0) {
       toast.warning(
         "Please select at least one spiciness level for your dish."
       );
       return;
     }
-    if (dishData.image.url.length === 0) {
+    if (!dishData.image || !dishData.image.url || dishData.image.url.length === 0) {
       toast.warning("Please upload an image for your dish to continue.");
       return;
     }
@@ -346,7 +358,7 @@ export default function AddDishPage() {
                 image: { id: 0, url: "" },
               }));
             }}
-            currentImageUrl={dishData.image.url || null}
+            currentImageUrl={dishData.image?.url || null}
           />
         </div>
 
@@ -526,7 +538,7 @@ export default function AddDishPage() {
                 key={level}
                 onClick={() => handleSpicinessChange(level)}
                 className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md text-xs font-semibold transition-all ${
-                  dishData.spiciness.includes(level)
+                  (dishData.spiciness || []).includes(level)
                     ? "bg-orange-500 text-white border-orange-500"
                     : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
                 }`}
@@ -549,7 +561,7 @@ export default function AddDishPage() {
             </button>
           </div>
 
-          {dishData.toppings.map((group, groupIndex) => (
+          {(dishData.toppings || []).map((group, groupIndex) => (
             <div
               key={groupIndex}
               className="p-6 rounded-lg mb-6 bg-white shadow-sm space-y-4 border border-gray-100"
@@ -612,7 +624,7 @@ export default function AddDishPage() {
             </button>
           </div>
 
-          {dishData.extras.map((group, groupIndex) => (
+          {(dishData.extras || []).map((group, groupIndex) => (
             <div
               key={groupIndex}
               className="p-6 rounded-lg mb-6 bg-white shadow-sm space-y-4 border border-gray-100"
@@ -670,7 +682,7 @@ export default function AddDishPage() {
         >
           {submitting ? (
             <>
-              <Spinner size={20} />
+              <Spinner />
             </>
           ) : (
             "Save Dish"

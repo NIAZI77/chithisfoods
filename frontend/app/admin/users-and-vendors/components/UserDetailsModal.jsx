@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/BlackSpinner";
 import UserStatusBadge from "@/app/components/UserStatusBadge";
 import { X } from "lucide-react";
 import VendorVerificationModal from "./VendorVerificationModal";
@@ -160,7 +160,7 @@ const UserDetailsModal = ({
               <div className="mt-2 flex flex-col gap-2">
                 {vendorLoading && (
                   <div className="text-sm text-gray-400 flex items-center gap-2">
-                    <Spinner size={16} /> Checking vendor status...
+                    <Spinner /> Checking vendor status...
                   </div>
                 )}
                 {vendorError && (

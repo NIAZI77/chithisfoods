@@ -1,6 +1,6 @@
 import React from "react";
 import { MapPin, Phone, Edit, Trash2, RefreshCw, Plus } from "lucide-react";
-import Spinner from "../../components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 
 const SavedAddressesList = ({
   savedAddresses,

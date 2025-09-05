@@ -15,14 +15,28 @@ import {
 import { getCookie } from "cookies-next";
 import Loading from "@/app/loading";
 import { useParams, useRouter } from "next/navigation";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 import IngredientInput from "@/components/IngredientInput";
 import DishImageUpload from "@/components/DishImageUpload";
 
 export default function EditDishPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [dishData, setDishData] = useState({});
+  const [dishData, setDishData] = useState({
+    name: "",
+    price: "",
+    servings: "",
+    preparation_time: "",
+    description: "",
+    category: "",
+    subcategory: "",
+    subSubCategory: "other",
+    spiciness: [],
+    toppings: [],
+    extras: [],
+    ingredients: [],
+    image: { id: 0, url: "" }
+  });
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
@@ -106,15 +120,34 @@ export default function EditDishPage() {
         dishData.ingredients = [];
       }
 
-      setDishData(dishData);
+      // Ensure all required fields have default values
+      const processedDishData = {
+        name: dishData.name || "",
+        price: dishData.price || "",
+        servings: dishData.servings || "",
+        preparation_time: dishData.preparation_time || "",
+        description: dishData.description || "",
+        category: dishData.category || "",
+        subcategory: dishData.subcategory || "",
+        subSubCategory: dishData.subSubCategory || "other",
+        spiciness: Array.isArray(dishData.spiciness) ? dishData.spiciness : [],
+        toppings: Array.isArray(dishData.toppings) ? dishData.toppings : [],
+        extras: Array.isArray(dishData.extras) ? dishData.extras : [],
+        ingredients: Array.isArray(dishData.ingredients) ? dishData.ingredients : [],
+        image: dishData.image || { id: 0, url: "" },
+        ...dishData // Include any other fields
+      };
+
+      setDishData(processedDishData);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching Dish:", error);
       toast.error("Failed to load Dish");
+      setLoading(false);
     }
   };
 
   const getChefData = async (email) => {
-    setLoading(true);
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${email}&populate=*`,
@@ -142,7 +175,6 @@ export default function EditDishPage() {
       }
     } catch (err) {
       toast.error("We couldn't verify your vendor. Please try again shortly.");
-    } finally {
       setLoading(false);
     }
   };
@@ -166,7 +198,8 @@ export default function EditDishPage() {
   };
 
   const handleArrayChange = (type, index, field, value, subIndex = null) => {
-    const updated = [...dishData[type]];
+    const array = dishData[type] || [];
+    const updated = [...array];
     let newValue = value;
     if (field === "price") {
       newValue = value.replace(/[^0-9.]/g, "");
@@ -186,8 +219,9 @@ export default function EditDishPage() {
   };
 
   const canAddNewGroup = (type) => {
-    const last = dishData[type].at(-1);
-    return dishData[type].length === 0 || (last?.name && last.price);
+    const array = dishData[type] || [];
+    const last = array.at(-1);
+    return array.length === 0 || (last?.name && last.price);
   };
 
   const addGroup = (type) => {
@@ -199,23 +233,33 @@ export default function EditDishPage() {
       name: "",
       price: "0.00",
     };
-    setDishData((prev) => ({ ...prev, [type]: [...prev[type], newGroup] }));
+    setDishData((prev) => ({ ...prev, [type]: [...(prev[type] || []), newGroup] }));
   };
 
   const deleteOptionGroup = (type, index) => {
-    const updated = dishData[type].filter((_, i) => i !== index);
+    const array = dishData[type] || [];
+    const updated = array.filter((_, i) => i !== index);
     setDishData((prev) => ({ ...prev, [type]: updated }));
   };
 
   const isValid = () => {
-    const complete = (list) => list.every((item) => item.name && item.price);
-    return complete(dishData.toppings) && complete(dishData.extras);
+    const complete = (list) => {
+      if (!Array.isArray(list)) return true; // Allow empty arrays
+      return list.every((item) => {
+        if (!item || typeof item !== 'object') return false;
+        const hasName = item.name && typeof item.name === 'string' && item.name.trim().length > 0;
+        const hasValidPrice = item.price && !isNaN(Number(item.price)) && Number(item.price) >= 0;
+        return hasName && hasValidPrice;
+      });
+    };
+    return complete(dishData.toppings || []) && complete(dishData.extras || []);
   };
   const handleSpicinessChange = (spicinessLevel) => {
     setDishData((prevDishData) => {
-      const updatedSpiciness = prevDishData.spiciness.includes(spicinessLevel)
-        ? prevDishData.spiciness.filter((level) => level !== spicinessLevel)
-        : [...prevDishData.spiciness, spicinessLevel];
+      const currentSpiciness = prevDishData.spiciness || [];
+      const updatedSpiciness = currentSpiciness.includes(spicinessLevel)
+        ? currentSpiciness.filter((level) => level !== spicinessLevel)
+        : [...currentSpiciness, spicinessLevel];
 
       return {
         ...prevDishData,
@@ -230,11 +274,11 @@ export default function EditDishPage() {
       toast.error("Please complete all topping and extra fields.");
       return;
     }
-    if (dishData.spiciness.length === 0) {
+    if (!dishData.spiciness || dishData.spiciness.length === 0) {
       toast.warning("Please select at least one spiciness level.");
       return;
     }
-    if (dishData.image.url.length === 0) {
+    if (!dishData.image || !dishData.image.url || dishData.image.url.length === 0) {
       toast.warning("Please upload image for the dish.");
       return;
     }
@@ -354,7 +398,7 @@ export default function EditDishPage() {
         onSubmit={handleSubmit}
         className="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-6 space-y-6"
       >
-        <h1 className="text-3xl font-bold text-orange-600">Add Dish</h1>
+        <h1 className="text-3xl font-bold text-orange-600">Edit Dish</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col my-2">
@@ -402,7 +446,7 @@ export default function EditDishPage() {
                 image: { id: 0, url: "" },
               }));
             }}
-            currentImageUrl={dishData.image.url || null}
+            currentImageUrl={dishData.image?.url || null}
           />
         </div>
 
@@ -584,7 +628,7 @@ export default function EditDishPage() {
                 key={level}
                 onClick={() => handleSpicinessChange(level)}
                 className={`w-32 text-center cursor-pointer p-3 border-2 rounded-md text-xs font-semibold transition-all ${
-                  dishData.spiciness.includes(level)
+                  (dishData.spiciness || []).includes(level)
                     ? "bg-orange-500 text-white border-orange-500"
                     : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
                 }`}
@@ -607,7 +651,7 @@ export default function EditDishPage() {
             </button>
           </div>
 
-          {dishData.toppings.map((group, groupIndex) => (
+          {(dishData.toppings || []).map((group, groupIndex) => (
             <div
               key={groupIndex}
               className="p-6 rounded-lg mb-6 bg-white shadow-sm space-y-4 border border-gray-100"
@@ -670,7 +714,7 @@ export default function EditDishPage() {
             </button>
           </div>
 
-          {dishData.extras.map((group, groupIndex) => (
+          {(dishData.extras || []).map((group, groupIndex) => (
             <div
               key={groupIndex}
               className="p-6 rounded-lg mb-6 bg-white shadow-sm space-y-4 border border-gray-100"
@@ -728,7 +772,7 @@ export default function EditDishPage() {
         >
           {submitting ? (
             <>
-              <Spinner size={20} />
+              <Spinner />
             </>
           ) : (
             "Save Dish"

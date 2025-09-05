@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { setCookie, getCookie } from "cookies-next";
 import Loading from "@/app/loading";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/BlackSpinner";
 import RefundDetailsManager from "./components/RefundDetailsManager";
 
 export default function AccountSettings() {

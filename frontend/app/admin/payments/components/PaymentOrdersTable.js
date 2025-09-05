@@ -1,6 +1,6 @@
 import { Check, X, Info, CircleDollarSign, RotateCcw } from "lucide-react";
 import { FaHandHoldingUsd } from "react-icons/fa";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/BlackSpinner";
 import {
   STATUS_STYLES,
   PAYMENT_STATUS_STYLES,

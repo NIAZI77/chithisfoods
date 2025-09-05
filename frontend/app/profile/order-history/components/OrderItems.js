@@ -64,49 +64,57 @@ function OrderItems({
                   Quantity: {dish.quantity || 1}
                 </div>
 
-                {(dish.toppings?.length > 0 || dish.extras?.length > 0) && (
-                  <div className="space-x-2 space-y-1 pt-2 border-t border-gray-100 flex items-start flex-col">
-                    {dish.toppings && dish.toppings.length > 0 && (
-                      <div>
-                        <div className="flex flex-wrap gap-1">
-                          {dish.toppings.map((topping, idx) => (
-                            <span
-                              key={idx}
-                              className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs"
-                            >
-                              <img
-                                src={"/toppings.png"}
-                                alt="Topping"
-                                className="w-3 h-3 scale-175"
-                              />
-                              {topping.name || "Topping"} ($
-                              {topping.price || "0.00"})
-                            </span>
-                          ))}
+                {(() => {
+                  const validToppings = (dish.toppings || []).filter(
+                    (topping) => topping && topping.name && topping.price !== undefined && topping.price !== null && !isNaN(Number(topping.price))
+                  );
+                  const validExtras = (dish.extras || []).filter(
+                    (extra) => extra && extra.name && extra.price !== undefined && extra.price !== null && !isNaN(Number(extra.price))
+                  );
+                  
+                  return validToppings.length > 0 || validExtras.length > 0 ? (
+                    <div className="space-x-2 space-y-1 pt-2 border-t border-gray-100 flex items-start flex-col">
+                      {validToppings.length > 0 && (
+                        <div>
+                          <div className="flex flex-wrap gap-1">
+                            {validToppings.map((topping, idx) => (
+                              <span
+                                key={idx}
+                                className="bg-pink-100 px-2 py-1 rounded-full text-pink-700 flex items-center justify-center gap-1 text-xs"
+                              >
+                                <img
+                                  src={"/toppings.png"}
+                                  alt="Topping"
+                                  className="w-3 h-3 scale-175"
+                                />
+                                {topping.name} (${Number(topping.price).toFixed(2)})
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {dish.extras && dish.extras.length > 0 && (
-                      <div>
-                        <div className="flex flex-wrap gap-1">
-                          {dish.extras.map((extra, idx) => (
-                            <span
-                              key={idx}
-                              className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs"
-                            >
-                              <img
-                                src={"/extras.png"}
-                                alt="Extra"
-                                className="w-3 h-3 scale-125"
-                              />
-                              {extra.name || "Extra"} (${extra.price || "0.00"})
-                            </span>
-                          ))}
+                      )}
+                      {validExtras.length > 0 && (
+                        <div>
+                          <div className="flex flex-wrap gap-1">
+                            {validExtras.map((extra, idx) => (
+                              <span
+                                key={idx}
+                                className="bg-emerald-100 px-2 py-1 rounded-full text-emerald-700 flex items-center justify-center gap-1 text-xs"
+                              >
+                                <img
+                                  src={"/extras.png"}
+                                  alt="Extra"
+                                  className="w-3 h-3 scale-125"
+                                />
+                                {extra.name} (${Number(extra.price).toFixed(2)})
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      )}
+                    </div>
+                  ) : null;
+                })()}
               </div>
               <div className="text-right flex-shrink-0">
                 <div className="text-xs font-semibold text-orange-600">

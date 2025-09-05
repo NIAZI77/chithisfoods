@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CreditCard, Plus, Edit3, Save, X } from "lucide-react";
 import { toast } from "react-toastify";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/BlackSpinner";
 import {
   Select,
   SelectContent,
@@ -348,7 +348,7 @@ const RefundDetailsManager = ({
               onChange={(e) =>
                 handleRefundDetailsChange("accountId", e.target.value)
               }
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-lg "
             />
           </div>
 
@@ -363,7 +363,7 @@ const RefundDetailsManager = ({
                 handleRefundDetailsChange("additionalInfo", e.target.value)
               }
               rows="3"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent resize-none"
+              className="w-full p-3 border border-gray-300 rounded-lg  resize-none"
             />
           </div>
 

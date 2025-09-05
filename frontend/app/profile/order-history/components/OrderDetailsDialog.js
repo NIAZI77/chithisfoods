@@ -566,7 +566,7 @@ function OrderDetailsDialog({
             </AlertDialogTitle>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+              className="text-gray-400 hover:text-gray-700 text-2xl font-bold "
               aria-label="Close"
               type="button"
             >

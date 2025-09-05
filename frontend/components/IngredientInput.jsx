@@ -97,17 +97,17 @@ const IngredientInput = ({
           ))}
           
           {/* Input field */}
-          <input
+          <textarea
             ref={inputRef}
-            type="text"
             value={inputValue}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             onFocus={handleFocus}
             onBlur={handleBlur}
             placeholder={value.length === 0 ? placeholder : "Type ingredient and press Enter..."}
-            className="flex-1 min-w-[200px] bg-transparent border-none outline-none text-sm placeholder:text-slate-400 text-slate-700"
+            className="flex-1 min-w-[200px] bg-transparent border-none outline-none text-sm placeholder:text-slate-400 text-slate-700 resize-none"
             disabled={value.length >= maxIngredients}
+            rows={1}
           />
         </div>
       </div>

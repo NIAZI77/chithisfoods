@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Pagination from "@/app/admin/users-and-vendors/components/Pagination";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/BlackSpinner";
 import UserStatusBadge from "@/app/components/UserStatusBadge";
 import UserDetailsModal from "./UserDetailsModal";
 

@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { FaEnvelope } from "react-icons/fa";
 import Hero from "../components/Side-Hero";
-import Spinner from "../components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 
 export default function ForgetPassword() {
   const [email, setEmail] = useState("");

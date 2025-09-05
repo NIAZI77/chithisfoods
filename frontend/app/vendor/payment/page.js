@@ -15,7 +15,7 @@ import {
 import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const formatDateTime = (dateString) => {
@@ -297,7 +297,7 @@ const PayPalConnectForm = ({
           placeholder="Enter your PayPal email"
           className={`w-full pl-10 pr-10 py-3 border ${
             emailError ? "border-red-300" : "border-gray-300"
-          } rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white`}
+          } rounded-lg  bg-white`}
         />
         {email && !emailError && (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -378,7 +378,7 @@ const PayPalConnectedView = ({
               disabled={isSaving}
               className={`w-full px-4 py-3 border ${
                 emailError ? "border-red-300" : "border-gray-300"
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent pr-10 bg-white shadow-sm disabled:bg-gray-50 disabled:cursor-not-allowed`}
+              } rounded-lg  pr-10 bg-white shadow-sm disabled:bg-gray-50 disabled:cursor-not-allowed`}
             />
             {tempEmail && !emailError && !isSaving && (
               <CheckCircle2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-emerald-500" />
@@ -744,7 +744,7 @@ function PaymentPage() {
     <div className="mx-auto p-4 pl-20 md:w-[80%]">
       <div className="border-b border-gray-300 mb-6 grid grid-cols-2">
         <button
-          className={`py-3 px-6 text-lg focus:outline-none transition-colors duration-300 border-b-2 ${
+          className={`py-3 px-6 text-lg  transition-colors duration-300 border-b-2 ${
             activeTab === "transactions"
               ? "border-red-600 text-red-600 font-semibold"
               : "text-gray-600 hover:text-red-600"
@@ -754,7 +754,7 @@ function PaymentPage() {
           Transactions
         </button>
         <button
-          className={`py-3 px-6 text-lg focus:outline-none transition-colors duration-300 border-b-2 ${
+          className={`py-3 px-6 text-lg  transition-colors duration-300 border-b-2 ${
             activeTab === "paymentMethods"
               ? "border-red-600 text-red-600 font-semibold"
               : "text-gray-600 hover:text-red-600"

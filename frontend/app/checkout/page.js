@@ -114,7 +114,6 @@ const Page = () => {
   // Google Maps related state
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
   const [showMap, setShowMap] = useState(false);
-  const [addressValidationError, setAddressValidationError] = useState("");
 
   // Address handling functions
   const handleAddressSelect = useCallback((addressData) => {
@@ -128,8 +127,6 @@ const Page = () => {
       lng: addressData.lng,
     });
     setShowMap(true);
-    // Clear validation error when valid address is selected
-    setAddressValidationError("");
   }, []);
 
   const handleMarkerDrag = useCallback((newLat, newLng) => {
@@ -140,37 +137,30 @@ const Page = () => {
     }));
   }, []);
 
-  // Add validation function for Google Places address
-  const validateGooglePlacesAddress = useCallback(() => {
+  // Simplified address validation - only check if fields are filled
+  const validateAddressFields = useCallback(() => {
     if (formData.deliveryMode === "pickup") {
       return true; // No address validation needed for pickup
     }
 
-    // Check if address has the required Google Places data
-    if (
-      !mapAddressData.formatted_address ||
-      !mapAddressData.lat ||
-      !mapAddressData.lng
-    ) {
-      const errorMsg =
-        "Please select a valid address from the Google suggestions. You cannot place an order with a manually typed address.";
-      setAddressValidationError(errorMsg);
-      toast.error(errorMsg);
+    // Only check if required fields are filled
+    if (!formData.name || !formData.name.trim()) {
+      toast.error("Please fill in your name to continue");
       return false;
     }
 
-    // Check if the current address matches the Google Places data
-    if (formData.address !== mapAddressData.formatted_address) {
-      const errorMsg =
-        "The address has been modified. Please select the address again from Google suggestions to place your order.";
-      setAddressValidationError(errorMsg);
-      toast.error(errorMsg);
+    if (!formData.phone || !formData.phone.trim()) {
+      toast.error("Please fill in your phone number to continue");
       return false;
     }
 
-    setAddressValidationError("");
+    if (!formData.address || !formData.address.trim()) {
+      toast.error("Please fill in your delivery address to continue");
+      return false;
+    }
+
     return true;
-  }, [formData.deliveryMode, formData.address, mapAddressData]);
+  }, [formData.deliveryMode, formData.name, formData.phone, formData.address]);
 
   // Load Google Maps API only once
   useEffect(() => {
@@ -362,7 +352,13 @@ const Page = () => {
         } catch (initError) {}
       }
 
-      setSavedAddresses(userAddresses);
+      // Filter addresses by current zipcode from localStorage
+      const currentZipcode = typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "";
+      const filteredAddresses = currentZipcode 
+        ? userAddresses.filter(address => address.zipcode === currentZipcode)
+        : userAddresses;
+
+      setSavedAddresses(filteredAddresses);
       setAddressesFetched(true);
 
       // Don't auto-populate form - keep it empty by default
@@ -458,7 +454,12 @@ const Page = () => {
           throw new Error("Failed to delete address");
         }
 
-        setSavedAddresses(updatedAddresses);
+        // Filter addresses by current zipcode from localStorage
+        const currentZipcode = typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "";
+        const filteredAddresses = currentZipcode 
+          ? updatedAddresses.filter(address => address.zipcode === currentZipcode)
+          : updatedAddresses;
+        setSavedAddresses(filteredAddresses);
 
         if (selectedAddressId === addressId) {
           setFormData((prev) => ({
@@ -520,24 +521,18 @@ const Page = () => {
   const handleUpdateAddress = useCallback(async () => {
     if (!editingAddress) return;
 
-    if (!formData.name || formData.name.trim().length < 2) {
-      toast.error(
-        "Please enter a valid name (at least 2 characters) for your address."
-      );
+    if (!formData.name || !formData.name.trim()) {
+      toast.error("Please enter your name for your address.");
       return;
     }
 
-    if (!formData.phone || formData.phone.trim().length < 10) {
-      toast.error(
-        "Please enter a valid phone number (at least 10 digits) for your address."
-      );
+    if (!formData.phone || !formData.phone.trim()) {
+      toast.error("Please enter your phone number for your address.");
       return;
     }
 
-    if (!formData.address || formData.address.trim().length < 5) {
-      toast.error(
-        "Please enter a valid address (at least 5 characters) for your location."
-      );
+    if (!formData.address || !formData.address.trim()) {
+      toast.error("Please enter your address for your location.");
       return;
     }
 
@@ -567,6 +562,7 @@ const Page = () => {
         name: formData.name.trim(),
         phone: formData.phone.trim(),
         address: formData.address.trim(),
+        zipcode: typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "",
       };
 
       const currentAddresses = Array.isArray(savedAddresses)
@@ -594,7 +590,12 @@ const Page = () => {
         throw new Error("Failed to update address");
       }
 
-      setSavedAddresses(updatedAddresses);
+      // Filter addresses by current zipcode from localStorage
+      const currentZipcode = typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "";
+      const filteredAddresses = currentZipcode 
+        ? updatedAddresses.filter(address => address.zipcode === currentZipcode)
+        : updatedAddresses;
+      setSavedAddresses(filteredAddresses);
       setEditingAddress(null);
       toast.success("Perfect! Your address has been updated successfully.");
     } catch (error) {
@@ -608,17 +609,17 @@ const Page = () => {
   }, [editingAddress, formData, user, jwt, savedAddresses]);
 
   const saveCurrentAddress = useCallback(async () => {
-    if (!formData.name) {
+    if (!formData.name || !formData.name.trim()) {
       toast.error("Please enter your name before saving your address.");
       return;
     }
 
-    if (!formData.phone) {
+    if (!formData.phone || !formData.phone.trim()) {
       toast.error("Please enter your phone number before saving your address.");
       return;
     }
 
-    if (!formData.address) {
+    if (!formData.address || !formData.address.trim()) {
       toast.error("Please enter your address before saving your location.");
       return;
     }
@@ -654,18 +655,20 @@ const Page = () => {
         name: formData.name.trim(),
         phone: formData.phone.trim(),
         address: formData.address.trim(),
+        zipcode: typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "",
       };
 
-      if (newAddress.name.length < 2) {
-        throw new Error("Name must be at least 2 characters long");
+      // Basic validation - just check if fields are not empty
+      if (!newAddress.name.trim()) {
+        throw new Error("Name is required");
       }
 
-      if (newAddress.phone.length < 10) {
-        throw new Error("Phone number must be at least 10 digits");
+      if (!newAddress.phone.trim()) {
+        throw new Error("Phone number is required");
       }
 
-      if (newAddress.address.length < 5) {
-        throw new Error("Address must be at least 5 characters long");
+      if (!newAddress.address.trim()) {
+        throw new Error("Address is required");
       }
 
       const existingAddresses = Array.isArray(savedAddresses)
@@ -722,7 +725,12 @@ const Page = () => {
         );
       }
 
-      setSavedAddresses(updatedAddresses);
+      // Filter addresses by current zipcode from localStorage
+      const currentZipcode = typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "";
+      const filteredAddresses = currentZipcode 
+        ? updatedAddresses.filter(address => address.zipcode === currentZipcode)
+        : updatedAddresses;
+      setSavedAddresses(filteredAddresses);
       setSelectedAddressId(newAddress.id);
       setEditingAddress(null);
 
@@ -759,7 +767,7 @@ const Page = () => {
 
     setAddressesFetched(false);
     await fetchSavedAddresses();
-  }, [user, jwt]);
+  }, [user, jwt, fetchSavedAddresses]);
 
   const handleModeChange = useCallback(
     (mode) => {
@@ -1086,12 +1094,12 @@ const Page = () => {
     if (!cartItems.length) return 0;
     return cartItems.reduce((sum, vendor) => {
       const vendorTotal = vendor.dishes.reduce((dishSum, dish) => {
-        const toppingsTotal = dish.toppings.reduce(
-          (tSum, topping) => tSum + (Number(topping.price) || 0),
+        const toppingsTotal = (dish.toppings || []).reduce(
+          (tSum, topping) => tSum + (Number(topping?.price) || 0),
           0
         );
-        const extrasTotal = dish.extras.reduce(
-          (eSum, extra) => eSum + (Number(extra.price) || 0),
+        const extrasTotal = (dish.extras || []).reduce(
+          (eSum, extra) => eSum + (Number(extra?.price) || 0),
           0
         );
         return (
@@ -1332,12 +1340,6 @@ const Page = () => {
           setSubmitting(false);
           return;
         }
-
-        // Validate Google Places address for delivery mode
-        if (!validateGooglePlacesAddress()) {
-          setSubmitting(false);
-          return;
-        }
       }
 
       // Final validation: ensure all required data is present
@@ -1355,12 +1357,12 @@ const Page = () => {
       );
       const vendorProportions = cartItems.map((vendor) => {
         const vendorSubtotal = vendor.dishes.reduce((sum, dish) => {
-          const toppingsTotal = dish.toppings.reduce(
-            (tSum, topping) => tSum + (Number(topping.price) || 0),
+          const toppingsTotal = (dish.toppings || []).reduce(
+            (tSum, topping) => tSum + (Number(topping?.price) || 0),
             0
           );
-          const extrasTotal = dish.extras.reduce(
-            (eSum, extra) => eSum + (Number(extra.price) || 0),
+          const extrasTotal = (dish.extras || []).reduce(
+            (eSum, extra) => eSum + (Number(extra?.price) || 0),
             0
           );
           return (
@@ -1577,8 +1579,6 @@ const Page = () => {
                     onMarkerDrag={handleMarkerDrag}
                     googleMapsLoaded={googleMapsLoaded}
                     showMap={showMap}
-                    addressValidationError={addressValidationError}
-                    onAddressValidationError={setAddressValidationError}
                   />
                 )}
 
@@ -1677,18 +1677,18 @@ const Page = () => {
                                             {vendor.dishes
                                               .reduce((sum, dish) => {
                                                 const toppingsTotal =
-                                                  dish.toppings.reduce(
+                                                  (dish.toppings || []).reduce(
                                                     (tSum, topping) =>
                                                       tSum +
-                                                      (Number(topping.price) ||
+                                                      (Number(topping?.price) ||
                                                         0),
                                                     0
                                                   );
                                                 const extrasTotal =
-                                                  dish.extras.reduce(
+                                                  (dish.extras || []).reduce(
                                                     (eSum, extra) =>
                                                       eSum +
-                                                      (Number(extra.price) ||
+                                                      (Number(extra?.price) ||
                                                         0),
                                                     0
                                                   );
@@ -1782,7 +1782,6 @@ const Page = () => {
               submitting={submitting}
               onSubmit={handleSubmit}
               deliveryMode={formData.deliveryMode}
-              addressValidationError={addressValidationError}
             />
           </div>
         </div>

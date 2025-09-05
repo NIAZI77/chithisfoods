@@ -98,12 +98,13 @@ const VendorOrderGroup = ({ order }) => {
               </div>
               {(() => {
                 const validToppings =
-                  dish.toppings?.filter(
-                    (topping) => topping.name && topping.price
+                  (dish.toppings || []).filter(
+                    (topping) => topping && topping.name && topping.price !== undefined && topping.price !== null && !isNaN(Number(topping.price))
                   ) || [];
                 const validExtras =
-                  dish.extras?.filter((extra) => extra.name && extra.price) ||
-                  [];
+                  (dish.extras || []).filter(
+                    (extra) => extra && extra.name && extra.price !== undefined && extra.price !== null && !isNaN(Number(extra.price))
+                  ) || [];
                 return validToppings.length > 0 || validExtras.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {validToppings.map((topping, idx) => (
@@ -116,7 +117,7 @@ const VendorOrderGroup = ({ order }) => {
                           alt="Topping"
                           className="w-3 h-3 sm:w-4 sm:h-4"
                         />
-                        {topping.name} (${topping.price})
+                        {topping.name} (${Number(topping.price).toFixed(2)})
                       </span>
                     ))}
                     {validExtras.map((extra, idx) => (
@@ -129,7 +130,7 @@ const VendorOrderGroup = ({ order }) => {
                           alt="Extra"
                           className="w-3 h-3 sm:w-4 sm:h-4"
                         />
-                        {extra.name} (${extra.price})
+                        {extra.name} (${Number(extra.price).toFixed(2)})
                       </span>
                     ))}
                   </div>

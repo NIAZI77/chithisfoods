@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Camera } from "lucide-react";
 import { toast } from "react-toastify";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/BlackSpinner";
 
 const VendorProfileLayout = ({ 
   onCoverImageUpload, 

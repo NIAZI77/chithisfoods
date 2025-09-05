@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { MapPin, X, RotateCcw } from "lucide-react";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import Spinner from "../../components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 import { toast } from "react-toastify";
 
 // Google Places Autocomplete Component - Memoized to prevent re-renders
@@ -129,8 +129,6 @@ const DeliveryForm = ({
   onMarkerDrag,
   googleMapsLoaded,
   showMap,
-  addressValidationError,
-  onAddressValidationError,
   mapAddressData,
 }) => {
   // Google Map Component
@@ -186,32 +184,6 @@ const DeliveryForm = ({
     onFormChange(name, sanitizedValue);
   };
 
-  // Show toast error when trying to save invalid address
-  const handleSaveClick = () => {
-    if (!canSave) {
-      if (
-        !mapAddressData?.lat ||
-        !mapAddressData?.lng ||
-        !mapAddressData?.formatted_address
-      ) {
-        toast.error(
-          "Please select a valid address from Google suggestions before saving"
-        );
-        return;
-      }
-      if (!formData.name || !formData.phone || !formData.address) {
-        toast.error("Please fill in all required fields before saving");
-        return;
-      }
-    }
-
-    if (editingAddress) {
-      onUpdateAddress();
-    } else {
-      onSaveAddress();
-    }
-  };
-
   // Check if any field has changed from the original values
   const hasChanges =
     editingAddress &&
@@ -226,9 +198,6 @@ const DeliveryForm = ({
     formData.name &&
     formData.phone &&
     formData.address &&
-    mapAddressData?.lat &&
-    mapAddressData?.lng &&
-    mapAddressData?.formatted_address &&
     (!editingAddress || hasChanges);
 
   // Debug logging
@@ -323,10 +292,6 @@ const DeliveryForm = ({
                 onFormChange("formatted_address", "");
               }
 
-              // Clear validation error when user starts typing
-              if (onAddressValidationError) {
-                onAddressValidationError("");
-              }
             }}
             onAddressSelect={(addressData) => {
               // When Google Places address is selected, update form data with coordinates
@@ -342,22 +307,9 @@ const DeliveryForm = ({
             mapAddressData={mapAddressData}
           />
 
-          {/* Address Validation Error Message */}
-          {addressValidationError && (
-            <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-start gap-2">
-                <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-white text-xs font-bold">!</span>
-                </div>
-                <div className="text-sm text-red-700">
-                  <p className="text-red-600">{addressValidationError}</p>
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="flex justify-end gap-2 mt-2">
-            {showSaveButton && !selectedAddressId && (
+            {showSaveButton && !selectedAddressId && canSave && (
               <button
                 type="button"
                 onClick={editingAddress ? onUpdateAddress : onSaveAddress}
@@ -417,10 +369,6 @@ const DeliveryForm = ({
                     onFormChange("formatted_address", "");
                     onFormChange("lat", null);
                     onFormChange("lng", null);
-                    // Clear validation error when clearing form
-                    if (onAddressValidationError) {
-                      onAddressValidationError("");
-                    }
                   }}
                   className="px-3 sm:px-4 py-2 my-1 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
                   title="Clear form fields and enter new address"

@@ -13,7 +13,7 @@ import {
   User,
   OctagonAlert,
 } from "lucide-react";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 import VerificationBadge from "@/app/components/VerificationBadge";
 
 const VendorVerificationModal = ({ vendor, onClose, onVerify, isLoading }) => {
@@ -359,7 +359,7 @@ const VendorVerificationModal = ({ vendor, onClose, onVerify, isLoading }) => {
                 className="bg-green-600 text-white px-4 py-2 rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isUnbanning ? (
-                  <Spinner size={20} color="white" />
+                  <Spinner />
                 ) : (
                   "Unban Vendor"
                 )}
@@ -372,7 +372,7 @@ const VendorVerificationModal = ({ vendor, onClose, onVerify, isLoading }) => {
                   className="bg-red-600 text-white px-4 py-2 rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isBanning ? (
-                    <Spinner size={20} color="white" />
+                    <Spinner />
                   ) : (
                     "Ban Vendor"
                   )}
@@ -389,7 +389,7 @@ const VendorVerificationModal = ({ vendor, onClose, onVerify, isLoading }) => {
                       className="bg-amber-600 text-white px-4 py-2 rounded-full shadow-amber-300 shadow-md hover:bg-amber-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {isRejecting ? (
-                        <Spinner size={20} color="white" />
+                        <Spinner />
                       ) : (
                         "Reject"
                       )}
@@ -404,7 +404,7 @@ const VendorVerificationModal = ({ vendor, onClose, onVerify, isLoading }) => {
                       className="bg-rose-600 text-white px-4 py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {isVerifying ? (
-                        <Spinner size={20} color="white" />
+                        <Spinner />
                       ) : (
                         "Verify"
                       )}

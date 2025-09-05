@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Upload, X, Image } from "lucide-react";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 import { toast } from "react-toastify";
 
 const ImageUpload = ({

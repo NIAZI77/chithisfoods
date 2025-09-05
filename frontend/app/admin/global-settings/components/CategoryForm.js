@@ -333,7 +333,7 @@ const CategoryForm = ({
                   setFormData({ ...formData, name: e.target.value })
                 }
                 placeholder="category name"
-                className="border-pink-200 focus:border-pink-500 focus:ring-pink-500 capitalize"
+                className="border-pink-200  capitalize"
               />
             </div>
 
@@ -385,7 +385,7 @@ const CategoryForm = ({
                       value={subcategory.name}
                       onChange={(e) => updateSubcategory(index, e.target.value)}
                       placeholder="Enter subcategory name"
-                      className="border-pink-200 focus:border-pink-500 focus:ring-pink-500 capitalize"
+                      className="border-pink-200  capitalize"
                     />
                     <Button
                       type="button"
@@ -415,7 +415,7 @@ const CategoryForm = ({
                             onKeyPress={(e) =>
                               handleKeyPress(e, index, ssIndex)
                             }
-                            className="border-pink-200 focus:border-pink-500 focus:ring-pink-500 capitalize"
+                            className="border-pink-200  capitalize"
                             data-subcategory-index={index}
                           />
                           <Button

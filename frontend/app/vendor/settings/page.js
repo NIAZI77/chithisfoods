@@ -21,7 +21,7 @@ import {
   AlertCircle,
   Calendar,
 } from "lucide-react";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 import Link from "next/link";
 import VerificationBadge from "@/app/components/VerificationBadge";
 import VendorProfileLayout from "@/components/VendorProfileLayout";
@@ -501,7 +501,7 @@ const Page = () => {
               onChange={handleChange}
               placeholder="Enter your store name"
               required
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-2 border border-gray-300 rounded-md "
             />
           </div>
           <div>
@@ -518,7 +518,7 @@ const Page = () => {
               value={formData.vendorDeliveryFee}
               onChange={handleChange}
               placeholder="Delivery Fee"
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full p-2 border border-gray-300 rounded-md "
               inputMode="decimal"
               pattern="^\d*(\.\d{0,2})?$"
             />
@@ -535,7 +535,7 @@ const Page = () => {
               value={formData.bio || ""}
               onChange={handleChange}
               rows={3}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+              className="w-full p-2 border border-gray-300 rounded-md  resize-none"
               placeholder="Tell us about your store..."
             />
           </div>
@@ -597,7 +597,7 @@ const Page = () => {
                   onChange={handleChange}
                   placeholder="Enter your full name"
                   required
-                  className="w-full p-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full p-2 pl-10 border border-gray-300 rounded-md "
                 />
               </div>
             </div>
@@ -616,7 +616,7 @@ const Page = () => {
                   onChange={handleChange}
                   placeholder="Enter your phone number"
                   required
-                  className="w-full p-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full p-2 pl-10 border border-gray-300 rounded-md "
                 />
               </div>
             </div>
@@ -642,7 +642,7 @@ const Page = () => {
                 onChange={handleChange}
                 placeholder="Enter your business address"
                 required
-                className="w-full p-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full p-2 pl-10 border border-gray-300 rounded-md "
               />
             </div>
           </div>
@@ -660,7 +660,7 @@ const Page = () => {
                 onChange={handleChange}
                 placeholder="Enter your city"
                 required
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full p-2 border border-gray-300 rounded-md "
               />
             </div>
             <div>
@@ -676,7 +676,7 @@ const Page = () => {
                 onChange={handleChange}
                 placeholder="Enter your zipcode"
                 required
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full p-2 border border-gray-300 rounded-md "
               />
             </div>
           </div>
@@ -685,7 +685,7 @@ const Page = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="md:w-auto w-full px-4 py-2 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:bg-rose-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="md:w-auto w-full px-4 py-2 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700  disabled:bg-rose-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Save className="h-5 w-5" />
             {submitting ? <Spinner /> : "Save Changes"}
@@ -807,7 +807,7 @@ const Page = () => {
                       >
                         {uploadingDocument ? (
                           <>
-                            <Spinner size={14} color="white" />
+                            <Spinner />
                             Uploading...
                           </>
                         ) : (
@@ -825,7 +825,7 @@ const Page = () => {
               <div className="border-2 border-dashed border-orange-300 rounded-lg p-8 text-center hover:border-orange-400 transition-all duration-200 bg-white">
                 <div className="mx-auto w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-4 shadow-sm">
                   {uploadingDocument ? (
-                    <Spinner size={24} color="#ea580c" />
+                    <Spinner />
                   ) : (
                     <Upload className="w-8 h-8 text-orange-600" />
                   )}
@@ -854,7 +854,7 @@ const Page = () => {
                   >
                     {uploadingDocument ? (
                       <>
-                        <Spinner size={20} color="white" />
+                        <Spinner />
                         Uploading...
                       </>
                     ) : (

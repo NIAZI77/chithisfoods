@@ -14,7 +14,7 @@ import {
   AlertDialogContent,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 import { toast } from "react-toastify";
 import { getCookie } from "cookies-next";
 import ReviewImageUpload from "@/components/ReviewImageUpload";
@@ -293,7 +293,7 @@ function ReviewDialog({
               value={reviewText}
               onChange={(e) => handleReviewTextChange(e.target.value)}
               placeholder="Share your thoughts about this dish... (minimum 10 characters)"
-              className="w-full p-3 text-sm border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white h-[80px] placeholder:text-gray-400 transition-all duration-200"
+              className="w-full p-3 text-sm border border-gray-300 rounded-lg resize-none  bg-white h-[80px] placeholder:text-gray-400 transition-all duration-200"
               rows={3}
               disabled={isLoading}
               maxLength={500}

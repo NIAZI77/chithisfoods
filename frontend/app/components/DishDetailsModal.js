@@ -172,16 +172,23 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
 
       const initialToppings = {};
       enhancedDishInfo.toppings?.forEach((topping) => {
-        initialToppings[topping.name] = {
-          selected: false,
-          price: topping.price,
-        };
+        if (topping && topping.name) {
+          initialToppings[topping.name] = {
+            selected: false,
+            price: Number(topping.price) || 0,
+          };
+        }
       });
       setSelectedToppings(initialToppings);
 
       const initialExtras = {};
       enhancedDishInfo.extras?.forEach((extra) => {
-        initialExtras[extra.name] = { selected: false, price: extra.price };
+        if (extra && extra.name) {
+          initialExtras[extra.name] = { 
+            selected: false, 
+            price: Number(extra.price) || 0 
+          };
+        }
       });
       setSelectedExtras(initialExtras);
 
@@ -292,16 +299,16 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
               return false;
 
             // Check if toppings match exactly
-            if (dish.toppings.length !== allToppings.length) return false;
+            if ((dish.toppings || []).length !== allToppings.length) return false;
             const toppingsMatch = allToppings.every(
-              (topping, index) => dish.toppings[index]?.name === topping.name
+              (topping, index) => (dish.toppings || [])[index]?.name === topping.name
             );
             if (!toppingsMatch) return false;
 
             // Check if extras match exactly
-            if (dish.extras.length !== allExtras.length) return false;
+            if ((dish.extras || []).length !== allExtras.length) return false;
             const extrasMatch = allExtras.every(
-              (extra, index) => dish.extras[index]?.name === extra.name
+              (extra, index) => (dish.extras || [])[index]?.name === extra.name
             );
             if (!extrasMatch) return false;
 

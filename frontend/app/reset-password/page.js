@@ -6,7 +6,7 @@ import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import Hero from "../components/Side-Hero";
-import Spinner from "../components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");

@@ -1,5 +1,5 @@
 import { CheckCircle, X, AlertTriangle, Settings } from "lucide-react";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 import Link from "next/link";
 
 function OrderActions({ order, loadingStates, onCancelOrder, userData }) {

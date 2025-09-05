@@ -16,7 +16,7 @@ import {
 } from "react-icons/fa";
 import Hero from "../components/Side-Hero";
 import { getCookie, setCookie } from "cookies-next";
-import Spinner from "../components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 const usernameRegex = /^[a-z0-9_]{3,15}$/;

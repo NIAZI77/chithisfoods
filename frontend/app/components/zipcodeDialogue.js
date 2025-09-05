@@ -117,7 +117,7 @@ export default function ZipcodeDialogue() {
                 handleSaveZipcode();
               }
             }}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent ${
+            className={`w-full px-3 py-2 border rounded-md  ${
               error ? "border-red-500" : "border-gray-300"
             }`}
           />

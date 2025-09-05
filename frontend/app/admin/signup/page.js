@@ -6,7 +6,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { setCookie } from "cookies-next";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 
 const AdminSignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -173,7 +173,7 @@ const AdminSignupPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter Email Address"
-              className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-200 rounded-md "
               required
             />
           </div>
@@ -191,7 +191,7 @@ const AdminSignupPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter Password (min 6 characters)"
-                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-md "
                 required
               />
               <button
@@ -217,7 +217,7 @@ const AdminSignupPage = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm Password"
-                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-md "
                 required
               />
               <button

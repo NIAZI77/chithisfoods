@@ -7,7 +7,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import Hero from "../components/Side-Hero";
 import { getCookie } from "cookies-next";
 import Loading from "../loading";
-import Spinner from "../components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 import VendorProfileLayout from "@/components/VendorProfileLayout";
 
 export default function BecomeVendor() {

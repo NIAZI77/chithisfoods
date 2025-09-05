@@ -25,8 +25,6 @@ const DeliveryAddressSelector = ({
   onMarkerDrag,
   googleMapsLoaded,
   showMap,
-  addressValidationError,
-  onAddressValidationError,
   mapAddressData,
 }) => {
   const [showSavedAddresses, setShowSavedAddresses] = useState(false);
@@ -144,8 +142,6 @@ const DeliveryAddressSelector = ({
             onMarkerDrag={onMarkerDrag}
             googleMapsLoaded={googleMapsLoaded}
             showMap={showMap}
-            addressValidationError={addressValidationError}
-            onAddressValidationError={onAddressValidationError}
             mapAddressData={mapAddressData}
           />
         </div>

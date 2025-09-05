@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 import { setCookie, getCookie } from "cookies-next";
 import Hero from "../components/Side-Hero";
-import Spinner from "../components/Spinner";
+import Spinner from "@/components/WhiteSpinner";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);

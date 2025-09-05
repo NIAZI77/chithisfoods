@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Pagination from "@/app/admin/users-and-vendors/components/Pagination";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/components/BlackSpinner";
 import VerificationBadge from "@/app/components/VerificationBadge";
 import VendorVerificationModal from "./VendorVerificationModal";
 
