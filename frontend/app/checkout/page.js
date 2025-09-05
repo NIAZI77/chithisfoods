@@ -1592,10 +1592,10 @@ const Page = () => {
       }
 
       toast.success("Excellent! Your order has been placed successfully!");
-      // localStorage.removeItem("cart");
-      // // Notify navbar about cart update
-      // window.dispatchEvent(new CustomEvent("cartUpdate"));
-      // router.push(`/thank-you/${customerOrderId}`);
+      localStorage.removeItem("cart");
+      // Notify navbar about cart update
+      window.dispatchEvent(new CustomEvent("cartUpdate"));
+      router.push(`/thank-you/${customerOrderId}`);
     } catch (error) {
       toast.error(
         error.message ||
