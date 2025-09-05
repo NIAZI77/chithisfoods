@@ -26,6 +26,9 @@ const DeliveryAddressSelector = ({
   googleMapsLoaded,
   showMap,
   mapAddressData,
+  canSaveAddress,
+  isDuplicateAddress,
+  addressHasChanged,
 }) => {
   const [showSavedAddresses, setShowSavedAddresses] = useState(false);
 
@@ -143,6 +146,10 @@ const DeliveryAddressSelector = ({
             googleMapsLoaded={googleMapsLoaded}
             showMap={showMap}
             mapAddressData={mapAddressData}
+            canSaveAddress={canSaveAddress}
+            isDuplicateAddress={isDuplicateAddress}
+            addressHasChanged={addressHasChanged}
+            savedAddresses={savedAddresses}
           />
         </div>
       </div>

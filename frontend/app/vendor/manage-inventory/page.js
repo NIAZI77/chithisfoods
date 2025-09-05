@@ -15,16 +15,7 @@ import {
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Link from "next/link";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
 
 export default function ManageInventory() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -221,34 +212,15 @@ export default function ManageInventory() {
   if (loading) return <Loading />;
   return (
     <div className="p-2 py-6 md:p-8 !pl-16 md:!pl-24">
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <div className="mx-auto sm:mx-0 mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
-            </div>
-            <AlertDialogTitle className="text-xl font-semibold text-gray-900">
-              Delete Dish
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-base text-gray-600 mt-2">
-              This will permanently remove the dish from your menu. This action
-              cannot be reversed.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
-            <AlertDialogCancel className="mt-0 border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-800">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-red-500 hover:bg-red-600 text-white shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2"
-            >
-              <Trash2 className="h-4 w-4" />
-              Delete Dish
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        title="Delete Dish"
+        description="This will permanently remove the dish from your menu. This action cannot be reversed."
+        confirmText="Delete Dish"
+        isLoading={deletingDish}
+      />
 
       {/* Bulk Action Loading Overlay */}
       {changingAvailability && bulkActionMessage && (

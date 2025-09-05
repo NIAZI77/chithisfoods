@@ -14,6 +14,7 @@ const OrderSummary = ({
   submitting,
   onSubmit,
   deliveryMode,
+  canPlaceOrder = false,
 }) => {
   return (
     <div className="rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 h-fit flex flex-col min-w-[320px] order-last md:order-none md:sticky md:top-20">
@@ -86,8 +87,8 @@ const OrderSummary = ({
       <button
         type="submit"
         onClick={onSubmit}
-        disabled={submitting}
-        className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
+        disabled={submitting || !canPlaceOrder}
+        className="w-full bg-rose-600 text-white py-2.5 md:py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
       >
         {!submitting ? <Lock className="w-5 h-5" /> : ""}
         {submitting ? <Spinner /> : "PLACE ORDER"}

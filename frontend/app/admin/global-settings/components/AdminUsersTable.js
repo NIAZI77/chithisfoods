@@ -1,12 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { Users, CheckCircle, Trash2 } from "lucide-react";
+import { Users, CheckCircle, Trash2, AlertTriangle } from "lucide-react";
 import TableLoading from "@/components/TableLoading";
+import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
 
 const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
   const [adminUsers, setAdminUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   // Add prop validation
   if (typeof isMainAdmin !== "boolean") {
@@ -94,17 +97,16 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
   };
 
   const handleDeleteAdmin = async (userId, email) => {
-    if (
-      !confirm(
-        `Are you sure you want to delete admin user "${email}"? This action cannot be undone.`
-      )
-    ) {
-      return;
-    }
+    setUserToDelete({ id: userId, email });
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteAdmin = async () => {
+    if (!userToDelete) return;
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userId}`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userToDelete.id}`,
         {
           method: "DELETE",
           headers: {
@@ -123,6 +125,9 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
     } catch (error) {
       console.error("Error deleting admin:", error);
       toast.error("An error occurred while deleting the admin user.");
+    } finally {
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
     }
   };
 
@@ -166,6 +171,16 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
 
   return (
     <div className="w-full">
+      {/* Delete Admin Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDeleteAdmin}
+        title="Delete Admin User"
+        description="Are you sure you want to delete admin user? This action cannot be undone."
+        confirmText="Delete Admin"
+        itemName={userToDelete?.email}
+      />
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg md:text-xl font-semibold text-pink-800">

@@ -15,6 +15,9 @@ const GooglePlacesAutocomplete = React.memo(
     savingAddress,
     formData,
     mapAddressData,
+    addressHasChanged = false,
+    savedAddresses = [],
+    isDuplicateAddress = () => false,
   }) => {
     const [inputValue, setInputValue] = useState(value || "");
     const [autocompleteInstance, setAutocompleteInstance] = useState(null);
@@ -90,22 +93,38 @@ const GooglePlacesAutocomplete = React.memo(
           }}
           placeholder="Enter your delivery address"
           className={`flex-1 px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm 
-            sm:text-base bg-slate-100 w-full ${
-              savingAddress ? "bg-slate-200" : ""
+            sm:text-base bg-slate-100 w-full ${savingAddress ? "bg-slate-200" : ""
             }`}
           autoComplete="off"
           disabled={savingAddress}
         />
         <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-          {mapAddressData?.lat &&
-          mapAddressData?.lng &&
-          formData.address === mapAddressData?.formatted_address ? (
-            <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-bold">✓</span>
-            </div>
-          ) : (
-            <FaMapMarkerAlt className="w-4 h-4 text-gray-400" />
-          )}
+          {(() => {
+            // Check if address matches Google Maps result exactly
+            const matchesGoogle = formData.address === mapAddressData?.formatted_address &&
+              mapAddressData?.lat &&
+              mapAddressData?.lng;
+
+            // Check if address matches a saved address
+            const matchesSavedAddress = savedAddresses.some(addr =>
+              addr.name.toLowerCase() === formData.name.toLowerCase() &&
+              addr.phone === formData.phone &&
+              addr.address.toLowerCase() === formData.address.toLowerCase()
+            );
+
+            // Check if address field has been manually modified (not from Google selection)
+            const addressFieldChanged = addressHasChanged && formData.address;
+
+            if (matchesGoogle || matchesSavedAddress) {
+              return (
+                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">✓</span>
+                </div>
+              );
+            } else {
+              return <FaMapMarkerAlt className="w-4 h-4 text-gray-400" />;
+            }
+          })()}
         </div>
       </div>
     );
@@ -130,6 +149,10 @@ const DeliveryForm = ({
   googleMapsLoaded,
   showMap,
   mapAddressData,
+  canSaveAddress = false,
+  isDuplicateAddress = () => false,
+  addressHasChanged = false,
+  savedAddresses = [],
 }) => {
   // Google Map Component
   const DeliveryMap = ({ lat, lng, onMarkerDrag }) => {
@@ -194,11 +217,8 @@ const DeliveryForm = ({
       formData.lat !== editingAddress.lat ||
       formData.lng !== editingAddress.lng);
 
-  const canSave =
-    formData.name &&
-    formData.phone &&
-    formData.address &&
-    (!editingAddress || hasChanges);
+  // Use the validation state from parent component
+  const canSave = canSaveAddress;
 
   // Debug logging
   if (editingAddress) {
@@ -246,9 +266,8 @@ const DeliveryForm = ({
           value={formData.name}
           onChange={handleChange}
           placeholder={savingAddress ? "Saving..." : "Full Name"}
-          className={`w-full px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm sm:text-base bg-slate-100 ${
-            savingAddress ? "bg-slate-200" : ""
-          }`}
+          className={`w-full px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm sm:text-base bg-slate-100 ${savingAddress ? "bg-slate-200" : ""
+            }`}
           minLength="2"
           title="Please enter your full name"
           disabled={savingAddress}
@@ -265,9 +284,8 @@ const DeliveryForm = ({
           value={formData.phone}
           onChange={handleChange}
           placeholder={savingAddress ? "Saving..." : "Phone Number"}
-          className={`w-full px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm sm:text-base bg-slate-100 ${
-            savingAddress ? "bg-slate-200" : ""
-          }`}
+          className={`w-full px-3 sm:px-4 py-2 my-1 border rounded-full outline-rose-400 text-sm sm:text-base bg-slate-100 ${savingAddress ? "bg-slate-200" : ""
+            }`}
           pattern="[0-9 +-]+"
           title="Please enter a valid phone number"
           disabled={savingAddress}
@@ -276,7 +294,7 @@ const DeliveryForm = ({
 
       <div className="sm:col-span-2">
         <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-3 mb-1 sm:mb-2">
-          Street Address
+          Address
         </label>
         <div className="">
           <GooglePlacesAutocomplete
@@ -305,20 +323,25 @@ const DeliveryForm = ({
             savingAddress={savingAddress}
             formData={formData}
             mapAddressData={mapAddressData}
+            addressHasChanged={addressHasChanged}
+            savedAddresses={savedAddresses}
+            isDuplicateAddress={isDuplicateAddress}
           />
 
 
           <div className="flex justify-end gap-2 mt-2">
-            {showSaveButton && !selectedAddressId && canSave && (
+            {showSaveButton && !selectedAddressId && (
               <button
                 type="button"
                 onClick={editingAddress ? onUpdateAddress : onSaveAddress}
                 disabled={!canSave || savingAddress}
-                className="px-3 sm:px-4 py-2 my-1 bg-rose-600 text-white rounded-full hover:bg-rose-700 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap text-sm sm:text-base"
+                className="bg-rose-600 text-white py-2.5 md:py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed px-3 sm:px-4"
                 title={
                   editingAddress
                     ? "Update this address"
-                    : "Save this address for future use"
+                    : isDuplicateAddress()
+                      ? "This address is already saved"
+                      : "Save this address for future use"
                 }
               >
                 {savingAddress ? (
@@ -349,7 +372,7 @@ const DeliveryForm = ({
               <button
                 type="button"
                 onClick={onCancelEdit}
-                className="px-3 sm:px-4 py-2 my-1 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
+                className="bg-rose-600 text-white py-2.5 md:py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed px-3 sm:px-4"
                 title="Cancel editing"
               >
                 <X className="w-4 h-4" />
@@ -370,7 +393,7 @@ const DeliveryForm = ({
                     onFormChange("lat", null);
                     onFormChange("lng", null);
                   }}
-                  className="px-3 sm:px-4 py-2 my-1 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
+                  className="bg-rose-600 text-white py-2.5 md:py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed px-3 sm:px-4"
                   title="Clear form fields and enter new address"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -382,21 +405,37 @@ const DeliveryForm = ({
         </div>
       </div>
 
-      {/* Google Map Display - Show only when address is valid and matches coordinates */}
-      {mapAddressData.lat &&
-        mapAddressData.lng &&
-        formData.address === mapAddressData.formatted_address && (
-          <div className="mt-4 sm:col-span-2">
-            <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-3 mb-2">
-              Delivery Location Map
-            </label>
-            <DeliveryMap
-              lat={mapAddressData.lat}
-              lng={mapAddressData.lng}
-              onMarkerDrag={onMarkerDrag}
-            />
-          </div>
-        )}
+      {/* Google Map Display - Show when address is valid (Google Maps or saved address) */}
+      {(() => {
+        // Check if address matches Google Maps result exactly
+        const matchesGoogle = formData.address === mapAddressData?.formatted_address &&
+          mapAddressData?.lat &&
+          mapAddressData?.lng;
+
+        // Check if address matches a saved address
+        const matchesSavedAddress = savedAddresses.some(addr =>
+          addr.name.toLowerCase() === formData.name.toLowerCase() &&
+          addr.phone === formData.phone &&
+          addr.address.toLowerCase() === formData.address.toLowerCase()
+        );
+
+        // Show map if Google Maps match OR saved address match
+        if ((matchesGoogle || matchesSavedAddress) && mapAddressData.lat && mapAddressData.lng) {
+          return (
+            <div className="mt-4 sm:col-span-2">
+              <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-3 mb-2">
+                Delivery Location Map
+              </label>
+              <DeliveryMap
+                lat={mapAddressData.lat}
+                lng={mapAddressData.lng}
+                onMarkerDrag={onMarkerDrag}
+              />
+            </div>
+          );
+        }
+        return null;
+      })()}
     </div>
   );
 };

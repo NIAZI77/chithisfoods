@@ -1,5 +1,5 @@
 "use client";
-import { ShoppingCart, User } from "lucide-react";
+import { ShoppingCart, User, Trash2, AlertTriangle } from "lucide-react";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
@@ -9,6 +9,7 @@ import Loading from "../loading";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { FaMapMarkerAlt, FaStore, FaBox } from "react-icons/fa";
+import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
 
 import AddressModeSelector from "./components/AddressModeSelector";
 import DeliverySchedule from "./components/DeliverySchedule";
@@ -114,6 +115,17 @@ const Page = () => {
   // Google Maps related state
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  
+  // Address validation and button state management
+  const [isAddressValid, setIsAddressValid] = useState(false);
+  const [addressHasChanged, setAddressHasChanged] = useState(false);
+  const [originalAddressData, setOriginalAddressData] = useState(null);
+  const [canPlaceOrder, setCanPlaceOrder] = useState(false);
+  const [canSaveAddress, setCanSaveAddress] = useState(false);
+  
+  // Delete address dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState(null);
 
   // Address handling functions
   const handleAddressSelect = useCallback((addressData) => {
@@ -127,7 +139,17 @@ const Page = () => {
       lng: addressData.lng,
     });
     setShowMap(true);
-  }, []);
+    
+    // Mark address as unchanged when selected from Google
+    setAddressHasChanged(false);
+    setOriginalAddressData({
+      name: formData.name,
+      phone: formData.phone,
+      address: addressData.formatted_address,
+      lat: addressData.lat,
+      lng: addressData.lng
+    });
+  }, [formData.name, formData.phone]);
 
   const handleMarkerDrag = useCallback((newLat, newLng) => {
     setMapAddressData((prev) => ({
@@ -137,7 +159,59 @@ const Page = () => {
     }));
   }, []);
 
-  // Simplified address validation - only check if fields are filled
+  // Duplicate address detection
+  const isDuplicateAddress = useCallback(() => {
+    if (!formData.name?.trim() || !formData.phone?.trim() || !formData.address?.trim()) {
+      return false;
+    }
+    
+    return savedAddresses.some(addr => 
+      addr.name.toLowerCase() === formData.name.toLowerCase() &&
+      addr.phone === formData.phone &&
+      addr.address.toLowerCase() === formData.address.toLowerCase()
+    );
+  }, [formData, savedAddresses]);
+
+  // Comprehensive address validation function
+  const validateAddressAndUpdateButtons = useCallback(() => {
+    // Check if all required fields are filled
+    const hasRequiredFields = formData.name?.trim() && 
+                             formData.phone?.trim() && 
+                             formData.address?.trim();
+    
+    // Check if address matches Google Maps result exactly
+    const addressMatchesGoogle = formData.address === mapAddressData.formatted_address &&
+                                mapAddressData.lat && 
+                                mapAddressData.lng;
+    
+    // Check if current form data matches a saved address (allows manual typing of saved addresses)
+    const matchesSavedAddress = savedAddresses.some(addr => 
+      addr.name.toLowerCase() === formData.name.toLowerCase() &&
+      addr.phone === formData.phone &&
+      addr.address.toLowerCase() === formData.address.toLowerCase()
+    );
+    
+    // For delivery mode, address must be valid
+    // Only allow if: Google Maps match OR matches a saved address
+    const isDeliveryValid = formData.deliveryMode === "delivery" ? 
+      (hasRequiredFields && (addressMatchesGoogle || matchesSavedAddress)) : 
+      hasRequiredFields;
+    
+    // For pickup mode, only name is required
+    const isPickupValid = formData.deliveryMode === "pickup" && 
+                         formData.name?.trim();
+    
+    const isValid = isDeliveryValid || isPickupValid;
+    
+    setIsAddressValid(isValid);
+    setCanPlaceOrder(isValid);
+    // Use same logic as place order button for save button (but prevent duplicates)
+    setCanSaveAddress(isValid && !isDuplicateAddress());
+    
+    return isValid;
+  }, [formData, mapAddressData, isDuplicateAddress, savedAddresses]);
+
+  // Simplified address validation - only check if fields are filled (kept for backward compatibility)
   const validateAddressFields = useCallback(() => {
     if (formData.deliveryMode === "pickup") {
       return true; // No address validation needed for pickup
@@ -406,9 +480,14 @@ const Page = () => {
         return;
       }
 
-      if (!confirm("Are you sure you want to delete this address?")) {
-        return;
-      }
+      setAddressToDelete(addressId);
+      setDeleteDialogOpen(true);
+    },
+    [user, jwt]
+  );
+
+  const confirmAddressDeletion = useCallback(async () => {
+    if (!addressToDelete) return;
 
       try {
         const userResponse = await fetch(
@@ -433,7 +512,7 @@ const Page = () => {
           ? savedAddresses
           : [];
         const updatedAddresses = currentAddresses.filter(
-          (addr) => addr.id !== addressId
+          (addr) => addr.id !== addressToDelete
         );
 
         const response = await fetch(
@@ -461,7 +540,7 @@ const Page = () => {
           : updatedAddresses;
         setSavedAddresses(filteredAddresses);
 
-        if (selectedAddressId === addressId) {
+        if (selectedAddressId === addressToDelete) {
           setFormData((prev) => ({
             ...prev,
             name: "",
@@ -480,9 +559,12 @@ const Page = () => {
         toast.error(
           "We couldn't delete your address right now. Please try again."
         );
+      } finally {
+        setDeleteDialogOpen(false);
+        setAddressToDelete(null);
       }
     },
-    [user, jwt, savedAddresses, selectedAddressId]
+    [user, jwt, savedAddresses, selectedAddressId, addressToDelete]
   );
   const handleEditAddress = useCallback((address) => {
     setEditingAddress(address);
@@ -562,6 +644,9 @@ const Page = () => {
         name: formData.name.trim(),
         phone: formData.phone.trim(),
         address: formData.address.trim(),
+        formatted_address: mapAddressData.formatted_address || formData.address.trim(),
+        lat: mapAddressData.lat,
+        lng: mapAddressData.lng,
         zipcode: typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "",
       };
 
@@ -629,6 +714,12 @@ const Page = () => {
       return;
     }
 
+    // Check for duplicate addresses
+    if (isDuplicateAddress()) {
+      toast.error("This address is already saved in your address book");
+      return;
+    }
+
     setSavingAddress(true);
 
     try {
@@ -655,6 +746,9 @@ const Page = () => {
         name: formData.name.trim(),
         phone: formData.phone.trim(),
         address: formData.address.trim(),
+        formatted_address: mapAddressData.formatted_address || formData.address.trim(),
+        lat: mapAddressData.lat,
+        lng: mapAddressData.lng,
         zipcode: typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "",
       };
 
@@ -814,8 +908,27 @@ const Page = () => {
     (name, value) => {
       setFormData((prev) => ({ ...prev, [name]: value }));
 
-      if (["name", "phone", "address"].includes(name) && selectedAddressId) {
-        setSelectedAddressId(null);
+      // Only track address changes when the ADDRESS field itself changes
+      if (name === "address") {
+        setAddressHasChanged(true);
+        
+        // Clear coordinates when address field changes
+        setMapAddressData(prev => ({
+          ...prev,
+          formatted_address: "",
+          lat: null,
+          lng: null
+        }));
+        
+        // Clear selected address if manually editing address
+        if (selectedAddressId) {
+          setSelectedAddressId(null);
+        }
+      } else if (["name", "phone"].includes(name)) {
+        // Clear selected address if manually editing name or phone
+        if (selectedAddressId) {
+          setSelectedAddressId(null);
+        }
       }
     },
     [selectedAddressId]
@@ -1089,6 +1202,22 @@ const Page = () => {
       setDeliveryFees([]);
     }
   }, [cartItems]);
+
+  // Run validation whenever form data or address state changes
+  useEffect(() => {
+    validateAddressAndUpdateButtons();
+  }, [formData, mapAddressData, addressHasChanged, validateAddressAndUpdateButtons]);
+
+  // Reset address change tracking when selecting saved address
+  useEffect(() => {
+    if (selectedAddressId) {
+      setAddressHasChanged(false);
+      const selectedAddress = savedAddresses.find(addr => addr.id === selectedAddressId);
+      if (selectedAddress) {
+        setOriginalAddressData(selectedAddress);
+      }
+    }
+  }, [selectedAddressId, savedAddresses]);
 
   const calculateSubtotal = useCallback(() => {
     if (!cartItems.length) return 0;
@@ -1463,10 +1592,10 @@ const Page = () => {
       }
 
       toast.success("Excellent! Your order has been placed successfully!");
-      localStorage.removeItem("cart");
-      // Notify navbar about cart update
-      window.dispatchEvent(new CustomEvent("cartUpdate"));
-      router.push(`/thank-you/${customerOrderId}`);
+      // localStorage.removeItem("cart");
+      // // Notify navbar about cart update
+      // window.dispatchEvent(new CustomEvent("cartUpdate"));
+      // router.push(`/thank-you/${customerOrderId}`);
     } catch (error) {
       toast.error(
         error.message ||
@@ -1529,6 +1658,16 @@ const Page = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
+      {/* Delete Address Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmAddressDeletion}
+        title="Delete Address"
+        description="Are you sure you want to delete this address? This action cannot be undone."
+        confirmText="Delete Address"
+      />
+
       <form onSubmit={handleSubmit} className="mx-3">
         <div className="w-full mx-auto pb-10 px-2 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="rounded-3xl p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] col-span-1 md:col-span-2 mb-6 md:mb-0 relative overflow-hidden">
@@ -1579,6 +1718,9 @@ const Page = () => {
                     onMarkerDrag={handleMarkerDrag}
                     googleMapsLoaded={googleMapsLoaded}
                     showMap={showMap}
+                    canSaveAddress={canSaveAddress}
+                    isDuplicateAddress={isDuplicateAddress}
+                    addressHasChanged={addressHasChanged}
                   />
                 )}
 
@@ -1782,6 +1924,7 @@ const Page = () => {
               submitting={submitting}
               onSubmit={handleSubmit}
               deliveryMode={formData.deliveryMode}
+              canPlaceOrder={canPlaceOrder}
             />
           </div>
         </div>
