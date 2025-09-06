@@ -30,9 +30,9 @@ const RefundDetailsManager = ({
 
   // Payment providers for refund details
   const PAYMENT_PROVIDERS = [
-    { value: "paypal", label: "PayPal", color: "#0070ba" },
-    { value: "bank_transfer", label: "Bank Transfer", color: "#059669" },
-    { value: "other", label: "Other", color: "#7c3aed" },
+    { value: "paypal", label: "PayPal", color: "#e11d48" },
+    { value: "bank_transfer", label: "Bank Transfer", color: "#be185d" },
+    { value: "other", label: "Other", color: "#f43f5e" },
   ];
 
   // Function to automatically update canceled orders with new refund details (hidden from user)
@@ -217,11 +217,20 @@ const RefundDetailsManager = ({
     return provider ? provider.label : "Payment Provider";
   };
 
+  // Function to check if refund details have meaningful content
+  const hasRefundContent = () => {
+    return (
+      refundDetails.provider &&
+      refundDetails.accountId &&
+      refundDetails.accountId.trim() !== ""
+    );
+  };
+
   if (!showAddForm) {
     return (
       <div className="space-y-6">
-        {refundDetails.provider ? (
-          <div className="border border-green-200 bg-green-50/50 rounded-lg shadow-sm">
+        {hasRefundContent() ? (
+          <div className="border border-rose-200 bg-rose-50/50 rounded-lg shadow-sm">
             <div className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -235,20 +244,20 @@ const RefundDetailsManager = ({
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-green-800 text-lg">
+                      <h3 className="font-semibold text-rose-800 text-lg">
                         {getProviderLabel(refundDetails.provider)}
                       </h3>
-                      <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 border border-green-200 rounded-full">
+                      <span className="px-2 py-1 text-xs font-medium bg-rose-100 text-rose-700 border border-rose-200 rounded-full">
                         Active
                       </span>
                     </div>
                     {refundDetails.accountId && (
-                      <p className="text-sm text-green-600 font-medium">
+                      <p className="text-sm text-rose-600 font-medium">
                         {refundDetails.accountId}
                       </p>
                     )}
                     {refundDetails.additionalInfo && (
-                      <p className="text-sm text-green-600">
+                      <p className="text-sm text-rose-600">
                         {refundDetails.additionalInfo}
                       </p>
                     )}
@@ -256,7 +265,7 @@ const RefundDetailsManager = ({
                 </div>
                 <button
                   onClick={handleEdit}
-                  className="px-3 py-2 text-sm font-medium border border-green-200 text-green-700 hover:bg-green-100 hover:text-green-800 rounded-lg transition-colors"
+                  className="px-3 py-2 text-sm font-medium border border-rose-200 text-rose-700 hover:bg-rose-100 hover:text-rose-800 rounded-lg transition-colors"
                 >
                   <Edit3 className="w-4 h-4 mr-2 inline" />
                   Edit
@@ -265,17 +274,17 @@ const RefundDetailsManager = ({
             </div>
           </div>
         ) : (
-          <div className="border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-sm">
+          <div className="border border-rose-200 bg-gradient-to-br from-rose-50 to-rose-100 rounded-lg shadow-sm">
             <div className="p-8 text-center">
               <div className="flex flex-col items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center shadow-lg">
-                  <CreditCard className="w-8 h-8 text-blue-600" />
+                <div className="w-16 h-16 rounded-full bg-rose-100 flex items-center justify-center shadow-lg">
+                  <CreditCard className="w-8 h-8 text-rose-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-blue-800 font-semibold text-xl">
+                  <h3 className="text-rose-800 font-semibold text-xl">
                     No refund details
                   </h3>
-                  <p className="text-blue-700 text-sm max-w-md">
+                  <p className="text-rose-700 text-sm max-w-md">
                     Set up your refund details for smooth processing
                   </p>
                 </div>
@@ -284,7 +293,7 @@ const RefundDetailsManager = ({
                   className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-medium rounded-full shadow-rose-300 shadow-md transition-all flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
-                  Add Details
+                  Add Refund Details
                 </button>
               </div>
             </div>
@@ -295,12 +304,12 @@ const RefundDetailsManager = ({
   }
 
   return (
-    <div className="border-2 border-dashed border-gray-200 rounded-lg shadow-sm">
-      <div className="p-6 border-b border-gray-100">
-        <h2 className="text-xl font-semibold text-gray-800">
+    <div className="border-2 border-dashed border-rose-200 rounded-lg shadow-sm">
+      <div className="p-6 border-b border-rose-100">
+        <h2 className="text-xl font-semibold text-rose-800">
           Configure Refund Details
         </h2>
-        <p className="text-gray-600 mt-1">
+        <p className="text-rose-600 mt-1">
           Set up payment method and account details for refunds
         </p>
       </div>
@@ -308,7 +317,7 @@ const RefundDetailsManager = ({
         <form onSubmit={handleSave} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-rose-700">
                 Payment Provider
               </label>
               <Select
@@ -338,7 +347,7 @@ const RefundDetailsManager = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-rose-700">
               Account ID
             </label>
             <input
@@ -348,12 +357,12 @@ const RefundDetailsManager = ({
               onChange={(e) =>
                 handleRefundDetailsChange("accountId", e.target.value)
               }
-              className="w-full p-3 border border-gray-300 rounded-lg "
+              className="w-full p-3 border border-gray-300 rounded-lg focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-rose-700">
               Additional Info
             </label>
             <textarea
@@ -363,7 +372,7 @@ const RefundDetailsManager = ({
                 handleRefundDetailsChange("additionalInfo", e.target.value)
               }
               rows="3"
-              className="w-full p-3 border border-gray-300 rounded-lg  resize-none"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:border-gray-500 focus:ring-2 focus:ring-gray-200 resize-none"
             />
           </div>
 

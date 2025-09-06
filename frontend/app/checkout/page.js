@@ -1544,11 +1544,11 @@ const Page = () => {
           orderStatus: "pending",
           vendorId: vendor.vendorId,
           vendorName: vendor.storeName || vendor.vendorName || "Unknown Vendor",
-          ...(vendor.vendorUsername && {
+          ...(vendor.vendorUsername ? {
             vendorUsername: vendor.vendorUsername,
-          }),
-          ...(vendor.vendorAvatar && { vendorAvatar: vendor.vendorAvatar }),
-          ...(vendor.vendorAddress && { vendorAddress: vendor.vendorAddress }),
+          } : {}),
+          ...(vendor.vendorAvatar ? { vendorAvatar: vendor.vendorAvatar } : {}),
+          ...(vendor.vendorAddress ? { vendorAddress: vendor.vendorAddress } : {}),
           dishes: vendor.dishes,
           deliveryDate: formData.deliveryDate
             ? format(formData.deliveryDate, "yyyy-MM-dd")

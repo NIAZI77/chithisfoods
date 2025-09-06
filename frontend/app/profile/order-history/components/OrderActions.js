@@ -22,7 +22,7 @@ function OrderActions({ order, loadingStates, onCancelOrder, userData }) {
 
           <div className="flex gap-2">
             {canCancel && (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col justify-end gap-2">
                 {!hasRefundDetails && (
                   <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-md text-amber-700 text-sm">
                     <AlertTriangle className="w-4 h-4" />
@@ -36,11 +36,11 @@ function OrderActions({ order, loadingStates, onCancelOrder, userData }) {
                     </Link>
                   </div>
                 )}
-
+                <div className="flex justify-end">
                 <button
                   onClick={onCancelOrder}
                   disabled={loadingStates.cancel || !hasRefundDetails}
-                  className={`px-6 py-2 text-sm rounded-full transition-all font-semibold flex items-center gap-2 ${
+                  className={`px-6 py-2 text-sm rounded-full transition-all font-semibold flex items-center w-fit gap-2 ${
                     hasRefundDetails
                       ? "bg-red-600 text-white shadow-red-300 shadow-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -59,6 +59,7 @@ function OrderActions({ order, loadingStates, onCancelOrder, userData }) {
                   )}
                   Cancel Order
                 </button>
+                </div>
               </div>
             )}
           </div>
