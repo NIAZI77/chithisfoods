@@ -94,7 +94,7 @@ const VendorsTable = ({
             onFilterChange("all");
             onDocFilterChange("all");
           }}
-          className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           <Search className="w-4 h-4 mr-2" />
           Clear filters
@@ -217,14 +217,14 @@ const VendorsTable = ({
                       {shouldShowVerifyButton(vendor) ? (
                         <button
                           onClick={() => handleVerifyClick(vendor)}
-                          className="w-32 py-2.5 text-pink-100 bg-pink-500 rounded-full"
+                          className="w-32 py-2.5 text-pink-100 bg-pink-500 rounded-full cursor-pointer"
                         >
                           Verify
                         </button>
                       ) : (
                         <button
                           onClick={() => handleVerifyClick(vendor)}
-                          className="w-32 py-2.5 text-pink-100 bg-pink-500 rounded-full"
+                          className="w-32 py-2.5 text-pink-100 bg-pink-500 rounded-full cursor-pointer"
                         >
                           See Details
                         </button>

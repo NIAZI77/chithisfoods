@@ -685,7 +685,7 @@ const Page = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="md:w-auto w-full px-4 py-2 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700  disabled:bg-rose-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="md:w-auto w-full py-2 px-6 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700  disabled:bg-rose-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Save className="h-5 w-5" />
             {submitting ? <Spinner /> : "Save Changes"}
@@ -788,7 +788,7 @@ const Page = () => {
                       passHref
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full sm:w-auto px-3 py-1.5 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-xs font-medium flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto py-2 px-6 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-xs font-medium flex items-center justify-center gap-2"
                     >
                       <FileText className="w-4 h-4" />
                       View Document
@@ -803,7 +803,7 @@ const Page = () => {
                           input.click();
                         }}
                         disabled={uploadingDocument}
-                        className="w-full sm:w-auto px-3 py-1.5 bg-gray-600 text-white rounded-full shadow-gray-300 shadow-md hover:bg-gray-700 transition-all text-xs font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full sm:w-auto py-2 px-6 bg-gray-600 text-white rounded-full shadow-gray-300 shadow-md hover:bg-gray-700 transition-all text-xs font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {uploadingDocument ? (
                           <>
@@ -850,7 +850,7 @@ const Page = () => {
                       input.click();
                     }}
                     disabled={uploadingDocument}
-                    className="px-6 py-3 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="py-2 px-6 bg-rose-600 text-white rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {uploadingDocument ? (
                       <>

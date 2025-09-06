@@ -563,7 +563,7 @@ export default function CartPage() {
             </div>
             <button
               onClick={handleCheckout}
-              className="w-full bg-rose-600 text-white py-2.5 md:py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
+              className="w-full bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
               disabled={cart.length === 0}
             >
               <FaCreditCard />

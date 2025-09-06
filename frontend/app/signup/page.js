@@ -159,7 +159,7 @@ export default function SignupPage() {
               />
               <button
                 type="button"
-                className="absolute right-3 top-4 text-gray-500"
+                className="absolute right-3 top-4 text-gray-500 cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -177,7 +177,7 @@ export default function SignupPage() {
               />
               <button
                 type="button"
-                className="absolute right-3 top-4 text-gray-500"
+                className="absolute right-3 top-4 text-gray-500 cursor-pointer"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
@@ -186,7 +186,7 @@ export default function SignupPage() {
 
             <button
               type="submit"
-              className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all"
+              className="w-full bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all"
               disabled={loading}
             >
               {loading ? <Spinner /> : "Sign Up"}
@@ -197,7 +197,7 @@ export default function SignupPage() {
             Already have an account?
             <Link
               href="/login"
-              className="w-full text-center block text-rose-600 py-3 rounded-full border-2 border-rose-600 my-2 hover:bg-rose-600 hover:text-white transition-all"
+              className="w-full text-center block text-rose-600 py-2 px-6 rounded-full border-2 border-rose-600 my-2 hover:bg-rose-600 hover:text-white transition-all"
             >
               Login
             </Link>
@@ -209,7 +209,7 @@ export default function SignupPage() {
           </div>
           <div className="mt-6 space-y-3">
             <button
-              className="w-full flex items-center justify-start border p-3 px-10 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all"
+              className="w-full flex items-center justify-start border py-2 px-6 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all cursor-pointer"
               onClick={() =>
                 router.push(
                   `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/connect/google/`
@@ -220,7 +220,7 @@ export default function SignupPage() {
               <span>Sign in with Google</span>
             </button>
             <button
-              className="w-full flex items-center justify-start border p-3 px-10 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all"
+              className="w-full flex items-center justify-start border py-2 px-6 rounded-full space-x-2 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-600 transition-all cursor-pointer"
               onClick={() =>
                 router.push(
                   `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/connect/facebook/`

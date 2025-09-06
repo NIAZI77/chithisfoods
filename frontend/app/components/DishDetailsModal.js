@@ -442,7 +442,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
             </p>
             <button
               onClick={onClose}
-              className="bg-rose-600 text-white px-4 py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Close
             </button>
@@ -454,25 +454,25 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
               <div className="p-4 sm:p-6">
                 <div className="space-y-2 mb-4">
                   {!isAvailable && (
-                    <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+                    <div className="bg-red-500 text-white py-2 px-6 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
                       <AlertCircle className="w-5 h-5" />
                       This dish is currently unavailable
                     </div>
                   )}
                   {!(userZipcode == dishDetails.zipcode) && (
-                    <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+                    <div className="bg-red-500 text-white py-2 px-6 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
                       <AlertCircle className="w-5 h-5" />
                       This dish is unavailable in your city
                     </div>
                   )}
                   {isVendorBanned && (
-                    <div className="bg-red-600 text-white px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+                    <div className="bg-red-600 text-white py-2 px-6 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
                       <X className="w-5 h-5" />
                       This vendor has been banned
                     </div>
                   )}
                   {isPreview && (
-                    <div className="bg-yellow-300 text-yellow-800 px-4 py-2 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
+                    <div className="bg-yellow-300 text-yellow-800 py-2 px-6 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
                       <Eye className="w-5 h-5" />
                       You are viewing this dish in preview mode
                     </div>
@@ -565,7 +565,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                               <button
                                 key={index}
                                 onClick={() => setSelectedSpiceLevel(level)}
-                                className={`px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 hover:scale-105 min-w-fit
+                                className={`py-2 px-6 rounded-full border text-sm font-medium transition-all duration-200 hover:scale-105 min-w-fit
                               ${
                                 selectedSpiceLevel === level
                                   ? "bg-red-500 text-white border-red-500 shadow-md"
@@ -595,7 +595,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                               onClick={() =>
                                 handleOptionSelect("topping", topping.name)
                               }
-                              className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
+                              className={`py-2 px-6 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
                                 ${
                                   selectedToppings[topping.name]?.selected
                                     ? "bg-red-500 text-white border-red-500"
@@ -625,7 +625,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                               onClick={() =>
                                 handleOptionSelect("extra", extra.name)
                               }
-                              className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
+                              className={`py-2 px-6 rounded-full border text-xs font-medium transition-all capitalize whitespace-nowrap
                                 ${
                                   selectedExtras[extra.name]?.selected
                                     ? "bg-red-500 text-white border-red-500"
@@ -795,7 +795,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                 </div>
                 <button
                   onClick={handleAddToCart}
-                  className="w-full bg-rose-600 text-white py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={
                     isPreview ||
                     !isAvailable ||

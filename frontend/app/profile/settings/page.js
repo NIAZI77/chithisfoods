@@ -9,11 +9,23 @@ import {
   FaEnvelope,
   FaInfo,
 } from "react-icons/fa";
+import { 
+  Settings, 
+  Shield, 
+  User as UserIcon, 
+  Mail, 
+  Key, 
+  Eye, 
+  EyeOff,
+  Save,
+  CheckCircle,
+  AlertTriangle
+} from "lucide-react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { setCookie, getCookie } from "cookies-next";
 import Loading from "@/app/loading";
-import Spinner from "@/components/BlackSpinner";
+import Spinner from "@/components/WhiteSpinner";
 import RefundDetailsManager from "./components/RefundDetailsManager";
 
 export default function AccountSettings() {
@@ -222,8 +234,11 @@ export default function AccountSettings() {
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-10">
-      <section className="border p-6 rounded-lg shadow-sm">
-        <h2 className="text-xl font-semibold mb-4">My Profile</h2>
+      <section className="rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 bg-white/80 backdrop-blur-sm">
+        <h2 className="text-xl font-semibold mb-4 text-black flex items-center gap-2">
+          <UserIcon className="w-5 h-5" />
+          My Profile
+        </h2>
         <form className="space-y-4">
           <div className="relative">
             <FaEnvelope className="absolute left-3 top-4 text-gray-500" />
@@ -231,7 +246,7 @@ export default function AccountSettings() {
               type="email"
               value={email}
               readOnly
-              className="w-full p-3 pl-10 border outline-none rounded-lg opacity-50"
+              className="w-full p-3 pl-10 bg-white/80 border border-gray-300 rounded-lg opacity-50"
             />
           </div>
 
@@ -242,23 +257,36 @@ export default function AccountSettings() {
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-3 pl-10 border outline-rose-400 rounded-lg"
+              className="w-full p-3 pl-10 bg-white/80 border border-gray-300 rounded-lg"
             />
           </div>
 
           <button
             onClick={handleProfileSave}
             disabled={savingProfile}
-            className="w-full bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:opacity-50"
+            className="w-full bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {savingProfile ? "Saving..." : "Save"}
+            {savingProfile ? (
+              <>
+                <Spinner />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                Save Profile
+              </>
+            )}
           </button>
         </form>
       </section>
 
       {provider === "local" && (
-        <section className="border p-6 rounded-lg shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Change Password</h2>
+        <section className="rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 bg-white/80 backdrop-blur-sm">
+          <h2 className="text-xl font-semibold mb-4 text-black flex items-center gap-2">
+            <Key className="w-5 h-5" />
+            Change Password
+          </h2>
           <form onSubmit={handlePasswordSave} className="space-y-4">
             <div className="relative">
               <FaLock className="absolute left-3 top-4 text-gray-500" />
@@ -267,11 +295,11 @@ export default function AccountSettings() {
                 placeholder="Current Password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full p-3 pl-10 pr-10 border outline-rose-400 rounded-lg"
+                className="w-full p-3 pl-10 pr-10 bg-white/80 border border-gray-300 rounded-lg "
               />
               <button
                 type="button"
-                className="absolute right-3 top-4 text-gray-500"
+                className="absolute right-3 top-4 text-gray-500 cursor-pointer"
                 onClick={() => togglePasswordVisibility("current")}
               >
                 {showPasswords.current ? <FaEyeSlash /> : <FaEye />}
@@ -285,11 +313,11 @@ export default function AccountSettings() {
                 placeholder="New Password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full p-3 pl-10 pr-10 border outline-rose-400 rounded-lg"
+                className="w-full p-3 pl-10 pr-10 bg-white/80 border border-gray-300 rounded-lg "
               />
               <button
                 type="button"
-                className="absolute right-3 top-4 text-gray-500"
+                className="absolute right-3 top-4 text-gray-500 cursor-pointer"
                 onClick={() => togglePasswordVisibility("new")}
               >
                 {showPasswords.new ? <FaEyeSlash /> : <FaEye />}
@@ -303,11 +331,11 @@ export default function AccountSettings() {
                 placeholder="Confirm New Password"
                 value={confirmNewPassword}
                 onChange={(e) => setConfirmNewPassword(e.target.value)}
-                className="w-full p-3 pl-10 pr-10 border outline-rose-400 rounded-lg"
+                className="w-full p-3 pl-10 pr-10 bg-white/80 border border-gray-300 rounded-lg "
               />
               <button
                 type="button"
-                className="absolute right-3 top-4 text-gray-500"
+                className="absolute right-3 top-4 text-gray-500 cursor-pointer"
                 onClick={() => togglePasswordVisibility("confirm")}
               >
                 {showPasswords.confirm ? <FaEyeSlash /> : <FaEye />}
@@ -317,17 +345,27 @@ export default function AccountSettings() {
             <button
               type="submit"
               disabled={savingPassword}
-              className="w-full bg-rose-600 text-white py-3 rounded-full shadow-md hover:bg-rose-700 transition-all disabled:opacity-50"
+              className="w-full bg-rose-600 text-white py-3 rounded-full shadow-md hover:bg-rose-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {savingPassword ? <Spinner /> : "Save"}
+              {savingPassword ? (
+                <>
+                  <Spinner />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  Save Password
+                </>
+              )}
             </button>
           </form>
         </section>
       )}
 
-      <section className="border p-6 rounded-lg shadow-sm">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <FaEnvelope className="w-5 h-5 text-rose-600" />
+      <section className="rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 bg-white/80 backdrop-blur-sm">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-black">
+          <Settings className="w-5 h-5" />
           Refund Details Management
         </h2>
 

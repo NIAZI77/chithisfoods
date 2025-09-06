@@ -172,7 +172,7 @@ export default function Navbar() {
             <div className="h-10 w-10 text-xl flex items-center justify-center">
               <DropdownMenu>
                 <DropdownMenuTrigger>
-                  <User className="text-rose-500 hover:text-rose-600 hover:scale-125 transition-all" />
+                  <User className="text-rose-500 hover:text-rose-600 hover:scale-125 transition-all cursor-pointer" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="m-2">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>

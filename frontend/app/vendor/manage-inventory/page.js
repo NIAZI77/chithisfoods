@@ -262,7 +262,7 @@ export default function ManageInventory() {
         </h1>
         <button
           onClick={handleAddDish}
-          className="bg-rose-600 text-white px-4 py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           <Plus /> Add Dish
         </button>
@@ -270,14 +270,14 @@ export default function ManageInventory() {
       <div className="flex gap-2 my-2 items-center justify-end">
         <button
           onClick={setAllAvailable}
-          className="bg-green-600 text-white px-4 py-2 rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="bg-green-600 text-white py-2 px-6 rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           disabled={changingAvailability}
         >
           <ChefHat className="h-4 w-4" /> Set All Available
         </button>
         <button
           onClick={setAllUnavailable}
-          className="bg-red-600 text-white px-4 py-2 rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="bg-red-600 text-white py-2 px-6 rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           disabled={changingAvailability}
         >
           <AlertTriangle className="h-4 w-4" /> Set All Unavailable
@@ -360,7 +360,7 @@ export default function ManageInventory() {
                     {!searchTerm && filterStatus === "All" && (
                       <button
                         onClick={handleAddDish}
-                        className="bg-rose-600 text-white px-4 py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         <Plus className="w-4 h-4" />
                         Add Your First Dish
@@ -371,8 +371,8 @@ export default function ManageInventory() {
               </tr>
             ) : (
               filteredDishes.map((dish) => (
-                <tr key={dish.id} className="border-b hover:bg-gray-50 h-12">
-                  <td className="pl-3 capitalize hover:text-orange-400 hover:underline transition-all">
+                <tr key={dish.id} className="border-b hover:bg-gray-50 h-12 cursor-pointer">
+                  <td className="pl-3 capitalize hover:text-orange-400 hover:underline transition-all cursor-pointer">
                     {dish.name}
                   </td>
                   <td>
@@ -421,7 +421,7 @@ export default function ManageInventory() {
                     <div className="flex pl-4 gap-2">
                       <button
                         onClick={() => handleEdit(dish.documentId)}
-                        className={`text-orange-500 hover:text-orange-700
+                        className={`text-orange-500 hover:text-orange-700 cursor-pointer
                         ${
                           changingAvailability || deletingDish
                             ? "opacity-50 cursor-not-allowed"
@@ -433,7 +433,7 @@ export default function ManageInventory() {
                       </button>
                       <button
                         onClick={() => handleDelete(dish.documentId)}
-                        className={`text-orange-500 hover:text-orange-700
+                        className={`text-orange-500 hover:text-orange-700 cursor-pointer
                           ${
                             changingAvailability || deletingDish
                               ? "opacity-50 cursor-not-allowed"

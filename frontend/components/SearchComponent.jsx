@@ -30,7 +30,7 @@ const SearchComponent = ({
       </div>
       <button
         type="submit"
-        className={`${buttonColor} text-white px-3 py-2 rounded-r-full ${shadowColor} shadow-md transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0`}
+        className={`${buttonColor} text-white py-2 px-6 rounded-r-full ${shadowColor} shadow-md transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0`}
       >
         <Search className="w-4 h-4" />
       </button>

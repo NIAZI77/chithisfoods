@@ -335,7 +335,7 @@ const DeliveryForm = ({
                 type="button"
                 onClick={editingAddress ? onUpdateAddress : onSaveAddress}
                 disabled={!canSave || savingAddress}
-                className="bg-rose-600 text-white py-2.5 md:py-2 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed px-3 sm:px-4"
+                className="bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
                 title={
                   editingAddress
                     ? "Update this address"
@@ -372,7 +372,7 @@ const DeliveryForm = ({
               <button
                 type="button"
                 onClick={onCancelEdit}
-                className="bg-rose-600 text-white py-2.5 md:py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed px-3 sm:px-4"
+                className="bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
                 title="Cancel editing"
               >
                 <X className="w-4 h-4" />
@@ -393,7 +393,7 @@ const DeliveryForm = ({
                     onFormChange("lat", null);
                     onFormChange("lng", null);
                   }}
-                  className="bg-rose-600 text-white py-2.5 md:py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed px-3 sm:px-4"
+                  className="bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all text-sm md:text-base font-semibold flex items-center justify-center gap-2 disabled:bg-rose-400 disabled:cursor-not-allowed"
                   title="Clear form fields and enter new address"
                 >
                   <RotateCcw className="w-4 h-4" />

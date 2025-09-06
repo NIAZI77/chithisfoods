@@ -154,7 +154,7 @@ const UsersTable = ({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <button
                       onClick={() => handleViewUser(user)}
-                      className="text-pink-600 hover:text-pink-900 font-medium"
+                      className="text-pink-600 hover:text-pink-900 font-medium cursor-pointer"
                     >
                       View
                     </button>

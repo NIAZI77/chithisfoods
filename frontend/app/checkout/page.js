@@ -1642,7 +1642,7 @@ const Page = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center transform hover:scale-105 transition-all duration-300">
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center transform hover:scale-105 transition-all duration-300 cursor-pointer">
             {/* Icon */}
             <div className="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShoppingCart className="w-10 h-10 text-rose-500" />
@@ -1663,14 +1663,14 @@ const Page = () => {
             <div className="space-y-4">
               <button
                 onClick={() => router.push("/cart")}
-                className="w-full bg-rose-600 text-white px-6 py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                className="w-full bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-lg"
               >
                 🛒 Go to Cart
               </button>
 
               <button
                 onClick={() => router.push("/explore")}
-                className="w-full text-center block text-rose-600 px-6 py-3 rounded-full border-2 border-rose-600 hover:bg-rose-600 hover:text-white transition-all font-medium text-lg"
+                className="w-full text-center block text-rose-600 py-2 px-6 rounded-full border-2 border-rose-600 hover:bg-rose-600 hover:text-white transition-all font-medium text-lg cursor-pointer"
               >
                 🍽️ Explore Menu
               </button>

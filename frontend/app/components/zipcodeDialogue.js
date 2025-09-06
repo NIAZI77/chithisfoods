@@ -125,7 +125,7 @@ export default function ZipcodeDialogue() {
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel asChild>
-            <button className="text-center block text-gray-600 px-4 py-2 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium">
+            <button className="text-center block text-gray-600 px-4 py-2 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium cursor-pointer">
               Cancel
             </button>
           </AlertDialogCancel>

@@ -80,7 +80,7 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
           >
             <X className="w-6 h-6 text-gray-500" />
           </button>
@@ -99,7 +99,7 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
                 <button
                   key={rating}
                   onClick={() => handleRatingChange(rating)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border flex items-center gap-1.5 ${
+                  className={`py-2 px-6 rounded-full text-sm font-medium transition-all duration-200 border flex items-center gap-1.5 cursor-pointer ${
                     filters.rating === rating
                       ? "bg-red-50 text-red-600 border-red-200"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200 border-transparent"
@@ -129,7 +129,7 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
                 <button
                   key={level}
                   onClick={() => handleSpiceLevelChange(level)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
+                  className={`py-2 px-6 rounded-full text-sm font-medium transition-all duration-200 border cursor-pointer ${
                     (level === "All" && filters.spiceLevel === "") ||
                     filters.spiceLevel === level
                       ? "bg-red-50 text-red-600 border-red-200"
@@ -167,13 +167,13 @@ const FilterPopup = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
         <div className="flex gap-4 p-5 border-t border-gray-200 sticky bottom-0 bg-white">
           <button
             onClick={handleReset}
-            className="flex-1 text-center block text-gray-600 px-4 py-3 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium"
+            className="flex-1 text-center block text-gray-600 px-4 py-3 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium cursor-pointer"
           >
             Reset
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 bg-rose-600 text-white px-4 py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-rose-600 text-white px-4 py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             Apply Filters
           </button>

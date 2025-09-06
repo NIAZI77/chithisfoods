@@ -1,9 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { CreditCard, Plus, Edit3, Save, X } from "lucide-react";
+import { 
+  CreditCard, 
+  Plus, 
+  Edit3, 
+  Save, 
+  X, 
+  Mail, 
+  FileText, 
+  Building2, 
+  Wallet, 
+  CheckCircle, 
+  AlertCircle,
+  User,
+  Shield,
+  Smartphone,
+  Globe,
+  Settings,
+  Trash2,
+  Eye,
+  EyeOff,
+  Landmark,
+  Smartphone as Phone
+} from "lucide-react";
+import { RiPaypalFill } from "react-icons/ri";
 import { toast } from "react-toastify";
-import Spinner from "@/components/BlackSpinner";
+import Spinner from "@/components/WhiteSpinner";
 import {
   Select,
   SelectContent,
@@ -30,9 +53,41 @@ const RefundDetailsManager = ({
 
   // Payment providers for refund details
   const PAYMENT_PROVIDERS = [
-    { value: "paypal", label: "PayPal", color: "#e11d48" },
-    { value: "bank_transfer", label: "Bank Transfer", color: "#be185d" },
-    { value: "other", label: "Other", color: "#f43f5e" },
+    { 
+      value: "paypal", 
+      label: "PayPal", 
+      bgColor: "#0070ba", 
+      icon: RiPaypalFill,
+      description: "PayPal account or email"
+    },
+    { 
+      value: "bank_transfer", 
+      label: "Bank Transfer", 
+      bgColor: "#059669", 
+      icon: Landmark,
+      description: "Bank account details"
+    },
+    { 
+      value: "wallet", 
+      label: "Digital Wallet", 
+      bgColor: "#7c3aed", 
+      icon: Wallet,
+      description: "Digital wallet account"
+    },
+    { 
+      value: "mobile_money", 
+      label: "Mobile Money", 
+      bgColor: "#dc2626", 
+      icon: Phone,
+      description: "Mobile money account"
+    },
+    { 
+      value: "other", 
+      label: "Other", 
+      bgColor: "#6b7280", 
+      icon: Globe,
+      description: "Other payment method"
+    },
   ];
 
   // Function to automatically update canceled orders with new refund details (hidden from user)
@@ -207,14 +262,15 @@ const RefundDetailsManager = ({
     setShowAddForm(false);
   };
 
-  const getProviderColor = (providerValue) => {
+  const getProviderInfo = (providerValue) => {
     const provider = PAYMENT_PROVIDERS.find((p) => p.value === providerValue);
-    return provider ? provider.color : "#6b7280";
-  };
-
-  const getProviderLabel = (providerValue) => {
-    const provider = PAYMENT_PROVIDERS.find((p) => p.value === providerValue);
-    return provider ? provider.label : "Payment Provider";
+    return provider || { 
+      value: "other", 
+      label: "Payment Provider", 
+      bgColor: "#6b7280", 
+      icon: Globe,
+      description: "Payment method"
+    };
   };
 
   // Function to check if refund details have meaningful content
@@ -226,71 +282,95 @@ const RefundDetailsManager = ({
     );
   };
 
+  // Function to get placeholder text based on selected provider
+  const getAccountIdPlaceholder = () => {
+    const providerInfo = getProviderInfo(refundDetails.provider);
+    switch (refundDetails.provider) {
+      case "paypal":
+        return "PayPal email address";
+      case "bank_transfer":
+        return "Bank account number or IBAN";
+      case "wallet":
+        return "Digital wallet address";
+      case "mobile_money":
+        return "Mobile money account number";
+      default:
+        return "Account ID, email, or address";
+    }
+  };
+
   if (!showAddForm) {
     return (
       <div className="space-y-6">
         {hasRefundContent() ? (
-          <div className="border border-rose-200 bg-rose-50/50 rounded-lg shadow-sm">
-            <div className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg"
-                    style={{
-                      backgroundColor: getProviderColor(refundDetails.provider),
-                    }}
-                  >
-                    <CreditCard className="w-6 h-6" />
+          <div className="rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 bg-white/80 backdrop-blur-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                 {(() => {
+                   const providerInfo = getProviderInfo(refundDetails.provider);
+                   const IconComponent = providerInfo.icon;
+                   return (
+                     <div 
+                       className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
+                       style={{ backgroundColor: providerInfo.bgColor }}
+                     >
+                       <IconComponent className="w-6 h-6 text-white" />
+                     </div>
+                   );
+                 })()}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-black text-lg">
+                      {getProviderInfo(refundDetails.provider).label}
+                    </h3>
+                    <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 border border-green-200 rounded-full flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Active
+                    </span>
                   </div>
-                  <div className="space-y-2">
+                  {refundDetails.accountId && (
+                    <p className="text-sm text-black font-medium">
+                      {refundDetails.accountId}
+                    </p>
+                  )}
+                  {refundDetails.additionalInfo && (
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-rose-800 text-lg">
-                        {getProviderLabel(refundDetails.provider)}
-                      </h3>
-                      <span className="px-2 py-1 text-xs font-medium bg-rose-100 text-rose-700 border border-rose-200 rounded-full">
-                        Active
-                      </span>
-                    </div>
-                    {refundDetails.accountId && (
-                      <p className="text-sm text-rose-600 font-medium">
-                        {refundDetails.accountId}
-                      </p>
-                    )}
-                    {refundDetails.additionalInfo && (
-                      <p className="text-sm text-rose-600">
+                      <FileText className="w-4 h-4 text-gray-500" />
+                      <p className="text-sm text-black">
                         {refundDetails.additionalInfo}
                       </p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
-                <button
-                  onClick={handleEdit}
-                  className="px-3 py-2 text-sm font-medium border border-rose-200 text-rose-700 hover:bg-rose-100 hover:text-rose-800 rounded-lg transition-colors"
-                >
-                  <Edit3 className="w-4 h-4 mr-2 inline" />
-                  Edit
-                </button>
               </div>
+              <button
+                onClick={handleEdit}
+                className="py-2 px-6 text-sm font-medium bg-white/80 backdrop-blur-sm border border-gray-200 text-black hover:bg-slate-50 rounded-lg shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Edit3 className="w-4 h-4" />
+                Edit
+              </button>
             </div>
           </div>
         ) : (
-          <div className="border border-rose-200 bg-gradient-to-br from-rose-50 to-rose-100 rounded-lg shadow-sm">
-            <div className="p-8 text-center">
+          <div className="rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 bg-white/80 backdrop-blur-sm">
+            <div className="text-center">
               <div className="flex flex-col items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-rose-100 flex items-center justify-center shadow-lg">
-                  <CreditCard className="w-8 h-8 text-rose-600" />
+                <div className="w-16 h-16 rounded-full bg-rose-100/80 flex items-center justify-center shadow-lg">
+                  <AlertCircle className="w-8 h-8 text-rose-600" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-rose-800 font-semibold text-xl">
-                    No refund details
+                  <h3 className="text-black font-semibold text-xl flex items-center justify-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    No Refund Details
                   </h3>
-                  <p className="text-rose-700 text-sm max-w-md">
-                    Set up your refund details for smooth processing
+                  <p className="text-black text-sm max-w-md">
+                    Set up your refund details for smooth processing and faster refunds
                   </p>
                 </div>
                 <button
                   onClick={() => setShowAddForm(true)}
-                  className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-medium rounded-full shadow-rose-300 shadow-md transition-all flex items-center gap-2"
+                  className="py-2 px-6 bg-rose-600 hover:bg-rose-700 text-white font-medium rounded-full shadow-rose-300 shadow-md transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   Add Refund Details
@@ -304,67 +384,80 @@ const RefundDetailsManager = ({
   }
 
   return (
-    <div className="border-2 border-dashed border-rose-200 rounded-lg shadow-sm">
-      <div className="p-6 border-b border-rose-100">
-        <h2 className="text-xl font-semibold text-rose-800">
+    <div className="rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 bg-white/80 backdrop-blur-sm">
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-black flex items-center gap-2">
+          <Settings className="w-5 h-5" />
           Configure Refund Details
         </h2>
-        <p className="text-rose-600 mt-1">
+        <p className="text-black mt-1 flex items-center gap-2">
+          <Shield className="w-4 h-4 text-gray-500" />
           Set up payment method and account details for refunds
         </p>
       </div>
-      <div className="p-6">
-        <form onSubmit={handleSave} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-rose-700">
-                Payment Provider
-              </label>
-              <Select
-                value={refundDetails.provider}
-                onValueChange={(value) =>
-                  handleRefundDetailsChange("provider", value)
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select provider" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PAYMENT_PROVIDERS.map((provider) => (
-                    <SelectItem key={provider.value} value={provider.value}>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: provider.color }}
-                        />
-                        {provider.label}
+      
+      <form onSubmit={handleSave} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-black flex items-center gap-2">
+              <CreditCard className="w-4 h-4" />
+              Payment Provider
+            </label>
+             <Select
+               value={refundDetails.provider}
+               onValueChange={(value) =>
+                 handleRefundDetailsChange("provider", value)
+               }
+               className="w-full"
+             >
+               <SelectTrigger className="w-full p-4 bg-white border border-gray-300 rounded-lg">
+                 <SelectValue placeholder="Select provider" />
+               </SelectTrigger>
+              <SelectContent className="w-full">
+                {PAYMENT_PROVIDERS.map((provider) => {
+                  const IconComponent = provider.icon;
+                  return (
+                    <SelectItem key={provider.value} value={provider.value} className="w-full">
+                      <div className="flex items-center gap-3 w-full p-2">
+                        <div 
+                          className="w-5 h-5 rounded flex items-center justify-center"
+                          style={{ backgroundColor: provider.bgColor }}
+                        >
+                          <IconComponent className="w-3 h-3 text-white" />
+                        </div>
+                        <div className="font-medium">{provider.label}</div>
                       </div>
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                  );
+                })}
+              </SelectContent>
+            </Select>
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-rose-700">
-              Account ID
-            </label>
-            <input
-              type="text"
-              placeholder="Email, account number, etc."
-              value={refundDetails.accountId}
-              onChange={(e) =>
-                handleRefundDetailsChange("accountId", e.target.value)
-              }
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
-            />
-          </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-black flex items-center gap-2">
+            <User className="w-4 h-4" />
+            Account ID
+          </label>
+          <input
+            type="text"
+            placeholder="Email, account number, etc."
+            value={refundDetails.accountId}
+            onChange={(e) =>
+              handleRefundDetailsChange("accountId", e.target.value)
+            }
+            className="w-full p-3 bg-white/80 border border-gray-300 rounded-lg"
+          />
+        </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-rose-700">
-              Additional Info
-            </label>
+         <div className="space-y-2">
+           <label className="text-sm font-medium text-black flex items-center gap-2">
+             <FileText className="w-4 h-4" />
+             Additional Info
+           </label>
+          <div className="relative">
+            <FileText className="absolute left-4 top-4 w-4 h-4 text-gray-500" />
             <textarea
               placeholder="Any extra details for refund processing..."
               value={refundDetails.additionalInfo}
@@ -372,40 +465,40 @@ const RefundDetailsManager = ({
                 handleRefundDetailsChange("additionalInfo", e.target.value)
               }
               rows="3"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-gray-500 focus:ring-2 focus:ring-gray-200 resize-none"
+              className="w-full p-4 pl-12 pt-4 bg-white border border-gray-300 rounded-lg resize-none custom-scrollbar"
             />
           </div>
+        </div>
 
-          <div className="flex gap-3 pt-4">
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 px-6 py-3 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-medium rounded-full shadow-rose-300 shadow-md transition-all flex items-center justify-center gap-2"
-            >
-              {saving ? (
-                <>
-                  <Spinner />
-                  <span className="ml-2">Saving...</span>
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  Save
-                </>
-              )}
-            </button>
+        <div className="flex gap-3 pt-4">
+          <button
+            type="submit"
+            disabled={saving}
+            className="flex-1 py-2 px-6 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white font-medium rounded-full shadow-rose-300 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {saving ? (
+              <>
+                <Spinner />
+                <span className="ml-2">Saving...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                Save Details
+              </>
+            )}
+          </button>
 
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="px-8 py-3 text-gray-600 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium flex items-center gap-2"
-            >
-              <X className="w-4 h-4" />
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="py-2 px-6 text-gray-600 rounded-full border-2 border-gray-600 hover:bg-gray-600 hover:text-white transition-all font-medium flex items-center gap-2 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+            Cancel
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

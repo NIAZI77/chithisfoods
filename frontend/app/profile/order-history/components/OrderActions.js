@@ -29,7 +29,7 @@ function OrderActions({ order, loadingStates, onCancelOrder, userData }) {
                     <span>Add refund details to cancel orders</span>
                     <Link
                       href="/profile/settings"
-                      className="ml-auto px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs rounded-full transition-all font-medium flex items-center gap-1"
+                      className="ml-auto py-2 px-6 bg-amber-600 hover:bg-amber-700 text-white text-xs rounded-full transition-all font-medium flex items-center gap-1"
                     >
                       <Settings className="w-3 h-3" />
                       Settings
@@ -40,7 +40,7 @@ function OrderActions({ order, loadingStates, onCancelOrder, userData }) {
                 <button
                   onClick={onCancelOrder}
                   disabled={loadingStates.cancel || !hasRefundDetails}
-                  className={`px-6 py-2 text-sm rounded-full transition-all font-semibold flex items-center w-fit gap-2 ${
+                  className={`py-2 px-6 text-sm rounded-full transition-all font-semibold flex items-center w-fit gap-2 ${
                     hasRefundDetails
                       ? "bg-red-600 text-white shadow-red-300 shadow-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
