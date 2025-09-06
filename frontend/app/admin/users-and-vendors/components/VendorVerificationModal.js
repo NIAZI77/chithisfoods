@@ -285,10 +285,13 @@ const VendorVerificationModal = ({ vendor, onClose, onVerify, isLoading }) => {
                     <div className="col-span-1 sm:col-span-2 space-y-1">
                       <p className="text-sm font-medium text-gray-500 flex items-center gap-1">
                         <Mail className="w-4 h-4 text-pink-500" />
-                        PayPal Email
+                        Payment Method
                       </p>
                       <p className="text-gray-800 font-medium text-sm sm:text-base">
-                        {vendor.paypalEmail || "Not provided"}
+                        {vendor.vendorPaymentMethod?.accountId 
+                          ? `${vendor.vendorPaymentMethod.provider} - ${vendor.vendorPaymentMethod.accountId}`
+                          : "Not configured"
+                        }
                       </p>
                     </div>
                   </div>

@@ -576,7 +576,6 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
       'api::vendor.vendor'
     > &
       Schema.Attribute.Private;
-    paypalEmail: Schema.Attribute.Email;
     phoneNumber: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
@@ -590,6 +589,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
     vendorDeliveryFee: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
+    vendorPaymentMethod: Schema.Attribute.JSON;
     verificationDocument: Schema.Attribute.Media<'images' | 'files'>;
     verificationStatus: Schema.Attribute.Enumeration<
       ['new-chef', 'verified', 'unverified', 'banned', 'rejected']

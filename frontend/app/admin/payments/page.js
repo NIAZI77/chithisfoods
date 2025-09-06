@@ -305,7 +305,7 @@ const PaymentsPage = () => {
       )
         return;
 
-      // Fetch vendor data to check PayPal email
+      // Fetch vendor data to check payment method
       const vendorResponse = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${order.vendorId}`,
         {
@@ -319,7 +319,7 @@ const PaymentsPage = () => {
       if (!vendorResponse.ok) return;
 
       const vendorData = await vendorResponse.json();
-      if (!vendorData.data?.paypalEmail) return;
+      if (!vendorData.data?.vendorPaymentMethod?.accountId) return;
 
       setProcessingPayments((prev) => ({ ...prev, [orderId]: true }));
 

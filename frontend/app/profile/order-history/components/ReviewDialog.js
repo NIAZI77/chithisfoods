@@ -134,6 +134,11 @@ function ReviewDialog({
     }
   };
 
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
+
   const renderRatingStars = () => {
     return Array.from({ length: 5 }, (_, index) => (
       <button

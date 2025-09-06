@@ -353,10 +353,6 @@ export default function BecomeVendor() {
                 placeholder="Bio"
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400 md:h-24 resize-none"
               />
-              <p className="text-xs text-gray-500 mb-2">
-                Note: Your email address is automatically used and must be
-                unique
-              </p>
             </div>
           )}
 

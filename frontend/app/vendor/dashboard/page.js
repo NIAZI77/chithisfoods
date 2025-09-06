@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { ShoppingCart, User, Package } from "lucide-react";
+import { ShoppingCart, User, Package, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import { getCookie } from "cookies-next";
@@ -353,74 +353,135 @@ const Page = () => {
 
   return (
     <div className="p-4 pl-16 md:p-6 md:pl-24 lg:p-8 lg:pl-24 mx-auto">
-      <div className="flex flex-col gap-4 mb-8">
+      <div className="grid gap-4 mb-8">
         {/* Delivery Fee Banner */}
         {(!vendor.vendorDeliveryFee || vendor.vendorDeliveryFee === 0) && (
-          <div className="flex items-center bg-gradient-to-r from-yellow-50 to-yellow-100 shadow-md rounded-2xl p-5 w-full">
-            <span className="flex items-center justify-center mr-4 w-12 h-12 rounded-full bg-yellow-200/70">
-              <Package className="w-6 h-6 text-yellow-600" />
-            </span>
-            <div className="flex-1">
-              <p className="font-semibold text-lg text-yellow-900 mb-1">
-                Set up your delivery fee
-              </p>
-              <p className="text-sm text-yellow-700">
-                Add your delivery fee details to start receiving orders
-                smoothly.
-              </p>
+          <div className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border border-amber-200/50 rounded-2xl p-6">
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-200/50">
+                    <Package className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">!</span>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-base mb-1">
+                    Delivery Fee Setup Required
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Configure your delivery charges to start accepting orders
+                  </p>
+                </div>
             </div>
             <Link
               href="/vendor/settings#delivery-free"
-              className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base"
+                className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl shadow-lg shadow-amber-200/50 hover:shadow-xl hover:shadow-amber-300/50 hover:from-amber-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105"
             >
-              Set Delivery Fee
+                Set Up Now
             </Link>
+            </div>
           </div>
         )}
+        
         {/* Verification Banner */}
         {!vendor.verificationDocument && (
-          <div className="flex items-center bg-gradient-to-r from-blue-50 to-blue-100 shadow-md rounded-2xl p-5 w-full">
-            <span className="flex items-center justify-center mr-4 w-12 h-12 rounded-full bg-blue-200/70">
-              <User className="w-6 h-6 text-blue-600" />
-            </span>
-            <div className="flex-1">
-              <p className="font-semibold text-lg text-blue-900 mb-1">
-                Verify your account
-              </p>
-              <p className="text-sm text-blue-700">
-                Complete your account verification for full access and customer
-                trust.
-              </p>
+          <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200/50 rounded-2xl p-6">
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/50">
+                    <User className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">!</span>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-base mb-1">
+                    Account Verification Pending
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Complete verification to unlock all features and build trust
+                  </p>
+                </div>
             </div>
             <Link
               href="/vendor/settings#account-verification"
-              className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base"
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-blue-200/50 hover:shadow-xl hover:shadow-blue-300/50 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105"
             >
               Verify Account
             </Link>
+            </div>
           </div>
         )}
+        
+        {/* Payment Method Banner */}
+        {(!vendor.vendorPaymentMethod || 
+          !vendor.vendorPaymentMethod.provider || 
+          !vendor.vendorPaymentMethod.accountId || 
+          vendor.vendorPaymentMethod.accountId.trim() === "") && (
+          <div className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 border border-emerald-200/50 rounded-2xl p-6">
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200/50">
+                    <CreditCard className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">!</span>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-base mb-1">
+                    Payment Method Required
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Add your payment details to receive customer payments
+                  </p>
+                </div>
+            </div>
+            <Link
+              href="/vendor/payment"
+                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold rounded-xl shadow-lg shadow-emerald-200/50 hover:shadow-xl hover:shadow-emerald-300/50 hover:from-emerald-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105"
+            >
+                Add Payment
+            </Link>
+            </div>
+          </div>
+        )}
+        
         {/* Verification Rejected Banner */}
         {vendor.verificationStatus === "rejected" && (
-          <div className="flex items-center bg-gradient-to-r from-red-50 to-red-100 shadow-md rounded-2xl p-5 w-full">
-            <span className="flex items-center justify-center mr-4 w-12 h-12 rounded-full bg-red-200/70">
-              <User className="w-6 h-6 text-red-600" />
-            </span>
-            <div className="flex-1">
-              <p className="font-semibold text-lg text-red-900 mb-1">
-                Verification was rejected
-              </p>
-              <p className="text-sm text-red-700">
-                Please review your details and resubmit your verification to
-                activate your account.
-              </p>
+          <div className="relative overflow-hidden bg-gradient-to-br from-red-50 via-rose-50 to-pink-50 border border-red-200/50 rounded-2xl p-6">
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg shadow-red-200/50">
+                    <User className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">!</span>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-base mb-1">
+                    Verification Rejected
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Please review and resubmit your verification documents
+                  </p>
+                </div>
             </div>
             <Link
               href="/vendor/settings#account-verification"
-              className="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all text-base"
+                className="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl shadow-lg shadow-red-200/50 hover:shadow-xl hover:shadow-red-300/50 hover:from-red-600 hover:to-rose-700 transition-all duration-300 transform hover:scale-105"
             >
-              Resubmit Verification
+                Resubmit
             </Link>
+            </div>
           </div>
         )}
       </div>

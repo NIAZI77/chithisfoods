@@ -16,6 +16,22 @@ const VendorProfileLayout = ({
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const uploadImage = async (file, type) => {
+    // Validate file before upload
+    if (!file) {
+      toast.error("No file selected");
+      return null;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please select a valid image file");
+      return null;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return null;
+    }
+
     const form = new FormData();
     form.append("files", file);
 
@@ -35,7 +51,9 @@ const VendorProfileLayout = ({
       });
 
       if (!res.ok) {
-        toast.error("Image upload didn't work. Let's try again!");
+        const errorData = await res.json().catch(() => ({}));
+        console.error('Upload error:', res.status, errorData);
+        toast.error(`Image upload failed: ${errorData.message || 'Please try again!'}`);
         return null;
       }
 
@@ -46,7 +64,12 @@ const VendorProfileLayout = ({
       toast.success("Perfect! Your image is now uploaded.");
       return { id, url: fullUrl, name };
     } catch (err) {
-      toast.error("Image upload failed. Let's try again!");
+      console.error('Upload error:', err);
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        toast.error("Network error: Please check your connection and try again");
+      } else {
+        toast.error(`Image upload failed: ${err.message || 'Please try again!'}`);
+      }
       return null;
     } finally {
       if (type === 'cover') {
@@ -60,16 +83,6 @@ const VendorProfileLayout = ({
   const handleCoverImageSelect = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      if (!file.type.startsWith('image/')) {
-        toast.error("Please select a valid image file");
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size must be less than 5MB");
-        return;
-      }
-
       const uploadedImage = await uploadImage(file, 'cover');
       if (uploadedImage) {
         onCoverImageUpload(uploadedImage);
@@ -80,16 +93,6 @@ const VendorProfileLayout = ({
   const handleAvatarSelect = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      if (!file.type.startsWith('image/')) {
-        toast.error("Please select a valid image file");
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size must be less than 5MB");
-        return;
-      }
-
       const uploadedImage = await uploadImage(file, 'avatar');
       if (uploadedImage) {
         onAvatarUpload(uploadedImage);
@@ -108,7 +111,7 @@ const VendorProfileLayout = ({
   return (
     <div className="relative w-full">
       {/* Cover Image Area */}
-      <div className="relative w-full h-48 bg-gray-200 rounded-lg overflow-hidden">
+      <div className="relative w-full aspect-video bg-gray-200 rounded-lg overflow-hidden">
         {currentCoverImageUrl ? (
           <>
             <img

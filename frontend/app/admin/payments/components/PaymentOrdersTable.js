@@ -16,10 +16,10 @@ const PaymentOrdersTable = ({
   onProcessVendorPayment,
   onProcessRefund,
 }) => {
-  const [vendorPaypalEmails, setVendorPaypalEmails] = useState({});
+  const [vendorPaymentMethods, setVendorPaymentMethods] = useState({});
 
   useEffect(() => {
-    const fetchVendorPaypalEmails = async () => {
+    const fetchVendorPaymentMethods = async () => {
       const vendorIds = orders
         .filter(
           (order) =>
@@ -45,17 +45,17 @@ const PaymentOrdersTable = ({
           if (!response.ok) continue;
 
           const data = await response.json();
-          setVendorPaypalEmails((prev) => ({
+          setVendorPaymentMethods((prev) => ({
             ...prev,
-            [vendorId]: data.data?.paypalEmail || null,
+            [vendorId]: data.data?.vendorPaymentMethod || null,
           }));
         } catch (error) {
-          console.error("Error fetching vendor PayPal email:", error);
+          console.error("Error fetching vendor payment method:", error);
         }
       }
     };
 
-    fetchVendorPaypalEmails();
+    fetchVendorPaymentMethods();
   }, [orders]);
 
   if (orders.length === 0) {
@@ -175,17 +175,17 @@ const PaymentOrdersTable = ({
                           }
                           disabled={
                             processingPayments[order.documentId] ||
-                            !vendorPaypalEmails[order.vendorId]
+                            !vendorPaymentMethods[order.vendorId]?.accountId
                           }
                           className={`${BUTTON_STYLES.payVendor} ${
                             processingPayments[order.documentId] ||
-                            !vendorPaypalEmails[order.vendorId]
+                            !vendorPaymentMethods[order.vendorId]?.accountId
                               ? "opacity-50 cursor-not-allowed"
                               : ""
                           }`}
                           title={
-                            !vendorPaypalEmails[order.vendorId]
-                              ? "Vendor PayPal email not provided"
+                            !vendorPaymentMethods[order.vendorId]?.accountId
+                              ? "Vendor payment method not configured"
                               : ""
                           }
                         >

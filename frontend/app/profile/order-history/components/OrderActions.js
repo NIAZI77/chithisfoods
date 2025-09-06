@@ -11,6 +11,7 @@ function OrderActions({ order, loadingStates, onCancelOrder, userData }) {
     }
 
     const canCancel = order.orderStatus === "pending";
+    const isCancelled = order.orderStatus === "cancelled";
     const hasRefundDetails =
       userData?.refundDetails?.provider && userData?.refundDetails?.accountId;
 
@@ -60,6 +61,19 @@ function OrderActions({ order, loadingStates, onCancelOrder, userData }) {
                   Cancel Order
                 </button>
                 </div>
+              </div>
+            )}
+            
+            {/* Refund Details Button for Cancelled Orders */}
+            {isCancelled && !hasRefundDetails && (
+              <div className="flex justify-end">
+                <Link
+                  href="/profile/settings"
+                  className="py-2 px-6 bg-amber-600 hover:bg-amber-700 text-white text-sm rounded-full transition-all font-semibold flex items-center gap-2 shadow-amber-300 shadow-md"
+                >
+                  <Settings className="w-4 h-4" />
+                  Add Refund Details
+                </Link>
               </div>
             )}
           </div>

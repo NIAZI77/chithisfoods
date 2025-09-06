@@ -117,11 +117,13 @@ const PaymentConfirmationDialog = ({
             </p>
             {type === "payment" ? (
               <p>
-                <span className="font-medium">Vendor PayPal Email</span>{" "}
+                <span className="font-medium">Vendor Payment Method</span>{" "}
                 {loadingVendor ? (
                   <span className="text-gray-400">Loading...</span>
                 ) : (
-                  vendorData?.paypalEmail || "N/A"
+                  vendorData?.vendorPaymentMethod?.accountId 
+                    ? `${vendorData.vendorPaymentMethod.provider} - ${vendorData.vendorPaymentMethod.accountId}`
+                    : "Not configured"
                 )}
               </p>
             ) : (

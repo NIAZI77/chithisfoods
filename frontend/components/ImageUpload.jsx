@@ -23,6 +23,22 @@ const ImageUpload = ({
   const [imagePreview, setImagePreview] = useState(currentImageUrl);
 
   const uploadImage = async (file) => {
+    // Validate file before upload
+    if (!file) {
+      toast.error("No file selected");
+      return null;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please select a valid image file");
+      return null;
+    }
+
+    if (file.size > maxSize * 1024 * 1024) {
+      toast.error(`Image size must be less than ${maxSize}MB`);
+      return null;
+    }
+
     const form = new FormData();
     form.append("files", file);
 
@@ -37,7 +53,9 @@ const ImageUpload = ({
       });
 
       if (!res.ok) {
-        toast.error("Image upload didn't work. Let's try again!");
+        const errorData = await res.json().catch(() => ({}));
+        console.error('Upload error:', res.status, errorData);
+        toast.error(`Image upload failed: ${errorData.message || 'Please try again!'}`);
         return null;
       }
 
@@ -48,7 +66,12 @@ const ImageUpload = ({
       toast.success("Perfect! Your image is now uploaded.");
       return { id, url: fullUrl, name };
     } catch (err) {
-      toast.error("Image upload failed. Let's try again!");
+      console.error('Upload error:', err);
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        toast.error("Network error: Please check your connection and try again");
+      } else {
+        toast.error(`Image upload failed: ${err.message || 'Please try again!'}`);
+      }
       return null;
     } finally {
       setUploading(false);
@@ -58,19 +81,7 @@ const ImageUpload = ({
   const handleImageSelect = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast.error("Please select a valid image file");
-        return;
-      }
-
-      // Validate file size
-      if (file.size > maxSize * 1024 * 1024) {
-        toast.error(`Image size must be less than ${maxSize}MB`);
-        return;
-      }
-
-      // Upload the image immediately
+      // Upload the image immediately (validation is done in uploadImage)
       const uploadedImage = await uploadImage(file);
       if (uploadedImage) {
         setImagePreview(uploadedImage.url);

@@ -12,13 +12,22 @@ import {
   Search,
   Loader2,
 } from "lucide-react";
+import SearchComponent from "@/components/SearchComponent";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "react-toastify";
 import Loading from "@/app/loading";
 import Link from "next/link";
 import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
 
 export default function ManageInventory() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentSearchQuery, setCurrentSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [dishes, setDishes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +42,7 @@ export default function ManageInventory() {
   const filteredDishes = dishes.filter((dish) => {
     const matchesSearch = dish.name
       ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
+      .includes(currentSearchQuery.toLowerCase());
     const isAvailable = dish.available === true;
     const matchesStatus =
       filterStatus === "All" ||
@@ -262,54 +271,54 @@ export default function ManageInventory() {
         </h1>
         <button
           onClick={handleAddDish}
-          className="bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="bg-orange-600 text-white py-2 px-6 rounded-full shadow-orange-300 shadow-md hover:bg-orange-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           <Plus /> Add Dish
         </button>
       </div>
-      <div className="flex gap-2 my-2 items-center justify-end">
-        <button
-          onClick={setAllAvailable}
-          className="bg-green-600 text-white py-2 px-6 rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          disabled={changingAvailability}
-        >
-          <ChefHat className="h-4 w-4" /> Set All Available
-        </button>
-        <button
-          onClick={setAllUnavailable}
-          className="bg-red-600 text-white py-2 px-6 rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          disabled={changingAvailability}
-        >
-          <AlertTriangle className="h-4 w-4" /> Set All Unavailable
-        </button>
-      </div>
-      <section className="flex items-center justify-between gap-2 md:flex-row flex-col mb-4">
-        <div className="flex flex-wrap gap-1 w-fit p-1 border-1 rounded-lg mb-4 md:p-2 md:border-2">
-          {["All", "Available", "Unavailable"].map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilterStatus(status)}
-              className={`md:px-4 md:py-1.5 px-2 py-1 rounded-md text-xs font-medium ${
-                filterStatus === status
-                  ? "bg-orange-100 text-orange-700"
-                  : "bg-white text-gray-600"
-              }`}
-            >
-              {status}
-            </button>
-          ))}
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search product..."
-            className="border rounded-md px-4 py-2 w-full outline-orange-400"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full lg:w-auto">
+          <SearchComponent
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSearchSubmit={(e) => {
+              e.preventDefault();
+              setCurrentSearchQuery(searchQuery);
+            }}
+            placeholder="Search dishes..."
+            buttonColor="bg-orange-600 hover:bg-orange-700"
+            shadowColor="shadow-orange-300"
           />
+          <div className="w-full sm:w-48">
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Dishes</SelectItem>
+                <SelectItem value="Available">Available</SelectItem>
+                <SelectItem value="Unavailable">Unavailable</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      </section>
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={setAllAvailable}
+            className="bg-green-600 text-white py-2 px-4 rounded-full shadow-green-300 shadow-md hover:bg-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
+            disabled={changingAvailability}
+          >
+            <ChefHat className="h-4 w-4" /> Set All Available
+          </button>
+          <button
+            onClick={setAllUnavailable}
+            className="bg-red-600 text-white py-2 px-4 rounded-full shadow-red-300 shadow-md hover:bg-red-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
+            disabled={changingAvailability}
+          >
+            <AlertTriangle className="h-4 w-4" /> Set All Unavailable
+          </button>
+        </div>
+      </div>
 
       <div className="overflow-x-auto border rounded-md">
         <table className="min-w-[800px] w-full text-sm text-left">
@@ -353,14 +362,14 @@ export default function ManageInventory() {
                       No dishes found
                     </h3>
                     <p className="text-gray-500 text-sm mb-4 max-w-md">
-                      {searchTerm || filterStatus !== "All"
+                      {currentSearchQuery || filterStatus !== "All"
                         ? "Try adjusting your search or filters to find what you're looking for."
                         : "Get started by adding your first dish to your menu."}
                     </p>
-                    {!searchTerm && filterStatus === "All" && (
+                    {!currentSearchQuery && filterStatus === "All" && (
                       <button
                         onClick={handleAddDish}
-                        className="bg-rose-600 text-white py-2 px-6 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="bg-orange-600 text-white py-2 px-6 rounded-full shadow-orange-300 shadow-md hover:bg-orange-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         <Plus className="w-4 h-4" />
                         Add Your First Dish

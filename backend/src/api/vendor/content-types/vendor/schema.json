@@ -70,8 +70,8 @@
       "type": "decimal",
       "default": 0
     },
-    "paypalEmail": {
-      "type": "email"
+    "vendorPaymentMethod": {
+      "type": "json"
     },
     "phoneNumber": {
       "type": "string",

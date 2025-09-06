@@ -4,10 +4,6 @@ import React, { useState, useEffect } from "react";
 import {
   CheckCircle2,
   Clock,
-  Mail,
-  Pencil,
-  AlertCircle,
-  X,
   Loader2,
   Receipt,
   Calendar,
@@ -15,8 +11,7 @@ import {
 import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import Spinner from "@/components/WhiteSpinner";
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import VendorPaymentMethodManager from "@/components/VendorPaymentMethodManager";
 
 const formatDateTime = (dateString) => {
   const date = new Date(dateString);
@@ -211,234 +206,13 @@ const TransactionList = ({ transactions, isLoading }) => {
   );
 };
 
-const PayPalConnection = ({
-  isConnected,
-  email,
-  emailError,
-  isEditing,
-  tempEmail,
-  onConnect,
-  onDisconnect,
-  onEmailChange,
-  onStartEditing,
-  onUpdateEmail,
-  onCancelEditing,
-  isSaving,
-}) => (
-  <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-    <div className="flex items-center justify-center">
-      <img src="/paypal.png" alt="PayPal" className="w-64 object-contain" />
-    </div>
-
-    <div className="text-center">
-      {!isConnected ? (
-        <PayPalConnectForm
-          email={email}
-          emailError={emailError}
-          onEmailChange={onEmailChange}
-          onConnect={onConnect}
-          isSaving={isSaving}
-        />
-      ) : (
-        <PayPalConnectedView
-          email={email}
-          isEditing={isEditing}
-          tempEmail={tempEmail}
-          emailError={emailError}
-          onStartEditing={onStartEditing}
-          onEmailChange={onEmailChange}
-          onUpdateEmail={onUpdateEmail}
-          onCancelEditing={onCancelEditing}
-          onDisconnect={onDisconnect}
-          isSaving={isSaving}
-        />
-      )}
-    </div>
-  </div>
-);
-
-const PayPalConnectForm = ({
-  email,
-  emailError,
-  onEmailChange,
-  onConnect,
-  isSaving,
-}) => (
-  <>
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <p className="text-gray-700 text-lg font-medium">
-          Connect your PayPal account
-        </p>
-        <p className="text-gray-500">Receive payments securely and instantly</p>
-      </div>
-      <div className="flex items-center justify-center space-x-4 text-sm">
-        <div className="flex items-center space-x-2 bg-green-50 px-4 py-2 rounded-full">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <span className="text-green-700">Secure payments</span>
-        </div>
-        <div className="flex items-center space-x-2 bg-indigo-50 px-4 py-2 rounded-full">
-          <Clock className="h-4 w-4 text-indigo-600" />
-          <span className="text-indigo-700">Instant transfers</span>
-        </div>
-      </div>
-    </div>
-
-    <div className="my-5">
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Mail className="h-5 w-5 text-gray-400" />
-        </div>
-        <input
-          type="email"
-          id="paypalEmail"
-          value={email}
-          onChange={onEmailChange}
-          placeholder="Enter your PayPal email"
-          className={`w-full pl-10 pr-10 py-3 border ${
-            emailError ? "border-red-300" : "border-gray-300"
-          } rounded-lg  bg-white`}
-        />
-        {email && !emailError && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-          </div>
-        )}
-      </div>
-      {emailError && (
-        <p className="mt-2 text-sm text-red-500 flex items-center space-x-1">
-          <AlertCircle className="h-4 w-4" />
-          <span>{emailError}</span>
-        </p>
-      )}
-    </div>
-
-    <button
-      onClick={onConnect}
-      disabled={!email || !!emailError || isSaving}
-      className="w-full bg-rose-600 text-white py-3.5 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all font-semibold disabled:opacity-50 disabled:bg-gray-300 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2"
-    >
-      {!isSaving && <CheckCircle2 className="h-5 w-5" />}
-      <span>{isSaving ? <Spinner /> : "CONNECT PAYPAL"}</span>
-    </button>
-  </>
-);
-
-const PayPalConnectedView = ({
-  email,
-  isEditing,
-  tempEmail,
-  emailError,
-  onStartEditing,
-  onEmailChange,
-  onUpdateEmail,
-  onCancelEditing,
-  onDisconnect,
-  isSaving,
-}) => (
-  <div className="space-y-6">
-    <div className="flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-50 to-emerald-100 p-4 rounded-xl border border-emerald-200">
-      <CheckCircle2 className="h-6 w-6 text-emerald-600" />
-      <div className="text-left">
-        <p className="text-emerald-800 font-semibold">
-          PayPal Account Connected
-        </p>
-        <p className="text-emerald-600 text-sm">
-          Your account is ready to receive payments
-        </p>
-      </div>
-    </div>
-
-    {!isEditing ? (
-      <div className="flex items-center justify-center gap-2">
-        <p className="text-emerald-700 text-lg flex items-center justify-center gap-1 font-bold">
-          <Mail />
-          {email}
-        </p>
-        <button
-          onClick={onStartEditing}
-          className="text-rose-600 hover:text-rose-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={isSaving}
-        >
-          <Pencil />
-        </button>
-      </div>
-    ) : (
-      <div className="space-y-4 bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-200">
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Update PayPal Email
-          </label>
-          <div className="relative">
-            <input
-              type="email"
-              value={tempEmail}
-              onChange={onEmailChange}
-              placeholder="Enter new PayPal email"
-              disabled={isSaving}
-              className={`w-full px-4 py-3 border ${
-                emailError ? "border-red-300" : "border-gray-300"
-              } rounded-lg  pr-10 bg-white shadow-sm disabled:bg-gray-50 disabled:cursor-not-allowed`}
-            />
-            {tempEmail && !emailError && !isSaving && (
-              <CheckCircle2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-emerald-500" />
-            )}
-            {isSaving && (
-              <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 animate-spin text-gray-400" />
-            )}
-          </div>
-          {emailError && (
-            <p className="text-red-500 text-sm flex items-center space-x-1">
-              <AlertCircle className="h-4 w-4" />
-              <span>{emailError}</span>
-            </p>
-          )}
-        </div>
-        <div className="flex space-x-3">
-          <button
-            onClick={onUpdateEmail}
-            disabled={isSaving || !!emailError}
-            className="flex-1 bg-rose-600 text-white py-2.5 px-4 rounded-full font-medium hover:bg-rose-700 transition-all shadow-rose-300 shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {!isSaving && <CheckCircle2 className="h-4 w-4" />}
-            <span>{isSaving ? <Spinner /> : "Save Changes"}</span>
-          </button>
-          <button
-            onClick={onCancelEditing}
-            disabled={isSaving}
-            className="flex-1 text-gray-600 py-2.5 px-4 rounded-full font-medium hover:bg-gray-600 hover:text-white transition-all border-2 border-gray-600 shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <X className="h-4 w-4" />
-            <span>Cancel</span>
-          </button>
-        </div>
-      </div>
-    )}
-
-    {!isEditing && (
-      <button
-        onClick={onDisconnect}
-        disabled={isSaving}
-        className="w-full bg-red-600 text-white py-3.5 rounded-full font-semibold hover:bg-red-700 transition-all shadow-red-300 shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {!isSaving && <X className="h-5 w-5" />}
-        <span>{isSaving ? <Spinner /> : "DISCONNECT PAYPAL"}</span>
-      </button>
-    )}
-  </div>
-);
 
 function PaymentPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("transactions");
-  const [paypalEmail, setPaypalEmail] = useState("");
-  const [isPaypalConnected, setIsPaypalConnected] = useState(false);
-  const [isEditingEmail, setIsEditingEmail] = useState(false);
-  const [emailError, setEmailError] = useState("");
-  const [tempEmail, setTempEmail] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [vendorId, setVendorId] = useState(null);
   const [timeFilter, setTimeFilter] = useState("week");
   const [stats, setStats] = useState({
@@ -518,7 +292,7 @@ function PaymentPage() {
       setIsLoading(true);
       const encodedEmail = encodeURIComponent(email);
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${encodedEmail}&fields[0]=id&fields[1]=paypalEmail`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[email][$eq]=${encodedEmail}&fields[0]=id&fields[1]=vendorPaymentMethod`,
         {
           method: "GET",
           headers: {
@@ -541,9 +315,8 @@ function PaymentPage() {
         return;
       }
       setVendorId(vendorData.documentId);
-      if (vendorData.paypalEmail) {
-        setPaypalEmail(vendorData.paypalEmail);
-        setIsPaypalConnected(true);
+      if (vendorData.vendorPaymentMethod) {
+        setPaymentMethod(vendorData.vendorPaymentMethod);
       }
       await fetchVendorOrders(vendorData.documentId);
     } catch (error) {
@@ -588,156 +361,8 @@ function PaymentPage() {
     });
   }, [transactions]);
 
-  const validatePaypalEmail = (email) => {
-    if (!email) return "Email is required";
-    if (!EMAIL_REGEX.test(email)) return "Please enter a valid email address";
-    return "";
-  };
-
-  const handleEmailChange = (e) => {
-    const newEmail = e.target.value.trim();
-    if (isEditingEmail) {
-      setTempEmail(newEmail);
-    } else {
-      setPaypalEmail(newEmail);
-    }
-    setEmailError(validatePaypalEmail(newEmail));
-  };
-
-  const handleConnectPaypal = async () => {
-    const error = validatePaypalEmail(paypalEmail);
-    if (!error) {
-      try {
-        setIsSaving(true);
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-            },
-            body: JSON.stringify({
-              data: {
-                paypalEmail,
-              },
-            }),
-          }
-        );
-
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(
-            data.error?.message || "Failed to update PayPal email"
-          );
-        }
-
-        setIsPaypalConnected(true);
-        setEmailError("");
-        toast.success("PayPal email connected successfully");
-      } catch (error) {
-        console.error("Error updating PayPal email:", error);
-        setEmailError("Failed to connect PayPal. Please try again.");
-        toast.error(error.message || "Failed to connect PayPal");
-      } finally {
-        setIsSaving(false);
-      }
-    } else {
-      setEmailError(error);
-    }
-  };
-
-  const handleUpdateEmail = async () => {
-    const error = validatePaypalEmail(tempEmail);
-    if (!error) {
-      try {
-        setIsSaving(true);
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-            },
-            body: JSON.stringify({
-              data: {
-                paypalEmail: tempEmail,
-              },
-            }),
-          }
-        );
-
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(
-            data.error?.message || "Failed to update PayPal email"
-          );
-        }
-
-        setPaypalEmail(tempEmail);
-        setIsEditingEmail(false);
-        setEmailError("");
-        toast.success("PayPal email updated successfully");
-      } catch (error) {
-        console.error("Error updating PayPal email:", error);
-        setEmailError("Failed to update PayPal email. Please try again.");
-        toast.error(error.message || "Failed to update PayPal email");
-      } finally {
-        setIsSaving(false);
-      }
-    } else {
-      setEmailError(error);
-    }
-  };
-
-  const handleDisconnectPaypal = async () => {
-    try {
-      setIsSaving(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors/${vendorId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-          body: JSON.stringify({
-            data: {
-              paypalEmail: null,
-            },
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error?.message || "Failed to disconnect PayPal");
-      }
-
-      setIsPaypalConnected(false);
-      setPaypalEmail("");
-      setEmailError("");
-      toast.success("PayPal disconnected successfully");
-    } catch (error) {
-      console.error("Error disconnecting PayPal:", error);
-      setEmailError("Failed to disconnect PayPal. Please try again.");
-      toast.error(error.message || "Failed to disconnect PayPal");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const startEditingEmail = () => {
-    setTempEmail(paypalEmail);
-    setIsEditingEmail(true);
-    setEmailError("");
-  };
-
-  const cancelEditing = () => {
-    setIsEditingEmail(false);
-    setEmailError("");
-    setTempEmail("");
+  const handlePaymentMethodUpdate = (updatedPaymentMethod) => {
+    setPaymentMethod(updatedPaymentMethod);
   };
 
   return (
@@ -816,29 +441,18 @@ function PaymentPage() {
 
         {activeTab === "paymentMethods" && (
           <div className="grid grid-cols-1 gap-6">
-            <div>
-              <h3 className="text-xl font-semibold mb-4">PAYMENT METHOD</h3>
-              {isLoading ? (
-                <div className="flex items-center justify-center p-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                </div>
-              ) : (
-                <PayPalConnection
-                  isConnected={isPaypalConnected}
-                  email={paypalEmail}
-                  emailError={emailError}
-                  isEditing={isEditingEmail}
-                  tempEmail={tempEmail}
-                  onConnect={handleConnectPaypal}
-                  onDisconnect={handleDisconnectPaypal}
-                  onEmailChange={handleEmailChange}
-                  onStartEditing={startEditingEmail}
-                  onUpdateEmail={handleUpdateEmail}
-                  onCancelEditing={cancelEditing}
-                  isSaving={isSaving}
-                />
-              )}
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+              </div>
+            ) : (
+              <VendorPaymentMethodManager
+                vendorId={vendorId}
+                initialPaymentMethod={paymentMethod}
+                onPaymentMethodUpdate={handlePaymentMethodUpdate}
+                jwt={getCookie("jwt")}
+              />
+            )}
           </div>
         )}
       </div>

@@ -10,6 +10,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { FaMapMarkerAlt, FaStore, FaBox } from "react-icons/fa";
 import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
+import { LoadScript } from "@react-google-maps/api";
 
 import AddressModeSelector from "./components/AddressModeSelector";
 import DeliverySchedule from "./components/DeliverySchedule";
@@ -113,7 +114,6 @@ const Page = () => {
   const [addressesFetched, setAddressesFetched] = useState(false);
   const [userData, setUserData] = useState({});
   // Google Maps related state
-  const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
   const [showMap, setShowMap] = useState(false);
   
   // Address validation and button state management
@@ -236,23 +236,6 @@ const Page = () => {
     return true;
   }, [formData.deliveryMode, formData.name, formData.phone, formData.address]);
 
-  // Load Google Maps API only once
-  useEffect(() => {
-    if (typeof window !== "undefined" && !window.google) {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${
-        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
-        "AIzaSyCo-1jjnYnHxZ2zriquK2QmJraCgkcQyQI"
-      }&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => setGoogleMapsLoaded(true);
-      script.onerror = () => console.error("Failed to load Google Maps API");
-      document.head.appendChild(script);
-    } else if (window.google) {
-      setGoogleMapsLoaded(true);
-    }
-  }, []);
 
   useEffect(() => {
     const now = new Date();
@@ -1745,7 +1728,6 @@ const Page = () => {
                     setShowAddressForm={setShowAddressForm}
                     onAddressSelect={handleAddressSelect}
                     onMarkerDrag={handleMarkerDrag}
-                    googleMapsLoaded={googleMapsLoaded}
                     showMap={showMap}
                     canSaveAddress={canSaveAddress}
                     isDuplicateAddress={isDuplicateAddress}
@@ -1962,4 +1944,17 @@ const Page = () => {
   );
 };
 
-export default Page;
+const CheckoutPage = () => {
+  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyCo-1jjnYnHxZ2zriquK2QmJraCgkcQyQI";
+  
+  return (
+    <LoadScript
+      googleMapsApiKey={googleMapsApiKey}
+      libraries={["places"]}
+    >
+      <Page />
+    </LoadScript>
+  );
+};
+
+export default CheckoutPage;

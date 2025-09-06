@@ -4,6 +4,7 @@ import { getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import Link from "next/link";
 import {
   Clock,
   Package,
@@ -12,6 +13,7 @@ import {
   AlertCircle,
   Eye,
   ClipboardList,
+  Settings,
 } from "lucide-react";
 import Loading from "@/app/loading";
 import SearchComponent from "@/components/SearchComponent";
@@ -705,6 +707,33 @@ export default function OrderHistoryPage() {
         </div>
       ) : (
         <>
+          {/* Alert for cancelled orders without refund details */}
+          {orderData.some(order => 
+            order.orderStatus === "cancelled" && 
+            (!userData?.refundDetails?.provider || !userData?.refundDetails?.accountId)
+          ) && (
+            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-amber-800 mb-1">
+                    Please add refund details to get refund.
+                  </h4>
+                  <p className="text-xs text-amber-700">
+                    You have cancelled orders that require refund details to process your refund.
+                  </p>
+                </div>
+                <Link
+                  href="/profile/settings"
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm rounded-lg transition-colors flex items-center gap-2 font-medium"
+                >
+                  <Settings className="w-4 h-4" />
+                  Add Refund Details
+                </Link>
+              </div>
+            </div>
+          )}
+          
           <style>{`
             .custom-scrollbar::-webkit-scrollbar {
               width: 6px;
@@ -837,13 +866,23 @@ export default function OrderHistoryPage() {
                             items
                           </td>
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
-                            <span
-                              className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize mx-auto ${getStatusClasses(
-                                order.orderStatus
-                              )}`}
-                            >
-                              {order.orderStatus || "Unknown"}
-                            </span>
+                            <div className="flex flex-col items-center gap-1">
+                              <span
+                                className={`px-2 sm:px-3 py-1 text-xs leading-5 font-medium rounded-full capitalize mx-auto ${getStatusClasses(
+                                  order.orderStatus
+                                )}`}
+                              >
+                                {order.orderStatus || "Unknown"}
+                              </span>
+                              {/* Show refund details alert for cancelled orders without refund details */}
+                              {order.orderStatus === "cancelled" && 
+                               (!userData?.refundDetails?.provider || !userData?.refundDetails?.accountId) && (
+                                <div className="flex items-center gap-1 px-2 py-1 bg-amber-50 border border-amber-200 rounded text-amber-700 text-xs">
+                                  <AlertCircle className="w-3 h-3" />
+                                  <span>Add refund details</span>
+                                </div>
+                              )}
+                            </div>
                           </td>
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
                             <DeliveryTypeBadge

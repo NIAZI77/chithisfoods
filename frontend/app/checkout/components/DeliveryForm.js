@@ -11,7 +11,6 @@ const GooglePlacesAutocomplete = React.memo(
     value,
     onChange,
     onAddressSelect,
-    googleMapsLoaded,
     savingAddress,
     formData,
     mapAddressData,
@@ -25,7 +24,6 @@ const GooglePlacesAutocomplete = React.memo(
     // Initialize autocomplete only once when component mounts
     useEffect(() => {
       if (
-        googleMapsLoaded &&
         window.google &&
         window.google.maps &&
         !autocompleteInstance
@@ -66,7 +64,7 @@ const GooglePlacesAutocomplete = React.memo(
           setAutocompleteInstance(instance);
         }
       }
-    }, [googleMapsLoaded, onChange, onAddressSelect, autocompleteInstance]);
+    }, [onChange, onAddressSelect, autocompleteInstance]);
 
     // Update input value when prop changes
     useEffect(() => {
@@ -146,7 +144,6 @@ const DeliveryForm = ({
   showSaveButton = true,
   onAddressSelect,
   onMarkerDrag,
-  googleMapsLoaded,
   showMap,
   mapAddressData,
   canSaveAddress = false,
@@ -319,7 +316,6 @@ const DeliveryForm = ({
               // Call the parent handler
               onAddressSelect(addressData);
             }}
-            googleMapsLoaded={googleMapsLoaded}
             savingAddress={savingAddress}
             formData={formData}
             mapAddressData={mapAddressData}

@@ -23,7 +23,6 @@ const DeliveryAddressSelector = ({
   setShowAddressForm,
   onAddressSelect,
   onMarkerDrag,
-  googleMapsLoaded,
   showMap,
   mapAddressData,
   canSaveAddress,
@@ -143,7 +142,6 @@ const DeliveryAddressSelector = ({
             showSaveButton={isFormRed || !selectedAddressId} // Show save button when editing or no address selected
             onAddressSelect={onAddressSelect}
             onMarkerDrag={onMarkerDrag}
-            googleMapsLoaded={googleMapsLoaded}
             showMap={showMap}
             mapAddressData={mapAddressData}
             canSaveAddress={canSaveAddress}

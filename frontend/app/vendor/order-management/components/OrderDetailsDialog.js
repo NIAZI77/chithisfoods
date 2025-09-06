@@ -41,7 +41,7 @@ const TOAST_MESSAGES = {
     "Sorry, you cannot cancel an order that is ready for delivery.",
 };
 
-function OrderDetailsDialog({ order, isOpen, onClose }) {
+function OrderDetailsDialog({ order, isOpen, onClose, onRefetch }) {
   const router = useRouter();
   const [loadingStates, setLoadingStates] = useState({
     processing: false,
@@ -201,7 +201,10 @@ function OrderDetailsDialog({ order, isOpen, onClose }) {
 
       toast.success(TOAST_MESSAGES.ORDER_UPDATE_SUCCESS);
       onClose();
-      router.refresh();
+      // Refetch orders to update the UI
+      if (onRefetch) {
+        onRefetch();
+      }
     } catch (error) {
       toast.error(TOAST_MESSAGES.ORDER_UPDATE_ERROR);
     } finally {

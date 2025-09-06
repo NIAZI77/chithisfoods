@@ -430,6 +430,7 @@ export default function VendorOrderManagement() {
           setIsDialogOpen(false);
           setSelectedOrder(null);
         }}
+        onRefetch={fetchOrders}
       />
     </div>
   );

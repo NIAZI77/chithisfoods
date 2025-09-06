@@ -282,6 +282,22 @@ const RefundDetailsManager = ({
     );
   };
 
+  // Function to get label text based on selected provider
+  const getAccountIdLabel = () => {
+    switch (refundDetails.provider) {
+      case "paypal":
+        return "PayPal Email";
+      case "bank_transfer":
+        return "Account Number or IBAN";
+      case "wallet":
+        return "Wallet Address";
+      case "mobile_money":
+        return "Mobile Number";
+      default:
+        return "Account ID";
+    }
+  };
+
   // Function to get placeholder text based on selected provider
   const getAccountIdPlaceholder = () => {
     const providerInfo = getProviderInfo(refundDetails.provider);
@@ -438,16 +454,17 @@ const RefundDetailsManager = ({
         <div className="space-y-2">
           <label className="text-sm font-medium text-black flex items-center gap-2">
             <User className="w-4 h-4" />
-            Account ID
+            {getAccountIdLabel()}
           </label>
           <input
-            type="text"
-            placeholder="Email, account number, etc."
+            type={refundDetails.provider === "paypal" ? "email" : "text"}
+            placeholder={getAccountIdPlaceholder()}
             value={refundDetails.accountId}
             onChange={(e) =>
               handleRefundDetailsChange("accountId", e.target.value)
             }
             className="w-full p-3 bg-white/80 border border-gray-300 rounded-lg"
+            required
           />
         </div>
 
