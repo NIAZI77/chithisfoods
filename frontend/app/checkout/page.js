@@ -1360,6 +1360,11 @@ const Page = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Order creation failed:", {
+          status: response.status,
+          error: errorData,
+          orderData: cleanOrderData
+        });
         throw new Error(errorData.error?.message || "Failed to place order");
       }
 
@@ -1531,6 +1536,21 @@ const Page = () => {
           );
         }
 
+        // Clean and validate vendorAddress before sending
+        let cleanVendorAddress = "Address not available";
+        if (vendor.vendorAddress) {
+          // Ensure it's a string and clean it
+          const addressStr = String(vendor.vendorAddress).trim();
+          if (addressStr && addressStr.length > 0) {
+            // Remove any potentially problematic characters but keep basic punctuation
+            cleanVendorAddress = addressStr.replace(/[^\w\s,.-]/g, '');
+            // Ensure it's not empty after cleaning
+            if (cleanVendorAddress.length === 0) {
+              cleanVendorAddress = "Address not available";
+            }
+          }
+        }
+
         const orderData = {
           customerOrderId,
           note: formData.note || "",
@@ -1548,7 +1568,7 @@ const Page = () => {
             vendorUsername: vendor.vendorUsername,
           } : {}),
           ...(vendor.vendorAvatar ? { vendorAvatar: vendor.vendorAvatar } : {}),
-          ...(vendor.vendorAddress ? { vendorAddress: vendor.vendorAddress } : {}),
+          vendorAddress: cleanVendorAddress,
           dishes: vendor.dishes,
           deliveryDate: formData.deliveryDate
             ? format(formData.deliveryDate, "yyyy-MM-dd")
@@ -1557,6 +1577,15 @@ const Page = () => {
             ? `${formData.deliveryTime}:00.000`
             : formData.deliveryTime || "",
         };
+
+        // Debug logging for production issues
+        console.log("Order data for vendor:", {
+          vendorId: vendor.vendorId,
+          originalVendorAddress: vendor.vendorAddress,
+          cleanVendorAddress: cleanVendorAddress,
+          vendorAddressType: typeof cleanVendorAddress,
+          vendorAddressLength: cleanVendorAddress.length
+        });
 
         if (formData.deliveryMode === "pickup") {
           orderData.deliveryType = "pickup";
