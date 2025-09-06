@@ -1691,7 +1691,7 @@ const Page = () => {
               <div className="mb-6 sm:mb-8">
                 <h3 className="font-black text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 text-black flex items-center gap-2">
                   <User className="inline w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />{" "}
-                  Order Information
+                  Customer Information
                 </h3>
 
                 {formData.deliveryMode === "delivery" && (
