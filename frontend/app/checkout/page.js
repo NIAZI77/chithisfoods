@@ -115,14 +115,14 @@ const Page = () => {
   const [userData, setUserData] = useState({});
   // Google Maps related state
   const [showMap, setShowMap] = useState(false);
-  
+
   // Address validation and button state management
   const [isAddressValid, setIsAddressValid] = useState(false);
   const [addressHasChanged, setAddressHasChanged] = useState(false);
   const [originalAddressData, setOriginalAddressData] = useState(null);
   const [canPlaceOrder, setCanPlaceOrder] = useState(false);
   const [canSaveAddress, setCanSaveAddress] = useState(false);
-  
+
   // Delete address dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState(null);
@@ -139,7 +139,7 @@ const Page = () => {
       lng: addressData.lng,
     });
     setShowMap(true);
-    
+
     // Mark address as unchanged when selected from Google
     setAddressHasChanged(false);
     setOriginalAddressData({
@@ -164,8 +164,8 @@ const Page = () => {
     if (!formData.name?.trim() || !formData.phone?.trim() || !formData.address?.trim()) {
       return false;
     }
-    
-    return savedAddresses.some(addr => 
+
+    return savedAddresses.some(addr =>
       addr.name.toLowerCase() === formData.name.toLowerCase() &&
       addr.phone === formData.phone &&
       addr.address.toLowerCase() === formData.address.toLowerCase()
@@ -175,39 +175,39 @@ const Page = () => {
   // Comprehensive address validation function
   const validateAddressAndUpdateButtons = useCallback(() => {
     // Check if all required fields are filled
-    const hasRequiredFields = formData.name?.trim() && 
-                             formData.phone?.trim() && 
-                             formData.address?.trim();
-    
+    const hasRequiredFields = formData.name?.trim() &&
+      formData.phone?.trim() &&
+      formData.address?.trim();
+
     // Check if address matches Google Maps result exactly
     const addressMatchesGoogle = formData.address === mapAddressData.formatted_address &&
-                                mapAddressData.lat && 
-                                mapAddressData.lng;
-    
+      mapAddressData.lat &&
+      mapAddressData.lng;
+
     // Check if current form data matches a saved address (allows manual typing of saved addresses)
-    const matchesSavedAddress = savedAddresses.some(addr => 
+    const matchesSavedAddress = savedAddresses.some(addr =>
       addr.name.toLowerCase() === formData.name.toLowerCase() &&
       addr.phone === formData.phone &&
       addr.address.toLowerCase() === formData.address.toLowerCase()
     );
-    
+
     // For delivery mode, address must be valid
     // Only allow if: Google Maps match OR matches a saved address
-    const isDeliveryValid = formData.deliveryMode === "delivery" ? 
-      (hasRequiredFields && (addressMatchesGoogle || matchesSavedAddress)) : 
+    const isDeliveryValid = formData.deliveryMode === "delivery" ?
+      (hasRequiredFields && (addressMatchesGoogle || matchesSavedAddress)) :
       hasRequiredFields;
-    
+
     // For pickup mode, only name is required
-    const isPickupValid = formData.deliveryMode === "pickup" && 
-                         formData.name?.trim();
-    
+    const isPickupValid = formData.deliveryMode === "pickup" &&
+      formData.name?.trim();
+
     const isValid = isDeliveryValid || isPickupValid;
-    
+
     setIsAddressValid(isValid);
     setCanPlaceOrder(isValid);
     // Use same logic as place order button for save button (but prevent duplicates)
     setCanSaveAddress(isValid && !isDuplicateAddress());
-    
+
     return isValid;
   }, [formData, mapAddressData, isDuplicateAddress, savedAddresses]);
 
@@ -341,7 +341,7 @@ const Page = () => {
           setSavedAddresses([]);
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   }, [user, jwt]);
 
   const fetchSavedAddresses = useCallback(async () => {
@@ -406,12 +406,12 @@ const Page = () => {
 
           if (!initResponse.ok) {
           }
-        } catch (initError) {}
+        } catch (initError) { }
       }
 
       // Filter addresses by current zipcode from localStorage
       const currentZipcode = typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "";
-      const filteredAddresses = currentZipcode 
+      const filteredAddresses = currentZipcode
         ? userAddresses.filter(address => address.zipcode === currentZipcode)
         : userAddresses;
 
@@ -472,81 +472,81 @@ const Page = () => {
   const confirmAddressDeletion = useCallback(async () => {
     if (!addressToDelete) return;
 
-      try {
-        const userResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
-          {
-            headers: {
-              Authorization: `Bearer ${jwt}`,
-            },
-          }
-        );
-
-        if (!userResponse.ok) {
-          throw new Error("Failed to fetch user data");
+    try {
+      const userResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
         }
+      );
 
-        const userData = await userResponse.json();
-        if (!userData.id) {
-          throw new Error("User ID not found");
-        }
-
-        const currentAddresses = Array.isArray(savedAddresses)
-          ? savedAddresses
-          : [];
-        const updatedAddresses = currentAddresses.filter(
-          (addr) => addr.id !== addressToDelete
-        );
-
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userData.id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-            },
-            body: JSON.stringify({
-              addresses: updatedAddresses,
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to delete address");
-        }
-
-        // Filter addresses by current zipcode from localStorage
-        const currentZipcode = typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "";
-        const filteredAddresses = currentZipcode 
-          ? updatedAddresses.filter(address => address.zipcode === currentZipcode)
-          : updatedAddresses;
-        setSavedAddresses(filteredAddresses);
-
-        if (selectedAddressId === addressToDelete) {
-          setFormData((prev) => ({
-            ...prev,
-            name: "",
-            phone: "",
-            address: "",
-          }));
-          setMapAddressData({
-            formatted_address: "",
-            lat: null,
-            lng: null,
-          });
-          setSelectedAddressId(null);
-        }
-        toast.success("Great! Your address has been removed successfully.");
-      } catch (error) {
-        toast.error(
-          "We couldn't delete your address right now. Please try again."
-        );
-      } finally {
-        setDeleteDialogOpen(false);
-        setAddressToDelete(null);
+      if (!userResponse.ok) {
+        throw new Error("Failed to fetch user data");
       }
-    },
+
+      const userData = await userResponse.json();
+      if (!userData.id) {
+        throw new Error("User ID not found");
+      }
+
+      const currentAddresses = Array.isArray(savedAddresses)
+        ? savedAddresses
+        : [];
+      const updatedAddresses = currentAddresses.filter(
+        (addr) => addr.id !== addressToDelete
+      );
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users/${userData.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+          body: JSON.stringify({
+            addresses: updatedAddresses,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete address");
+      }
+
+      // Filter addresses by current zipcode from localStorage
+      const currentZipcode = typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "";
+      const filteredAddresses = currentZipcode
+        ? updatedAddresses.filter(address => address.zipcode === currentZipcode)
+        : updatedAddresses;
+      setSavedAddresses(filteredAddresses);
+
+      if (selectedAddressId === addressToDelete) {
+        setFormData((prev) => ({
+          ...prev,
+          name: "",
+          phone: "",
+          address: "",
+        }));
+        setMapAddressData({
+          formatted_address: "",
+          lat: null,
+          lng: null,
+        });
+        setSelectedAddressId(null);
+      }
+      toast.success("Great! Your address has been removed successfully.");
+    } catch (error) {
+      toast.error(
+        "We couldn't delete your address right now. Please try again."
+      );
+    } finally {
+      setDeleteDialogOpen(false);
+      setAddressToDelete(null);
+    }
+  },
     [user, jwt, savedAddresses, selectedAddressId, addressToDelete]
   );
   const handleEditAddress = useCallback((address) => {
@@ -660,7 +660,7 @@ const Page = () => {
 
       // Filter addresses by current zipcode from localStorage
       const currentZipcode = typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "";
-      const filteredAddresses = currentZipcode 
+      const filteredAddresses = currentZipcode
         ? updatedAddresses.filter(address => address.zipcode === currentZipcode)
         : updatedAddresses;
       setSavedAddresses(filteredAddresses);
@@ -669,7 +669,7 @@ const Page = () => {
     } catch (error) {
       toast.error(
         error.message ||
-          "We couldn't update your address right now. Please try again."
+        "We couldn't update your address right now. Please try again."
       );
     } finally {
       setSavingAddress(false);
@@ -798,13 +798,13 @@ const Page = () => {
         const errorData = await response.json();
         throw new Error(
           errorData.error?.message ||
-            `Failed to save address: ${response.status}`
+          `Failed to save address: ${response.status}`
         );
       }
 
       // Filter addresses by current zipcode from localStorage
       const currentZipcode = typeof window !== "undefined" ? localStorage.getItem("zipcode") || "" : "";
-      const filteredAddresses = currentZipcode 
+      const filteredAddresses = currentZipcode
         ? updatedAddresses.filter(address => address.zipcode === currentZipcode)
         : updatedAddresses;
       setSavedAddresses(filteredAddresses);
@@ -815,7 +815,7 @@ const Page = () => {
     } catch (error) {
       toast.error(
         error.message ||
-          "We couldn't save your address right now. Please try again."
+        "We couldn't save your address right now. Please try again."
       );
     } finally {
       setSavingAddress(false);
@@ -894,7 +894,7 @@ const Page = () => {
       // Only track address changes when the ADDRESS field itself changes
       if (name === "address") {
         setAddressHasChanged(true);
-        
+
         // Clear coordinates when address field changes
         setMapAddressData(prev => ({
           ...prev,
@@ -902,7 +902,7 @@ const Page = () => {
           lat: null,
           lng: null
         }));
-        
+
         // Clear selected address if manually editing address
         if (selectedAddressId) {
           setSelectedAddressId(null);
@@ -1217,7 +1217,7 @@ const Page = () => {
         return (
           dishSum +
           (Number(dish.basePrice) + toppingsTotal + extrasTotal) *
-            Number(dish.quantity)
+          Number(dish.quantity)
         );
       }, 0);
       return sum + vendorTotal;
@@ -1362,7 +1362,7 @@ const Page = () => {
     } catch (error) {
       throw new Error(
         error.message ||
-          "We're having trouble placing your order right now. Please try again."
+        "We're having trouble placing your order right now. Please try again."
       );
     }
   }, []);
@@ -1485,7 +1485,7 @@ const Page = () => {
           return (
             sum +
             (Number(dish.basePrice) + toppingsTotal + extrasTotal) *
-              Number(dish.quantity)
+            Number(dish.quantity)
           );
         }, 0);
         return {
@@ -1506,8 +1506,8 @@ const Page = () => {
           formData.deliveryMode === "pickup"
             ? 0
             : vendorFeeObj
-            ? vendorFeeObj.vendorDeliveryFee
-            : 0;
+              ? vendorFeeObj.vendorDeliveryFee
+              : 0;
         const vendorTotal = Number(
           (vendorSubtotal + vendorTax + vendorDeliveryFee).toFixed(2)
         );
@@ -1611,7 +1611,7 @@ const Page = () => {
     } catch (error) {
       toast.error(
         error.message ||
-          "We're having trouble placing your order right now. Please try again."
+        "We're having trouble placing your order right now. Please try again."
       );
     } finally {
       setSubmitting(false);
@@ -1850,7 +1850,7 @@ const Page = () => {
                                                   (Number(dish.basePrice) +
                                                     toppingsTotal +
                                                     extrasTotal) *
-                                                    Number(dish.quantity)
+                                                  Number(dish.quantity)
                                                 );
                                               }, 0)
                                               .toFixed(2)}
@@ -1945,8 +1945,8 @@ const Page = () => {
 };
 
 const CheckoutPage = () => {
-  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyCo-1jjnYnHxZ2zriquK2QmJraCgkcQyQI";
-  
+  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
   return (
     <LoadScript
       googleMapsApiKey={googleMapsApiKey}
