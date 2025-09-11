@@ -311,7 +311,7 @@ function PaymentPage() {
         toast.info(
           "Please complete your vendor registration to access payment settings."
         );
-        router.push("/become-vendor");
+        router.push("/become-a-vendor");
         return;
       }
       setVendorId(vendorData.documentId);

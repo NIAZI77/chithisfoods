@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
@@ -240,12 +241,12 @@ const AdminSignupPage = () => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             Already have an admin account?{" "}
-            <a
+            <Link
               href="/admin/login"
               className="text-pink-500 hover:text-pink-600 font-medium"
             >
               Log In
-            </a>
+            </Link>
           </p>
         </div>
       </div>

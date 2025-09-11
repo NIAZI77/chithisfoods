@@ -91,7 +91,6 @@ function ReviewDialog({
         image: selectedImage, // Include the uploaded image data with id and url
       };
 
-      console.log("ReviewDialog sending review data:", reviewData); // Debug log
       await onSubmit(reviewData);
 
       // Reset form on successful submission

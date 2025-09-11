@@ -58,14 +58,14 @@ const DeliverySchedule = ({
   const isPickup = deliveryType === "pickup";
 
   return (
-    <div className="mb-6 sm:mb-8">
-      <h3 className="font-black text-base sm:text-lg lg:text-xl mt-6 sm:mt-8 mb-3 sm:mb-4 text-black flex items-center gap-2">
-        <Calendar className="inline w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+    <div className="mb-4 sm:mb-6 md:mb-8">
+      <h3 className="font-black text-base sm:text-lg md:text-xl mt-4 sm:mt-6 md:mt-8 mb-3 sm:mb-4 text-black flex items-center gap-2">
+        <Calendar className="inline w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
         {isPickup ? "Pickup Schedule" : "Delivery Schedule"}
       </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-4">
-        <div className="flex flex-col gap-1 px-1">
-          <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-1 -mb-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-x-3 sm:gap-x-4 md:gap-x-6 gap-y-3 sm:gap-y-4">
+        <div className="flex flex-col gap-1 px-0.5 sm:px-1 md:px-1">
+          <label className="block font-semibold text-xs sm:text-sm md:text-sm text-slate-500 pl-0.5 sm:pl-1 md:pl-1 -mb-1 sm:-mb-2 md:-mb-2">
             {isPickup ? "Pickup Date" : "Delivery Date"}
           </label>
           <div className="w-full">
@@ -108,8 +108,8 @@ const DeliverySchedule = ({
           </div>
         </div>
 
-        <div className="flex flex-col gap-1 px-1">
-          <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-1 -mb-2">
+        <div className="flex flex-col gap-1 px-0.5 sm:px-1 md:px-1">
+          <label className="block font-semibold text-xs sm:text-sm md:text-sm text-slate-500 pl-0.5 sm:pl-1 md:pl-1 -mb-1 sm:-mb-2 md:-mb-2">
             {isPickup ? "Pickup Time" : "Delivery Time"}
           </label>
           <div className="w-full">

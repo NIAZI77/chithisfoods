@@ -44,15 +44,15 @@ const AddressModeSelector = ({ selectedMode, onModeChange }) => {
   };
 
   return (
-    <div className="mb-4 sm:mb-6">
-      <h3 className="font-black text-sm sm:text-base lg:text-lg mb-3 sm:mb-4 text-black flex items-center gap-2">
-        <Truck className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" /> Delivery
+    <div className="mb-3 sm:mb-4 md:mb-6">
+      <h3 className="font-black text-sm sm:text-base md:text-lg mb-2 sm:mb-3 md:mb-4 text-black flex items-center gap-2">
+        <Truck className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" /> Delivery
         Options
       </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
         {/* Delivery Option */}
         <div
-          className={`relative border-2 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-5 cursor-pointer transition-all duration-200 ${getBorderColor(
+          className={`relative border-2 rounded-lg sm:rounded-xl md:rounded-xl p-2.5 sm:p-3 md:p-4 cursor-pointer transition-all duration-200 ${getBorderColor(
             isDeliverySelected,
             "rose"
           )}`}
@@ -69,26 +69,26 @@ const AddressModeSelector = ({ selectedMode, onModeChange }) => {
           />
           <label
             htmlFor="delivery"
-            className="flex items-center gap-2 sm:gap-3 cursor-pointer"
+            className="flex items-center gap-1.5 sm:gap-2 md:gap-3 cursor-pointer"
           >
             <div
-              className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${getRadioColor(
+              className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${getRadioColor(
                 isDeliverySelected,
                 "rose"
               )}`}
             >
               {isDeliverySelected && (
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 lg:w-2.5 lg:h-2.5 bg-white rounded-full"></div>
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 bg-white rounded-full"></div>
               )}
             </div>
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 min-w-0 flex-1">
               <Truck
-                className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex-shrink-0 ${getIconColor(
+                className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 flex-shrink-0 ${getIconColor(
                   "rose"
                 )}`}
               />
               <div className="min-w-0 flex-1">
-                <div className="font-semibold text-xs sm:text-sm lg:text-base text-gray-900 truncate">
+                <div className="font-semibold text-xs sm:text-sm md:text-base text-gray-900 truncate">
                   Delivery
                 </div>
               </div>
@@ -98,7 +98,7 @@ const AddressModeSelector = ({ selectedMode, onModeChange }) => {
 
         {/* Pickup Option */}
         <div
-          className={`relative border-2 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-5 cursor-pointer transition-all duration-200 ${getBorderColor(
+          className={`relative border-2 rounded-lg sm:rounded-xl md:rounded-xl p-2.5 sm:p-3 md:p-4 cursor-pointer transition-all duration-200 ${getBorderColor(
             isPickupSelected,
             "green"
           )}`}
@@ -115,26 +115,26 @@ const AddressModeSelector = ({ selectedMode, onModeChange }) => {
           />
           <label
             htmlFor="pickup"
-            className="flex items-center gap-2 sm:gap-3 cursor-pointer"
+            className="flex items-center gap-1.5 sm:gap-2 md:gap-3 cursor-pointer"
           >
             <div
-              className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${getRadioColor(
+              className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${getRadioColor(
                 isPickupSelected,
                 "green"
               )}`}
             >
               {isPickupSelected && (
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 lg:w-2.5 lg:h-2.5 bg-white rounded-full"></div>
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 bg-white rounded-full"></div>
               )}
             </div>
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 min-w-0 flex-1">
               <ShoppingBag
-                className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex-shrink-0 ${getIconColor(
+                className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 flex-shrink-0 ${getIconColor(
                   "green"
                 )}`}
               />
               <div className="min-w-0 flex-1">
-                <div className="font-semibold text-xs sm:text-sm lg:text-base text-gray-900 truncate">
+                <div className="font-semibold text-xs sm:text-sm md:text-base text-gray-900 truncate">
                   Pickup
                 </div>
               </div>

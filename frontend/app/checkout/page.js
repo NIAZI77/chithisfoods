@@ -1561,14 +1561,6 @@ const Page = () => {
             : formData.deliveryTime || "",
         };
 
-        // Debug logging for production issues
-        console.log("Order data for vendor:", {
-          vendorId: vendor.vendorId,
-          originalVendorAddress: vendor.vendorAddress,
-          cleanVendorAddress: cleanVendorAddress,
-          vendorAddressType: typeof cleanVendorAddress,
-          vendorAddressLength: cleanVendorAddress.length
-        });
 
         if (formData.deliveryMode === "pickup") {
           orderData.deliveryType = "pickup";
@@ -1680,17 +1672,17 @@ const Page = () => {
         confirmText="Delete Address"
       />
 
-      <form onSubmit={handleSubmit} className="mx-3">
-        <div className="w-full mx-auto pb-10 px-2 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-3xl p-8 shadow-sm border border-gray-200 flex flex-col min-h-[600px] col-span-1 md:col-span-2 mb-6 md:mb-0 relative overflow-hidden">
+      <form onSubmit={handleSubmit} className="mx-2 sm:mx-3 md:mx-3">
+        <div className="w-full mx-auto pb-6 sm:pb-8 md:pb-10 px-2 sm:px-2 md:px-0 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 md:gap-6">
+          <div className="rounded-2xl sm:rounded-3xl md:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200 flex flex-col min-h-[500px] sm:min-h-[600px] md:min-h-[600px] col-span-1 md:col-span-2 mb-4 sm:mb-6 md:mb-0 relative overflow-hidden">
             {/* Background decoration */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-rose-100 to-pink-100 rounded-full -translate-y-16 translate-x-16 opacity-60"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-gray-100 to-gray-100 rounded-full translate-y-12 -translate-x-12 opacity-40"></div>
 
             <div className="relative z-10">
-              <h2 className="text-3xl font-black tracking-tight mb-8 text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600 flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-pink-500 rounded-full flex items-center justify-center">
-                  <ShoppingCart className="w-5 h-5 text-white" />
+              <h2 className="text-2xl sm:text-3xl md:text-3xl font-black tracking-tight mb-6 sm:mb-8 md:mb-8 text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-600 flex items-center gap-2 sm:gap-3 md:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 bg-gradient-to-br from-rose-500 to-pink-500 rounded-full flex items-center justify-center">
+                  <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 text-white" />
                 </div>
                 Checkout
               </h2>
@@ -1700,9 +1692,9 @@ const Page = () => {
                 onModeChange={handleModeChange}
               />
 
-              <div className="mb-6 sm:mb-8">
-                <h3 className="font-black text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 text-black flex items-center gap-2">
-                  <User className="inline w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />{" "}
+              <div className="mb-4 sm:mb-6 md:mb-8">
+                <h3 className="font-black text-base sm:text-lg md:text-lg mb-3 sm:mb-4 md:mb-6 text-black flex items-center gap-2">
+                  <User className="inline w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5" />{" "}
                   Customer Information
                 </h3>
 
@@ -1737,60 +1729,60 @@ const Page = () => {
 
                 {formData.deliveryMode === "pickup" && (
                   <div className="">
-                    <div className="border-2 border-gray-200 rounded-xl p-4">
+                    <div className="border-2 border-gray-200 rounded-xl p-3 sm:p-4 lg:p-6">
                       {/* Header */}
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                          <FaStore className="w-5 h-5 text-white" />
+                      <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                          <FaStore className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-bold text-green-600">
+                          <h3 className="text-base sm:text-lg font-bold text-green-600">
                             Pickup Locations
                           </h3>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-xs sm:text-sm text-gray-600">
                             Collect your order from these restaurants
                           </p>
                         </div>
                       </div>
 
                       {cartItems.length > 0 && (
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                           {cartItems.map((vendor, index) => (
                             <div
                               key={vendor.vendorId}
-                              className="group border-2 border-gray-200 rounded-xl p-4 shadow-md transition-shadow duration-300"
+                              className="group border-2 border-gray-200 rounded-xl p-3 sm:p-4 lg:p-5 shadow-md transition-shadow duration-300"
                             >
                               {/* Vendor Header */}
-                              <div className="flex items-start justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <FaStore className="w-6 h-6 text-white" />
+                              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <FaStore className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                                   </div>
                                   <div>
-                                    <h4 className="font-bold text-green-600 text-lg leading-tight">
+                                    <h4 className="font-bold text-green-600 text-base sm:text-lg leading-tight">
                                       {vendor.vendorName ||
                                         vendor.storeName ||
                                         "Restaurant"}
                                     </h4>
                                     <div className="flex items-center gap-2 mt-1">
                                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                      <span className="text-sm text-green-600 font-medium">
+                                      <span className="text-xs sm:text-sm text-green-600 font-medium">
                                         Available for Pickup
                                       </span>
                                     </div>
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
+                                  <div className="bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded-full text-xs font-semibold">
                                     #{index + 1}
                                   </div>
                                 </div>
                               </div>
 
                               {/* Vendor Details */}
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
                                 {/* Address Section */}
-                                <div className="bg-gray-50 rounded-lg p-4">
+                                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
                                   <div className="flex items-start gap-3">
                                     <FaMapMarkerAlt className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                                     <div>
@@ -1806,7 +1798,7 @@ const Page = () => {
                                 </div>
 
                                 {/* Order Summary */}
-                                <div className="bg-gray-50 rounded-lg p-4">
+                                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
                                   <div className="flex items-start gap-3">
                                     <FaBox className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5 text-green-600" />
                                     <div>
@@ -1863,7 +1855,7 @@ const Page = () => {
                               </div>
 
                               {/* Quick Actions */}
-                              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                              <div className="flex items-center justify-between mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200">
                                 <div className="flex items-center gap-2 text-sm text-green-600">
                                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                                   <span>
@@ -1877,7 +1869,7 @@ const Page = () => {
                       )}
 
                       {/* Pickup Mode Benefits */}
-                      <div className="mt-6 bg-green-50 border-2 border-green-200 rounded-xl p-4 ">
+                      <div className="mt-4 sm:mt-6 bg-green-50 border-2 border-green-200 rounded-xl p-3 sm:p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                             <span className="text-white text-sm font-bold">
@@ -1899,8 +1891,8 @@ const Page = () => {
                   </div>
                 )}
 
-                <div className="mt-4 sm:mt-6">
-                  <label className="block font-semibold text-xs sm:text-sm text-slate-500 pl-3 mb-2">
+                <div className="mt-3 sm:mt-4 md:mt-6">
+                  <label className="block font-semibold text-xs sm:text-sm md:text-sm text-slate-500 pl-2 sm:pl-3 md:pl-3 mb-2">
                     Delivery Instructions
                   </label>
                   <textarea
@@ -1908,7 +1900,7 @@ const Page = () => {
                     value={formData.note}
                     onChange={(e) => handleFormChange("note", e.target.value)}
                     placeholder="Special instructions or notes for your order"
-                    className="w-full px-3 sm:px-4 py-2 my-1 border rounded-lg sm:rounded-xl outline-rose-400 h-20 sm:h-24 resize-none text-sm sm:text-base bg-slate-100"
+                    className="w-full px-3 sm:px-4 md:px-4 py-2 sm:py-3 md:py-2 my-1 border rounded-lg sm:rounded-xl md:rounded-xl outline-rose-400 h-16 sm:h-20 md:h-24 resize-none text-sm sm:text-base md:text-base bg-slate-100"
                   />
                 </div>
               </div>

@@ -104,7 +104,7 @@ const Page = () => {
         toast.info(
           "Please complete your vendor registration to access settings."
         );
-        router.push("/become-vendor");
+        router.push("/become-a-vendor");
         return;
       }
       setFormData({

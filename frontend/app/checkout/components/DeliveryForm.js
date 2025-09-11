@@ -217,39 +217,7 @@ const DeliveryForm = ({
   // Use the validation state from parent component
   const canSave = canSaveAddress;
 
-  // Debug logging
-  if (editingAddress) {
-    console.log("Debug - Editing Address:", {
-      original: {
-        name: editingAddress.name,
-        phone: editingAddress.phone,
-        address: editingAddress.address,
-        formatted_address: editingAddress.formatted_address,
-        lat: editingAddress.lat,
-        lng: editingAddress.lng,
-      },
-      current: {
-        name: formData.name,
-        phone: formData.phone,
-        address: formData.address,
-        formatted_address: formData.formatted_address,
-        lat: formData.lat,
-        lng: formData.lng,
-      },
-      hasChanges,
-      canSave,
-    });
-  }
 
-  // Debug map display
-  console.log("Debug - Map Display:", {
-    showMap,
-    formDataLat: formData.lat,
-    formDataLng: formData.lng,
-    mapAddressLat: mapAddressData?.lat,
-    mapAddressLng: mapAddressData?.lng,
-    hasCoordinates: !!(mapAddressData?.lat && mapAddressData?.lng),
-  });
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">

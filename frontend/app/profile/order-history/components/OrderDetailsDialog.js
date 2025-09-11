@@ -234,7 +234,6 @@ function OrderDetailsDialog({
   };
 
   const handleReviewSubmit = async (reviewData) => {
-    console.log("Review data received:", reviewData); // Debug log
 
     if (!order.documentId) {
       console.error("handleReviewSubmit: order.documentId is missing:", order);
@@ -331,7 +330,6 @@ function OrderDetailsDialog({
           url: reviewData.image.url,
           name: reviewData.image.name || "review-image",
         };
-        console.log("Using uploaded image data:", reviewImage);
       }
 
       // Create the new review object with multiple userId identifiers for better tracking
