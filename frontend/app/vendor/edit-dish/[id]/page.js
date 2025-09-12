@@ -35,7 +35,8 @@ export default function EditDishPage() {
     toppings: [],
     extras: [],
     ingredients: [],
-    image: { id: 0, url: "" }
+    image: { id: 0, url: "" },
+    serviceArea: []
   });
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -135,6 +136,7 @@ export default function EditDishPage() {
         extras: Array.isArray(dishData.extras) ? dishData.extras : [],
         ingredients: Array.isArray(dishData.ingredients) ? dishData.ingredients : [],
         image: dishData.image || { id: 0, url: "" },
+        serviceArea: Array.isArray(dishData.serviceArea) ? dishData.serviceArea : [],
         ...dishData // Include any other fields
       };
 
@@ -166,6 +168,7 @@ export default function EditDishPage() {
         setDishData((prev) => ({
           ...prev,
           zipcode: data.data[0].zipcode,
+          serviceArea: Array.isArray(data.data[0].serviceArea) ? data.data[0].serviceArea : [],
           vendorId: data.data[0].documentId,
           email: data.data[0].email,
         }));
@@ -327,6 +330,7 @@ export default function EditDishPage() {
         ingredients: Array.isArray(dishData.ingredients)
           ? dishData.ingredients
           : [],
+        serviceArea: dishData.serviceArea,
       };
 
       const response = await fetch(

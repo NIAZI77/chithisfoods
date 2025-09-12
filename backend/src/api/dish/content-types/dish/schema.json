@@ -89,6 +89,10 @@
     "weeklySalesCount": {
       "type": "integer",
       "default": 0
+    },
+    "serviceArea": {
+      "type": "json",
+      "required": true
     }
   }
 }

@@ -466,6 +466,7 @@ export interface ApiDishDish extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     rating: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
     reviews: Schema.Attribute.JSON;
+    serviceArea: Schema.Attribute.JSON & Schema.Attribute.Required;
     servings: Schema.Attribute.Integer & Schema.Attribute.Required;
     spiciness: Schema.Attribute.JSON & Schema.Attribute.Required;
     subcategory: Schema.Attribute.String & Schema.Attribute.Required;
@@ -581,6 +582,7 @@ export interface ApiVendorVendor extends Struct.CollectionTypeSchema {
       Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
     rating: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
+    serviceArea: Schema.Attribute.JSON & Schema.Attribute.Required;
     storeName: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

@@ -9,6 +9,7 @@ import {
   BadgeCheck,
   X,
   MessageSquare,
+  MapPin,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { updateCartAndNotify } from "@/app/lib/utils";
@@ -42,6 +43,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
   const [isAvailable, setIsAvailable] = useState(true);
   const [userZipcode, setUserZipcode] = useState(null);
   const [isVendorBanned, setIsVendorBanned] = useState(false);
+  const [isServiceAreaAvailable, setIsServiceAreaAvailable] = useState(true);
   const [fullScreenImage, setFullScreenImage] = useState(null);
   const modalRef = useRef(null);
 
@@ -52,6 +54,13 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
   const closeFullScreenImage = () => {
     setFullScreenImage(null);
   };
+
+  const checkServiceAreaAvailability = useCallback((dishServiceArea, userZip) => {
+    if (!dishServiceArea || !Array.isArray(dishServiceArea) || !userZip) {
+      return false;
+    }
+    return dishServiceArea.includes(userZip);
+  }, []);
 
   const fetchVendorDetails = useCallback(async (vendorId) => {
     if (!vendorId) return;
@@ -161,6 +170,12 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       const user = getCookie("user");
       setIsPreview(dishInfo.email === user);
       setIsAvailable(dishInfo.available);
+      
+      // Check service area availability
+      const userZip = localStorage.getItem("zipcode");
+      const serviceAreaAvailable = checkServiceAreaAvailability(dishInfo.serviceArea, userZip);
+      setIsServiceAreaAvailable(serviceAreaAvailable);
+      
       setDishDetails(enhancedDishInfo);
 
       // Set initial spiciness level if available
@@ -212,6 +227,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
       setSelectedToppings({});
       setSelectedExtras({});
       setVendorDetails(null);
+      setIsServiceAreaAvailable(true);
       fetchDishDetails();
 
       const zipcode = localStorage.getItem("zipcode");
@@ -459,10 +475,10 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                       This dish is currently unavailable
                     </div>
                   )}
-                  {!(userZipcode == dishDetails.zipcode) && (
+                  {!isServiceAreaAvailable && (
                     <div className="bg-red-500 text-white py-2 px-6 rounded-lg text-center capitalize font-bold flex items-center justify-center gap-2">
                       <AlertCircle className="w-5 h-5" />
-                      This dish is unavailable in your city
+                      This dish is not available in your delivery area
                     </div>
                   )}
                   {isVendorBanned && (
@@ -508,6 +524,33 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                               : "Preparation time not specified"}
                           </p>
                         </div>
+                        
+                        {/* Service Area Display */}
+                        {dishDetails.serviceArea && dishDetails.serviceArea.length > 0 && (
+                          <div className="mt-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <MapPin className="w-4 h-4 text-rose-600" />
+                              <span className="text-sm font-semibold text-gray-700">
+                                Available in {dishDetails.serviceArea.length} ZIP code{dishDetails.serviceArea.length !== 1 ? 's' : ''}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {dishDetails.serviceArea.slice(0, 6).map((zipcode, index) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-2 py-1 bg-rose-100 text-rose-800 rounded-full text-xs font-medium border border-rose-200"
+                                >
+                                  {zipcode}
+                                </span>
+                              ))}
+                              {dishDetails.serviceArea.length > 6 && (
+                                <span className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium border border-gray-200">
+                                  +{dishDetails.serviceArea.length - 6} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -638,7 +681,57 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                         </div>
                       </div>
                     )}
+                    <div className="my-6 sm:my-8">
+                  <div className="text-sm text-rose-500 font-bold mb-3 flex items-center gap-2">
+                    <span className="bg-rose-50 p-1 rounded-full">
+                      <FaStar className="text-rose-500" size={12} />
+                    </span>
+                    Prepared by
                   </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <img
+                          src={vendorDetails?.avatar?.url || "/fallback.png"}
+                          alt={vendorDetails?.storeName || "Chef"}
+                          width={64}
+                          height={64}
+                          className="rounded-full w-16 h-16 object-cover shadow-md"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-md font-semibold text-gray-800">
+                          {vendorDetails?.storeName || "Unknown Chef"}
+                        </span>
+                        {vendorDetails?.username && (
+                          <Link
+                            href={`/vendors/@${vendorDetails?.username}`}
+                            className="text-gray-500 text-xs hover:text-rose-500 hover:underline flex items-center gap-1"
+                          >
+                            <span className="bg-gray-100 p-1 rounded-full">
+                              <FaUser size={10} />
+                            </span>
+                            @{vendorDetails?.username}
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-col justify-center items-start sm:items-end gap-2">
+                      <VerificationBadge
+                        status={vendorDetails?.verificationStatus}
+                      />
+                      <div className="text-sm text-yellow-500 flex items-center gap-1.5 bg-yellow-50 py-0.5 px-3 rounded-full w-fit">
+                        <FaStar size={14} />
+                        <span className="font-medium">
+                          {vendorDetails?.rating || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                  </div>
+                  
                 </div>
 
                 <div className="mt-6 sm:mt-8">
@@ -799,7 +892,7 @@ export default function DishDetailsModal({ isOpen, onClose, dishId }) {
                   disabled={
                     isPreview ||
                     !isAvailable ||
-                    !(userZipcode == dishDetails.zipcode) ||
+                    !isServiceAreaAvailable ||
                     isVendorBanned
                   }
                 >

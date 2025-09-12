@@ -2,6 +2,10 @@
 
 A modern multi-vendor food delivery platform connecting local chefs and home cooks with food lovers. This monorepo contains both the backend (Strapi) and frontend (Next.js) applications.
 
+**Live Demo:** [chithisfoods.vercel.app](https://chithisfoods.vercel.app)  
+**Repository:** [https://github.com/NIAZI77/chithisfoods](https://github.com/NIAZI77/chithisfoods)  
+**Last Updated:** December 2024
+
 ---
 
 ## Table of Contents
@@ -43,23 +47,28 @@ Root
 ---
 
 ## Tech Stack
-- **Backend:** Strapi, Node.js, JWT Auth
-- **Frontend:** Next.js 15, React 19, Tailwind CSS, MUI, Radix UI, Lucide React, React Icons
-- **State & Utilities:** React Hooks, Cookies, Toastify, Day.js, Date-fns, Swiper, Recharts
+- **Backend:** Strapi v5.12.4, Node.js 20.17.0, JWT Authentication
+- **Frontend:** Next.js 15.3.0, React 19, Tailwind CSS v4, MUI v7.1.1, Radix UI, Lucide React v0.487.0
+- **State & Utilities:** React Hooks, Cookies Next v5.1.0, React Toastify v11.0.5, Day.js v1.11.13, Date-fns v3.6.0, Swiper v11.2.8, Recharts v2.15.3
 - **Authentication:** JWT, Google & Facebook OAuth
-- **Database:** (See backend/config/database.js for details)
+- **Database:** PostgreSQL (pg v8.14.1) / SQLite (better-sqlite3 v11.3.0)
+- **File Upload:** Cloudinary provider for Strapi
+- **Email:** Nodemailer provider for Strapi
+- **Deployment:** AWS/DigitalOcean (Backend), Vercel (Frontend)
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v18+ recommended)
-- npm or yarn
+- Node.js (v20.17.0 recommended)
+- npm (v10.8.2 recommended) or yarn
+- Git
+- PostgreSQL (for production) or SQLite (for development)
 
 ### 1. Clone the repository
 ```bash
-git clone <repo-url>
+git clone https://github.com/NIAZI77/chithisfoods.git
 cd chithisfoods
 ```
 
@@ -242,5 +251,21 @@ This project is licensed under the MIT License.
 - **Strapi admin not loading:** Run `npm run build` in `backend/` if you see admin panel build errors.
 - **Next.js build errors:** Run `npm run lint` and fix any reported issues.
 - **Weekly stats not updating:** Ensure backend cron jobs are running (see `backend/config/server.js`).
+- **Port conflicts:** Default ports are 3000 (frontend) and 1337 (backend). Change if needed.
+- **CORS issues:** Ensure backend CORS settings allow frontend domain.
 
-For more, see the code and comments in each directory. 
+For more, see the code and comments in each directory.
+
+## Support
+
+- **Issues:** Report bugs and feature requests via [GitHub Issues](https://github.com/NIAZI77/chithisfoods/issues)
+- **Documentation:** Check individual README files in backend/ and frontend/ directories
+- **Live Demo:** [chithisfoods.vercel.app](https://chithisfoods.vercel.app)
+- **Repository:** [https://github.com/NIAZI77/chithisfoods](https://github.com/NIAZI77/chithisfoods)
+
+## Repository Stats
+
+- **Language:** JavaScript (98.5%), CSS (1.5%)
+- **Commits:** 90+ commits
+- **Branches:** master
+- **License:** MIT License

@@ -2,6 +2,10 @@
 
 This is the backend API for the ChithisFoods platform, built with [Strapi](https://strapi.io/). It powers the multi-vendor food delivery system, handling authentication, content management, business logic, and API endpoints for users, vendors, and admins.
 
+**Live Demo:** [chithisfoods.vercel.app](https://chithisfoods.vercel.app)  
+**Repository:** [https://github.com/NIAZI77/chithisfoods](https://github.com/NIAZI77/chithisfoods)  
+**Last Updated:** December 2024
+
 ---
 
 ## Table of Contents
@@ -19,10 +23,14 @@ This is the backend API for the ChithisFoods platform, built with [Strapi](https
 ---
 
 ## Overview
-- **Framework:** Strapi (Node.js)
+- **Framework:** Strapi v5.12.4 (Node.js 20.17.0)
 - **Purpose:** Provides RESTful APIs and admin panel for ChithisFoods frontend
 - **Roles:** User, Vendor, Admin
 - **Authentication:** JWT, Social login (via frontend)
+- **Database:** PostgreSQL (pg v8.14.1) / SQLite (better-sqlite3 v11.3.0)
+- **File Upload:** Cloudinary provider for media management
+- **Email:** Nodemailer provider for email notifications
+- **Admin Panel:** Built-in Strapi admin interface
 
 ---
 
@@ -115,8 +123,9 @@ backend/
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v18+ recommended)
-- npm or yarn
+- Node.js (v20.17.0 recommended)
+- npm (v10.8.2 recommended) or yarn
+- PostgreSQL (for production) or SQLite (for development)
 
 ### Installation & Development
 ```bash
@@ -130,6 +139,8 @@ npm run develop
 # or
 yarn develop
 ```
+
+**Admin Panel:** Access at [http://localhost:1337/admin](http://localhost:1337/admin)
 
 ### Build Admin Panel
 ```bash
@@ -168,6 +179,35 @@ cp .env.example .env
 ## Deployment
 Strapi supports many deployment options, including [Strapi Cloud](https://cloud.strapi.io). See [Strapi deployment docs](https://docs.strapi.io/dev-docs/deployment) for details.
 
+### Recommended Platforms
+- **AWS:** EC2 instances with RDS PostgreSQL, S3 for file storage, CloudFront for CDN
+- **DigitalOcean:** Droplets with managed PostgreSQL database
+- **Strapi Cloud:** Easiest deployment option with managed infrastructure
+- **Railway:** Simple Node.js deployment with PostgreSQL
+- **Heroku:** Traditional PaaS option (deprecated for free tier)
+
+### AWS Deployment
+- **EC2:** Use t3.medium or larger instances
+- **RDS:** PostgreSQL database for production
+- **S3:** File storage for uploads
+- **CloudFront:** CDN for static assets
+- **Load Balancer:** For high availability
+
+### DigitalOcean Deployment
+- **Droplets:** Use 2GB RAM minimum (4GB recommended)
+- **Managed Database:** PostgreSQL cluster
+- **Spaces:** Object storage for file uploads
+- **Load Balancer:** For scaling
+
+### Environment Variables for Production
+Ensure all required environment variables are set in your production environment:
+- Database connection strings (PostgreSQL recommended)
+- JWT secrets (strong, unique keys)
+- Admin panel credentials
+- CORS settings (allow frontend domain)
+- Cloudinary credentials (for file uploads)
+- Nodemailer SMTP settings (for email notifications)
+
 ---
 
 ## Further Reading
@@ -183,6 +223,22 @@ Strapi supports many deployment options, including [Strapi Cloud](https://cloud.
 - [Strapi Blog](https://strapi.io/blog)
 - [Strapi Discord](https://discord.strapi.io)
 - [Strapi Forum](https://forum.strapi.io/)
+
+## API Documentation
+- **Base URL:** `http://localhost:1337/api` (development)
+- **Admin Panel:** `http://localhost:1337/admin`
+- **Content Types:** Check `src/api/*/content-types/` for data models
+- **Endpoints:** See `src/api/*/routes/` for available routes
+
+## Troubleshooting
+- **Database connection:** Check your database configuration in `config/database.js`
+- **CORS issues:** Update CORS settings in `config/middlewares.js`
+- **Admin panel not loading:** Run `npm run build` and restart the server
+- **API not responding:** Check server logs and ensure all required environment variables are set
+- **File upload issues:** Verify Cloudinary credentials and configuration
+- **Email not sending:** Check Nodemailer SMTP settings and credentials
+- **Memory issues:** Ensure adequate RAM (2GB+ for production)
+- **Node.js version:** Ensure using Node.js 20.17.0 for compatibility
 
 ---
 

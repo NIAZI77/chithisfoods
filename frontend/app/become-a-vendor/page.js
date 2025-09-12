@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { FaArrowLeft } from "react-icons/fa";
+import { MapPin } from "lucide-react";
 import Hero from "../components/Side-Hero";
 import { getCookie } from "cookies-next";
 import Loading from "../loading";
 import Spinner from "@/components/WhiteSpinner";
 import VendorProfileLayout from "@/components/VendorProfileLayout";
+import ServiceAreaStep from "./components/ServiceAreaStep";
 
 export default function BecomeVendor() {
   const router = useRouter();
@@ -21,6 +23,7 @@ export default function BecomeVendor() {
     email: "",
     city: "",
     zipcode: "",
+    serviceArea: [],
     fullName: "",
     phoneNumber: "",
     avatar: { id: 0, url: "" },
@@ -29,7 +32,8 @@ export default function BecomeVendor() {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
-  const totalSteps = 3;
+  const [validating, setValidating] = useState(false);
+  const totalSteps = 4;
 
   const checkIfVendor = async (email) => {
     setLoading(true);
@@ -63,7 +67,7 @@ export default function BecomeVendor() {
   const checkUsernameAvailability = async (username) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[username][$eq]=${username}`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[username][$eq]=${encodeURIComponent(username)}`,
         {
           method: "GET",
           headers: {
@@ -74,7 +78,14 @@ export default function BecomeVendor() {
       );
 
       const data = await response.json();
-      return response.ok && data.data.length === 0;
+
+      if (!response.ok) {
+        console.error("Username check failed:", data);
+        return false;
+      }
+
+      const isAvailable = data.data.length === 0;
+      return isAvailable;
     } catch (error) {
       console.error("Error checking username availability:", error);
       return false;
@@ -85,7 +96,7 @@ export default function BecomeVendor() {
   const checkPhoneAvailability = async (phoneNumber) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[phoneNumber][$eq]=${phoneNumber}`,
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/vendors?filters[phoneNumber][$eq]=${encodeURIComponent(phoneNumber)}`,
         {
           method: "GET",
           headers: {
@@ -96,7 +107,14 @@ export default function BecomeVendor() {
       );
 
       const data = await response.json();
-      return response.ok && data.data.length === 0;
+
+      if (!response.ok) {
+        console.error("Phone check failed:", data);
+        return false;
+      }
+
+      const isAvailable = data.data.length === 0;
+      return isAvailable;
     } catch (error) {
       console.error("Error checking phone availability:", error);
       return false;
@@ -118,11 +136,18 @@ export default function BecomeVendor() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    const sanitizedValue =
-      name === "phoneNumber" ? value.replace(/[^0-9 +]/g, "") : value;
+    let sanitizedValue = value;
+    
+    if (name === "phoneNumber") {
+      sanitizedValue = value.replace(/[^0-9 +]/g, "");
+    } else if (name === "zipcode") {
+      // Only allow digits and limit to 5 characters
+      sanitizedValue = value.replace(/[^0-9]/g, "").slice(0, 5);
+    }
 
     setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
   };
+
 
   const getFieldsForStep = () => {
     switch (step) {
@@ -131,6 +156,8 @@ export default function BecomeVendor() {
       case 2:
         return ["fullName", "phoneNumber"];
       case 3:
+        return ["serviceArea"];
+      case 4:
         return ["avatar", "coverImage"];
       default:
         return [];
@@ -139,15 +166,68 @@ export default function BecomeVendor() {
 
   const handleNext = async (e) => {
     e.preventDefault();
+
+    // Prevent multiple clicks while validating
+    if (validating) {
+      return;
+    }
+
     const requiredFields = getFieldsForStep();
     const allFilled = requiredFields.every((field) => {
       const value = formData[field];
+      if (field === "serviceArea") {
+        return Array.isArray(value) && value.length > 0;
+      }
       return typeof value === "object" ? value.url : value.trim() !== "";
     });
 
     if (!allFilled && step !== totalSteps) {
       toast.error("Oops! Please fill in all the required fields to continue.");
       return;
+    }
+
+    // Validate zipcode for step 1
+    if (step === 1) {
+      const zipcodeRegex = /^\d{5}$/;
+      if (!zipcodeRegex.test(formData.zipcode)) {
+        toast.error("Please enter a valid 5-digit ZIP code to continue.");
+        return;
+      }
+    }
+
+    // Validate username and phone number through Strapi API before proceeding
+    if (step === 1 && formData.username) {
+      setValidating(true);
+      try {
+        const isUsernameAvailable = await checkUsernameAvailability(formData.username);
+        if (!isUsernameAvailable) {
+          toast.error("This username is already taken. Please choose a different username.");
+          setValidating(false);
+          return;
+        }
+      } catch (error) {
+        toast.error("Error checking username availability. Please try again.");
+        setValidating(false);
+        return;
+      }
+      setValidating(false);
+    }
+
+    if (step === 2 && formData.phoneNumber) {
+      setValidating(true);
+      try {
+        const isPhoneAvailable = await checkPhoneAvailability(formData.phoneNumber);
+        if (!isPhoneAvailable) {
+          toast.error("This phone number is already registered. Please use a different phone number.");
+          setValidating(false);
+          return;
+        }
+      } catch (error) {
+        toast.error("Error checking phone availability. Please try again.");
+        setValidating(false);
+        return;
+      }
+      setValidating(false);
     }
 
     if (step === totalSteps) {
@@ -206,7 +286,7 @@ export default function BecomeVendor() {
         } else {
           toast.error(
             data?.error?.message ||
-              "Something unexpected happened. Please try again."
+            "Something unexpected happened. Please try again."
           );
         }
       }
@@ -223,11 +303,6 @@ export default function BecomeVendor() {
     const usernameRegex = /^[a-z0-9_]{3,15}$/;
     const phoneRegex =
       /^\+?(\d{1,3})?[-. (]*\d{1,4}[-. )]*\d{1,4}[-. ]*\d{1,9}$/;
-
-    if (formData.zipcode.length !== 5) {
-      toast.error("Please enter a valid 5-digit ZIP code to continue.");
-      return;
-    }
 
     if (!usernameRegex.test(formData.username)) {
       toast.error(
@@ -251,38 +326,9 @@ export default function BecomeVendor() {
       return;
     }
 
-    // Check for uniqueness before submitting
+    // Proceed with vendor creation (validation already done in handleNext)
     setSubmitting(true);
-    try {
-      const [isUsernameAvailable, isPhoneAvailable] = await Promise.all([
-        checkUsernameAvailability(formData.username),
-        checkPhoneAvailability(formData.phoneNumber),
-      ]);
-
-      if (!isUsernameAvailable) {
-        toast.error(
-          "This username is already taken. Please choose a different username."
-        );
-        setSubmitting(false);
-        return;
-      }
-
-      if (!isPhoneAvailable) {
-        toast.error(
-          "This phone number is already registered. Please use a different phone number."
-        );
-        setSubmitting(false);
-        return;
-      }
-
-      // If all validations pass, proceed with vendor creation
-      await createVendor();
-    } catch (error) {
-      toast.error(
-        "We encountered an error while validating your information. Please try again."
-      );
-      setSubmitting(false);
-    }
+    await createVendor();
   };
 
   if (loading) return <Loading />;
@@ -296,9 +342,8 @@ export default function BecomeVendor() {
           {Array.from({ length: totalSteps }).map((_, index) => (
             <div
               key={index}
-              className={`h-1 w-full mx-1 rounded-full ${
-                step > index ? "bg-red-500" : "bg-gray-300"
-              }`}
+              className={`h-1 w-full mx-1 rounded-full ${step > index ? "bg-red-500" : "bg-gray-300"
+                }`}
             ></div>
           ))}
         </div>
@@ -321,10 +366,6 @@ export default function BecomeVendor() {
                 placeholder="Username"
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400"
               />
-              <p className="text-xs text-gray-500 mb-2">
-                Username must be unique (3-15 characters, lowercase letters,
-                numbers, underscores only)
-              </p>
               <input
                 name="city"
                 value={formData.city}
@@ -374,13 +415,22 @@ export default function BecomeVendor() {
                 placeholder="Phone Number"
                 className="w-full p-3 border rounded-lg my-2 outline-rose-400"
               />
-              <p className="text-xs text-gray-500 mb-2">
-                Phone number must be unique and in a valid format
-              </p>
             </div>
           )}
 
           {step === 3 && (
+            <ServiceAreaStep
+              serviceArea={formData.serviceArea}
+              onServiceAreaChange={(newServiceArea) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  serviceArea: newServiceArea,
+                }))
+              }
+            />
+          )}
+
+          {step === 4 && (
             <div>
               <h2 className="font-bold text-2xl my-4">Display Profile</h2>
               <div className="mb-12">
@@ -428,13 +478,17 @@ export default function BecomeVendor() {
             )}
             <button
               type="submit"
-              className={`${
-                step > 1 ? "w-[calc(100%-55px)]" : "w-full"
-              } bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:bg-rose-300 disabled:cursor-not-allowed`}
-              disabled={submitting}
+              className={`${step > 1 ? "w-[calc(100%-55px)]" : "w-full"
+                } bg-rose-600 text-white py-3 rounded-full shadow-rose-300 shadow-md hover:bg-rose-700 transition-all disabled:bg-rose-300 disabled:cursor-not-allowed`}
+              disabled={submitting || validating}
             >
               {submitting ? (
                 <Spinner />
+              ) : validating ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Spinner />
+                  <span>Checking...</span>
+                </div>
               ) : step === totalSteps ? (
                 "Submit"
               ) : (

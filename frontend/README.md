@@ -2,6 +2,10 @@
 
 A modern multi-vendor food delivery platform connecting local chefs and home cooks with food lovers. This is the frontend (Next.js) application for ChithisFoods, supporting three main user roles: **User**, **Vendor**, and **Admin**.
 
+**Live Demo:** [chithisfoods.vercel.app](https://chithisfoods.vercel.app)  
+**Repository:** [https://github.com/NIAZI77/chithisfoods](https://github.com/NIAZI77/chithisfoods)  
+**Last Updated:** December 2024
+
 ---
 
 ## Table of Contents
@@ -55,12 +59,18 @@ A modern multi-vendor food delivery platform connecting local chefs and home coo
 
 ## Tech Stack
 
-- **Framework:** [Next.js 15](https://nextjs.org/)
-- **UI:** React 19, Tailwind CSS, MUI, Radix UI, Lucide React, React Icons
-- **State & Utilities:** React Hooks, Cookies, Toastify, Day.js, Date-fns, Swiper, Recharts
+- **Framework:** [Next.js 15.3.0](https://nextjs.org/) with App Router and Turbopack
+- **UI:** React 19, Tailwind CSS v4, MUI v7.1.1, Radix UI components
+- **Icons:** Lucide React v0.487.0, React Icons v5.5.0
+- **State & Utilities:** React Hooks, Cookies Next v5.1.0, React Toastify v11.0.5
+- **Date Handling:** Day.js v1.11.13, Date-fns v3.6.0, MUI X Date Pickers v8.5.2
+- **Charts & Visualization:** Recharts v2.15.3
+- **Carousel/Slider:** Swiper v11.2.8
+- **Maps:** React Google Maps API v2.20.7
 - **Authentication:** JWT-based, Social login (Google, Facebook)
-- **API:** Connects to a Strapi backend (see `.env` for endpoints)
-- **Other:** ESLint, PostCSS
+- **API:** Connects to a Strapi v5.12.4 backend (see `.env` for endpoints)
+- **Styling:** Tailwind CSS v4 with custom components and animations
+- **Development:** ESLint v9, PostCSS, TypeScript support
 
 ---
 
@@ -68,14 +78,14 @@ A modern multi-vendor food delivery platform connecting local chefs and home coo
 
 ### Prerequisites
 
-- Node.js (v18+ recommended)
-- npm or yarn
+- Node.js (v20.17.0 recommended)
+- npm (v10.8.2 recommended) or yarn
 
 ### Installation
 
 ```bash
-git clone <repo-url>
-cd frontend
+git clone https://github.com/NIAZI77/chithisfoods.git
+cd chithisfoods/frontend
 npm install
 # or
 yarn install
@@ -90,6 +100,11 @@ yarn dev
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) in your browser.
+
+**Note:** 
+- Uses Turbopack for faster development builds
+- Make sure the backend server is running on port 1337 for full functionality
+- Backend should be Strapi v5.12.4 for compatibility
 
 ### Build for Production
 
@@ -184,17 +199,18 @@ public/
 ## Role-based Navigation
 
 - **User:** `/`, `/category/`, `/cart/`, `/orders/`, `/profile/`, `/explore/`, `/login/`, `/signup/`, `/forget-password/`, `/reset-password/`, `/thank-you/`, `/vendors/`, `/terms-and-conditions/`, `/privacy-policy/`
-- **Vendor:** `/vendor/dashboard/`, `/vendor/manage-inventory/`, `/vendor/order-management/`, `/vendor/payment/`, `/vendor/settings/`, `/vendor/add-dish/`, `/vendor/edit-dish/[id]/`
+- **Vendor:** `/vendor/dashboard/`, `/vendor/manage-inventory/`, `/vendor/order-management/`, `/vendor/payment/`, `/vendor/vendor-profile/`, `/vendor/settings/`, `/vendor/add-dish/`, `/vendor/edit-dish/[id]/`
 - **Admin:** `/admin/login/`, `/admin/dashboard/`, `/admin/users-and-vendors/`, `/admin/orders/`, `/admin/payments/`, `/admin/global-settings/`
 
 ---
 
 ## Scripts
 
-- `npm run dev` – Start development server
+- `npm run dev` – Start development server (with hot reload)
 - `npm run build` – Build for production
 - `npm start` – Start production server
 - `npm run lint` – Run ESLint
+- `npm run lint:fix` – Fix ESLint issues automatically
 
 ---
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Boxes, LayoutDashboard, Settings, ShoppingBag } from "lucide-react";
+import { Boxes, LayoutDashboard, Settings, ShoppingBag, User } from "lucide-react";
 import { MdOutlinePayments } from "react-icons/md";
 import Image from "next/image";
 
@@ -105,6 +105,19 @@ export default function VendorSidebar() {
           <MdOutlinePayments className="w-5 h-5" />
           {!collapsed && (
             <span className="whitespace-nowrap font-medium">Payment</span>
+          )}
+        </Link>
+
+        <Link
+          href="/vendor/vendor-profile"
+          className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 hover:bg-orange-400 hover:text-white border-l-[3px] border-transparent ${
+            isActive("/vendor/vendor-profile") &&
+            "text-orange-500 !border-orange-500 !border-l-4 bg-orange-50"
+          }`}
+        >
+          <User className="w-5 h-5" />
+          {!collapsed && (
+            <span className="whitespace-nowrap font-medium">Profile</span>
           )}
         </Link>
 

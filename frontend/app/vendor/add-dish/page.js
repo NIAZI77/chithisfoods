@@ -26,6 +26,7 @@ export default function AddDishPage() {
     description: "",
     price: "",
     zipcode: "",
+    serviceArea: [],
     email: "",
     image: { id: 0, url: "" },
     servings: "",
@@ -111,6 +112,7 @@ export default function AddDishPage() {
         setDishData((prev) => ({
           ...prev,
           zipcode: data.data[0].zipcode,
+          serviceArea: Array.isArray(data.data[0].serviceArea) ? data.data[0].serviceArea : [],
           vendorId: data.data[0].documentId,
           email: data.data[0].email,
         }));
