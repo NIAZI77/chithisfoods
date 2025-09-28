@@ -2,6 +2,7 @@ import { Eye, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { STATUS_STYLES, customScrollbarStyles } from "../constants";
 import DeliveryTypeBadge from "@/components/DeliveryTypeBadge";
+import { formatDate } from "@/lib/utils";
 
 const getStatusClasses = (status) => {
   return STATUS_STYLES[status?.toLowerCase()] || STATUS_STYLES.default;
@@ -184,7 +185,7 @@ const VendorOrdersTable = ({ orders, onViewDetails }) => {
                     {order.searchableOrderId || "N/A"}
                   </td>
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
-                    {new Date(order.createdAt).toLocaleDateString()}
+                    {formatDate(order.createdAt)}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-left">
                     {order.customerName || "Pickup Customer"}

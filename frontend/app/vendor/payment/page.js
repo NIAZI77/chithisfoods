@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { formatDate } from "@/lib/utils";
 import {
   CheckCircle2,
   Clock,
@@ -93,10 +94,10 @@ const TransactionListByDate = ({ transactions, isLoading }) => {
 
   const groupedTransactions = transactions.reduce((groups, transaction) => {
     const date = new Date(transaction.createdAt);
-    const dateKey = date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    const dateKey = date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
 
     if (!groups[dateKey]) {

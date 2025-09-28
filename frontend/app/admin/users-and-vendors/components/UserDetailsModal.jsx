@@ -3,6 +3,7 @@ import Spinner from "@/components/BlackSpinner";
 import UserStatusBadge from "@/app/components/UserStatusBadge";
 import { X } from "lucide-react";
 import VendorVerificationModal from "./VendorVerificationModal";
+import { formatDate } from "@/lib/utils";
 
 const UserDetailsModal = ({
   user,
@@ -134,11 +135,7 @@ const UserDetailsModal = ({
                 <div className="flex items-center gap-2 justify-between">
                   <span className="font-bold">Registration Date</span>
                   <span>
-                    {new Date(user.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {formatDate(user.createdAt)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 justify-between">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { formatDate } from "@/lib/utils";
 import {
   BadgeCheck,
   XCircle,
@@ -41,12 +42,13 @@ const VendorVerificationModal = ({ vendor, onClose, onVerify, isLoading }) => {
 
   if (!vendor) return null;
 
-  const formatDate = (dateString) => {
+  const formatDateLocal = (dateString) => {
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -153,7 +155,7 @@ const VendorVerificationModal = ({ vendor, onClose, onVerify, isLoading }) => {
             {vendor.createdAt && (
               <span className="text-sm text-white/80 flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                Joined on {formatDate(vendor.createdAt)}
+                Joined on {formatDateLocal(vendor.createdAt)}
               </span>
             )}
           </div>
@@ -316,7 +318,7 @@ const VendorVerificationModal = ({ vendor, onClose, onVerify, isLoading }) => {
                             <p className="text-xs text-gray-500 flex items-center gap-1">
                               <Calendar className="w-3 h-3" />
                               Uploaded on{" "}
-                              {formatDate(
+                              {formatDateLocal(
                                 vendor.verificationDocument.createdAt
                               )}
                             </p>

@@ -771,7 +771,6 @@ const UsersAndVendorsPage = () => {
       <VendorsTable
         vendors={vendorsList}
         onVerifyVendor={handleVerifyVendor}
-        formatDate={formatDate}
         isLoading={isVendorsLoading || isStatusUpdating}
         currentPage={currentVendorsPage}
         totalPages={totalVendorsPages}

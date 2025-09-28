@@ -36,6 +36,35 @@ export default function ForgetPassword() {
     setLoading(true);
 
     try {
+      // 1) Verify the email does NOT belong to an admin account
+      const userLookupRes = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/users?filters[email][$eq]=${encodeURIComponent(
+          email
+        )}&fields[0]=email&fields[1]=isAdmin`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+
+      if (!userLookupRes.ok) {
+        throw new Error("User lookup failed");
+      }
+
+      const users = await userLookupRes.json();
+      const userRecord = Array.isArray(users) && users.length > 0 ? users[0] : null;
+
+      if (userRecord?.isAdmin) {
+        toast.error(
+          "Admin accounts cannot reset password here. Please use the Admin Forgot Password page."
+        );
+        return;
+      }
+
+      // 2) Proceed to request forgot-password for non-admin users
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_STRAPI_HOST}/api/auth/forgot-password`,
         {

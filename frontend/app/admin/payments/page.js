@@ -124,7 +124,6 @@ const PaymentsPage = () => {
             order.vendor_payment !== "refunded"
         )
         .reduce((sum, order) => sum + order.totalAmount, 0),
-      totalTax: fullOrders.reduce((sum, order) => sum + (order.tax || 0), 0),
       deliveredOrdersTax: fullOrders
         .filter((order) => order.orderStatus === "delivered")
         .reduce((sum, order) => sum + (order.tax || 0), 0),
@@ -523,7 +522,7 @@ const PaymentsPage = () => {
           }
         />
 
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 my-4 sm:my-5">
+        <h1 className="text-lg sm:text-xl font-semibold text-gray-900 my-3 sm:my-4">
           Payments
         </h1>
 

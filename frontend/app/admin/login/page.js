@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { setCookie } from "cookies-next";
 import Spinner from "@/components/WhiteSpinner";
+import Link from "next/link";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -126,6 +127,11 @@ const LoginPage = () => {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
+          </div>
+          <div className="text-right mt-2">
+            <Link href="/admin/forget-password" className="text-pink-600 text-sm hover:underline">
+              Forgot password?
+            </Link>
           </div>
           <button
             type="submit"

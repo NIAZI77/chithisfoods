@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 import { getCookie } from "cookies-next";
+import { formatDate } from "@/lib/utils";
 import {
   Store,
   MapPin,
@@ -394,15 +395,13 @@ const Page = () => {
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDateLocal = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -547,7 +546,7 @@ const Page = () => {
                       {formData.verificationDocument.createdAt && (
                         <p className="text-gray-400 text-xs flex items-center gap-1 mt-1">
                           <Calendar className="w-3 h-3 flex-shrink-0" />
-                          {formatDate(formData.verificationDocument.createdAt)}
+                          {formatDateLocal(formData.verificationDocument.createdAt)}
                         </p>
                       )}
                     </div>

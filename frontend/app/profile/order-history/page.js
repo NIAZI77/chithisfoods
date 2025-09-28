@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { formatDate } from "@/lib/utils";
 import {
   Clock,
   Package,
@@ -840,7 +841,7 @@ export default function OrderHistoryPage() {
                             {order.searchableOrderId || "N/A"}
                           </td>
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
-                            {new Date(order.createdAt).toLocaleDateString()}
+                            {formatDate(order.createdAt)}
                           </td>
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
                             <div className="flex flex-col items-center">

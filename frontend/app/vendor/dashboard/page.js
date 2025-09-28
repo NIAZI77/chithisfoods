@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { formatDate } from "@/lib/utils";
 import {
   BarChart,
   Bar,
@@ -616,9 +617,10 @@ const Page = () => {
                       currentMonth !== prevMonth ||
                       date === dashboardData.salesData[0]?.date
                     ) {
-                      return d.toLocaleDateString("en-US", {
-                        day: "numeric",
-                        month: "short",
+                      return d.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
                       });
                     }
 
@@ -665,7 +667,7 @@ const Page = () => {
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
+                      {formatDate(order.createdAt)}
                     </p>
                     <StatusBadge status={order.orderStatus} />
                   </div>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { Search } from "lucide-react";
 import { FaUsers } from "react-icons/fa";
+import { formatDate } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -17,7 +18,6 @@ import VendorVerificationModal from "./VendorVerificationModal";
 const VendorsTable = ({
   vendors,
   onVerifyVendor,
-  formatDate,
   isLoading,
   currentPage,
   totalPages,

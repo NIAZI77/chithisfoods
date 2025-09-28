@@ -20,6 +20,7 @@ import { LuSquareSigma } from "react-icons/lu";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { formatDate } from "@/lib/utils";
 import { PiBowlFood } from "react-icons/pi";
 
 const OrderStatusBadge = ({ status }) => {
@@ -339,7 +340,7 @@ export default function ThankYouPage() {
                   Date of Order
                 </span>
                 <p className="text-black font-medium text-sm sm:text-base">
-                  {new Date(currentOrder.createdAt).toLocaleDateString()}
+                  {formatDate(currentOrder.createdAt)}
                 </p>
               </div>
             </div>
@@ -353,7 +354,7 @@ export default function ThankYouPage() {
                     Delivery Date
                   </span>
                   <p className="text-black font-medium text-sm sm:text-base">
-                    {new Date(currentOrder.deliveryDate).toLocaleDateString()}
+                    {formatDate(currentOrder.deliveryDate)}
                   </p>
                 </div>
               </div>

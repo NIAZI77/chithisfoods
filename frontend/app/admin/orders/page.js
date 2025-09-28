@@ -10,6 +10,7 @@ import { customScrollbarStyles } from "./constants";
 import MetricsCards from "./components/MetricsCards";
 import Filters from "./components/Filters";
 import OrdersTable from "./components/OrdersTable";
+import OrderDetailsDialog from "./components/OrderDetailsDialog";
 import TableLoading from "@/components/TableLoading";
 
 const OrdersPage = () => {
@@ -25,6 +26,8 @@ const OrdersPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSearchQuery, setCurrentSearchQuery] = useState("");
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     const AdminJWT = getCookie("AdminJWT");
@@ -306,9 +309,15 @@ const OrdersPage = () => {
         />
 
         {loading ? (
-          <TableLoading rows={10} columns={12} />
+          <TableLoading rows={10} columns={13} />
         ) : (
-          <OrdersTable orders={orders} />
+          <OrdersTable
+            orders={orders}
+            onViewDetails={(order) => {
+              setSelectedOrder(order);
+              setIsDialogOpen(true);
+            }}
+          />
         )}
 
         {totalPages > 1 && (
@@ -321,6 +330,14 @@ const OrdersPage = () => {
           </div>
         )}
       </div>
+      <OrderDetailsDialog
+        order={selectedOrder}
+        isOpen={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+          setSelectedOrder(null);
+        }}
+      />
     </>
   );
 };

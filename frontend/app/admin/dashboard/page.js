@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { formatDate } from "@/lib/utils";
 import {
   LineChart,
   Line,
@@ -59,7 +60,11 @@ const DashboardPage = () => {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return "Invalid Date";
-      return date.toLocaleDateString();
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
     } catch (error) {
       return "Error";
     }
@@ -559,9 +564,10 @@ const DashboardPage = () => {
                       currentMonth !== prevMonth ||
                       date === chartData[0].date
                     ) {
-                      return d.toLocaleDateString("en-US", {
-                        day: "numeric",
-                        month: "short",
+                      return d.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
                       });
                     }
 

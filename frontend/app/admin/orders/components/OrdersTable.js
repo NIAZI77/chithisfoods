@@ -1,12 +1,14 @@
 import { STATUS_STYLES } from "../constants";
-import { FileText, RefreshCw, X } from "lucide-react";
+import { FileText, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import DeliveryTypeBadge from "@/components/DeliveryTypeBadge";
+import { formatDate } from "@/lib/utils";
 
 const getStatusClasses = (status) => {
   return STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.default;
 };
 
-const OrdersTable = ({ orders }) => {
+const OrdersTable = ({ orders, onViewDetails }) => {
   if (orders.length === 0) {
     return (
       <div className="overflow-x-auto rounded-md -mx-4 sm:mx-0 custom-scrollbar">
@@ -86,11 +88,17 @@ const OrdersTable = ({ orders }) => {
                 >
                   Total
                 </th>
+                <th
+                  scope="col"
+                  className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+                >
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td colSpan="12" className="px-4 py-16">
+                <td colSpan="13" className="px-4 py-16">
                   <div className="text-center">
                     {/* Empty State Icon */}
                     <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-pink-50">
@@ -121,6 +129,12 @@ const OrdersTable = ({ orders }) => {
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200">
+              <th
+                scope="col"
+                className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+              >
+                Order ID
+              </th>
               <th
                 scope="col"
                 className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
@@ -187,6 +201,12 @@ const OrdersTable = ({ orders }) => {
               >
                 Total
               </th>
+              <th
+                scope="col"
+                className="px-2 sm:px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase whitespace-nowrap"
+              >
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -199,7 +219,7 @@ const OrdersTable = ({ orders }) => {
                   {order.searchableOrderId || "N/A"}
                 </td>
                 <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
-                  {new Date(order.createdAt).toLocaleDateString()}
+                  {formatDate(order.createdAt)}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-left">
                   {order.customerName}
@@ -253,6 +273,17 @@ const OrdersTable = ({ orders }) => {
                 <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 text-center">
                   ${order.totalAmount.toFixed(2)}
                 </td>
+              <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">
+                <Button
+                  onClick={() => onViewDetails && onViewDetails(order)}
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-3 text-xs hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300"
+                >
+                  <Eye className="w-3 h-3 mr-1" />
+                  View
+                </Button>
+              </td>
               </tr>
             ))}
           </tbody>

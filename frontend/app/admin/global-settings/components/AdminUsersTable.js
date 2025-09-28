@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { Users, CheckCircle, Trash2, AlertTriangle } from "lucide-react";
 import TableLoading from "@/components/TableLoading";
 import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
+import { formatDate } from "@/lib/utils";
 
 const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
   const [adminUsers, setAdminUsers] = useState([]);
@@ -157,10 +158,15 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
     return "None";
   };
 
-  const formatDate = (dateString) => {
+  const formatDateLocal = (dateString) => {
     if (!dateString) return "N/A";
     try {
-      return new Date(dateString).toLocaleDateString();
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
     } catch (error) {
       return "Invalid Date";
     }
@@ -293,7 +299,7 @@ const AdminUsersTable = ({ isMainAdmin, currentUser }) => {
                           </span>
                         </td>
                         <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
-                          {formatDate(user.createdAt)}
+                          {formatDateLocal(user.createdAt)}
                         </td>
                         {isMainAdmin && (
                           <td className="px-2 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-center">

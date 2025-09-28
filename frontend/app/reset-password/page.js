@@ -73,7 +73,11 @@ export default function ResetPasswordPage() {
 
       if (res.ok) {
         toast.success("Perfect! Your password has been reset successfully.");
-        setTimeout(() => router.push("/login"), 2000);
+        if(data.user.isAdmin) {
+          router.push("/admin/login");
+        } else {
+          router.push("/login");
+        }
       } else {
         toast.error(
           data.error?.message ||

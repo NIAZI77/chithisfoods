@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import Spinner from "@/components/WhiteSpinner";
 import { useRouter } from "next/navigation";
+import { formatDate } from "@/lib/utils";
 
 const ORDER_STATUS = {
   PENDING: "pending",
@@ -325,7 +326,7 @@ function OrderDetailsDialog({ order, isOpen, onClose, onRefetch }) {
                     <div>
                       <p className="text-gray-500 text-xs mb-0.5">Order Date</p>
                       <p className="text-xs text-gray-800 font-medium">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {formatDate(order.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -352,7 +353,7 @@ function OrderDetailsDialog({ order, isOpen, onClose, onRefetch }) {
                         Delivery Date
                       </p>
                       <p className="text-xs text-gray-800 font-medium">
-                        {new Date(order.deliveryDate).toLocaleDateString()}
+                        {formatDate(order.deliveryDate)}
                       </p>
                     </div>
                   </div>

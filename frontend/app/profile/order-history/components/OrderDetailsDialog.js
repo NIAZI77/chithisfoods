@@ -112,7 +112,7 @@ function OrderDetailsDialog({
             This order doesn&apos;t have any items or dishes associated with it.
           </p>
           <div className="mt-4 text-xs text-gray-400">
-            <p>Order ID: {order.documentId || "Unknown"}</p>
+            <p>Order ID: {order.searchableOrderId || "Unknown"}</p>
             <p>Order Status: {order.orderStatus || "Unknown"}</p>
             <p>Has dishes: {hasDishes ? "Yes" : "No"}</p>
             <p>Has items: {hasItems ? "Yes" : "No"}</p>

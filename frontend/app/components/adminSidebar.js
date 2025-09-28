@@ -26,6 +26,7 @@ export default function AdminSidebar() {
     if (
       !pathname.includes("/admin/") ||
       pathname === "/admin/login" ||
+      pathname === "/admin/forget-password" ||
       pathname === "/admin/signup"
     ) {
       return;
@@ -34,6 +35,7 @@ export default function AdminSidebar() {
   if (
     !pathname.includes("/admin/") ||
     pathname === "/admin/login" ||
+    pathname === "/admin/forget-password" ||
     pathname === "/admin/signup"
   ) {
     return;
